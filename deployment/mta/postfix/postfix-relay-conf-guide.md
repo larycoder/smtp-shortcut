@@ -1,7 +1,7 @@
 # Postfix configuration
 
 Postfix serves as ESMTP server relay which only forward message to endpoint
-postfix configured. Note that in 
+postfix configured.
 
 Setup main.cf file (aware of hard-code):
 
@@ -18,13 +18,13 @@ maillog_file = /dev/stdout
 myhostname = smtp_sc-mta-relay-postfix
 mydomain = smtp_sc-relay-domain
 myorigin = $mydomain
-relayhost = [172.17.0.3]:25
+relayhost = [smtp_sc-mta-postfix]:25
 
 smtp_use_tls = yes
 always_add_missing_headers = no
 smtp_host_lookup = native,dns
 
-mynetworks = 172.17.0.0/16
+mynetworks = <SUBNET>
 ```
 
 Finally, reload postfix to update new configuration
