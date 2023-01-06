@@ -6,6 +6,7 @@ echo """
 # Password: root
 
 docker run -d \
+    --network smtp_sc-network \
     --name smtp_sc-mysql \
     -e MYSQL_ROOT_PASSWORD='root' \
     mysql:latest

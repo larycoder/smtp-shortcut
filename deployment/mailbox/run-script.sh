@@ -8,6 +8,7 @@ docker pull dovecot/dovecot
 echo """
 # For running mailbox container
 docker run -d \
+    --network smtp_sc-network \
     --name 'smtp_sc-mailbox-dovecot' \
     dovecot/dovecot:latest
 """

@@ -1,10 +1,10 @@
 #!/bin/bash
 
-SMTP_SERVER="172.17.0.5"
+SMTP_SERVER="smtp_sc-mta-relay-postfix"
 SMTP_PORT="25"
 
-SEND_MAILBOX="172.17.0.2"
-RECV_MAILBOX="172.17.0.2"
+SEND_MAILBOX="smtp_sc-mailbox-dovecot"
+RECV_MAILBOX="smtp_sc-mailbox-dovecot"
 
 SEND_NAME="hieplnc.m20ict@smtp_sc-domain"
 RECV_NAME="lenhuchuhiep99@smtp_sc-domain"

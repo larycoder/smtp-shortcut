@@ -3,7 +3,7 @@
 The postfix need to link to dovecot at port 24 for LMTP relay. The postfix need
 to accept any mail sending from anywhere and forward it to dovecot.
 
-Setup main.cf file (aware of hard-code):
+Setup main.cf file:
 
 ```
 # Note that setup is still hard-code address
@@ -27,40 +27,39 @@ virtual_mailbox_domains = mysql:/etc/postfix/mysql-virtual-mailbox-domains.cf
 virtual_mailbox_maps = mysql:/etc/postfix/mysql-virtual-mailbox-maps.cf
 virtual_alias_maps = mysql:/etc/postfix/mysql-virtual-alias-maps.cf, mysql:/etc/postfix/mysql-virtual-email2email.cf
 
-mynetworks = 172.17.0.0/16
-virtual_transport = lmtp:inet:172.17.0.2:24
-mailbox_transport = lmtp:inet:172.17.0.2:24
+mynetworks = <SUBNET>
+virtual_transport = lmtp:inet:smtp_sc-mailbox-dovecot:24
+mailbox_transport = lmtp:inet:smtp_sc-mailbox-dovecot:24
 ```
 
-Setup of virtual mysql configuration file to integrate to MySQL database
-(aware of hard-code):
+Setup of virtual mysql configuration file to integrate to MySQL database:
 
 ```
 # File: /etc/postfix/mysql-virtual-mailbox-domains.cf
 user = root
 password = root
-hosts = 172.17.0.4
+hosts = smtp_sc-mysql
 dbname = mailserver
 query = SELECT 1 FROM virtual_domains WHERE name='%s'
 
 # File: /etc/postfix/mysql-virtual-mailbox-maps.cf
 user = root
 password = root
-hosts = 172.17.0.4
+hosts = smtp_sc-mysql
 dbname = mailserver
 query = SELECT 1 FROM virtual_users WHERE email='%s'
 
 # File: /etc/postfix/mysql-virtual-alias-maps.cf
 user = root
 password = root
-hosts = 172.17.0.4
+hosts = smtp_sc-mysql
 dbname = mailserver
 query = SELECT destination FROM virtual_aliases WHERE source='%s'
 
 # File: /etc/postfix/mysql-virtual-email2email.cf
 user = root
 password = root
-hosts = 172.17.0.4
+hosts = smtp_sc-mysql
 dbname = mailserver
 query = SELECT email FROM virtual_users WHERE email='%s'
 ```

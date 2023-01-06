@@ -1,5 +1,5 @@
-From: "User Name" <username@gmail.com>
-To: "John Smith" <john@example.com>
+From: "hieplnc" <hieplnc.m20ict@smtp_sc-domain>
+To: "lenhuchuhiep" <lenhuchuhiep99@smtp_sc-domain>
 Subject: Test mail
 
 Hi Receiver,

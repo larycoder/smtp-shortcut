@@ -13,7 +13,7 @@ mail_uid=1000
 mail_gid=1000
 
 protocols = imap pop3 submission sieve lmtp
-login_trusted_networks = 172.17.0.0/16
+login_trusted_networks = <SUBNET>
 
 first_valid_uid = 1000
 last_valid_uid = 1000
@@ -64,9 +64,9 @@ Then create file: /etc/dovecot/dovecot-sql.conf.ext
 ```
 # This file is used to connect dovecot to mysql database
 driver = mysql
-connect = host=172.17.0.4 dbname=mailserver user=root password=root
+connect = host=smtp_sc-mysql dbname=mailserver user=root password=root
 default_pass_scheme = SHA512-CRYPT
-password_query = SELECT email as user, password FROM `mailserver`.`virtual_users` WHERE email='%u';
+password_query = SELECT email as user, password FROM `<MAIL_SERVER>`.`virtual_users` WHERE email='%u';
 ```
 
 # Reload dovecot configuration
