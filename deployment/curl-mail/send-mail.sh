@@ -6,8 +6,8 @@ SMTP_PORT="25"
 SEND_MAILBOX="smtp_sc-mailbox-dovecot"
 RECV_MAILBOX="smtp_sc-mailbox-dovecot"
 
-SEND_NAME="hieplnc.m20ict@smtp_sc-domain"
-RECV_NAME="lenhuchuhiep99@smtp_sc-domain"
+SEND_NAME="hieplnc.m20ict@smtp-sc.domain"
+RECV_NAME="lenhuchuhiep99@smtp-sc.domain"
 
 PASS="pass"
 
