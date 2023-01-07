@@ -76,7 +76,7 @@ For testing (This is a bit tricky through several container, ask author for this
 # Add domain to database
 ## smtp_sc-mysql
 
-INSERT INTO mailserver.virtual_domains (name) VALUES ('smtp_sc-domain');
+INSERT INTO mailserver.virtual_domains (name) VALUES ('smtp-sc.domain');
 
 # Generate mail password
 ## smtp_sc-mailbox-dovecot
@@ -89,12 +89,12 @@ Hash value: {SHA512-CRYPT}$6$.yZhFbwHvpxiCx3.$eNrRN.eSs8I6AeKRTOvgPymo3fvXf.e4W4
 # Add mail new mail user to database
 ## smtp_sc-mysql
 INSERT INTO mailserver.virtual_users (domain_id, password , email)
-VALUES ('1', '$6$.yZhFbwHvpxiCx3.$eNrRN.eSs8I6AeKRTOvgPymo3fvXf.e4W4J4OpzlwUxkaRahH5pLDJv40Ms.T5bH5ncFpNcpY3vLTUsVa/6HS1', 'hieplnc.m20ict@smtp_sc-domain');
+VALUES ('1', '$6$.yZhFbwHvpxiCx3.$eNrRN.eSs8I6AeKRTOvgPymo3fvXf.e4W4J4OpzlwUxkaRahH5pLDJv40Ms.T5bH5ncFpNcpY3vLTUsVa/6HS1', 'hieplnc.m20ict@smtp-sc.domain');
 
 # Test postfix
 ## smtp_sc-postfix
-postmap -q smtp_sc-domain mysql:/etc/postfix/mysql-virtual-mailbox-domains.cf
-postmap -q hieplnc.m20ict@smtp_sc-domain mysql:/etc/postfix/mysql-virtual-mailbox-maps.cf
+postmap -q smtp-sc.domain mysql:/etc/postfix/mysql-virtual-mailbox-domains.cf
+postmap -q hieplnc.m20ict@smtp-sc.domain mysql:/etc/postfix/mysql-virtual-mailbox-maps.cf
 
 => If everything go right, you suppose to see result '1' returned.
 ```
