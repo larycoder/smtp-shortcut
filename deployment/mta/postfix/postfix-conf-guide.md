@@ -15,7 +15,7 @@ shlib_directory = /usr/lib/postfix
 maillog_file = /dev/stdout
 
 myhostname = smtp_sc-mta-postfix
-mydomain = smtp_sc-domain
+mydomain = smtp-sc.domain
 myorigin = $mydomain
 
 smtp_use_tls = yes
