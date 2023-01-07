@@ -3,7 +3,7 @@
 Postfix serves as ESMTP server relay which only forward message to endpoint
 postfix configured.
 
-Setup main.cf file (aware of hard-code):
+Setup main.cf file:
 
 ```
 # Note that setup is still hard-code address
