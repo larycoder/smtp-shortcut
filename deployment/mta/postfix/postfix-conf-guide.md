@@ -6,7 +6,6 @@ to accept any mail sending from anywhere and forward it to dovecot.
 Setup main.cf file:
 
 ```
-# Note that setup is still hard-code address
 # /etc/postfix/main.cf
 
 readme_directory = /usr/share/doc/postfix/readme

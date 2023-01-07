@@ -6,7 +6,6 @@ postfix configured.
 Setup main.cf file:
 
 ```
-# Note that setup is still hard-code address
 # /etc/postfix/main.cf
 
 readme_directory = /usr/share/doc/postfix/readme
