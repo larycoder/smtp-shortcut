@@ -11,6 +11,7 @@ echo """
 docker run -d \
     --name 'smtp_sc-mta-postfix' \
     --network smtp_sc-network \
+    -e SMTP_SERVER='localhost' \
     -e SERVER_HOSTNAME='smtp_sc-mta-postfix' \
     juanluisbaptiste/postfix:latest
 
