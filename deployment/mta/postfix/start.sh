@@ -62,6 +62,7 @@ while true; do
     if [[ $LOG != "" ]]; then
         break;
     fi;
+    sleep 1;
 done;
 
 echo "";
