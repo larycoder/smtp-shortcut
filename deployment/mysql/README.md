@@ -1,19 +1,15 @@
 # MySQL
 
-## Debug
+We use MySQL as main database for our mailboxes.
 
-For reading log from mysql on real-time:
+Because everything is setup with docker. We propose 2 method to setup the MySQL
+databases: manually setup or use automate script.
 
-```
-# Enable general_log to `general_log` table
-SET global log_output = 'table';
+Good start points for reader:
 
-# Enable log
-SET global general_log = 1;
+- **manual.sh**: provide guideline allowing reader safely setup their own service.
+- **start.sh**: automate script to start the MySQL and PHPMyadmin services.
+- **clean.sh**: automate script to clear setup created by **start.sh**.
 
-# Query log and decode to utf-8
-select a.*, convert(a.argument using utf8) from mysql.general_log a\G;
-
-# Disable log
-SET global general_log = 0;
-```
+***Note***: carefully with another script than 3 above. Make sure you know what
+you do and we do not guarantee for the bullet you shoot yourself.

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo """
-Here, we use postfix as MTA in here. Note that:
+Here, we use postfix as MTA. Note that:
 
 SMTP_SERVER = relay server
 """
