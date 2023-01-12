@@ -29,3 +29,12 @@ git reset --hard HEAD
 # Untracked file
 git clean -f -d
 ```
+
+### Make
+
+Original distributed source code provide convenient make function to clean
+all files leftover by building process.
+
+```
+ make tidy
+```
