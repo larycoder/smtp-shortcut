@@ -84,6 +84,21 @@ cd /home/postfix
 ln -sn <BASE_INSTALL> postfix
 ```
 
+## Pre-process for running Postfix
+
+Create account and groups
+
+```
+# User without home and login shell
+useradd --no-create-home --shell /usr/bin/nologin postfix
+
+# Add password for user (default: 1)
+pwd postfix
+
+# Group for drop mail
+groupadd postdrop
+```
+
 ## Run
 
 For running postfix
