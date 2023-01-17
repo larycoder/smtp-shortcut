@@ -1,36 +1,36 @@
 /*++
 /* NAME
-/*	unix_recv_fd 3
+/*    unix_recv_fd 3
 /* SUMMARY
-/*	receive file descriptor
+/*    receive file descriptor
 /* SYNOPSIS
-/*	#include <iostuff.h>
+/*    #include <iostuff.h>
 /*
-/*	int	unix_recv_fd(fd)
-/*	int	fd;
+/*    int    unix_recv_fd(fd)
+/*    int    fd;
 /* DESCRIPTION
-/*	unix_recv_fd() receives a file descriptor via the specified
-/*	UNIX-domain socket. The result value is the received descriptor.
+/*    unix_recv_fd() receives a file descriptor via the specified
+/*    UNIX-domain socket. The result value is the received descriptor.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP fd
-/*	File descriptor that connects the sending and receiving processes.
+/*    File descriptor that connects the sending and receiving processes.
 /* DIAGNOSTICS
-/*	unix_recv_fd() returns -1 upon failure.
+/*    unix_recv_fd() returns -1 upon failure.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
 
-#include <sys_defs.h>			/* includes <sys/types.h> */
+#include <sys_defs.h>            /* includes <sys/types.h> */
 #include <sys/socket.h>
 #include <sys/uio.h>
 #include <string.h>
@@ -52,7 +52,7 @@ int     unix_recv_fd(int fd)
      */
 #ifdef CANT_USE_SEND_RECV_MSG
     msg_warn("%s: your system has no support for file descriptor passing",
-	     myname);
+         myname);
     return (-1);
 #else
     struct msghdr msg;
@@ -67,17 +67,17 @@ int     unix_recv_fd(int fd)
      */
 #if defined(CMSG_SPACE) && !defined(NO_MSGHDR_MSG_CONTROL)
     union {
-	struct cmsghdr just_for_alignment;
-	char    control[CMSG_SPACE(sizeof(newfd))];
+    struct cmsghdr just_for_alignment;
+    char    control[CMSG_SPACE(sizeof(newfd))];
     }       control_un;
     struct cmsghdr *cmptr;
 
-    memset((void *) &msg, 0, sizeof(msg));	/* Fix 200512 */
+    memset((void *) &msg, 0, sizeof(msg));    /* Fix 200512 */
     msg.msg_control = control_un.control;
     if (unix_pass_fd_fix & UNIX_PASS_FD_FIX_CMSG_LEN) {
-	msg.msg_controllen = CMSG_LEN(sizeof(newfd));	/* Fix 200506 */
+    msg.msg_controllen = CMSG_LEN(sizeof(newfd));    /* Fix 200506 */
     } else {
-	msg.msg_controllen = sizeof(control_un.control);	/* normal */
+    msg.msg_controllen = sizeof(control_un.control);    /* normal */
     }
 #else
     msg.msg_accrights = (char *) &newfd;
@@ -100,25 +100,25 @@ int     unix_recv_fd(int fd)
     msg.msg_iovlen = 1;
 
     if (recvmsg(fd, &msg, 0) < 0)
-	return (-1);
+    return (-1);
 
 #if defined(CMSG_SPACE) && !defined(NO_MSGHDR_MSG_CONTROL)
     if ((cmptr = CMSG_FIRSTHDR(&msg)) != 0
-	&& cmptr->cmsg_len == CMSG_LEN(sizeof(newfd))) {
-	if (cmptr->cmsg_level != SOL_SOCKET)
-	    msg_fatal("%s: control level %d != SOL_SOCKET",
-		      myname, cmptr->cmsg_level);
-	if (cmptr->cmsg_type != SCM_RIGHTS)
-	    msg_fatal("%s: control type %d != SCM_RIGHTS",
-		      myname, cmptr->cmsg_type);
-	return (*(int *) CMSG_DATA(cmptr));
+    && cmptr->cmsg_len == CMSG_LEN(sizeof(newfd))) {
+    if (cmptr->cmsg_level != SOL_SOCKET)
+        msg_fatal("%s: control level %d != SOL_SOCKET",
+              myname, cmptr->cmsg_level);
+    if (cmptr->cmsg_type != SCM_RIGHTS)
+        msg_fatal("%s: control type %d != SCM_RIGHTS",
+              myname, cmptr->cmsg_type);
+    return (*(int *) CMSG_DATA(cmptr));
     } else
-	return (-1);
+    return (-1);
 #else
     if (msg.msg_accrightslen == sizeof(newfd))
-	return (newfd);
+    return (newfd);
     else
-	return (-1);
+    return (-1);
 #endif
 #endif
 }
@@ -146,31 +146,31 @@ int     main(int argc, char **argv)
     char    buf[1024];
 
     if (argc < 2 || argc > 3
-	|| (endpoint = split_at(transport = argv[1], ':')) == 0
-	|| *endpoint == 0 || *transport == 0)
-	msg_fatal("usage: %s transport:endpoint [workaround]", argv[0]);
+    || (endpoint = split_at(transport = argv[1], ':')) == 0
+    || *endpoint == 0 || *transport == 0)
+    msg_fatal("usage: %s transport:endpoint [workaround]", argv[0]);
 
     if (strcmp(transport, "unix") == 0) {
-	listen_sock = unix_listen(endpoint, 10, BLOCKING);
+    listen_sock = unix_listen(endpoint, 10, BLOCKING);
     } else {
-	msg_fatal("invalid transport name: %s", transport);
+    msg_fatal("invalid transport name: %s", transport);
     }
     if (listen_sock < 0)
-	msg_fatal("listen %s:%s: %m", transport, endpoint);
+    msg_fatal("listen %s:%s: %m", transport, endpoint);
 
     client_sock = accept(listen_sock, (struct sockaddr *) 0, (SOCKADDR_SIZE) 0);
     if (client_sock < 0)
-	msg_fatal("accept: %m");
+    msg_fatal("accept: %m");
 
     set_unix_pass_fd_fix(argv[2] ? argv[2] : "");
 
     while ((client_fd = unix_recv_fd(client_sock)) >= 0) {
-	msg_info("client_fd = %d, fix=%d", client_fd, unix_pass_fd_fix);
-	while ((read_count = read(client_fd, buf, sizeof(buf))) > 0)
-	    write(1, buf, read_count);
-	if (read_count < 0)
-	    msg_fatal("read: %m");
-	close(client_fd);
+    msg_info("client_fd = %d, fix=%d", client_fd, unix_pass_fd_fix);
+    while ((read_count = read(client_fd, buf, sizeof(buf))) > 0)
+        write(1, buf, read_count);
+    if (read_count < 0)
+        msg_fatal("read: %m");
+    close(client_fd);
     }
     exit(0);
 }

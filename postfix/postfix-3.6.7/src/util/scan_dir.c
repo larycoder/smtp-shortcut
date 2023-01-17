@@ -1,68 +1,68 @@
 /*++
 /* NAME
-/*	scan_dir 3
+/*    scan_dir 3
 /* SUMMARY
-/*	directory scanning
+/*    directory scanning
 /* SYNOPSIS
-/*	#include <scan_dir.h>
+/*    #include <scan_dir.h>
 /*
-/*	SCAN_DIR *scan_dir_open(path)
-/*	const char *path;
+/*    SCAN_DIR *scan_dir_open(path)
+/*    const char *path;
 /*
-/*	char	*scan_dir_next(scan)
-/*	SCAN_DIR *scan;
+/*    char    *scan_dir_next(scan)
+/*    SCAN_DIR *scan;
 /*
-/*	char	*scan_dir_path(scan)
-/*	SCAN_DIR *scan;
+/*    char    *scan_dir_path(scan)
+/*    SCAN_DIR *scan;
 /*
-/*	void	scan_push(scan, entry)
-/*	SCAN_DIR *scan;
-/*	const char *entry;
+/*    void    scan_push(scan, entry)
+/*    SCAN_DIR *scan;
+/*    const char *entry;
 /*
-/*	SCAN_DIR *scan_pop(scan)
-/*	SCAN_DIR *scan;
+/*    SCAN_DIR *scan_pop(scan)
+/*    SCAN_DIR *scan;
 /*
-/*	SCAN_DIR *scan_dir_close(scan)
-/*	SCAN_DIR *scan;
+/*    SCAN_DIR *scan_dir_close(scan)
+/*    SCAN_DIR *scan;
 /* DESCRIPTION
-/*	These functions scan directories for names. The "." and
-/*	".." names are skipped. Essentially, this is <dirent>
-/*	extended with error handling and with knowledge of the
-/*	name of the directory being scanned.
+/*    These functions scan directories for names. The "." and
+/*    ".." names are skipped. Essentially, this is <dirent>
+/*    extended with error handling and with knowledge of the
+/*    name of the directory being scanned.
 /*
-/*	scan_dir_open() opens the named directory and
-/*	returns a handle for subsequent use.
+/*    scan_dir_open() opens the named directory and
+/*    returns a handle for subsequent use.
 /*
-/*	scan_dir_close() terminates the directory scan, cleans up
-/*	and returns a null pointer.
+/*    scan_dir_close() terminates the directory scan, cleans up
+/*    and returns a null pointer.
 /*
-/*	scan_dir_next() returns the next requested object in the specified
-/*	directory. It skips the "." and ".." entries.
+/*    scan_dir_next() returns the next requested object in the specified
+/*    directory. It skips the "." and ".." entries.
 /*
-/*	scan_dir_path() returns the name of the directory being scanned.
+/*    scan_dir_path() returns the name of the directory being scanned.
 /*
-/*	scan_dir_push() causes the specified directory scan to enter the
-/*	named subdirectory.
+/*    scan_dir_push() causes the specified directory scan to enter the
+/*    named subdirectory.
 /*
-/*	scan_dir_pop() leaves the directory being scanned and returns
-/*	to the previous one. The result is the argument, null if no
-/*	previous directory information is available.
+/*    scan_dir_pop() leaves the directory being scanned and returns
+/*    to the previous one. The result is the argument, null if no
+/*    previous directory information is available.
 /* DIAGNOSTICS
-/*	All errors are fatal.
+/*    All errors are fatal.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -101,16 +101,16 @@
 typedef struct SCAN_INFO SCAN_INFO;
 
 struct SCAN_INFO {
-    char   *path;			/* directory name */
-    DIR    *dir;			/* directory structure */
-    SCAN_INFO *parent;			/* linkage */
+    char   *path;            /* directory name */
+    DIR    *dir;            /* directory structure */
+    SCAN_INFO *parent;            /* linkage */
 };
 struct SCAN_DIR {
-    SCAN_INFO *current;			/* current scan */
+    SCAN_INFO *current;            /* current scan */
 };
 
-#define SCAN_DIR_PATH(scan)	(scan->current->path)
-#define STR(x)			vstring_str(x)
+#define SCAN_DIR_PATH(scan)    (scan->current->path)
+#define STR(x)            vstring_str(x)
 
 /* scan_dir_path - return the path of the directory being read.  */
 
@@ -128,13 +128,13 @@ void    scan_dir_push(SCAN_DIR *scan, const char *path)
 
     info = (SCAN_INFO *) mymalloc(sizeof(*info));
     if (scan->current)
-	info->path = concatenate(SCAN_DIR_PATH(scan), "/", path, (char *) 0);
+    info->path = concatenate(SCAN_DIR_PATH(scan), "/", path, (char *) 0);
     else
-	info->path = mystrdup(path);
+    info->path = mystrdup(path);
     if ((info->dir = opendir(info->path)) == 0)
-	msg_fatal("%s: open directory %s: %m", myname, info->path);
+    msg_fatal("%s: open directory %s: %m", myname, info->path);
     if (msg_verbose > 1)
-	msg_info("%s: open %s", myname, info->path);
+    msg_info("%s: open %s", myname, info->path);
     info->parent = scan->current;
     scan->current = info;
 }
@@ -148,12 +148,12 @@ SCAN_DIR *scan_dir_pop(SCAN_DIR *scan)
     SCAN_INFO *parent;
 
     if (info == 0)
-	return (0);
+    return (0);
     parent = info->parent;
     if (closedir(info->dir))
-	msg_fatal("%s: close directory %s: %m", myname, info->path);
+    msg_fatal("%s: close directory %s: %m", myname, info->path);
     if (msg_verbose > 1)
-	msg_info("%s: close %s", myname, info->path);
+    msg_info("%s: close %s", myname, info->path);
     myfree(info->path);
     myfree((void *) info);
     scan->current = parent;
@@ -180,27 +180,27 @@ char   *scan_dir_next(SCAN_DIR *scan)
     SCAN_INFO *info = scan->current;
     struct dirent *dp;
 
-#define STREQ(x,y)	(strcmp((x),(y)) == 0)
+#define STREQ(x,y)    (strcmp((x),(y)) == 0)
 
     if (info) {
 
-	/*
-	 * Fix 20150421: readdir() does not reset errno after reaching the
-	 * end-of-directory. This dates back all the way to the initial
-	 * implementation of 19970309.
-	 */
-	errno = 0;
-	while ((dp = readdir(info->dir)) != 0) {
-	    if (STREQ(dp->d_name, ".") || STREQ(dp->d_name, "..")) {
-		if (msg_verbose > 1)
-		    msg_info("%s: skip %s", myname, dp->d_name);
-		continue;
-	    } else {
-		if (msg_verbose > 1)
-		    msg_info("%s: found %s", myname, dp->d_name);
-		return (dp->d_name);
-	    }
-	}
+    /*
+     * Fix 20150421: readdir() does not reset errno after reaching the
+     * end-of-directory. This dates back all the way to the initial
+     * implementation of 19970309.
+     */
+    errno = 0;
+    while ((dp = readdir(info->dir)) != 0) {
+        if (STREQ(dp->d_name, ".") || STREQ(dp->d_name, "..")) {
+        if (msg_verbose > 1)
+            msg_info("%s: skip %s", myname, dp->d_name);
+        continue;
+        } else {
+        if (msg_verbose > 1)
+            msg_info("%s: found %s", myname, dp->d_name);
+        return (dp->d_name);
+        }
+    }
     }
     return (0);
 }
@@ -210,7 +210,7 @@ char   *scan_dir_next(SCAN_DIR *scan)
 SCAN_DIR *scan_dir_close(SCAN_DIR *scan)
 {
     while (scan->current)
-	scan_dir_pop(scan);
+    scan_dir_pop(scan);
     myfree((void *) scan);
     return (0);
 }

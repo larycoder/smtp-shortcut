@@ -1,45 +1,45 @@
 /*++
 /* NAME
-/*	master_listen 3
+/*    master_listen 3
 /* SUMMARY
-/*	Postfix master - start/stop listeners
+/*    Postfix master - start/stop listeners
 /* SYNOPSIS
-/*	#include "master.h"
+/*    #include "master.h"
 /*
-/*	void	master_listen_init(serv)
-/*	MASTER_SERV *serv;
+/*    void    master_listen_init(serv)
+/*    MASTER_SERV *serv;
 /*
-/*	void	master_listen_cleanup(serv)
-/*	MASTER_SERV *serv;
+/*    void    master_listen_cleanup(serv)
+/*    MASTER_SERV *serv;
 /* DESCRIPTION
-/*	master_listen_init() turns on the listener implemented by the
-/*	named process. FIFOs and UNIX-domain sockets are created with
-/*	mode 0622 and with ownership mail_owner.
+/*    master_listen_init() turns on the listener implemented by the
+/*    named process. FIFOs and UNIX-domain sockets are created with
+/*    mode 0622 and with ownership mail_owner.
 /*
-/*	master_listen_cleanup() turns off the listener implemented by the
-/*	named process.
+/*    master_listen_cleanup() turns off the listener implemented by the
+/*    named process.
 /* DIAGNOSTICS
 /* BUGS
 /* SEE ALSO
-/*	inet_listen(3), internet-domain listener
-/*	unix_listen(3), unix-domain listener
-/*	fifo_listen(3), named-pipe listener
-/*	upass_listen(3), file descriptor passing listener
-/*	set_eugid(3), set effective user/group attributes
+/*    inet_listen(3), internet-domain listener
+/*    unix_listen(3), unix-domain listener
+/*    fifo_listen(3), named-pipe listener
+/*    upass_listen(3), file descriptor passing listener
+/*    set_eugid(3), set effective user/group attributes
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -90,76 +90,76 @@ void    master_listen_init(MASTER_SERV *serv)
      */
     switch (serv->type) {
 
-	/*
-	 * UNIX-domain or stream listener endpoints always come as singlets.
-	 */
+    /*
+     * UNIX-domain or stream listener endpoints always come as singlets.
+     */
     case MASTER_SERV_TYPE_UNIX:
-	set_eugid(var_owner_uid, var_owner_gid);
-	serv->listen_fd[0] =
-	    LOCAL_LISTEN(serv->name, serv->max_proc > var_proc_limit ?
-			 serv->max_proc : var_proc_limit, NON_BLOCKING);
-	close_on_exec(serv->listen_fd[0], CLOSE_ON_EXEC);
-	set_ugid(getuid(), getgid());
-	break;
+    set_eugid(var_owner_uid, var_owner_gid);
+    serv->listen_fd[0] =
+        LOCAL_LISTEN(serv->name, serv->max_proc > var_proc_limit ?
+             serv->max_proc : var_proc_limit, NON_BLOCKING);
+    close_on_exec(serv->listen_fd[0], CLOSE_ON_EXEC);
+    set_ugid(getuid(), getgid());
+    break;
 
-	/*
-	 * UNIX-domain datagram listener endpoints always come as singlets.
-	 */
+    /*
+     * UNIX-domain datagram listener endpoints always come as singlets.
+     */
     case MASTER_SERV_TYPE_UXDG:
-	set_eugid(var_owner_uid, var_owner_gid);
-	serv->listen_fd[0] =
-	    unix_dgram_listen(serv->name, NON_BLOCKING);
-	close_on_exec(serv->listen_fd[0], CLOSE_ON_EXEC);
-	set_ugid(getuid(), getgid());
-	break;
+    set_eugid(var_owner_uid, var_owner_gid);
+    serv->listen_fd[0] =
+        unix_dgram_listen(serv->name, NON_BLOCKING);
+    close_on_exec(serv->listen_fd[0], CLOSE_ON_EXEC);
+    set_ugid(getuid(), getgid());
+    break;
 
-	/*
-	 * FIFO listener endpoints always come as singlets.
-	 */
+    /*
+     * FIFO listener endpoints always come as singlets.
+     */
     case MASTER_SERV_TYPE_FIFO:
-	set_eugid(var_owner_uid, var_owner_gid);
-	serv->listen_fd[0] = fifo_listen(serv->name, 0622, NON_BLOCKING);
-	close_on_exec(serv->listen_fd[0], CLOSE_ON_EXEC);
-	set_ugid(getuid(), getgid());
-	break;
+    set_eugid(var_owner_uid, var_owner_gid);
+    serv->listen_fd[0] = fifo_listen(serv->name, 0622, NON_BLOCKING);
+    close_on_exec(serv->listen_fd[0], CLOSE_ON_EXEC);
+    set_ugid(getuid(), getgid());
+    break;
 
-	/*
-	 * INET-domain listener endpoints can be wildcarded (the default) or
-	 * bound to specific interface addresses.
-	 * 
-	 * With dual-stack IPv4/6 systems it does not matter, we have to specify
-	 * the addresses anyway, either explicit or wild-card.
-	 */
+    /*
+     * INET-domain listener endpoints can be wildcarded (the default) or
+     * bound to specific interface addresses.
+     * 
+     * With dual-stack IPv4/6 systems it does not matter, we have to specify
+     * the addresses anyway, either explicit or wild-card.
+     */
     case MASTER_SERV_TYPE_INET:
-	for (n = 0; n < serv->listen_fd_count; n++) {
-	    sa = SOCK_ADDR_PTR(MASTER_INET_ADDRLIST(serv)->addrs + n);
-	    SOCKADDR_TO_HOSTADDR(sa, SOCK_ADDR_LEN(sa), &hostaddr,
-				 (MAI_SERVPORT_STR *) 0, 0);
-	    end_point = concatenate(hostaddr.buf,
-				    ":", MASTER_INET_PORT(serv), (char *) 0);
-	    serv->listen_fd[n]
-		= inet_listen(end_point, serv->max_proc > var_proc_limit ?
-			      serv->max_proc : var_proc_limit, NON_BLOCKING);
-	    close_on_exec(serv->listen_fd[n], CLOSE_ON_EXEC);
-	    myfree(end_point);
-	}
-	break;
+    for (n = 0; n < serv->listen_fd_count; n++) {
+        sa = SOCK_ADDR_PTR(MASTER_INET_ADDRLIST(serv)->addrs + n);
+        SOCKADDR_TO_HOSTADDR(sa, SOCK_ADDR_LEN(sa), &hostaddr,
+                 (MAI_SERVPORT_STR *) 0, 0);
+        end_point = concatenate(hostaddr.buf,
+                    ":", MASTER_INET_PORT(serv), (char *) 0);
+        serv->listen_fd[n]
+        = inet_listen(end_point, serv->max_proc > var_proc_limit ?
+                  serv->max_proc : var_proc_limit, NON_BLOCKING);
+        close_on_exec(serv->listen_fd[n], CLOSE_ON_EXEC);
+        myfree(end_point);
+    }
+    break;
 
-	/*
-	 * Descriptor passing endpoints always come as singlets.
-	 */
+    /*
+     * Descriptor passing endpoints always come as singlets.
+     */
 #ifdef MASTER_SERV_TYPE_PASS
     case MASTER_SERV_TYPE_PASS:
-	set_eugid(var_owner_uid, var_owner_gid);
-	serv->listen_fd[0] =
-	    LOCAL_LISTEN(serv->name, serv->max_proc > var_proc_limit ?
-			serv->max_proc : var_proc_limit, NON_BLOCKING);
-	close_on_exec(serv->listen_fd[0], CLOSE_ON_EXEC);
-	set_ugid(getuid(), getgid());
-	break;
+    set_eugid(var_owner_uid, var_owner_gid);
+    serv->listen_fd[0] =
+        LOCAL_LISTEN(serv->name, serv->max_proc > var_proc_limit ?
+            serv->max_proc : var_proc_limit, NON_BLOCKING);
+    close_on_exec(serv->listen_fd[0], CLOSE_ON_EXEC);
+    set_ugid(getuid(), getgid());
+    break;
 #endif
     default:
-	msg_panic("%s: unknown service type: %d", myname, serv->type);
+    msg_panic("%s: unknown service type: %d", myname, serv->type);
     }
 }
 
@@ -178,9 +178,9 @@ void    master_listen_cleanup(MASTER_SERV *serv)
      * when shutdown(2) is applied to a socket that is not connected.
      */
     for (n = 0; n < serv->listen_fd_count; n++) {
-	if (close(serv->listen_fd[n]) < 0)
-	    msg_warn("%s: close listener socket %d: %m",
-		     myname, serv->listen_fd[n]);
-	serv->listen_fd[n] = -1;
+    if (close(serv->listen_fd[n]) < 0)
+        msg_warn("%s: close listener socket %d: %m",
+             myname, serv->listen_fd[n]);
+    serv->listen_fd[n] = -1;
     }
 }

@@ -1,59 +1,59 @@
 /*++
 /* NAME
-/*	xtext 3
+/*    xtext 3
 /* SUMMARY
-/*	quote/unquote text, xtext style.
+/*    quote/unquote text, xtext style.
 /* SYNOPSIS
-/*	#include <xtext.h>
+/*    #include <xtext.h>
 /*
-/*	VSTRING	*xtext_quote(quoted, unquoted, special)
-/*	VSTRING	*quoted;
-/*	const char *unquoted;
-/*	const char *special;
+/*    VSTRING    *xtext_quote(quoted, unquoted, special)
+/*    VSTRING    *quoted;
+/*    const char *unquoted;
+/*    const char *special;
 /*
-/*	VSTRING	*xtext_quote_append(unquoted, quoted, special)
-/*	VSTRING	*unquoted;
-/*	const char *quoted;
-/*	const char *special;
+/*    VSTRING    *xtext_quote_append(unquoted, quoted, special)
+/*    VSTRING    *unquoted;
+/*    const char *quoted;
+/*    const char *special;
 /*
-/*	VSTRING	*xtext_unquote(unquoted, quoted)
-/*	VSTRING	*unquoted;
-/*	const char *quoted;
+/*    VSTRING    *xtext_unquote(unquoted, quoted)
+/*    VSTRING    *unquoted;
+/*    const char *quoted;
 /*
-/*	VSTRING	*xtext_unquote_append(unquoted, quoted)
-/*	VSTRING	*unquoted;
-/*	const char *quoted;
+/*    VSTRING    *xtext_unquote_append(unquoted, quoted)
+/*    VSTRING    *unquoted;
+/*    const char *quoted;
 /* DESCRIPTION
-/*	xtext_quote() takes a null-terminated string and replaces characters
-/*	+, <33(10) and >126(10), as well as characters specified with "special"
-/*	by +XX, XX being the two-digit uppercase hexadecimal equivalent.
+/*    xtext_quote() takes a null-terminated string and replaces characters
+/*    +, <33(10) and >126(10), as well as characters specified with "special"
+/*    by +XX, XX being the two-digit uppercase hexadecimal equivalent.
 /*
-/*	xtext_quote_append() is like xtext_quote(), but appends the conversion
-/*	result to the result buffer.
+/*    xtext_quote_append() is like xtext_quote(), but appends the conversion
+/*    result to the result buffer.
 /*
-/*	xtext_unquote() performs the opposite transformation. This function
-/*	understands lowercase, uppercase, and mixed case +XX sequences. The
-/*	result value is the unquoted argument in case of success, a null pointer
-/*	otherwise.
+/*    xtext_unquote() performs the opposite transformation. This function
+/*    understands lowercase, uppercase, and mixed case +XX sequences. The
+/*    result value is the unquoted argument in case of success, a null pointer
+/*    otherwise.
 /*
-/*	xtext_unquote_append() is like xtext_unquote(), but appends
-/*	the conversion result to the result buffer.
+/*    xtext_unquote_append() is like xtext_unquote(), but appends
+/*    the conversion result to the result buffer.
 /* BUGS
-/*	This module cannot process null characters in data.
+/*    This module cannot process null characters in data.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -70,24 +70,24 @@
 
 /* Application-specific. */
 
-#define STR(x)	vstring_str(x)
-#define LEN(x)	VSTRING_LEN(x)
+#define STR(x)    vstring_str(x)
+#define LEN(x)    VSTRING_LEN(x)
 
 /* xtext_quote_append - append unquoted data to quoted data */
 
 VSTRING *xtext_quote_append(VSTRING *quoted, const char *unquoted,
-			            const char *special)
+                        const char *special)
 {
     const char *cp;
     int     ch;
 
     for (cp = unquoted; (ch = *(unsigned const char *) cp) != 0; cp++) {
-	if (ch != '+' && ch > 32 && ch < 127
-	    && (*special == 0 || strchr(special, ch) == 0)) {
-	    VSTRING_ADDCH(quoted, ch);
-	} else {
-	    vstring_sprintf_append(quoted, "+%02X", ch);
-	}
+    if (ch != '+' && ch > 32 && ch < 127
+        && (*special == 0 || strchr(special, ch) == 0)) {
+        VSTRING_ADDCH(quoted, ch);
+    } else {
+        vstring_sprintf_append(quoted, "+%02X", ch);
+    }
     }
     VSTRING_TERMINATE(quoted);
     return (quoted);
@@ -110,26 +110,26 @@ VSTRING *xtext_unquote_append(VSTRING *unquoted, const char *quoted)
     int     ch;
 
     for (cp = (const unsigned char *) quoted; (ch = *cp) != 0; cp++) {
-	if (ch == '+') {
-	    if (ISDIGIT(cp[1]))
-		ch = (cp[1] - '0') << 4;
-	    else if (cp[1] >= 'a' && cp[1] <= 'f')
-		ch = (cp[1] - 'a' + 10) << 4;
-	    else if (cp[1] >= 'A' && cp[1] <= 'F')
-		ch = (cp[1] - 'A' + 10) << 4;
-	    else
-		return (0);
-	    if (ISDIGIT(cp[2]))
-		ch |= (cp[2] - '0');
-	    else if (cp[2] >= 'a' && cp[2] <= 'f')
-		ch |= (cp[2] - 'a' + 10);
-	    else if (cp[2] >= 'A' && cp[2] <= 'F')
-		ch |= (cp[2] - 'A' + 10);
-	    else
-		return (0);
-	    cp += 2;
-	}
-	VSTRING_ADDCH(unquoted, ch);
+    if (ch == '+') {
+        if (ISDIGIT(cp[1]))
+        ch = (cp[1] - '0') << 4;
+        else if (cp[1] >= 'a' && cp[1] <= 'f')
+        ch = (cp[1] - 'a' + 10) << 4;
+        else if (cp[1] >= 'A' && cp[1] <= 'F')
+        ch = (cp[1] - 'A' + 10) << 4;
+        else
+        return (0);
+        if (ISDIGIT(cp[2]))
+        ch |= (cp[2] - '0');
+        else if (cp[2] >= 'a' && cp[2] <= 'f')
+        ch |= (cp[2] - 'a' + 10);
+        else if (cp[2] >= 'A' && cp[2] <= 'F')
+        ch |= (cp[2] - 'A' + 10);
+        else
+        return (0);
+        cp += 2;
+    }
+    VSTRING_ADDCH(unquoted, ch);
     }
     VSTRING_TERMINATE(unquoted);
     return (unquoted);
@@ -170,22 +170,22 @@ int     main(int unused_argc, char **unused_argv)
      * Negative tests.
      */
     if (xtext_unquote(unquoted, "++1") != 0)
-	msg_warn("undetected error pattern 1");
+    msg_warn("undetected error pattern 1");
     if (xtext_unquote(unquoted, "+2+") != 0)
-	msg_warn("undetected error pattern 2");
+    msg_warn("undetected error pattern 2");
 
     /*
      * Positive tests.
      */
     while ((len = read_buf(VSTREAM_IN, unquoted)) > 0) {
-	xtext_quote(quoted, STR(unquoted), "+=");
-	if (xtext_unquote(unquoted, STR(quoted)) == 0)
-	    msg_fatal("bad input: %.100s", STR(quoted));
-	if (LEN(unquoted) != len)
-	    msg_fatal("len %ld != unquoted len %ld",
-		      (long) len, (long) LEN(unquoted));
-	if (vstream_fwrite(VSTREAM_OUT, STR(unquoted), LEN(unquoted)) != LEN(unquoted))
-	    msg_fatal("write error: %m");
+    xtext_quote(quoted, STR(unquoted), "+=");
+    if (xtext_unquote(unquoted, STR(quoted)) == 0)
+        msg_fatal("bad input: %.100s", STR(quoted));
+    if (LEN(unquoted) != len)
+        msg_fatal("len %ld != unquoted len %ld",
+              (long) len, (long) LEN(unquoted));
+    if (vstream_fwrite(VSTREAM_OUT, STR(unquoted), LEN(unquoted)) != LEN(unquoted))
+        msg_fatal("write error: %m");
     }
     vstream_fflush(VSTREAM_OUT);
     vstring_free(unquoted);

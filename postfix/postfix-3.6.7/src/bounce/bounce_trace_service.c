@@ -1,49 +1,49 @@
 /*++
 /* NAME
-/*	bounce_trace_service 3
+/*    bounce_trace_service 3
 /* SUMMARY
-/*	send status report to sender, server side
+/*    send status report to sender, server side
 /* SYNOPSIS
-/*	#include "bounce_service.h"
+/*    #include "bounce_service.h"
 /*
-/*	int     bounce_trace_service(flags, service, queue_name, queue_id,
-/*					encoding, smtputf8, sender, envid,
-/*					ret, templates)
-/*	int	flags;
-/*	char	*service;
-/*	char	*queue_name;
-/*	char	*queue_id;
-/*	char	*encoding;
-/*	int	smtputf8;
-/*	char	*sender;
-/*	char	*envid;
-/*	int	ret;
-/*	BOUNCE_TEMPLATES *templates;
+/*    int     bounce_trace_service(flags, service, queue_name, queue_id,
+/*                    encoding, smtputf8, sender, envid,
+/*                    ret, templates)
+/*    int    flags;
+/*    char    *service;
+/*    char    *queue_name;
+/*    char    *queue_id;
+/*    char    *encoding;
+/*    int    smtputf8;
+/*    char    *sender;
+/*    char    *envid;
+/*    int    ret;
+/*    BOUNCE_TEMPLATES *templates;
 /* DESCRIPTION
-/*	This module implements the server side of the trace_flush()
-/*	(send delivery notice) request. The logfile
-/*	is removed after the notice is posted.
+/*    This module implements the server side of the trace_flush()
+/*    (send delivery notice) request. The logfile
+/*    is removed after the notice is posted.
 /*
-/*	A status report includes a prelude with human-readable text,
-/*	a DSN-style report, and the email message that was subject of
-/*	the status report.
+/*    A status report includes a prelude with human-readable text,
+/*    a DSN-style report, and the email message that was subject of
+/*    the status report.
 /*
-/*	When a status report is sent, the sender address is the empty
-/*	address.
+/*    When a status report is sent, the sender address is the empty
+/*    address.
 /* DIAGNOSTICS
-/*	Fatal error: error opening existing file.
+/*    Fatal error: error opening existing file.
 /* BUGS
 /* SEE ALSO
-/*	bounce(3) basic bounce service client interface
+/*    bounce(3) basic bounce service client interface
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -69,7 +69,7 @@
 #include <mail_error.h>
 #include <dsn_mask.h>
 #include <rec_type.h>
-#include <deliver_request.h>		/* USR_VRFY and RECORD flags */
+#include <deliver_request.h>        /* USR_VRFY and RECORD flags */
 
 /* Application-specific. */
 
@@ -80,17 +80,17 @@
 /* bounce_trace_service - send a delivery status notice */
 
 int     bounce_trace_service(int flags, char *service, char *queue_name,
-			             char *queue_id, char *encoding,
-			             int smtputf8,
-			             char *recipient, char *dsn_envid,
-			             int unused_dsn_ret,
-			             BOUNCE_TEMPLATES *ts)
+                         char *queue_id, char *encoding,
+                         int smtputf8,
+                         char *recipient, char *dsn_envid,
+                         int unused_dsn_ret,
+                         BOUNCE_TEMPLATES *ts)
 {
     BOUNCE_INFO *bounce_info;
     int     bounce_status = 1;
     VSTREAM *bounce;
     int     notify_mask = name_mask(VAR_NOTIFY_CLASSES, mail_error_masks,
-				    var_notify_classes);
+                    var_notify_classes);
     VSTRING *new_id;
     int     count;
     const char *sender;
@@ -101,26 +101,26 @@ int     bounce_trace_service(int flags, char *service, char *queue_name,
      * single-bounce message as a double-bounce message, and drop requests to
      * send notification for a double-bounce message.
      */
-#define NULL_SENDER		MAIL_ADDR_EMPTY	/* special address */
+#define NULL_SENDER        MAIL_ADDR_EMPTY    /* special address */
 
     if (strcasecmp_utf8(recipient, mail_addr_double_bounce()) == 0) {
-	msg_info("%s: not sending trace/success notification for "
-		 "double-bounce message", queue_id);
-	return (0);
+    msg_info("%s: not sending trace/success notification for "
+         "double-bounce message", queue_id);
+    return (0);
     } else if (*recipient == 0) {
-	if ((notify_mask & MAIL_ERROR_2BOUNCE) != 0) {
-	    recipient = var_2bounce_rcpt;
-	    sender = mail_addr_double_bounce();
-	} else {
-	    msg_info("%s: not sending trace/success notification "
-		     "for single-bounce message", queue_id);
-	    if (mail_queue_remove(service, queue_id) && errno != ENOENT)
-		msg_fatal("remove %s %s: %m", service, queue_id);
-	    return (0);
-	}
+    if ((notify_mask & MAIL_ERROR_2BOUNCE) != 0) {
+        recipient = var_2bounce_rcpt;
+        sender = mail_addr_double_bounce();
     } else {
-	/* Always send notification for non-bounce message. */
-	sender = NULL_SENDER;
+        msg_info("%s: not sending trace/success notification "
+             "for single-bounce message", queue_id);
+        if (mail_queue_remove(service, queue_id) && errno != ENOENT)
+        msg_fatal("remove %s %s: %m", service, queue_id);
+        return (0);
+    }
+    } else {
+    /* Always send notification for non-bounce message. */
+    sender = NULL_SENDER;
     }
 
     /*
@@ -140,9 +140,9 @@ int     bounce_trace_service(int flags, char *service, char *queue_name,
 #define NON_DSN_FLAGS (DEL_REQ_FLAG_USR_VRFY | DEL_REQ_FLAG_RECORD)
 
     bounce_info = bounce_mail_init(service, queue_name, queue_id,
-				   encoding, smtputf8, dsn_envid,
-				   flags & NON_DSN_FLAGS ?
-				   ts->verify : ts->success);
+                   encoding, smtputf8, dsn_envid,
+                   flags & NON_DSN_FLAGS ?
+                   ts->verify : ts->success);
 
     /*
      * XXX With multi-recipient mail some queue file recipients may have
@@ -157,13 +157,13 @@ int     bounce_trace_service(int flags, char *service, char *queue_name,
      * See also comments in qmgr/qmgr_active.c.
      */
     if (bounce_info->log_handle == 0) {
-	if (msg_verbose)
-	    msg_info("%s: no trace file -- not sending a notification",
-		     queue_id);
-	bounce_mail_free(bounce_info);
-	return (0);
+    if (msg_verbose)
+        msg_info("%s: no trace file -- not sending a notification",
+             queue_id);
+    bounce_mail_free(bounce_info);
+    return (0);
     }
-#define NULL_TRACE_FLAGS	0
+#define NULL_TRACE_FLAGS    0
 
     /*
      * Send a single bounce with a template message header, some boilerplate
@@ -177,29 +177,29 @@ int     bounce_trace_service(int flags, char *service, char *queue_name,
      */
     new_id = vstring_alloc(10);
     if ((bounce = post_mail_fopen_nowait(sender, recipient,
-					 MAIL_SRC_MASK_BOUNCE,
-					 NULL_TRACE_FLAGS,
-					 smtputf8,
-					 new_id)) != 0) {
-	count = -1;
-	if (bounce_header(bounce, bounce_info, recipient,
-			  NO_POSTMASTER_COPY) == 0
-	    && bounce_boilerplate(bounce, bounce_info) == 0
-	    && (count = bounce_diagnostic_log(bounce, bounce_info,
-					      DSN_NOTIFY_OVERRIDE)) > 0
-	    && bounce_header_dsn(bounce, bounce_info) == 0
-	    && bounce_diagnostic_dsn(bounce, bounce_info,
-				     DSN_NOTIFY_OVERRIDE) > 0) {
-	    bounce_original(bounce, bounce_info, DSN_RET_HDRS);
-	    bounce_status = post_mail_fclose(bounce);
-	    if (bounce_status == 0)
-		msg_info("%s: sender delivery status notification: %s",
-			 queue_id, STR(new_id));
-	} else {
-	    (void) vstream_fclose(bounce);
-	    if (count == 0)
-		bounce_status = 0;
-	}
+                     MAIL_SRC_MASK_BOUNCE,
+                     NULL_TRACE_FLAGS,
+                     smtputf8,
+                     new_id)) != 0) {
+    count = -1;
+    if (bounce_header(bounce, bounce_info, recipient,
+              NO_POSTMASTER_COPY) == 0
+        && bounce_boilerplate(bounce, bounce_info) == 0
+        && (count = bounce_diagnostic_log(bounce, bounce_info,
+                          DSN_NOTIFY_OVERRIDE)) > 0
+        && bounce_header_dsn(bounce, bounce_info) == 0
+        && bounce_diagnostic_dsn(bounce, bounce_info,
+                     DSN_NOTIFY_OVERRIDE) > 0) {
+        bounce_original(bounce, bounce_info, DSN_RET_HDRS);
+        bounce_status = post_mail_fclose(bounce);
+        if (bounce_status == 0)
+        msg_info("%s: sender delivery status notification: %s",
+             queue_id, STR(new_id));
+    } else {
+        (void) vstream_fclose(bounce);
+        if (count == 0)
+        bounce_status = 0;
+    }
     }
 
     /*
@@ -207,8 +207,8 @@ int     bounce_trace_service(int flags, char *service, char *queue_name,
      * status notice was posted successfully.
      */
     if (bounce_status == 0 && mail_queue_remove(service, queue_id)
-	&& errno != ENOENT)
-	msg_fatal("remove %s %s: %m", service, queue_id);
+    && errno != ENOENT)
+    msg_fatal("remove %s %s: %m", service, queue_id);
 
     /*
      * Cleanup.

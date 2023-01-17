@@ -1,45 +1,45 @@
 /*++
 /* NAME
-/*	hex_quote 3
+/*    hex_quote 3
 /* SUMMARY
-/*	quote/unquote text, HTTP style.
+/*    quote/unquote text, HTTP style.
 /* SYNOPSIS
-/*	#include <hex_quote.h>
+/*    #include <hex_quote.h>
 /*
-/*	VSTRING	*hex_quote(hex, raw)
-/*	VSTRING	*hex;
-/*	const char *raw;
+/*    VSTRING    *hex_quote(hex, raw)
+/*    VSTRING    *hex;
+/*    const char *raw;
 /*
-/*	VSTRING	*hex_unquote(raw, hex)
-/*	VSTRING	*raw;
-/*	const char *hex;
+/*    VSTRING    *hex_unquote(raw, hex)
+/*    VSTRING    *raw;
+/*    const char *hex;
 /* DESCRIPTION
-/*	hex_quote() takes a null-terminated string and replaces non-printable
-/*	and whitespace characters and the % by %XX, XX being the two-digit
-/*	hexadecimal equivalent.
-/*	The hexadecimal codes are produced as upper-case characters. The result
-/*	value is the hex argument.
+/*    hex_quote() takes a null-terminated string and replaces non-printable
+/*    and whitespace characters and the % by %XX, XX being the two-digit
+/*    hexadecimal equivalent.
+/*    The hexadecimal codes are produced as upper-case characters. The result
+/*    value is the hex argument.
 /*
-/*	hex_unquote() performs the opposite transformation. This function
-/*	understands lowercase, uppercase, and mixed case %XX sequences. The
-/*	result value is the raw argument in case of success, a null pointer
-/*	otherwise.
+/*    hex_unquote() performs the opposite transformation. This function
+/*    understands lowercase, uppercase, and mixed case %XX sequences. The
+/*    result value is the raw argument in case of success, a null pointer
+/*    otherwise.
 /* BUGS
-/*	hex_quote() cannot process null characters in data.
+/*    hex_quote() cannot process null characters in data.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -55,8 +55,8 @@
 
 /* Application-specific. */
 
-#define STR(x)	vstring_str(x)
-#define LEN(x)	VSTRING_LEN(x)
+#define STR(x)    vstring_str(x)
+#define LEN(x)    VSTRING_LEN(x)
 
 /* hex_quote - raw data to quoted */
 
@@ -67,11 +67,11 @@ VSTRING *hex_quote(VSTRING *hex, const char *raw)
 
     VSTRING_RESET(hex);
     for (cp = raw; (ch = *(unsigned const char *) cp) != 0; cp++) {
-	if (ch != '%' && !ISSPACE(ch) && ISPRINT(ch)) {
-	    VSTRING_ADDCH(hex, ch);
-	} else {
-	    vstring_sprintf_append(hex, "%%%02X", ch);
-	}
+    if (ch != '%' && !ISSPACE(ch) && ISPRINT(ch)) {
+        VSTRING_ADDCH(hex, ch);
+    } else {
+        vstring_sprintf_append(hex, "%%%02X", ch);
+    }
     }
     VSTRING_TERMINATE(hex);
     return (hex);
@@ -86,26 +86,26 @@ VSTRING *hex_unquote(VSTRING *raw, const char *hex)
 
     VSTRING_RESET(raw);
     for (cp = hex; (ch = *cp) != 0; cp++) {
-	if (ch == '%') {
-	    if (ISDIGIT(cp[1]))
-		ch = (cp[1] - '0') << 4;
-	    else if (cp[1] >= 'a' && cp[1] <= 'f')
-		ch = (cp[1] - 'a' + 10) << 4;
-	    else if (cp[1] >= 'A' && cp[1] <= 'F')
-		ch = (cp[1] - 'A' + 10) << 4;
-	    else
-		return (0);
-	    if (ISDIGIT(cp[2]))
-		ch |= (cp[2] - '0');
-	    else if (cp[2] >= 'a' && cp[2] <= 'f')
-		ch |= (cp[2] - 'a' + 10);
-	    else if (cp[2] >= 'A' && cp[2] <= 'F')
-		ch |= (cp[2] - 'A' + 10);
-	    else
-		return (0);
-	    cp += 2;
-	}
-	VSTRING_ADDCH(raw, ch);
+    if (ch == '%') {
+        if (ISDIGIT(cp[1]))
+        ch = (cp[1] - '0') << 4;
+        else if (cp[1] >= 'a' && cp[1] <= 'f')
+        ch = (cp[1] - 'a' + 10) << 4;
+        else if (cp[1] >= 'A' && cp[1] <= 'F')
+        ch = (cp[1] - 'A' + 10) << 4;
+        else
+        return (0);
+        if (ISDIGIT(cp[2]))
+        ch |= (cp[2] - '0');
+        else if (cp[2] >= 'a' && cp[2] <= 'f')
+        ch |= (cp[2] - 'a' + 10);
+        else if (cp[2] >= 'A' && cp[2] <= 'F')
+        ch |= (cp[2] - 'A' + 10);
+        else
+        return (0);
+        cp += 2;
+    }
+    VSTRING_ADDCH(raw, ch);
     }
     VSTRING_TERMINATE(raw);
     return (raw);
@@ -136,13 +136,13 @@ int     main(int unused_argc, char **unused_argv)
     ssize_t len;
 
     while ((len = read_buf(VSTREAM_IN, raw)) > 0) {
-	hex_quote(hex, STR(raw));
-	if (hex_unquote(raw, STR(hex)) == 0)
-	    msg_fatal("bad input: %.100s", STR(hex));
-	if (LEN(raw) != len)
-	    msg_fatal("len %ld != raw len %ld", (long) len, (long) LEN(raw));
-	if (vstream_fwrite(VSTREAM_OUT, STR(raw), LEN(raw)) != LEN(raw))
-	    msg_fatal("write error: %m");
+    hex_quote(hex, STR(raw));
+    if (hex_unquote(raw, STR(hex)) == 0)
+        msg_fatal("bad input: %.100s", STR(hex));
+    if (LEN(raw) != len)
+        msg_fatal("len %ld != raw len %ld", (long) len, (long) LEN(raw));
+    if (vstream_fwrite(VSTREAM_OUT, STR(raw), LEN(raw)) != LEN(raw))
+        msg_fatal("write error: %m");
     }
     vstream_fflush(VSTREAM_OUT);
     vstring_free(raw);

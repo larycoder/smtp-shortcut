@@ -1,181 +1,181 @@
 /*++
 /* NAME
-/*	tlsmgr 8
+/*    tlsmgr 8
 /* SUMMARY
-/*	Postfix TLS session cache and PRNG manager
+/*    Postfix TLS session cache and PRNG manager
 /* SYNOPSIS
-/*	\fBtlsmgr\fR [generic Postfix daemon options]
+/*    \fBtlsmgr\fR [generic Postfix daemon options]
 /* DESCRIPTION
-/*	The \fBtlsmgr\fR(8) manages the Postfix TLS session caches.
-/*	It stores and retrieves cache entries on request by
-/*	\fBsmtpd\fR(8) and \fBsmtp\fR(8) processes, and periodically
-/*	removes entries that have expired.
+/*    The \fBtlsmgr\fR(8) manages the Postfix TLS session caches.
+/*    It stores and retrieves cache entries on request by
+/*    \fBsmtpd\fR(8) and \fBsmtp\fR(8) processes, and periodically
+/*    removes entries that have expired.
 /*
-/*	The \fBtlsmgr\fR(8) also manages the PRNG (pseudo random number
-/*	generator) pool. It answers queries by the \fBsmtpd\fR(8)
-/*	and \fBsmtp\fR(8)
-/*	processes to seed their internal PRNG pools.
+/*    The \fBtlsmgr\fR(8) also manages the PRNG (pseudo random number
+/*    generator) pool. It answers queries by the \fBsmtpd\fR(8)
+/*    and \fBsmtp\fR(8)
+/*    processes to seed their internal PRNG pools.
 /*
-/*	The \fBtlsmgr\fR(8)'s PRNG pool is initially seeded from
-/*	an external source (EGD, /dev/urandom, or regular file).
-/*	It is updated at configurable pseudo-random intervals with
-/*	data from the external source. It is updated periodically
-/*	with data from TLS session cache entries and with the time
-/*	of day, and is updated with the time of day whenever a
-/*	process requests \fBtlsmgr\fR(8) service.
+/*    The \fBtlsmgr\fR(8)'s PRNG pool is initially seeded from
+/*    an external source (EGD, /dev/urandom, or regular file).
+/*    It is updated at configurable pseudo-random intervals with
+/*    data from the external source. It is updated periodically
+/*    with data from TLS session cache entries and with the time
+/*    of day, and is updated with the time of day whenever a
+/*    process requests \fBtlsmgr\fR(8) service.
 /*
-/*	The \fBtlsmgr\fR(8) saves the PRNG state to an exchange file
-/*	periodically and when the process terminates, and reads
-/*	the exchange file when initializing its PRNG.
+/*    The \fBtlsmgr\fR(8) saves the PRNG state to an exchange file
+/*    periodically and when the process terminates, and reads
+/*    the exchange file when initializing its PRNG.
 /* SECURITY
 /* .ad
 /* .fi
-/*	The \fBtlsmgr\fR(8) is not security-sensitive. The code that maintains
-/*	the external and internal PRNG pools does not "trust" the
-/*	data that it manipulates, and the code that maintains the
-/*	TLS session cache does not touch the contents of the cached
-/*	entries, except for seeding its internal PRNG pool.
+/*    The \fBtlsmgr\fR(8) is not security-sensitive. The code that maintains
+/*    the external and internal PRNG pools does not "trust" the
+/*    data that it manipulates, and the code that maintains the
+/*    TLS session cache does not touch the contents of the cached
+/*    entries, except for seeding its internal PRNG pool.
 /*
-/*	The \fBtlsmgr\fR(8) can be run chrooted and with reduced privileges.
-/*	At process startup it connects to the entropy source and
-/*	exchange file, and creates or truncates the optional TLS
-/*	session cache files.
+/*    The \fBtlsmgr\fR(8) can be run chrooted and with reduced privileges.
+/*    At process startup it connects to the entropy source and
+/*    exchange file, and creates or truncates the optional TLS
+/*    session cache files.
 /*
-/*	With Postfix version 2.5 and later, the \fBtlsmgr\fR(8) no
-/*	longer uses root privileges when opening cache files. These
-/*	files should now be stored under the Postfix-owned
-/*	\fBdata_directory\fR.  As a migration aid, an attempt to
-/*	open a cache file under a non-Postfix directory is redirected
-/*	to the Postfix-owned \fBdata_directory\fR, and a warning
-/*	is logged.
+/*    With Postfix version 2.5 and later, the \fBtlsmgr\fR(8) no
+/*    longer uses root privileges when opening cache files. These
+/*    files should now be stored under the Postfix-owned
+/*    \fBdata_directory\fR.  As a migration aid, an attempt to
+/*    open a cache file under a non-Postfix directory is redirected
+/*    to the Postfix-owned \fBdata_directory\fR, and a warning
+/*    is logged.
 /* DIAGNOSTICS
-/*	Problems and transactions are logged to \fBsyslogd\fR(8)
-/*	or \fBpostlogd\fR(8).
+/*    Problems and transactions are logged to \fBsyslogd\fR(8)
+/*    or \fBpostlogd\fR(8).
 /* BUGS
-/*	There is no automatic means to limit the number of entries in the
-/*	TLS session caches and/or the size of the TLS cache files.
+/*    There is no automatic means to limit the number of entries in the
+/*    TLS session caches and/or the size of the TLS cache files.
 /* CONFIGURATION PARAMETERS
 /* .ad
 /* .fi
-/*	Changes to \fBmain.cf\fR are not picked up automatically,
-/*	because \fBtlsmgr\fR(8) is a persistent processes.  Use the
-/*	command "\fBpostfix reload\fR" after a configuration change.
+/*    Changes to \fBmain.cf\fR are not picked up automatically,
+/*    because \fBtlsmgr\fR(8) is a persistent processes.  Use the
+/*    command "\fBpostfix reload\fR" after a configuration change.
 /*
-/*	The text below provides only a parameter summary. See
-/*	\fBpostconf\fR(5) for more details including examples.
+/*    The text below provides only a parameter summary. See
+/*    \fBpostconf\fR(5) for more details including examples.
 /* TLS SESSION CACHE
 /* .ad
 /* .fi
 /* .IP "\fBlmtp_tls_loglevel (0)\fR"
-/*	The LMTP-specific version of the smtp_tls_loglevel
-/*	configuration parameter.
+/*    The LMTP-specific version of the smtp_tls_loglevel
+/*    configuration parameter.
 /* .IP "\fBlmtp_tls_session_cache_database (empty)\fR"
-/*	The LMTP-specific version of the smtp_tls_session_cache_database
-/*	configuration parameter.
+/*    The LMTP-specific version of the smtp_tls_session_cache_database
+/*    configuration parameter.
 /* .IP "\fBlmtp_tls_session_cache_timeout (3600s)\fR"
-/*	The LMTP-specific version of the smtp_tls_session_cache_timeout
-/*	configuration parameter.
+/*    The LMTP-specific version of the smtp_tls_session_cache_timeout
+/*    configuration parameter.
 /* .IP "\fBsmtp_tls_loglevel (0)\fR"
-/*	Enable additional Postfix SMTP client logging of TLS activity.
+/*    Enable additional Postfix SMTP client logging of TLS activity.
 /* .IP "\fBsmtp_tls_session_cache_database (empty)\fR"
-/*	Name of the file containing the optional Postfix SMTP client
-/*	TLS session cache.
+/*    Name of the file containing the optional Postfix SMTP client
+/*    TLS session cache.
 /* .IP "\fBsmtp_tls_session_cache_timeout (3600s)\fR"
-/*	The expiration time of Postfix SMTP client TLS session cache
-/*	information.
+/*    The expiration time of Postfix SMTP client TLS session cache
+/*    information.
 /* .IP "\fBsmtpd_tls_loglevel (0)\fR"
-/*	Enable additional Postfix SMTP server logging of TLS activity.
+/*    Enable additional Postfix SMTP server logging of TLS activity.
 /* .IP "\fBsmtpd_tls_session_cache_database (empty)\fR"
-/*	Name of the file containing the optional Postfix SMTP server
-/*	TLS session cache.
+/*    Name of the file containing the optional Postfix SMTP server
+/*    TLS session cache.
 /* .IP "\fBsmtpd_tls_session_cache_timeout (3600s)\fR"
-/*	The expiration time of Postfix SMTP server TLS session cache
-/*	information.
+/*    The expiration time of Postfix SMTP server TLS session cache
+/*    information.
 /* PSEUDO RANDOM NUMBER GENERATOR
 /* .ad
 /* .fi
 /* .IP "\fBtls_random_source (see 'postconf -d' output)\fR"
-/*	The external entropy source for the in-memory \fBtlsmgr\fR(8) pseudo
-/*	random number generator (PRNG) pool.
+/*    The external entropy source for the in-memory \fBtlsmgr\fR(8) pseudo
+/*    random number generator (PRNG) pool.
 /* .IP "\fBtls_random_bytes (32)\fR"
-/*	The number of bytes that \fBtlsmgr\fR(8) reads from $tls_random_source
-/*	when (re)seeding the in-memory pseudo random number generator (PRNG)
-/*	pool.
+/*    The number of bytes that \fBtlsmgr\fR(8) reads from $tls_random_source
+/*    when (re)seeding the in-memory pseudo random number generator (PRNG)
+/*    pool.
 /* .IP "\fBtls_random_exchange_name (see 'postconf -d' output)\fR"
-/*	Name of the pseudo random number generator (PRNG) state file
-/*	that is maintained by \fBtlsmgr\fR(8).
+/*    Name of the pseudo random number generator (PRNG) state file
+/*    that is maintained by \fBtlsmgr\fR(8).
 /* .IP "\fBtls_random_prng_update_period (3600s)\fR"
-/*	The time between attempts by \fBtlsmgr\fR(8) to save the state of
-/*	the pseudo random number generator (PRNG) to the file specified
-/*	with $tls_random_exchange_name.
+/*    The time between attempts by \fBtlsmgr\fR(8) to save the state of
+/*    the pseudo random number generator (PRNG) to the file specified
+/*    with $tls_random_exchange_name.
 /* .IP "\fBtls_random_reseed_period (3600s)\fR"
-/*	The maximal time between attempts by \fBtlsmgr\fR(8) to re-seed the
-/*	in-memory pseudo random number generator (PRNG) pool from external
-/*	sources.
+/*    The maximal time between attempts by \fBtlsmgr\fR(8) to re-seed the
+/*    in-memory pseudo random number generator (PRNG) pool from external
+/*    sources.
 /* MISCELLANEOUS CONTROLS
 /* .ad
 /* .fi
 /* .IP "\fBconfig_directory (see 'postconf -d' output)\fR"
-/*	The default location of the Postfix main.cf and master.cf
-/*	configuration files.
+/*    The default location of the Postfix main.cf and master.cf
+/*    configuration files.
 /* .IP "\fBdata_directory (see 'postconf -d' output)\fR"
-/*	The directory with Postfix-writable data files (for example:
-/*	caches, pseudo-random numbers).
+/*    The directory with Postfix-writable data files (for example:
+/*    caches, pseudo-random numbers).
 /* .IP "\fBdaemon_timeout (18000s)\fR"
-/*	How much time a Postfix daemon process may take to handle a
-/*	request before it is terminated by a built-in watchdog timer.
+/*    How much time a Postfix daemon process may take to handle a
+/*    request before it is terminated by a built-in watchdog timer.
 /* .IP "\fBprocess_id (read-only)\fR"
-/*	The process ID of a Postfix command or daemon process.
+/*    The process ID of a Postfix command or daemon process.
 /* .IP "\fBprocess_name (read-only)\fR"
-/*	The process name of a Postfix command or daemon process.
+/*    The process name of a Postfix command or daemon process.
 /* .IP "\fBsyslog_facility (mail)\fR"
-/*	The syslog facility of Postfix logging.
+/*    The syslog facility of Postfix logging.
 /* .IP "\fBsyslog_name (see 'postconf -d' output)\fR"
-/*	A prefix that is prepended to the process name in syslog
-/*	records, so that, for example, "smtpd" becomes "prefix/smtpd".
+/*    A prefix that is prepended to the process name in syslog
+/*    records, so that, for example, "smtpd" becomes "prefix/smtpd".
 /* .PP
-/*	Available in Postfix 3.3 and later:
+/*    Available in Postfix 3.3 and later:
 /* .IP "\fBservice_name (read-only)\fR"
-/*	The master.cf service name of a Postfix daemon process.
+/*    The master.cf service name of a Postfix daemon process.
 /* SEE ALSO
-/*	smtp(8), Postfix SMTP client
-/*	smtpd(8), Postfix SMTP server
-/*	postconf(5), configuration parameters
-/*	master(5), generic daemon options
-/*	master(8), process manager
-/*	postlogd(8), Postfix logging
-/*	syslogd(8), system logging
+/*    smtp(8), Postfix SMTP client
+/*    smtpd(8), Postfix SMTP server
+/*    postconf(5), configuration parameters
+/*    master(5), generic daemon options
+/*    master(8), process manager
+/*    postlogd(8), Postfix logging
+/*    syslogd(8), system logging
 /* README FILES
 /* .ad
 /* .fi
-/*	Use "\fBpostconf readme_directory\fR" or
-/*	"\fBpostconf html_directory\fR" to locate this information.
+/*    Use "\fBpostconf readme_directory\fR" or
+/*    "\fBpostconf html_directory\fR" to locate this information.
 /* .na
 /* .nf
-/*	TLS_README, Postfix TLS configuration and operation
+/*    TLS_README, Postfix TLS configuration and operation
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* HISTORY
-/*	This service was introduced with Postfix version 2.2.
+/*    This service was introduced with Postfix version 2.2.
 /* AUTHOR(S)
-/*	Lutz Jaenicke
-/*	BTU Cottbus
-/*	Allgemeine Elektrotechnik
-/*	Universitaetsplatz 3-4
-/*	D-03044 Cottbus, Germany
+/*    Lutz Jaenicke
+/*    BTU Cottbus
+/*    Allgemeine Elektrotechnik
+/*    Universitaetsplatz 3-4
+/*    D-03044 Cottbus, Germany
 /*
-/*	Adapted by:
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Adapted by:
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -187,7 +187,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <string.h>
-#include <sys/time.h>			/* gettimeofday, not POSIX */
+#include <sys/time.h>            /* gettimeofday, not POSIX */
 #include <limits.h>
 
 #ifndef UCHAR_MAX
@@ -197,7 +197,7 @@
 /* OpenSSL library. */
 
 #ifdef USE_TLS
-#include <openssl/rand.h>		/* For the PRNG */
+#include <openssl/rand.h>        /* For the PRNG */
 #endif
 
 /* Utility library. */
@@ -233,7 +233,7 @@
 #ifdef USE_TLS
 #include <tls_mgr.h>
 #define TLS_INTERNAL
-#include <tls.h>			/* TLS_MGR_SCACHE_<type> */
+#include <tls.h>            /* TLS_MGR_SCACHE_<type> */
 #include <tls_prng.h>
 #include <tls_scache.h>
 
@@ -262,7 +262,7 @@ char   *var_tls_rand_exch_name;
   * produces better error messages than waiting until the watchdog timer
   * kills the process.
   */
-#define TLS_MGR_TIMEOUT	10
+#define TLS_MGR_TIMEOUT    10
 
  /*
   * State for updating the PRNG exchange file.
@@ -293,13 +293,13 @@ static TLS_PRNG_SRC *rand_source_file;
   * State for TLS session caches.
   */
 typedef struct {
-    char   *cache_label;		/* cache short-hand name */
-    TLS_SCACHE *cache_info;		/* cache handle */
-    int     cache_active;		/* cache status */
-    char  **cache_db;			/* main.cf parameter value */
-    const char *log_param;		/* main.cf parameter name */
-    char  **log_level;			/* main.cf parameter value */
-    int    *cache_timeout;		/* main.cf parameter value */
+    char   *cache_label;        /* cache short-hand name */
+    TLS_SCACHE *cache_info;        /* cache handle */
+    int     cache_active;        /* cache status */
+    char  **cache_db;            /* main.cf parameter value */
+    const char *log_param;        /* main.cf parameter name */
+    char  **log_level;            /* main.cf parameter value */
+    int    *cache_timeout;        /* main.cf parameter value */
 } TLSMGR_SCACHE;
 
 static TLSMGR_SCACHE cache_table[] = {
@@ -315,14 +315,14 @@ static TLSMGR_SCACHE cache_table[] = {
     0,
 };
 
-#define	smtpd_cache	(cache_table[0])
+#define    smtpd_cache    (cache_table[0])
 
  /*
   * SLMs.
   */
-#define STR(x)		vstring_str(x)
-#define LEN(x)		VSTRING_LEN(x)
-#define STREQ(x, y)	(strcmp((x), (y)) == 0)
+#define STR(x)        vstring_str(x)
+#define LEN(x)        VSTRING_LEN(x)
+#define STREQ(x, y)    (strcmp((x), (y)) == 0)
 
 /* tlsmgr_prng_exch_event - update PRNG exchange file */
 
@@ -334,18 +334,18 @@ static void tlsmgr_prng_exch_event(int unused_event, void *dummy)
     struct stat st;
 
     if (msg_verbose)
-	msg_info("%s: update PRNG exchange file", myname);
+    msg_info("%s: update PRNG exchange file", myname);
 
     /*
      * Sanity check. If the PRNG exchange file was removed, there is no point
      * updating it further. Restart the process and update the new file.
      */
     if (fstat(rand_exch->fd, &st) < 0)
-	msg_fatal("cannot fstat() the PRNG exchange file: %m");
+    msg_fatal("cannot fstat() the PRNG exchange file: %m");
     if (st.st_nlink == 0) {
-	msg_warn("PRNG exchange file was removed -- exiting to reopen");
-	sleep(1);
-	exit(0);
+    msg_warn("PRNG exchange file was removed -- exiting to reopen");
+    sleep(1);
+    exit(0);
     }
     tls_prng_exch_update(rand_exch);
 
@@ -378,60 +378,60 @@ static void tlsmgr_reseed_event(int unused_event, void *dummy)
      */
     if (*var_tls_rand_source) {
 
-	/*
-	 * Source is a random device.
-	 */
-	if (rand_source_dev) {
-	    if (tls_prng_dev_read(rand_source_dev, var_tls_rand_bytes) <= 0) {
-		msg_info("cannot read from entropy device %s: %m -- "
-			 "exiting to reopen", DEV_PATH(var_tls_rand_source));
-		must_exit = 1;
-	    }
-	}
+    /*
+     * Source is a random device.
+     */
+    if (rand_source_dev) {
+        if (tls_prng_dev_read(rand_source_dev, var_tls_rand_bytes) <= 0) {
+        msg_info("cannot read from entropy device %s: %m -- "
+             "exiting to reopen", DEV_PATH(var_tls_rand_source));
+        must_exit = 1;
+        }
+    }
 
-	/*
-	 * Source is an EGD compatible socket.
-	 */
-	else if (rand_source_egd) {
-	    if (tls_prng_egd_read(rand_source_egd, var_tls_rand_bytes) <= 0) {
-		msg_info("lost connection to EGD server %s -- "
-		     "exiting to reconnect", EGD_PATH(var_tls_rand_source));
-		must_exit = 1;
-	    }
-	}
+    /*
+     * Source is an EGD compatible socket.
+     */
+    else if (rand_source_egd) {
+        if (tls_prng_egd_read(rand_source_egd, var_tls_rand_bytes) <= 0) {
+        msg_info("lost connection to EGD server %s -- "
+             "exiting to reconnect", EGD_PATH(var_tls_rand_source));
+        must_exit = 1;
+        }
+    }
 
-	/*
-	 * Source is a regular file. Read the content once and close the
-	 * file.
-	 */
-	else if (rand_source_file) {
-	    if (tls_prng_file_read(rand_source_file, var_tls_rand_bytes) <= 0)
-		msg_warn("cannot read from entropy file %s: %m",
-			 var_tls_rand_source);
-	    tls_prng_file_close(rand_source_file);
-	    rand_source_file = 0;
-	    var_tls_rand_source[0] = 0;
-	}
+    /*
+     * Source is a regular file. Read the content once and close the
+     * file.
+     */
+    else if (rand_source_file) {
+        if (tls_prng_file_read(rand_source_file, var_tls_rand_bytes) <= 0)
+        msg_warn("cannot read from entropy file %s: %m",
+             var_tls_rand_source);
+        tls_prng_file_close(rand_source_file);
+        rand_source_file = 0;
+        var_tls_rand_source[0] = 0;
+    }
 
-	/*
-	 * Could not open the external source upon start-up. See if we can
-	 * open it this time. Save PRNG state before we exit.
-	 */
-	else {
-	    msg_info("exiting to reopen external entropy source %s",
-		     var_tls_rand_source);
-	    must_exit = 1;
-	}
+    /*
+     * Could not open the external source upon start-up. See if we can
+     * open it this time. Save PRNG state before we exit.
+     */
+    else {
+        msg_info("exiting to reopen external entropy source %s",
+             var_tls_rand_source);
+        must_exit = 1;
+    }
     }
 
     /*
      * Save PRNG state in case we must exit.
      */
     if (must_exit) {
-	if (rand_exch)
-	    tls_prng_exch_update(rand_exch);
-	sleep(1);
-	exit(0);
+    if (rand_exch)
+        tls_prng_exch_update(rand_exch);
+    sleep(1);
+    exit(0);
     }
 
     /*
@@ -458,16 +458,16 @@ static void tlsmgr_cache_run_event(int unused_event, void *ctx)
      * still in progress.
      */
     if (cache->cache_info->verbose)
-	msg_info("%s: start TLS %s session cache cleanup",
-		 myname, cache->cache_label);
+    msg_info("%s: start TLS %s session cache cleanup",
+         myname, cache->cache_label);
 
     if (cache->cache_active == 0)
-	cache->cache_active =
-	    tls_scache_sequence(cache->cache_info, DICT_SEQ_FUN_FIRST,
-				TLS_SCACHE_SEQUENCE_NOTHING);
+    cache->cache_active =
+        tls_scache_sequence(cache->cache_info, DICT_SEQ_FUN_FIRST,
+                TLS_SCACHE_SEQUENCE_NOTHING);
 
     event_request_timer(tlsmgr_cache_run_event, (void *) cache,
-			cache->cache_info->timeout);
+            cache->cache_info->timeout);
 }
 
 /* tlsmgr_key - return matching or current RFC 5077 session ticket keys */
@@ -490,18 +490,18 @@ static int tlsmgr_key(VSTRING *buffer, int timeout)
 
     /* Attempt to locate existing key */
     if ((key = tls_scache_key(name, now, timeout)) == 0) {
-	if (name == 0) {
-	    /* Create new encryption key */
-	    if (RAND_bytes(tmp.name, TLS_TICKET_NAMELEN) <= 0
-		|| RAND_bytes(tmp.bits, TLS_TICKET_KEYLEN) <= 0
-		|| RAND_bytes(tmp.hmac, TLS_TICKET_MACLEN) <= 0)
-		return (TLS_MGR_STAT_ERR);
-	    tmp.tout = now + timeout - 1;
-	    key = tls_scache_key_rotate(&tmp);
-	} else {
-	    /* No matching decryption key found */
-	    return (TLS_MGR_STAT_ERR);
-	}
+    if (name == 0) {
+        /* Create new encryption key */
+        if (RAND_bytes(tmp.name, TLS_TICKET_NAMELEN) <= 0
+        || RAND_bytes(tmp.bits, TLS_TICKET_KEYLEN) <= 0
+        || RAND_bytes(tmp.hmac, TLS_TICKET_MACLEN) <= 0)
+        return (TLS_MGR_STAT_ERR);
+        tmp.tout = now + timeout - 1;
+        key = tls_scache_key_rotate(&tmp);
+    } else {
+        /* No matching decryption key found */
+        return (TLS_MGR_STAT_ERR);
+    }
     }
     /* Return value overrites name buffer */
     vstring_memcpy(buffer, (char *) key, sizeof(*key));
@@ -535,14 +535,14 @@ static int tlsmgr_loop(char *unused_name, char **unused_argv)
      * protocol for entropy and session state exchange with smtp(8) and
      * smtpd(8) processes.
      */
-#define DONT_WAIT	0
-#define WAIT_FOR_EVENT	(-1)
+#define DONT_WAIT    0
+#define WAIT_FOR_EVENT    (-1)
 
     for (ent = cache_table; ent->cache_label; ++ent) {
-	if (ent->cache_info && ent->cache_active)
-	    active |= ent->cache_active =
-		tls_scache_sequence(ent->cache_info, DICT_SEQ_FUN_NEXT,
-				    TLS_SCACHE_SEQUENCE_NOTHING);
+    if (ent->cache_info && ent->cache_active)
+        active |= ent->cache_active =
+        tls_scache_sequence(ent->cache_info, DICT_SEQ_FUN_NEXT,
+                    TLS_SCACHE_SEQUENCE_NOTHING);
     }
 
     return (active ? DONT_WAIT : WAIT_FOR_EVENT);
@@ -558,37 +558,37 @@ static int tlsmgr_request_receive(VSTREAM *client_stream, VSTRING *request)
      * Kluge: choose the protocol depending on the request size.
      */
     if (read_wait(vstream_fileno(client_stream), var_ipc_timeout) < 0) {
-	msg_warn("timeout while waiting for data from %s",
-		 VSTREAM_PATH(client_stream));
-	return (-1);
+    msg_warn("timeout while waiting for data from %s",
+         VSTREAM_PATH(client_stream));
+    return (-1);
     }
     if ((count = peekfd(vstream_fileno(client_stream))) < 0) {
-	msg_warn("cannot examine read buffer of %s: %m",
-		 VSTREAM_PATH(client_stream));
-	return (-1);
+    msg_warn("cannot examine read buffer of %s: %m",
+         VSTREAM_PATH(client_stream));
+    return (-1);
     }
 
     /*
      * Short request: master trigger. Use the string+null protocol.
      */
     if (count <= 2) {
-	if (vstring_get_null(request, client_stream) == VSTREAM_EOF) {
-	    msg_warn("end-of-input while reading request from %s: %m",
-		     VSTREAM_PATH(client_stream));
-	    return (-1);
-	}
+    if (vstring_get_null(request, client_stream) == VSTREAM_EOF) {
+        msg_warn("end-of-input while reading request from %s: %m",
+             VSTREAM_PATH(client_stream));
+        return (-1);
+    }
     }
 
     /*
      * Long request: real tlsmgr client. Use the attribute list protocol.
      */
     else {
-	if (attr_scan(client_stream,
-		      ATTR_FLAG_MORE | ATTR_FLAG_STRICT,
-		      RECV_ATTR_STR(TLS_MGR_ATTR_REQ, request),
-		      ATTR_TYPE_END) != 1) {
-	    return (-1);
-	}
+    if (attr_scan(client_stream,
+              ATTR_FLAG_MORE | ATTR_FLAG_STRICT,
+              RECV_ATTR_STR(TLS_MGR_ATTR_REQ, request),
+              ATTR_TYPE_END) != 1) {
+        return (-1);
+    }
     }
     return (0);
 }
@@ -596,16 +596,16 @@ static int tlsmgr_request_receive(VSTREAM *client_stream, VSTRING *request)
 /* tlsmgr_service - respond to external request */
 
 static void tlsmgr_service(VSTREAM *client_stream, char *unused_service,
-			           char **argv)
+                       char **argv)
 {
     static VSTRING *request = 0;
     static VSTRING *cache_type = 0;
     static VSTRING *cache_id = 0;
     static VSTRING *buffer = 0;
     int     len;
-    static char wakeup[] = {		/* master wakeup request */
-	TRIGGER_REQ_WAKEUP,
-	0,
+    static char wakeup[] = {        /* master wakeup request */
+    TRIGGER_REQ_WAKEUP,
+    0,
     };
     TLSMGR_SCACHE *ent;
     int     status = TLS_MGR_STAT_FAIL;
@@ -614,16 +614,16 @@ static void tlsmgr_service(VSTREAM *client_stream, char *unused_service,
      * Sanity check. This service takes no command-line arguments.
      */
     if (argv[0])
-	msg_fatal("unexpected command-line argument: %s", argv[0]);
+    msg_fatal("unexpected command-line argument: %s", argv[0]);
 
     /*
      * Initialize. We're select threaded, so we can use static buffers.
      */
     if (request == 0) {
-	request = vstring_alloc(10);
-	cache_type = vstring_alloc(10);
-	cache_id = vstring_alloc(10);
-	buffer = vstring_alloc(10);
+    request = vstring_alloc(10);
+    cache_type = vstring_alloc(10);
+    cache_id = vstring_alloc(10);
+    buffer = vstring_alloc(10);
     }
 
     /*
@@ -634,197 +634,197 @@ static void tlsmgr_service(VSTREAM *client_stream, char *unused_service,
      */
     if (tlsmgr_request_receive(client_stream, request) == 0) {
 
-	/*
-	 * Load session from cache.
-	 */
-	if (STREQ(STR(request), TLS_MGR_REQ_LOOKUP)) {
-	    if (attr_scan(client_stream, ATTR_FLAG_STRICT,
-			  RECV_ATTR_STR(TLS_MGR_ATTR_CACHE_TYPE, cache_type),
-			  RECV_ATTR_STR(TLS_MGR_ATTR_CACHE_ID, cache_id),
-			  ATTR_TYPE_END) == 2) {
-		for (ent = cache_table; ent->cache_label; ++ent)
-		    if (strcmp(ent->cache_label, STR(cache_type)) == 0)
-			break;
-		if (ent->cache_label == 0) {
-		    msg_warn("bogus cache type \"%s\" in \"%s\" request",
-			     STR(cache_type), TLS_MGR_REQ_LOOKUP);
-		    VSTRING_RESET(buffer);
-		} else if (ent->cache_info == 0) {
+    /*
+     * Load session from cache.
+     */
+    if (STREQ(STR(request), TLS_MGR_REQ_LOOKUP)) {
+        if (attr_scan(client_stream, ATTR_FLAG_STRICT,
+              RECV_ATTR_STR(TLS_MGR_ATTR_CACHE_TYPE, cache_type),
+              RECV_ATTR_STR(TLS_MGR_ATTR_CACHE_ID, cache_id),
+              ATTR_TYPE_END) == 2) {
+        for (ent = cache_table; ent->cache_label; ++ent)
+            if (strcmp(ent->cache_label, STR(cache_type)) == 0)
+            break;
+        if (ent->cache_label == 0) {
+            msg_warn("bogus cache type \"%s\" in \"%s\" request",
+                 STR(cache_type), TLS_MGR_REQ_LOOKUP);
+            VSTRING_RESET(buffer);
+        } else if (ent->cache_info == 0) {
 
-		    /*
-		     * Cache type valid, but not enabled
-		     */
-		    VSTRING_RESET(buffer);
-		} else {
-		    status = tls_scache_lookup(ent->cache_info,
-					       STR(cache_id), buffer) ?
-			TLS_MGR_STAT_OK : TLS_MGR_STAT_ERR;
-		}
-	    }
-	    attr_print(client_stream, ATTR_FLAG_NONE,
-		       SEND_ATTR_INT(MAIL_ATTR_STATUS, status),
-		       SEND_ATTR_DATA(TLS_MGR_ATTR_SESSION,
-				      LEN(buffer), STR(buffer)),
-		       ATTR_TYPE_END);
-	}
+            /*
+             * Cache type valid, but not enabled
+             */
+            VSTRING_RESET(buffer);
+        } else {
+            status = tls_scache_lookup(ent->cache_info,
+                           STR(cache_id), buffer) ?
+            TLS_MGR_STAT_OK : TLS_MGR_STAT_ERR;
+        }
+        }
+        attr_print(client_stream, ATTR_FLAG_NONE,
+               SEND_ATTR_INT(MAIL_ATTR_STATUS, status),
+               SEND_ATTR_DATA(TLS_MGR_ATTR_SESSION,
+                      LEN(buffer), STR(buffer)),
+               ATTR_TYPE_END);
+    }
 
-	/*
-	 * Save session to cache.
-	 */
-	else if (STREQ(STR(request), TLS_MGR_REQ_UPDATE)) {
-	    if (attr_scan(client_stream, ATTR_FLAG_STRICT,
-			  RECV_ATTR_STR(TLS_MGR_ATTR_CACHE_TYPE, cache_type),
-			  RECV_ATTR_STR(TLS_MGR_ATTR_CACHE_ID, cache_id),
-			  RECV_ATTR_DATA(TLS_MGR_ATTR_SESSION, buffer),
-			  ATTR_TYPE_END) == 3) {
-		for (ent = cache_table; ent->cache_label; ++ent)
-		    if (strcmp(ent->cache_label, STR(cache_type)) == 0)
-			break;
-		if (ent->cache_label == 0) {
-		    msg_warn("bogus cache type \"%s\" in \"%s\" request",
-			     STR(cache_type), TLS_MGR_REQ_UPDATE);
-		} else if (ent->cache_info != 0) {
-		    status =
-			tls_scache_update(ent->cache_info, STR(cache_id),
-					  STR(buffer), LEN(buffer)) ?
-			TLS_MGR_STAT_OK : TLS_MGR_STAT_ERR;
-		}
-	    }
-	    attr_print(client_stream, ATTR_FLAG_NONE,
-		       SEND_ATTR_INT(MAIL_ATTR_STATUS, status),
-		       ATTR_TYPE_END);
-	}
+    /*
+     * Save session to cache.
+     */
+    else if (STREQ(STR(request), TLS_MGR_REQ_UPDATE)) {
+        if (attr_scan(client_stream, ATTR_FLAG_STRICT,
+              RECV_ATTR_STR(TLS_MGR_ATTR_CACHE_TYPE, cache_type),
+              RECV_ATTR_STR(TLS_MGR_ATTR_CACHE_ID, cache_id),
+              RECV_ATTR_DATA(TLS_MGR_ATTR_SESSION, buffer),
+              ATTR_TYPE_END) == 3) {
+        for (ent = cache_table; ent->cache_label; ++ent)
+            if (strcmp(ent->cache_label, STR(cache_type)) == 0)
+            break;
+        if (ent->cache_label == 0) {
+            msg_warn("bogus cache type \"%s\" in \"%s\" request",
+                 STR(cache_type), TLS_MGR_REQ_UPDATE);
+        } else if (ent->cache_info != 0) {
+            status =
+            tls_scache_update(ent->cache_info, STR(cache_id),
+                      STR(buffer), LEN(buffer)) ?
+            TLS_MGR_STAT_OK : TLS_MGR_STAT_ERR;
+        }
+        }
+        attr_print(client_stream, ATTR_FLAG_NONE,
+               SEND_ATTR_INT(MAIL_ATTR_STATUS, status),
+               ATTR_TYPE_END);
+    }
 
-	/*
-	 * Delete session from cache.
-	 */
-	else if (STREQ(STR(request), TLS_MGR_REQ_DELETE)) {
-	    if (attr_scan(client_stream, ATTR_FLAG_STRICT,
-			  RECV_ATTR_STR(TLS_MGR_ATTR_CACHE_TYPE, cache_type),
-			  RECV_ATTR_STR(TLS_MGR_ATTR_CACHE_ID, cache_id),
-			  ATTR_TYPE_END) == 2) {
-		for (ent = cache_table; ent->cache_label; ++ent)
-		    if (strcmp(ent->cache_label, STR(cache_type)) == 0)
-			break;
-		if (ent->cache_label == 0) {
-		    msg_warn("bogus cache type \"%s\" in \"%s\" request",
-			     STR(cache_type), TLS_MGR_REQ_DELETE);
-		} else if (ent->cache_info != 0) {
-		    status = tls_scache_delete(ent->cache_info,
-					       STR(cache_id)) ?
-			TLS_MGR_STAT_OK : TLS_MGR_STAT_ERR;
-		}
-	    }
-	    attr_print(client_stream, ATTR_FLAG_NONE,
-		       SEND_ATTR_INT(MAIL_ATTR_STATUS, status),
-		       ATTR_TYPE_END);
-	}
+    /*
+     * Delete session from cache.
+     */
+    else if (STREQ(STR(request), TLS_MGR_REQ_DELETE)) {
+        if (attr_scan(client_stream, ATTR_FLAG_STRICT,
+              RECV_ATTR_STR(TLS_MGR_ATTR_CACHE_TYPE, cache_type),
+              RECV_ATTR_STR(TLS_MGR_ATTR_CACHE_ID, cache_id),
+              ATTR_TYPE_END) == 2) {
+        for (ent = cache_table; ent->cache_label; ++ent)
+            if (strcmp(ent->cache_label, STR(cache_type)) == 0)
+            break;
+        if (ent->cache_label == 0) {
+            msg_warn("bogus cache type \"%s\" in \"%s\" request",
+                 STR(cache_type), TLS_MGR_REQ_DELETE);
+        } else if (ent->cache_info != 0) {
+            status = tls_scache_delete(ent->cache_info,
+                           STR(cache_id)) ?
+            TLS_MGR_STAT_OK : TLS_MGR_STAT_ERR;
+        }
+        }
+        attr_print(client_stream, ATTR_FLAG_NONE,
+               SEND_ATTR_INT(MAIL_ATTR_STATUS, status),
+               ATTR_TYPE_END);
+    }
 
-	/*
-	 * RFC 5077 TLS session ticket keys
-	 */
-	else if (STREQ(STR(request), TLS_MGR_REQ_TKTKEY)) {
-	    if (attr_scan(client_stream, ATTR_FLAG_STRICT,
-			  RECV_ATTR_DATA(TLS_MGR_ATTR_KEYNAME, buffer),
-			  ATTR_TYPE_END) == 1) {
-		if (LEN(buffer) != 0 && LEN(buffer) != TLS_TICKET_NAMELEN) {
-		    msg_warn("invalid session ticket key name length: %ld",
-			     (long) LEN(buffer));
-		    VSTRING_RESET(buffer);
-		} else if (*smtpd_cache.cache_timeout <= 0) {
-		    status = TLS_MGR_STAT_ERR;
-		    VSTRING_RESET(buffer);
-		} else {
-		    status = tlsmgr_key(buffer, *smtpd_cache.cache_timeout);
-		}
-	    }
-	    attr_print(client_stream, ATTR_FLAG_NONE,
-		       SEND_ATTR_INT(MAIL_ATTR_STATUS, status),
-		       SEND_ATTR_DATA(TLS_MGR_ATTR_KEYBUF,
-				      LEN(buffer), STR(buffer)),
-		       ATTR_TYPE_END);
-	}
+    /*
+     * RFC 5077 TLS session ticket keys
+     */
+    else if (STREQ(STR(request), TLS_MGR_REQ_TKTKEY)) {
+        if (attr_scan(client_stream, ATTR_FLAG_STRICT,
+              RECV_ATTR_DATA(TLS_MGR_ATTR_KEYNAME, buffer),
+              ATTR_TYPE_END) == 1) {
+        if (LEN(buffer) != 0 && LEN(buffer) != TLS_TICKET_NAMELEN) {
+            msg_warn("invalid session ticket key name length: %ld",
+                 (long) LEN(buffer));
+            VSTRING_RESET(buffer);
+        } else if (*smtpd_cache.cache_timeout <= 0) {
+            status = TLS_MGR_STAT_ERR;
+            VSTRING_RESET(buffer);
+        } else {
+            status = tlsmgr_key(buffer, *smtpd_cache.cache_timeout);
+        }
+        }
+        attr_print(client_stream, ATTR_FLAG_NONE,
+               SEND_ATTR_INT(MAIL_ATTR_STATUS, status),
+               SEND_ATTR_DATA(TLS_MGR_ATTR_KEYBUF,
+                      LEN(buffer), STR(buffer)),
+               ATTR_TYPE_END);
+    }
 
-	/*
-	 * Entropy request.
-	 */
-	else if (STREQ(STR(request), TLS_MGR_REQ_SEED)) {
-	    if (attr_scan(client_stream, ATTR_FLAG_STRICT,
-			  RECV_ATTR_INT(TLS_MGR_ATTR_SIZE, &len),
-			  ATTR_TYPE_END) == 1) {
-		VSTRING_RESET(buffer);
-		if (len <= 0 || len > 255) {
-		    msg_warn("bogus seed length \"%d\" in \"%s\" request",
-			     len, TLS_MGR_REQ_SEED);
-		} else {
-		    VSTRING_SPACE(buffer, len);
-		    RAND_bytes((unsigned char *) STR(buffer), len);
-		    vstring_set_payload_size(buffer, len);
-		    status = TLS_MGR_STAT_OK;
-		}
-	    }
-	    attr_print(client_stream, ATTR_FLAG_NONE,
-		       SEND_ATTR_INT(MAIL_ATTR_STATUS, status),
-		       SEND_ATTR_DATA(TLS_MGR_ATTR_SEED,
-				      LEN(buffer), STR(buffer)),
-		       ATTR_TYPE_END);
-	}
+    /*
+     * Entropy request.
+     */
+    else if (STREQ(STR(request), TLS_MGR_REQ_SEED)) {
+        if (attr_scan(client_stream, ATTR_FLAG_STRICT,
+              RECV_ATTR_INT(TLS_MGR_ATTR_SIZE, &len),
+              ATTR_TYPE_END) == 1) {
+        VSTRING_RESET(buffer);
+        if (len <= 0 || len > 255) {
+            msg_warn("bogus seed length \"%d\" in \"%s\" request",
+                 len, TLS_MGR_REQ_SEED);
+        } else {
+            VSTRING_SPACE(buffer, len);
+            RAND_bytes((unsigned char *) STR(buffer), len);
+            vstring_set_payload_size(buffer, len);
+            status = TLS_MGR_STAT_OK;
+        }
+        }
+        attr_print(client_stream, ATTR_FLAG_NONE,
+               SEND_ATTR_INT(MAIL_ATTR_STATUS, status),
+               SEND_ATTR_DATA(TLS_MGR_ATTR_SEED,
+                      LEN(buffer), STR(buffer)),
+               ATTR_TYPE_END);
+    }
 
-	/*
-	 * Caching policy request.
-	 */
-	else if (STREQ(STR(request), TLS_MGR_REQ_POLICY)) {
-	    int     cachable = 0;
-	    int     timeout = 0;
+    /*
+     * Caching policy request.
+     */
+    else if (STREQ(STR(request), TLS_MGR_REQ_POLICY)) {
+        int     cachable = 0;
+        int     timeout = 0;
 
-	    if (attr_scan(client_stream, ATTR_FLAG_STRICT,
-			  RECV_ATTR_STR(TLS_MGR_ATTR_CACHE_TYPE, cache_type),
-			  ATTR_TYPE_END) == 1) {
-		for (ent = cache_table; ent->cache_label; ++ent)
-		    if (strcmp(ent->cache_label, STR(cache_type)) == 0)
-			break;
-		if (ent->cache_label == 0) {
-		    msg_warn("bogus cache type \"%s\" in \"%s\" request",
-			     STR(cache_type), TLS_MGR_REQ_POLICY);
-		} else {
-		    cachable = (ent->cache_info != 0) ? 1 : 0;
-		    timeout = *ent->cache_timeout;
-		    status = TLS_MGR_STAT_OK;
-		}
-	    }
-	    attr_print(client_stream, ATTR_FLAG_NONE,
-		       SEND_ATTR_INT(MAIL_ATTR_STATUS, status),
-		       SEND_ATTR_INT(TLS_MGR_ATTR_CACHABLE, cachable),
-		       SEND_ATTR_INT(TLS_MGR_ATTR_SESSTOUT, timeout),
-		       ATTR_TYPE_END);
-	}
+        if (attr_scan(client_stream, ATTR_FLAG_STRICT,
+              RECV_ATTR_STR(TLS_MGR_ATTR_CACHE_TYPE, cache_type),
+              ATTR_TYPE_END) == 1) {
+        for (ent = cache_table; ent->cache_label; ++ent)
+            if (strcmp(ent->cache_label, STR(cache_type)) == 0)
+            break;
+        if (ent->cache_label == 0) {
+            msg_warn("bogus cache type \"%s\" in \"%s\" request",
+                 STR(cache_type), TLS_MGR_REQ_POLICY);
+        } else {
+            cachable = (ent->cache_info != 0) ? 1 : 0;
+            timeout = *ent->cache_timeout;
+            status = TLS_MGR_STAT_OK;
+        }
+        }
+        attr_print(client_stream, ATTR_FLAG_NONE,
+               SEND_ATTR_INT(MAIL_ATTR_STATUS, status),
+               SEND_ATTR_INT(TLS_MGR_ATTR_CACHABLE, cachable),
+               SEND_ATTR_INT(TLS_MGR_ATTR_SESSTOUT, timeout),
+               ATTR_TYPE_END);
+    }
 
-	/*
-	 * Master trigger. Normally, these triggers arrive only after some
-	 * other process requested the tlsmgr's service. The purpose is to
-	 * restart the tlsmgr after it aborted due to a fatal run-time error,
-	 * so that it can continue its housekeeping even while nothing is
-	 * using TLS.
-	 * 
-	 * XXX Which begs the question, if TLS isn't used often, do we need a
-	 * tlsmgr background process? It could terminate when the session
-	 * caches are empty.
-	 */
-	else if (STREQ(STR(request), wakeup)) {
-	    if (msg_verbose)
-		msg_info("received master trigger");
-	    multi_server_disconnect(client_stream);
-	    return;				/* NOT: vstream_fflush */
-	}
+    /*
+     * Master trigger. Normally, these triggers arrive only after some
+     * other process requested the tlsmgr's service. The purpose is to
+     * restart the tlsmgr after it aborted due to a fatal run-time error,
+     * so that it can continue its housekeeping even while nothing is
+     * using TLS.
+     * 
+     * XXX Which begs the question, if TLS isn't used often, do we need a
+     * tlsmgr background process? It could terminate when the session
+     * caches are empty.
+     */
+    else if (STREQ(STR(request), wakeup)) {
+        if (msg_verbose)
+        msg_info("received master trigger");
+        multi_server_disconnect(client_stream);
+        return;                /* NOT: vstream_fflush */
+    }
     }
 
     /*
      * Protocol error.
      */
     else {
-	attr_print(client_stream, ATTR_FLAG_NONE,
-		   SEND_ATTR_INT(MAIL_ATTR_STATUS, TLS_MGR_STAT_FAIL),
-		   ATTR_TYPE_END);
+    attr_print(client_stream, ATTR_FLAG_NONE,
+           SEND_ATTR_INT(MAIL_ATTR_STATUS, TLS_MGR_STAT_FAIL),
+           ATTR_TYPE_END);
     }
     vstream_fflush(client_stream);
 }
@@ -864,37 +864,37 @@ static void tlsmgr_pre_init(char *unused_name, char **unused_argv)
      */
     if (*var_tls_rand_source) {
 
-	/*
-	 * Source is a random device.
-	 */
-	if (!strncmp(var_tls_rand_source, DEV_PREF, DEV_PREF_LEN)) {
-	    path = DEV_PATH(var_tls_rand_source);
-	    rand_source_dev = tls_prng_dev_open(path, TLS_MGR_TIMEOUT);
-	    if (rand_source_dev == 0)
-		msg_warn("cannot open entropy device %s: %m", path);
-	}
+    /*
+     * Source is a random device.
+     */
+    if (!strncmp(var_tls_rand_source, DEV_PREF, DEV_PREF_LEN)) {
+        path = DEV_PATH(var_tls_rand_source);
+        rand_source_dev = tls_prng_dev_open(path, TLS_MGR_TIMEOUT);
+        if (rand_source_dev == 0)
+        msg_warn("cannot open entropy device %s: %m", path);
+    }
 
-	/*
-	 * Source is an EGD compatible socket.
-	 */
-	else if (!strncmp(var_tls_rand_source, EGD_PREF, EGD_PREF_LEN)) {
-	    path = EGD_PATH(var_tls_rand_source);
-	    rand_source_egd = tls_prng_egd_open(path, TLS_MGR_TIMEOUT);
-	    if (rand_source_egd == 0)
-		msg_warn("cannot connect to EGD server %s: %m", path);
-	}
+    /*
+     * Source is an EGD compatible socket.
+     */
+    else if (!strncmp(var_tls_rand_source, EGD_PREF, EGD_PREF_LEN)) {
+        path = EGD_PATH(var_tls_rand_source);
+        rand_source_egd = tls_prng_egd_open(path, TLS_MGR_TIMEOUT);
+        if (rand_source_egd == 0)
+        msg_warn("cannot connect to EGD server %s: %m", path);
+    }
 
-	/*
-	 * Source is regular file. We read this only once.
-	 */
-	else {
-	    rand_source_file =
-		tls_prng_file_open(var_tls_rand_source, TLS_MGR_TIMEOUT);
-	}
+    /*
+     * Source is regular file. We read this only once.
+     */
+    else {
+        rand_source_file =
+        tls_prng_file_open(var_tls_rand_source, TLS_MGR_TIMEOUT);
+    }
     } else {
-	msg_warn("no entropy source specified with parameter %s",
-		 VAR_TLS_RAND_SOURCE);
-	msg_warn("encryption keys etc. may be predictable");
+    msg_warn("no entropy source specified with parameter %s",
+         VAR_TLS_RAND_SOURCE);
+    msg_warn("encryption keys etc. may be predictable");
     }
 
     /*
@@ -912,12 +912,12 @@ static void tlsmgr_pre_init(char *unused_name, char **unused_argv)
      * dropping privileges.
      */
     if (*var_tls_rand_exch_name) {
-	rand_exch =
-	    tls_prng_exch_open(data_redirect_file(redirect,
-						  var_tls_rand_exch_name));
-	if (rand_exch == 0)
-	    msg_fatal("cannot open PRNG exchange file %s: %m",
-		      var_tls_rand_exch_name);
+    rand_exch =
+        tls_prng_exch_open(data_redirect_file(redirect,
+                          var_tls_rand_exch_name));
+    if (rand_exch == 0)
+        msg_fatal("cannot open PRNG exchange file %s: %m",
+              var_tls_rand_exch_name);
     }
 
     /*
@@ -927,26 +927,26 @@ static void tlsmgr_pre_init(char *unused_name, char **unused_argv)
      */
     dup_filter = htable_create(sizeof(cache_table) / sizeof(cache_table[0]));
     for (ent = cache_table; ent->cache_label; ++ent) {
-	/* Sanitize session timeout */
-	if (*ent->cache_timeout > 0) {
-	    if (*ent->cache_timeout < TLS_SESSION_LIFEMIN)
-		*ent->cache_timeout = TLS_SESSION_LIFEMIN;
-	} else {
-	    *ent->cache_timeout = 0;
-	}
-	/* External cache database disabled if timeout is non-positive */
-	if (*ent->cache_timeout > 0 && **ent->cache_db) {
-	    if ((dup_label = htable_find(dup_filter, *ent->cache_db)) != 0)
-		msg_fatal("do not use the same TLS cache file %s for %s and %s",
-			  *ent->cache_db, dup_label, ent->cache_label);
-	    htable_enter(dup_filter, *ent->cache_db, ent->cache_label);
-	    ent->cache_info =
-		tls_scache_open(data_redirect_map(redirect, *ent->cache_db),
-				ent->cache_label,
-				tls_log_mask(ent->log_param,
-					   *ent->log_level) & TLS_LOG_CACHE,
-				*ent->cache_timeout);
-	}
+    /* Sanitize session timeout */
+    if (*ent->cache_timeout > 0) {
+        if (*ent->cache_timeout < TLS_SESSION_LIFEMIN)
+        *ent->cache_timeout = TLS_SESSION_LIFEMIN;
+    } else {
+        *ent->cache_timeout = 0;
+    }
+    /* External cache database disabled if timeout is non-positive */
+    if (*ent->cache_timeout > 0 && **ent->cache_db) {
+        if ((dup_label = htable_find(dup_filter, *ent->cache_db)) != 0)
+        msg_fatal("do not use the same TLS cache file %s for %s and %s",
+              *ent->cache_db, dup_label, ent->cache_label);
+        htable_enter(dup_filter, *ent->cache_db, ent->cache_label);
+        ent->cache_info =
+        tls_scache_open(data_redirect_map(redirect, *ent->cache_db),
+                ent->cache_label,
+                tls_log_mask(ent->log_param,
+                       *ent->log_level) & TLS_LOG_CACHE,
+                *ent->cache_timeout);
+    }
     }
     htable_free(dup_filter, (void (*) (void *)) 0);
 
@@ -963,8 +963,8 @@ static void tlsmgr_post_init(char *unused_name, char **unused_argv)
 {
     TLSMGR_SCACHE *ent;
 
-#define NULL_EVENT	(0)
-#define NULL_CONTEXT	((char *) 0)
+#define NULL_EVENT    (0)
+#define NULL_CONTEXT    ((char *) 0)
 
     /*
      * This routine runs after the skeleton code has entered the chroot jail,
@@ -979,18 +979,18 @@ static void tlsmgr_post_init(char *unused_name, char **unused_argv)
      * Start the internal PRNG re-seeding pseudo thread first.
      */
     if (*var_tls_rand_source) {
-	if (var_tls_reseed_period > INT_MAX / UCHAR_MAX)
-	    var_tls_reseed_period = INT_MAX / UCHAR_MAX;
-	tlsmgr_reseed_event(NULL_EVENT, NULL_CONTEXT);
+    if (var_tls_reseed_period > INT_MAX / UCHAR_MAX)
+        var_tls_reseed_period = INT_MAX / UCHAR_MAX;
+    tlsmgr_reseed_event(NULL_EVENT, NULL_CONTEXT);
     }
 
     /*
      * Start the exchange file read/update pseudo thread.
      */
     if (*var_tls_rand_exch_name) {
-	if (var_tls_prng_exch_period > INT_MAX / UCHAR_MAX)
-	    var_tls_prng_exch_period = INT_MAX / UCHAR_MAX;
-	tlsmgr_prng_exch_event(NULL_EVENT, NULL_CONTEXT);
+    if (var_tls_prng_exch_period > INT_MAX / UCHAR_MAX)
+        var_tls_prng_exch_period = INT_MAX / UCHAR_MAX;
+    tlsmgr_prng_exch_event(NULL_EVENT, NULL_CONTEXT);
     }
 
     /*
@@ -1000,22 +1000,22 @@ static void tlsmgr_post_init(char *unused_name, char **unused_argv)
      * get positive confirmation that the cleanup threads are running).
      */
     for (ent = cache_table; ent->cache_label; ++ent)
-	if (ent->cache_info)
-	    tlsmgr_cache_run_event(NULL_EVENT, (void *) ent);
+    if (ent->cache_info)
+        tlsmgr_cache_run_event(NULL_EVENT, (void *) ent);
 }
 
 /* tlsmgr_post_accept - announce our protocol */
 
 static void tlsmgr_post_accept(VSTREAM *stream, char *unused_name,
-			           char **unused_argv, HTABLE *unused_table)
+                       char **unused_argv, HTABLE *unused_table)
 {
 
     /*
      * Announce the protocol.
      */
     attr_print(stream, ATTR_FLAG_NONE,
-	       SEND_ATTR_STR(MAIL_ATTR_PROTO, MAIL_ATTR_PROTO_TLSMGR),
-	       ATTR_TYPE_END);
+           SEND_ATTR_STR(MAIL_ATTR_PROTO, MAIL_ATTR_PROTO_TLSMGR),
+           ATTR_TYPE_END);
     (void) vstream_fflush(stream);
 }
 
@@ -1029,7 +1029,7 @@ static void tlsmgr_before_exit(char *unused_service_name, char **unused_argv)
      * Save state before we exit after "postfix reload".
      */
     if (rand_exch)
-	tls_prng_exch_update(rand_exch);
+    tls_prng_exch_update(rand_exch);
 }
 
 MAIL_VERSION_STAMP_DECLARE;
@@ -1039,27 +1039,27 @@ MAIL_VERSION_STAMP_DECLARE;
 int     main(int argc, char **argv)
 {
     static const CONFIG_STR_TABLE str_table[] = {
-	VAR_TLS_RAND_SOURCE, DEF_TLS_RAND_SOURCE, &var_tls_rand_source, 0, 0,
-	VAR_TLS_RAND_EXCH_NAME, DEF_TLS_RAND_EXCH_NAME, &var_tls_rand_exch_name, 0, 0,
-	VAR_SMTPD_TLS_SCACHE_DB, DEF_SMTPD_TLS_SCACHE_DB, &var_smtpd_tls_scache_db, 0, 0,
-	VAR_SMTP_TLS_SCACHE_DB, DEF_SMTP_TLS_SCACHE_DB, &var_smtp_tls_scache_db, 0, 0,
-	VAR_LMTP_TLS_SCACHE_DB, DEF_LMTP_TLS_SCACHE_DB, &var_lmtp_tls_scache_db, 0, 0,
-	VAR_SMTPD_TLS_LOGLEVEL, DEF_SMTPD_TLS_LOGLEVEL, &var_smtpd_tls_loglevel, 0, 0,
-	VAR_SMTP_TLS_LOGLEVEL, DEF_SMTP_TLS_LOGLEVEL, &var_smtp_tls_loglevel, 0, 0,
-	VAR_LMTP_TLS_LOGLEVEL, DEF_LMTP_TLS_LOGLEVEL, &var_lmtp_tls_loglevel, 0, 0,
-	0,
+    VAR_TLS_RAND_SOURCE, DEF_TLS_RAND_SOURCE, &var_tls_rand_source, 0, 0,
+    VAR_TLS_RAND_EXCH_NAME, DEF_TLS_RAND_EXCH_NAME, &var_tls_rand_exch_name, 0, 0,
+    VAR_SMTPD_TLS_SCACHE_DB, DEF_SMTPD_TLS_SCACHE_DB, &var_smtpd_tls_scache_db, 0, 0,
+    VAR_SMTP_TLS_SCACHE_DB, DEF_SMTP_TLS_SCACHE_DB, &var_smtp_tls_scache_db, 0, 0,
+    VAR_LMTP_TLS_SCACHE_DB, DEF_LMTP_TLS_SCACHE_DB, &var_lmtp_tls_scache_db, 0, 0,
+    VAR_SMTPD_TLS_LOGLEVEL, DEF_SMTPD_TLS_LOGLEVEL, &var_smtpd_tls_loglevel, 0, 0,
+    VAR_SMTP_TLS_LOGLEVEL, DEF_SMTP_TLS_LOGLEVEL, &var_smtp_tls_loglevel, 0, 0,
+    VAR_LMTP_TLS_LOGLEVEL, DEF_LMTP_TLS_LOGLEVEL, &var_lmtp_tls_loglevel, 0, 0,
+    0,
     };
     static const CONFIG_TIME_TABLE time_table[] = {
-	VAR_TLS_RESEED_PERIOD, DEF_TLS_RESEED_PERIOD, &var_tls_reseed_period, 1, 0,
-	VAR_TLS_PRNG_UPD_PERIOD, DEF_TLS_PRNG_UPD_PERIOD, &var_tls_prng_exch_period, 1, 0,
-	VAR_SMTPD_TLS_SCACHTIME, DEF_SMTPD_TLS_SCACHTIME, &var_smtpd_tls_scache_timeout, 0, MAX_SMTPD_TLS_SCACHETIME,
-	VAR_SMTP_TLS_SCACHTIME, DEF_SMTP_TLS_SCACHTIME, &var_smtp_tls_scache_timeout, 0, MAX_SMTP_TLS_SCACHETIME,
-	VAR_LMTP_TLS_SCACHTIME, DEF_LMTP_TLS_SCACHTIME, &var_lmtp_tls_scache_timeout, 0, MAX_LMTP_TLS_SCACHETIME,
-	0,
+    VAR_TLS_RESEED_PERIOD, DEF_TLS_RESEED_PERIOD, &var_tls_reseed_period, 1, 0,
+    VAR_TLS_PRNG_UPD_PERIOD, DEF_TLS_PRNG_UPD_PERIOD, &var_tls_prng_exch_period, 1, 0,
+    VAR_SMTPD_TLS_SCACHTIME, DEF_SMTPD_TLS_SCACHTIME, &var_smtpd_tls_scache_timeout, 0, MAX_SMTPD_TLS_SCACHETIME,
+    VAR_SMTP_TLS_SCACHTIME, DEF_SMTP_TLS_SCACHTIME, &var_smtp_tls_scache_timeout, 0, MAX_SMTP_TLS_SCACHETIME,
+    VAR_LMTP_TLS_SCACHTIME, DEF_LMTP_TLS_SCACHTIME, &var_lmtp_tls_scache_timeout, 0, MAX_LMTP_TLS_SCACHETIME,
+    0,
     };
     static const CONFIG_INT_TABLE int_table[] = {
-	VAR_TLS_RAND_BYTES, DEF_TLS_RAND_BYTES, &var_tls_rand_bytes, 1, 0,
-	0,
+    VAR_TLS_RAND_BYTES, DEF_TLS_RAND_BYTES, &var_tls_rand_bytes, 1, 0,
+    0,
     };
 
     /*
@@ -1072,16 +1072,16 @@ int     main(int argc, char **argv)
      * monitoring our service port while this process runs.
      */
     multi_server_main(argc, argv, tlsmgr_service,
-		      CA_MAIL_SERVER_TIME_TABLE(time_table),
-		      CA_MAIL_SERVER_INT_TABLE(int_table),
-		      CA_MAIL_SERVER_STR_TABLE(str_table),
-		      CA_MAIL_SERVER_PRE_INIT(tlsmgr_pre_init),
-		      CA_MAIL_SERVER_POST_INIT(tlsmgr_post_init),
-		      CA_MAIL_SERVER_POST_ACCEPT(tlsmgr_post_accept),
-		      CA_MAIL_SERVER_EXIT(tlsmgr_before_exit),
-		      CA_MAIL_SERVER_LOOP(tlsmgr_loop),
-		      CA_MAIL_SERVER_SOLITARY,
-		      0);
+              CA_MAIL_SERVER_TIME_TABLE(time_table),
+              CA_MAIL_SERVER_INT_TABLE(int_table),
+              CA_MAIL_SERVER_STR_TABLE(str_table),
+              CA_MAIL_SERVER_PRE_INIT(tlsmgr_pre_init),
+              CA_MAIL_SERVER_POST_INIT(tlsmgr_post_init),
+              CA_MAIL_SERVER_POST_ACCEPT(tlsmgr_post_accept),
+              CA_MAIL_SERVER_EXIT(tlsmgr_before_exit),
+              CA_MAIL_SERVER_LOOP(tlsmgr_loop),
+              CA_MAIL_SERVER_SOLITARY,
+              0);
 }
 
 #else
@@ -1089,7 +1089,7 @@ int     main(int argc, char **argv)
 /* tlsmgr_service - respond to external trigger(s), non-TLS version */
 
 static void tlsmgr_service(VSTREAM *unused_stream, char *unused_service,
-			           char **unused_argv)
+                       char **unused_argv)
 {
     msg_info("TLS support is not compiled in -- exiting");
 }
@@ -1109,7 +1109,7 @@ int     main(int argc, char **argv)
      * log the message that says why this program will not run.
      */
     multi_server_main(argc, argv, tlsmgr_service,
-		      0);
+              0);
 }
 
 #endif

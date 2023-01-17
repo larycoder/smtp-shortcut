@@ -48,7 +48,7 @@ void    test2(int foo)
     /* -Wswitch: enumeration value `b' not handled in switch */
     switch (moe) {
     case a:
-	return;
+    return;
     }
 }
 

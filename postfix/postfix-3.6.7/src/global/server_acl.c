@@ -1,69 +1,69 @@
 /*++
 /* NAME
-/*	server_acl 3
+/*    server_acl 3
 /* SUMMARY
-/*	server access list
+/*    server access list
 /* SYNOPSIS
-/*	#include <server_acl.h>
+/*    #include <server_acl.h>
 /*
-/*	void	server_acl_pre_jail_init(mynetworks, param_name)
-/*	const char *mynetworks;
-/*	const char *param_name;
+/*    void    server_acl_pre_jail_init(mynetworks, param_name)
+/*    const char *mynetworks;
+/*    const char *param_name;
 /*
-/*	SERVER_ACL *server_acl_parse(extern_acl, param_name)
-/*	const char *extern_acl;
-/*	const char *param_name;
+/*    SERVER_ACL *server_acl_parse(extern_acl, param_name)
+/*    const char *extern_acl;
+/*    const char *param_name;
 /*
-/*	int	server_acl_eval(client_addr, intern_acl, param_name)
-/*	const char *client_addr;
-/*	SERVER_ACL *intern_acl;
-/*	const char *param_name;
+/*    int    server_acl_eval(client_addr, intern_acl, param_name)
+/*    const char *client_addr;
+/*    SERVER_ACL *intern_acl;
+/*    const char *param_name;
 /* DESCRIPTION
-/*	This module implements a permanent allow/denylist that
-/*	is meant to be evaluated immediately after a client connects
-/*	to a server.
+/*    This module implements a permanent allow/denylist that
+/*    is meant to be evaluated immediately after a client connects
+/*    to a server.
 /*
-/*	server_acl_pre_jail_init() does before-chroot initialization
-/*	for the permit_mynetworks setting.
+/*    server_acl_pre_jail_init() does before-chroot initialization
+/*    for the permit_mynetworks setting.
 /*
-/*	server_acl_parse() converts an access list from raw string
-/*	form to binary form. It should also be called as part of
-/*	before-chroot initialization.
+/*    server_acl_parse() converts an access list from raw string
+/*    form to binary form. It should also be called as part of
+/*    before-chroot initialization.
 /*
-/*	server_acl_eval() evaluates an access list for the specified
-/*	client address.  The result is SERVER_ACL_ACT_PERMIT (permit),
-/*	SERVER_ACL_ACT_REJECT (reject), SERVER_ACL_ACT_DUNNO (no
-/*	decision), or SERVER_ACL_ACT_ERROR (error, unknown command
-/*	or database access error).
+/*    server_acl_eval() evaluates an access list for the specified
+/*    client address.  The result is SERVER_ACL_ACT_PERMIT (permit),
+/*    SERVER_ACL_ACT_REJECT (reject), SERVER_ACL_ACT_DUNNO (no
+/*    decision), or SERVER_ACL_ACT_ERROR (error, unknown command
+/*    or database access error).
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP mynetworks
-/*	Network addresses that match "permit_mynetworks".
+/*    Network addresses that match "permit_mynetworks".
 /* .IP param_name
-/*	The configuration parameter name for the access list from
-/*	main.cf.  The information is used for error reporting (nested
-/*	table, unknown keyword) and to select the appropriate
-/*	behavior from parent_domain_matches_subdomains.
+/*    The configuration parameter name for the access list from
+/*    main.cf.  The information is used for error reporting (nested
+/*    table, unknown keyword) and to select the appropriate
+/*    behavior from parent_domain_matches_subdomains.
 /* .IP extern_acl
-/*	External access list representation.
+/*    External access list representation.
 /* .IP intern_acl
-/*	Internal access list representation.
+/*    Internal access list representation.
 /* .IP client_addr
-/*	The client IP address as printable string (without []).
+/*    The client IP address as printable string (without []).
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -102,17 +102,17 @@ static ADDR_MATCH_LIST *server_acl_mynetworks_host;
 void    server_acl_pre_jail_init(const char *mynetworks, const char *origin)
 {
     if (server_acl_mynetworks) {
-	addr_match_list_free(server_acl_mynetworks);
-	if (server_acl_mynetworks_host)
-	    addr_match_list_free(server_acl_mynetworks_host);
+    addr_match_list_free(server_acl_mynetworks);
+    if (server_acl_mynetworks_host)
+        addr_match_list_free(server_acl_mynetworks_host);
     }
     server_acl_mynetworks =
-	addr_match_list_init(origin, MATCH_FLAG_RETURN
-			     | match_parent_style(origin), mynetworks);
+    addr_match_list_init(origin, MATCH_FLAG_RETURN
+                 | match_parent_style(origin), mynetworks);
     if (warn_compat_break_mynetworks_style)
-	server_acl_mynetworks_host =
-	    addr_match_list_init(origin, MATCH_FLAG_RETURN
-				 | match_parent_style(origin), mynetworks_host());
+    server_acl_mynetworks_host =
+        addr_match_list_init(origin, MATCH_FLAG_RETURN
+                 | match_parent_style(origin), mynetworks_host());
 }
 
 /* server_acl_parse - parse access list */
@@ -133,21 +133,21 @@ SERVER_ACL *server_acl_parse(const char *extern_acl, const char *origin)
      * chroot jail.
      */
     while ((acl = mystrtokq(&bp, CHARS_COMMA_SP, CHARS_BRACE)) != 0) {
-	if (strchr(acl, ':') != 0) {
-	    if (strchr(origin, ':') != 0) {
-		msg_warn("table %s: lookup result \"%s\" is not allowed"
-			 " -- ignoring remainder of access list",
-			 origin, acl);
-		argv_add(intern_acl, SERVER_ACL_NAME_DUNNO, (char *) 0);
-		break;
-	    } else {
-		if (dict_handle(acl) == 0)
-		    dict_register(acl, dict_open(acl, O_RDONLY, DICT_FLAG_LOCK
-						 | DICT_FLAG_FOLD_FIX
-						 | DICT_FLAG_UTF8_REQUEST));
-	    }
-	}
-	argv_add(intern_acl, acl, (char *) 0);
+    if (strchr(acl, ':') != 0) {
+        if (strchr(origin, ':') != 0) {
+        msg_warn("table %s: lookup result \"%s\" is not allowed"
+             " -- ignoring remainder of access list",
+             origin, acl);
+        argv_add(intern_acl, SERVER_ACL_NAME_DUNNO, (char *) 0);
+        break;
+        } else {
+        if (dict_handle(acl) == 0)
+            dict_register(acl, dict_open(acl, O_RDONLY, DICT_FLAG_LOCK
+                         | DICT_FLAG_FOLD_FIX
+                         | DICT_FLAG_UTF8_REQUEST));
+        }
+    }
+    argv_add(intern_acl, acl, (char *) 0);
     }
     argv_terminate(intern_acl);
 
@@ -161,7 +161,7 @@ SERVER_ACL *server_acl_parse(const char *extern_acl, const char *origin)
 /* server_acl_eval - evaluate access list */
 
 int     server_acl_eval(const char *client_addr, SERVER_ACL * intern_acl,
-			        const char *origin)
+                    const char *origin)
 {
     const char *myname = "server_acl_eval";
     char  **cpp;
@@ -172,61 +172,61 @@ int     server_acl_eval(const char *client_addr, SERVER_ACL * intern_acl,
     int     ret;
 
     for (cpp = intern_acl->argv; (acl = *cpp) != 0; cpp++) {
-	if (msg_verbose)
-	    msg_info("source=%s address=%s acl=%s",
-		     origin, client_addr, acl);
-	if (STREQ(acl, SERVER_ACL_NAME_REJECT)) {
-	    return (SERVER_ACL_ACT_REJECT);
-	} else if (STREQ(acl, SERVER_ACL_NAME_PERMIT)) {
-	    return (SERVER_ACL_ACT_PERMIT);
-	} else if (STREQ(acl, SERVER_ACL_NAME_WL_MYNETWORKS)) {
-	    if (addr_match_list_match(server_acl_mynetworks, client_addr)) {
-		if (warn_compat_break_mynetworks_style
-		    && !addr_match_list_match(server_acl_mynetworks_host,
-					      client_addr))
-		    msg_info("using backwards-compatible default setting "
-			     VAR_MYNETWORKS_STYLE "=%s to permit "
-			     "request from client \"%s\"",
-			     var_mynetworks_style, client_addr);
-		return (SERVER_ACL_ACT_PERMIT);
-	    }
-	    if (server_acl_mynetworks->error != 0) {
-		msg_warn("%s: %s: mynetworks lookup error -- ignoring the "
-			 "remainder of this access list", origin, acl);
-		return (SERVER_ACL_ACT_ERROR);
-	    }
-	} else if (strchr(acl, ':') != 0) {
-	    if ((dict = dict_handle(acl)) == 0)
-		msg_panic("%s: unexpected dictionary: %s", myname, acl);
-	    if ((dict_val = dict_get(dict, client_addr)) != 0) {
-		/* Fake up an ARGV to avoid lots of mallocs and frees. */
-		if (dict_val[strcspn(dict_val, ":" CHARS_COMMA_SP)] == 0) {
-		    ARGV_FAKE_BEGIN(fake_argv, dict_val);
-		    ret = server_acl_eval(client_addr, &fake_argv, acl);
-		    ARGV_FAKE_END;
-		} else {
-		    argv = server_acl_parse(dict_val, acl);
-		    ret = server_acl_eval(client_addr, argv, acl);
-		    argv_free(argv);
-		}
-		if (ret != SERVER_ACL_ACT_DUNNO)
-		    return (ret);
-	    } else if (dict->error != 0) {
-		msg_warn("%s: %s: table lookup error -- ignoring the remainder "
-			 "of this access list", origin, acl);
-		return (SERVER_ACL_ACT_ERROR);
-	    }
-	} else if (STREQ(acl, SERVER_ACL_NAME_DUNNO)) {
-	    return (SERVER_ACL_ACT_DUNNO);
-	} else {
-	    msg_warn("%s: unknown command: %s -- ignoring the remainder "
-		     "of this access list", origin, acl);
-	    return (SERVER_ACL_ACT_ERROR);
-	}
+    if (msg_verbose)
+        msg_info("source=%s address=%s acl=%s",
+             origin, client_addr, acl);
+    if (STREQ(acl, SERVER_ACL_NAME_REJECT)) {
+        return (SERVER_ACL_ACT_REJECT);
+    } else if (STREQ(acl, SERVER_ACL_NAME_PERMIT)) {
+        return (SERVER_ACL_ACT_PERMIT);
+    } else if (STREQ(acl, SERVER_ACL_NAME_WL_MYNETWORKS)) {
+        if (addr_match_list_match(server_acl_mynetworks, client_addr)) {
+        if (warn_compat_break_mynetworks_style
+            && !addr_match_list_match(server_acl_mynetworks_host,
+                          client_addr))
+            msg_info("using backwards-compatible default setting "
+                 VAR_MYNETWORKS_STYLE "=%s to permit "
+                 "request from client \"%s\"",
+                 var_mynetworks_style, client_addr);
+        return (SERVER_ACL_ACT_PERMIT);
+        }
+        if (server_acl_mynetworks->error != 0) {
+        msg_warn("%s: %s: mynetworks lookup error -- ignoring the "
+             "remainder of this access list", origin, acl);
+        return (SERVER_ACL_ACT_ERROR);
+        }
+    } else if (strchr(acl, ':') != 0) {
+        if ((dict = dict_handle(acl)) == 0)
+        msg_panic("%s: unexpected dictionary: %s", myname, acl);
+        if ((dict_val = dict_get(dict, client_addr)) != 0) {
+        /* Fake up an ARGV to avoid lots of mallocs and frees. */
+        if (dict_val[strcspn(dict_val, ":" CHARS_COMMA_SP)] == 0) {
+            ARGV_FAKE_BEGIN(fake_argv, dict_val);
+            ret = server_acl_eval(client_addr, &fake_argv, acl);
+            ARGV_FAKE_END;
+        } else {
+            argv = server_acl_parse(dict_val, acl);
+            ret = server_acl_eval(client_addr, argv, acl);
+            argv_free(argv);
+        }
+        if (ret != SERVER_ACL_ACT_DUNNO)
+            return (ret);
+        } else if (dict->error != 0) {
+        msg_warn("%s: %s: table lookup error -- ignoring the remainder "
+             "of this access list", origin, acl);
+        return (SERVER_ACL_ACT_ERROR);
+        }
+    } else if (STREQ(acl, SERVER_ACL_NAME_DUNNO)) {
+        return (SERVER_ACL_ACT_DUNNO);
+    } else {
+        msg_warn("%s: unknown command: %s -- ignoring the remainder "
+             "of this access list", origin, acl);
+        return (SERVER_ACL_ACT_ERROR);
+    }
     }
     if (msg_verbose)
-	msg_info("source=%s address=%s - no match",
-		 origin, client_addr);
+    msg_info("source=%s address=%s - no match",
+         origin, client_addr);
     return (SERVER_ACL_ACT_DUNNO);
 }
 
@@ -255,11 +255,11 @@ int     main(void)
     char   *cmd;
     char   *value;
     const NAME_CODE acl_map[] = {
-	SERVER_ACL_NAME_ERROR, SERVER_ACL_ACT_ERROR,
-	SERVER_ACL_NAME_PERMIT, SERVER_ACL_ACT_PERMIT,
-	SERVER_ACL_NAME_REJECT, SERVER_ACL_ACT_REJECT,
-	SERVER_ACL_NAME_DUNNO, SERVER_ACL_ACT_DUNNO,
-	0,
+    SERVER_ACL_NAME_ERROR, SERVER_ACL_ACT_ERROR,
+    SERVER_ACL_NAME_PERMIT, SERVER_ACL_ACT_PERMIT,
+    SERVER_ACL_NAME_REJECT, SERVER_ACL_ACT_REJECT,
+    SERVER_ACL_NAME_DUNNO, SERVER_ACL_ACT_DUNNO,
+    0,
     };
 
     /*
@@ -271,32 +271,32 @@ int     main(void)
 #define VAR_SERVER_ACL "server_acl"
 
     while (vstring_get_nonl(buf, VSTREAM_IN) != VSTREAM_EOF) {
-	bufp = STR(buf);
-	if (have_tty == 0) {
-	    vstream_printf("> %s\n", bufp);
-	    vstream_fflush(VSTREAM_OUT);
-	}
-	if (*bufp == '#')
-	    continue;
-	if ((cmd = mystrtok(&bufp, " =")) == 0 || STREQ(cmd, "?")) {
-	    vstream_printf("usage: %s=value|%s=value|address=value\n",
-			   VAR_MYNETWORKS, VAR_SERVER_ACL);
-	} else if ((value = mystrtok(&bufp, " =")) == 0) {
-	    vstream_printf("missing value\n");
-	} else if (STREQ(cmd, VAR_MYNETWORKS)) {
-	    UPDATE_VAR(var_mynetworks, value);
-	} else if (STREQ(cmd, VAR_SERVER_ACL)) {
-	    UPDATE_VAR(var_server_acl, value);
-	} else if (STREQ(cmd, "address")) {
-	    server_acl_pre_jail_init(var_mynetworks, VAR_MYNETWORKS);
-	    argv = server_acl_parse(var_server_acl, VAR_SERVER_ACL);
-	    ret = server_acl_eval(value, argv, VAR_SERVER_ACL);
-	    argv_free(argv);
-	    vstream_printf("%s: %s\n", value, str_name_code(acl_map, ret));
-	} else {
-	    vstream_printf("unknown command: \"%s\"\n", cmd);
-	}
-	vstream_fflush(VSTREAM_OUT);
+    bufp = STR(buf);
+    if (have_tty == 0) {
+        vstream_printf("> %s\n", bufp);
+        vstream_fflush(VSTREAM_OUT);
+    }
+    if (*bufp == '#')
+        continue;
+    if ((cmd = mystrtok(&bufp, " =")) == 0 || STREQ(cmd, "?")) {
+        vstream_printf("usage: %s=value|%s=value|address=value\n",
+               VAR_MYNETWORKS, VAR_SERVER_ACL);
+    } else if ((value = mystrtok(&bufp, " =")) == 0) {
+        vstream_printf("missing value\n");
+    } else if (STREQ(cmd, VAR_MYNETWORKS)) {
+        UPDATE_VAR(var_mynetworks, value);
+    } else if (STREQ(cmd, VAR_SERVER_ACL)) {
+        UPDATE_VAR(var_server_acl, value);
+    } else if (STREQ(cmd, "address")) {
+        server_acl_pre_jail_init(var_mynetworks, VAR_MYNETWORKS);
+        argv = server_acl_parse(var_server_acl, VAR_SERVER_ACL);
+        ret = server_acl_eval(value, argv, VAR_SERVER_ACL);
+        argv_free(argv);
+        vstream_printf("%s: %s\n", value, str_name_code(acl_map, ret));
+    } else {
+        vstream_printf("unknown command: \"%s\"\n", cmd);
+    }
+    vstream_fflush(VSTREAM_OUT);
     }
     vstring_free(buf);
     exit(0);

@@ -1,31 +1,31 @@
 /*++
 /* NAME
-/*	sane_connect 3
+/*    sane_connect 3
 /* SUMMARY
-/*	sanitize connect() results
+/*    sanitize connect() results
 /* SYNOPSIS
-/*	#include <sane_connect.h>
+/*    #include <sane_connect.h>
 /*
-/*	int	sane_connect(sock, buf, len)
-/*	int	sock;
-/*	struct sockaddr	*buf;
-/*	SOCKADDR_SIZE *len;
+/*    int    sane_connect(sock, buf, len)
+/*    int    sock;
+/*    struct sockaddr    *buf;
+/*    SOCKADDR_SIZE *len;
 /* DESCRIPTION
-/*	sane_connect() implements the connect(2) socket call, and maps
-/*	known harmless error results to EAGAIN.
+/*    sane_connect() implements the connect(2) socket call, and maps
+/*    known harmless error results to EAGAIN.
 /* BUGS
-/*	Bizarre systems may have other harmless error results. Such
-/*	systems encourage programmers to ignore error results, and
-/*	penalize programmers who code defensively.
+/*    Bizarre systems may have other harmless error results. Such
+/*    systems encourage programmers to ignore error results, and
+/*    penalize programmers who code defensively.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -56,10 +56,10 @@ int     sane_connect(int sock, struct sockaddr *sa, SOCKADDR_SIZE len)
      * is set to a short time, like 100s.
      */
     if (sa->sa_family == AF_INET) {
-	int     on = 1;
+    int     on = 1;
 
-	(void) setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE,
-			  (void *) &on, sizeof(on));
+    (void) setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE,
+              (void *) &on, sizeof(on));
     }
     return (connect(sock, sa, len));
 }

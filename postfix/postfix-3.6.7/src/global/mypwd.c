@@ -1,63 +1,63 @@
 /*++
 /* NAME
-/*	mypwd 3
+/*    mypwd 3
 /* SUMMARY
-/*	caching getpwnam_r()/getpwuid_r()
+/*    caching getpwnam_r()/getpwuid_r()
 /* SYNOPSIS
-/*	#include <mypwd.h>
+/*    #include <mypwd.h>
 /*
-/*	int	mypwuid_err(uid, pwd)
-/*	uid_t	uid;
-/*	struct mypasswd **pwd;
+/*    int    mypwuid_err(uid, pwd)
+/*    uid_t    uid;
+/*    struct mypasswd **pwd;
 /*
-/*	int	mypwnam_err(name, pwd)
-/*	const char *name;
-/*	struct mypasswd **pwd;
+/*    int    mypwnam_err(name, pwd)
+/*    const char *name;
+/*    struct mypasswd **pwd;
 /*
-/*	void	mypwfree(pwd)
-/*	struct mypasswd *pwd;
+/*    void    mypwfree(pwd)
+/*    struct mypasswd *pwd;
 /* BACKWARDS COMPATIBILITY
-/*	struct mypasswd *mypwuid(uid)
-/*	uid_t	uid;
+/*    struct mypasswd *mypwuid(uid)
+/*    uid_t    uid;
 /*
-/*	struct mypasswd *mypwnam(name)
-/*	const char *name;
+/*    struct mypasswd *mypwnam(name)
+/*    const char *name;
 /* DESCRIPTION
-/*	This module maintains a reference-counted cache of password
-/*	database lookup results. The idea is to avoid making repeated
-/*	getpw*() calls for the same information.
+/*    This module maintains a reference-counted cache of password
+/*    database lookup results. The idea is to avoid making repeated
+/*    getpw*() calls for the same information.
 /*
-/*	mypwnam_err() and mypwuid_err() are wrappers that cache a
-/*	private copy of results from the getpwnam_r() and getpwuid_r()
-/*	library routines (on legacy systems: from getpwnam() and
-/*	getpwuid(). Note: cache updates are not protected by mutex.
+/*    mypwnam_err() and mypwuid_err() are wrappers that cache a
+/*    private copy of results from the getpwnam_r() and getpwuid_r()
+/*    library routines (on legacy systems: from getpwnam() and
+/*    getpwuid(). Note: cache updates are not protected by mutex.
 /*
-/*	Results are shared between calls with the same \fIname\fR
-/*	or \fIuid\fR argument, so changing results is verboten.
+/*    Results are shared between calls with the same \fIname\fR
+/*    or \fIuid\fR argument, so changing results is verboten.
 /*
-/*	mypwnam() and mypwuid() are binary-compatibility wrappers
-/*	for legacy applications.
+/*    mypwnam() and mypwuid() are binary-compatibility wrappers
+/*    for legacy applications.
 /*
-/*	mypwfree() cleans up the result of mypwnam*() and mypwuid*().
+/*    mypwfree() cleans up the result of mypwnam*() and mypwuid*().
 /* BUGS
-/*	This module is security sensitive and complex at the same
-/*	time, which is bad.
+/*    This module is security sensitive and complex at the same
+/*    time, which is bad.
 /* DIAGNOSTICS
-/*	mypwnam_err() and mypwuid_err() return a non-zero system
-/*	error code when the lookup could not be performed. They
-/*	return zero, plus a null struct mypasswd pointer, when the
-/*	requested information was not found.
+/*    mypwnam_err() and mypwuid_err() return a non-zero system
+/*    error code when the lookup could not be performed. They
+/*    return zero, plus a null struct mypasswd pointer, when the
+/*    requested information was not found.
 /*
-/*	Fatal error: out of memory.
+/*    Fatal error: out of memory.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -120,9 +120,9 @@ static struct mypasswd *last_pwd;
   * only for short-term storage.
   */
 #ifdef HAVE_POSIX_GETPW_R
-#define GETPW_R_BUFSIZ		1024
+#define GETPW_R_BUFSIZ        1024
 #endif
-#define MYPWD_ERROR_DELAY	(30)
+#define MYPWD_ERROR_DELAY    (30)
 
 /* mypwenter - enter password info into cache */
 
@@ -134,8 +134,8 @@ static struct mypasswd *mypwenter(const struct passwd * pwd)
      * Initialize on the fly.
      */
     if (mypwcache_name == 0) {
-	mypwcache_name = htable_create(0);
-	mypwcache_uid = binhash_create(0);
+    mypwcache_name = htable_create(0);
+    mypwcache_uid = binhash_create(0);
     }
     mypwd = (struct mypasswd *) mymalloc(sizeof(*mypwd));
     mypwd->refcount = 0;
@@ -154,9 +154,9 @@ static struct mypasswd *mypwenter(const struct passwd * pwd)
      */
     htable_enter(mypwcache_name, mypwd->pw_name, (void *) mypwd);
     if (binhash_locate(mypwcache_uid, (void *) &mypwd->pw_uid,
-		       sizeof(mypwd->pw_uid)) == 0)
-	binhash_enter(mypwcache_uid, (void *) &mypwd->pw_uid,
-		      sizeof(mypwd->pw_uid), (void *) mypwd);
+               sizeof(mypwd->pw_uid)) == 0)
+    binhash_enter(mypwcache_uid, (void *) &mypwd->pw_uid,
+              sizeof(mypwd->pw_uid), (void *) mypwd);
     return (mypwd);
 }
 
@@ -167,8 +167,8 @@ struct mypasswd *mypwuid(uid_t uid)
     struct mypasswd *mypwd;
 
     while ((errno = mypwuid_err(uid, &mypwd)) != 0) {
-	msg_warn("getpwuid_r: %m");
-	sleep(MYPWD_ERROR_DELAY);
+    msg_warn("getpwuid_r: %m");
+    sleep(MYPWD_ERROR_DELAY);
     }
     return (mypwd);
 }
@@ -184,40 +184,40 @@ int     mypwuid_err(uid_t uid, struct mypasswd ** result)
      * See if this is the same user as last time.
      */
     if (last_pwd != 0) {
-	if (last_pwd->pw_uid != uid) {
-	    mypwfree(last_pwd);
-	    last_pwd = 0;
-	} else {
-	    *result = mypwd = last_pwd;
-	    mypwd->refcount++;
-	    return (0);
-	}
+    if (last_pwd->pw_uid != uid) {
+        mypwfree(last_pwd);
+        last_pwd = 0;
+    } else {
+        *result = mypwd = last_pwd;
+        mypwd->refcount++;
+        return (0);
+    }
     }
 
     /*
      * Find the info in the cache or in the password database.
      */
     if ((mypwd = (struct mypasswd *)
-	 binhash_find(mypwcache_uid, (void *) &uid, sizeof(uid))) == 0) {
+     binhash_find(mypwcache_uid, (void *) &uid, sizeof(uid))) == 0) {
 #ifdef HAVE_POSIX_GETPW_R
-	char    pwstore[GETPW_R_BUFSIZ];
-	struct passwd pwbuf;
-	int     err;
+    char    pwstore[GETPW_R_BUFSIZ];
+    struct passwd pwbuf;
+    int     err;
 
-	err = getpwuid_r(uid, &pwbuf, pwstore, sizeof(pwstore), &pwd);
-	if (err != 0)
-	    return (err);
-	if (pwd == 0) {
-	    *result = 0;
-	    return (0);
-	}
+    err = getpwuid_r(uid, &pwbuf, pwstore, sizeof(pwstore), &pwd);
+    if (err != 0)
+        return (err);
+    if (pwd == 0) {
+        *result = 0;
+        return (0);
+    }
 #else
-	if ((pwd = getpwuid(uid)) == 0) {
-	    *result = 0;
-	    return (0);
-	}
+    if ((pwd = getpwuid(uid)) == 0) {
+        *result = 0;
+        return (0);
+    }
 #endif
-	mypwd = mypwenter(pwd);
+    mypwd = mypwenter(pwd);
     }
     *result = last_pwd = mypwd;
     mypwd->refcount += 2;
@@ -231,8 +231,8 @@ struct mypasswd *mypwnam(const char *name)
     struct mypasswd *mypwd;
 
     while ((errno = mypwnam_err(name, &mypwd)) != 0) {
-	msg_warn("getpwnam_r: %m");
-	sleep(MYPWD_ERROR_DELAY);
+    msg_warn("getpwnam_r: %m");
+    sleep(MYPWD_ERROR_DELAY);
     }
     return (mypwd);
 }
@@ -248,14 +248,14 @@ int     mypwnam_err(const char *name, struct mypasswd ** result)
      * See if this is the same user as last time.
      */
     if (last_pwd != 0) {
-	if (strcmp(last_pwd->pw_name, name) != 0) {
-	    mypwfree(last_pwd);
-	    last_pwd = 0;
-	} else {
-	    *result = mypwd = last_pwd;
-	    mypwd->refcount++;
-	    return (0);
-	}
+    if (strcmp(last_pwd->pw_name, name) != 0) {
+        mypwfree(last_pwd);
+        last_pwd = 0;
+    } else {
+        *result = mypwd = last_pwd;
+        mypwd->refcount++;
+        return (0);
+    }
     }
 
     /*
@@ -263,24 +263,24 @@ int     mypwnam_err(const char *name, struct mypasswd ** result)
      */
     if ((mypwd = (struct mypasswd *) htable_find(mypwcache_name, name)) == 0) {
 #ifdef HAVE_POSIX_GETPW_R
-	char    pwstore[GETPW_R_BUFSIZ];
-	struct passwd pwbuf;
-	int     err;
+    char    pwstore[GETPW_R_BUFSIZ];
+    struct passwd pwbuf;
+    int     err;
 
-	err = getpwnam_r(name, &pwbuf, pwstore, sizeof(pwstore), &pwd);
-	if (err != 0)
-	    return (err);
-	if (pwd == 0) {
-	    *result = 0;
-	    return (0);
-	}
+    err = getpwnam_r(name, &pwbuf, pwstore, sizeof(pwstore), &pwd);
+    if (err != 0)
+        return (err);
+    if (pwd == 0) {
+        *result = 0;
+        return (0);
+    }
 #else
-	if ((pwd = getpwnam(name)) == 0) {
-	    *result = 0;
-	    return (0);
-	}
+    if ((pwd = getpwnam(name)) == 0) {
+        *result = 0;
+        return (0);
+    }
 #endif
-	mypwd = mypwenter(pwd);
+    mypwd = mypwenter(pwd);
     }
     *result = last_pwd = mypwd;
     mypwd->refcount += 2;
@@ -292,23 +292,23 @@ int     mypwnam_err(const char *name, struct mypasswd ** result)
 void    mypwfree(struct mypasswd * mypwd)
 {
     if (mypwd->refcount < 1)
-	msg_panic("mypwfree: refcount %d", mypwd->refcount);
+    msg_panic("mypwfree: refcount %d", mypwd->refcount);
 
     /*
      * See mypwenter() for the reason behind the binhash_locate() test.
      */
     if (--mypwd->refcount == 0) {
-	htable_delete(mypwcache_name, mypwd->pw_name, (void (*) (void *)) 0);
-	if (binhash_locate(mypwcache_uid, (void *) &mypwd->pw_uid,
-			   sizeof(mypwd->pw_uid)))
-	    binhash_delete(mypwcache_uid, (void *) &mypwd->pw_uid,
-			   sizeof(mypwd->pw_uid), (void (*) (void *)) 0);
-	myfree(mypwd->pw_name);
-	myfree(mypwd->pw_passwd);
-	myfree(mypwd->pw_gecos);
-	myfree(mypwd->pw_dir);
-	myfree(mypwd->pw_shell);
-	myfree((void *) mypwd);
+    htable_delete(mypwcache_name, mypwd->pw_name, (void (*) (void *)) 0);
+    if (binhash_locate(mypwcache_uid, (void *) &mypwd->pw_uid,
+               sizeof(mypwd->pw_uid)))
+        binhash_delete(mypwcache_uid, (void *) &mypwd->pw_uid,
+               sizeof(mypwd->pw_uid), (void (*) (void *)) 0);
+    myfree(mypwd->pw_name);
+    myfree(mypwd->pw_passwd);
+    myfree(mypwd->pw_gecos);
+    myfree(mypwd->pw_dir);
+    myfree(mypwd->pw_shell);
+    myfree((void *) mypwd);
     }
 }
 
@@ -330,7 +330,7 @@ int     main(int argc, char **argv)
 
     msg_vstream_init(argv[0], VSTREAM_ERR);
     if (argc == 1)
-	msg_fatal("usage: %s name or uid ...", argv[0]);
+    msg_fatal("usage: %s name or uid ...", argv[0]);
 
     mypwd = (struct mypasswd **) mymalloc((argc + 2) * sizeof(*mypwd));
 
@@ -338,15 +338,15 @@ int     main(int argc, char **argv)
      * Do a sequence of lookups.
      */
     for (i = 1; i < argc; i++) {
-	if (ISDIGIT(argv[i][0]))
-	    mypwd[i] = mypwuid(atoi(argv[i]));
-	else
-	    mypwd[i] = mypwnam(argv[i]);
-	if (mypwd[i] == 0)
-	    msg_fatal("%s: not found", argv[i]);
-	msg_info("lookup %s %s/%d refcount=%d name_cache=%d uid_cache=%d",
-		 argv[i], mypwd[i]->pw_name, mypwd[i]->pw_uid,
-	     mypwd[i]->refcount, mypwcache_name->used, mypwcache_uid->used);
+    if (ISDIGIT(argv[i][0]))
+        mypwd[i] = mypwuid(atoi(argv[i]));
+    else
+        mypwd[i] = mypwnam(argv[i]);
+    if (mypwd[i] == 0)
+        msg_fatal("%s: not found", argv[i]);
+    msg_info("lookup %s %s/%d refcount=%d name_cache=%d uid_cache=%d",
+         argv[i], mypwd[i]->pw_name, mypwd[i]->pw_uid,
+         mypwd[i]->refcount, mypwcache_name->used, mypwcache_uid->used);
     }
     mypwd[argc] = last_pwd;
 
@@ -354,13 +354,13 @@ int     main(int argc, char **argv)
      * The following should free all entries.
      */
     for (i = 1; i < argc + 1; i++) {
-	msg_info("free %s/%d refcount=%d name_cache=%d uid_cache=%d",
-		 mypwd[i]->pw_name, mypwd[i]->pw_uid, mypwd[i]->refcount,
-		 mypwcache_name->used, mypwcache_uid->used);
-	mypwfree(mypwd[i]);
+    msg_info("free %s/%d refcount=%d name_cache=%d uid_cache=%d",
+         mypwd[i]->pw_name, mypwd[i]->pw_uid, mypwd[i]->refcount,
+         mypwcache_name->used, mypwcache_uid->used);
+    mypwfree(mypwd[i]);
     }
     msg_info("name_cache=%d uid_cache=%d",
-	     mypwcache_name->used, mypwcache_uid->used);
+         mypwcache_name->used, mypwcache_uid->used);
 
     myfree((void *) mypwd);
     return (0);

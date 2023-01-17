@@ -1,55 +1,55 @@
 /*++
 /* NAME
-/*	smtpd_expand 3
+/*    smtpd_expand 3
 /* SUMMARY
-/*	SMTP server macro expansion
+/*    SMTP server macro expansion
 /* SYNOPSIS
-/*	#include <smtpd.h>
-/*	#include <smtpd_expand.h>
+/*    #include <smtpd.h>
+/*    #include <smtpd_expand.h>
 /*
-/*	void	smtpd_expand_init()
+/*    void    smtpd_expand_init()
 /*
-/*	int	smtpd_expand(state, result, template, flags)
-/*	SMTPD_STATE *state;
-/*	VSTRING	*result;
-/*	const char *template;
-/*	int	flags;
+/*    int    smtpd_expand(state, result, template, flags)
+/*    SMTPD_STATE *state;
+/*    VSTRING    *result;
+/*    const char *template;
+/*    int    flags;
 /* LOW_LEVEL INTERFACE
-/*	VSTRING *smtpd_expand_filter;
+/*    VSTRING *smtpd_expand_filter;
 /*
-/*	const char *smtpd_expand_lookup(name, unused_mode, context)
-/*	const char *name;
-/*	int	unused_mode;
-/*	void	*context;
-/*	const char *template;
+/*    const char *smtpd_expand_lookup(name, unused_mode, context)
+/*    const char *name;
+/*    int    unused_mode;
+/*    void    *context;
+/*    const char *template;
 /* DESCRIPTION
-/*	This module expands session-related macros.
+/*    This module expands session-related macros.
 /*
-/*	smtpd_expand_init() performs one-time initialization.
+/*    smtpd_expand_init() performs one-time initialization.
 /*
-/*	smtpd_expand() expands macros in the template, using session
-/*	attributes in the state argument, and writes the result to
-/*	the result argument. The flags and result value are as with
-/*	mac_expand().
+/*    smtpd_expand() expands macros in the template, using session
+/*    attributes in the state argument, and writes the result to
+/*    the result argument. The flags and result value are as with
+/*    mac_expand().
 /*
-/*	smtpd_expand_filter and smtpd_expand_lookup() provide access
-/*	to lower-level interfaces that are used by smtpd_expand().
-/*	smtpd_expand_lookup() returns null when a string is not
-/*	found (or when it is a null pointer).
+/*    smtpd_expand_filter and smtpd_expand_lookup() provide access
+/*    to lower-level interfaces that are used by smtpd_expand().
+/*    smtpd_expand_lookup() returns null when a string is not
+/*    found (or when it is a null pointer).
 /* DIAGNOSTICS
-/*	Panic: interface violations. Fatal errors: out of memory.
-/*	internal protocol errors. smtpd_expand() returns the binary
-/*	OR of MAC_PARSE_ERROR (syntax error) and MAC_PARSE_UNDEF
-/*	(undefined macro name).
+/*    Panic: interface violations. Fatal errors: out of memory.
+/*    internal protocol errors. smtpd_expand() returns the binary
+/*    OR of MAC_PARSE_ERROR (syntax error) and MAC_PARSE_UNDEF
+/*    (undefined macro name).
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -82,7 +82,7 @@ VSTRING *smtpd_expand_filter;
  /*
   * SLMs.
   */
-#define STR	vstring_str
+#define STR    vstring_str
 
 /* smtpd_expand_init - initialize once during process lifetime */
 
@@ -106,7 +106,7 @@ static void smtpd_expand_unknown(const char *name)
 /* smtpd_expand_addr - return address or substring thereof */
 
 static const char *smtpd_expand_addr(VSTRING *buf, const char *addr,
-				           const char *name, int prefix_len)
+                           const char *name, int prefix_len)
 {
     const char *p;
     const char *suffix;
@@ -115,7 +115,7 @@ static const char *smtpd_expand_addr(VSTRING *buf, const char *addr,
      * Return NULL only for unknown names in expansion requests.
      */
     if (addr == 0)
-	return ("");
+    return ("");
 
     suffix = name + prefix_len;
 
@@ -123,10 +123,10 @@ static const char *smtpd_expand_addr(VSTRING *buf, const char *addr,
      * MAIL_ATTR_SENDER or MAIL_ATTR_RECIP.
      */
     if (*suffix == 0) {
-	if (*addr)
-	    return (addr);
-	else
-	    return ("<>");
+    if (*addr)
+        return (addr);
+    else
+        return ("<>");
     }
 
     /*
@@ -135,54 +135,54 @@ static const char *smtpd_expand_addr(VSTRING *buf, const char *addr,
 #define STREQ(x,y) (*(x) == *(y) && strcmp((x), (y)) == 0)
 
     else if (STREQ(suffix, MAIL_ATTR_S_NAME)) {
-	if (*addr) {
-	    if ((p = strrchr(addr, '@')) != 0) {
-		vstring_strncpy(buf, addr, p - addr);
-		return (STR(buf));
-	    } else {
-		return (addr);
-	    }
-	} else
-	    return ("<>");
+    if (*addr) {
+        if ((p = strrchr(addr, '@')) != 0) {
+        vstring_strncpy(buf, addr, p - addr);
+        return (STR(buf));
+        } else {
+        return (addr);
+        }
+    } else
+        return ("<>");
     }
 
     /*
      * "sender_domain" or "recipient_domain".
      */
     else if (STREQ(suffix, MAIL_ATTR_S_DOMAIN)) {
-	if (*addr) {
-	    if ((p = strrchr(addr, '@')) != 0) {
-		return (p + 1);
-	    } else {
-		return ("");
-	    }
-	} else
-	    return ("");
+    if (*addr) {
+        if ((p = strrchr(addr, '@')) != 0) {
+        return (p + 1);
+        } else {
+        return ("");
+        }
+    } else
+        return ("");
     }
 
     /*
      * Unknown. Return NULL to indicate an "unknown name" error.
      */
     else {
-	smtpd_expand_unknown(name);
-	return (0);
+    smtpd_expand_unknown(name);
+    return (0);
     }
 }
 
 /* smtpd_expand_lookup - generic SMTP attribute $name expansion */
 
 const char *smtpd_expand_lookup(const char *name, int unused_mode,
-				        void *context)
+                        void *context)
 {
     SMTPD_STATE *state = (SMTPD_STATE *) context;
     time_t  now;
     struct tm *lt;
 
     if (state->expand_buf == 0)
-	state->expand_buf = vstring_alloc(10);
+    state->expand_buf = vstring_alloc(10);
 
     if (msg_verbose > 1)
-	msg_info("smtpd_expand_lookup: ${%s}", name);
+    msg_info("smtpd_expand_lookup: ${%s}", name);
 
 #define STREQN(x,y,n) (*(x) == *(y) && strncmp((x), (y), (n)) == 0)
 #define CONST_LEN(x)  (sizeof(x) - 1)
@@ -201,47 +201,47 @@ const char *smtpd_expand_lookup(const char *name, int unused_mode,
      * Return NULL only for non-existent names.
      */
     if (STREQ(name, MAIL_ATTR_SERVER_NAME)) {
-	return (var_myhostname);
+    return (var_myhostname);
     } else if (STREQ(name, MAIL_ATTR_ACT_CLIENT)) {
-	return (state->namaddr);
+    return (state->namaddr);
     } else if (STREQ(name, MAIL_ATTR_ACT_CLIENT_PORT)) {
-	return (state->port);
+    return (state->port);
     } else if (STREQ(name, MAIL_ATTR_ACT_CLIENT_ADDR)) {
-	return (state->addr);
+    return (state->addr);
     } else if (STREQ(name, MAIL_ATTR_ACT_CLIENT_NAME)) {
-	return (state->name);
+    return (state->name);
     } else if (STREQ(name, MAIL_ATTR_ACT_REVERSE_CLIENT_NAME)) {
-	return (state->reverse_name);
+    return (state->reverse_name);
     } else if (STREQ(name, MAIL_ATTR_ACT_HELO_NAME)) {
-	return (state->helo_name ? state->helo_name : "");
+    return (state->helo_name ? state->helo_name : "");
     } else if (STREQN(name, MAIL_ATTR_SENDER, CONST_LEN(MAIL_ATTR_SENDER))) {
-	return (smtpd_expand_addr(state->expand_buf, state->sender,
-				  name, CONST_LEN(MAIL_ATTR_SENDER)));
+    return (smtpd_expand_addr(state->expand_buf, state->sender,
+                  name, CONST_LEN(MAIL_ATTR_SENDER)));
     } else if (STREQN(name, MAIL_ATTR_RECIP, CONST_LEN(MAIL_ATTR_RECIP))) {
-	return (smtpd_expand_addr(state->expand_buf, state->recipient,
-				  name, CONST_LEN(MAIL_ATTR_RECIP)));
+    return (smtpd_expand_addr(state->expand_buf, state->recipient,
+                  name, CONST_LEN(MAIL_ATTR_RECIP)));
     } if (STREQ(name, MAIL_ATTR_LOCALTIME)) {
-	if (time(&now) == (time_t) -1)
-	    msg_fatal("time lookup failed: %m");
-	lt = localtime(&now);
-	VSTRING_RESET(state->expand_buf);
-	do {
-	    VSTRING_SPACE(state->expand_buf, 100);
-	} while (strftime(STR(state->expand_buf),
-			  vstring_avail(state->expand_buf),
-			  "%b %d %H:%M:%S", lt) == 0);
-	return (STR(state->expand_buf));
+    if (time(&now) == (time_t) -1)
+        msg_fatal("time lookup failed: %m");
+    lt = localtime(&now);
+    VSTRING_RESET(state->expand_buf);
+    do {
+        VSTRING_SPACE(state->expand_buf, 100);
+    } while (strftime(STR(state->expand_buf),
+              vstring_avail(state->expand_buf),
+              "%b %d %H:%M:%S", lt) == 0);
+    return (STR(state->expand_buf));
     } else {
-	smtpd_expand_unknown(name);
-	return (0);
+    smtpd_expand_unknown(name);
+    return (0);
     }
 }
 
 /* smtpd_expand - expand session attributes in string */
 
 int     smtpd_expand(SMTPD_STATE *state, VSTRING *result,
-		             const char *template, int flags)
+                     const char *template, int flags)
 {
     return (mac_expand(result, template, flags, STR(smtpd_expand_filter),
-		       smtpd_expand_lookup, (void *) state));
+               smtpd_expand_lookup, (void *) state));
 }

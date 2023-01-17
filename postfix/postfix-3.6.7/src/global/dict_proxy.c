@@ -1,51 +1,51 @@
 /*++
 /* NAME
-/*	dict_proxy 3
+/*    dict_proxy 3
 /* SUMMARY
-/*	generic dictionary proxy client
+/*    generic dictionary proxy client
 /* SYNOPSIS
-/*	#include <dict_proxy.h>
+/*    #include <dict_proxy.h>
 /*
-/*	DICT	*dict_proxy_open(map, open_flags, dict_flags)
-/*	const char *map;
-/*	int	open_flags;
-/*	int	dict_flags;
+/*    DICT    *dict_proxy_open(map, open_flags, dict_flags)
+/*    const char *map;
+/*    int    open_flags;
+/*    int    dict_flags;
 /* DESCRIPTION
-/*	dict_proxy_open() relays read-only or read-write operations
-/*	through the Postfix proxymap server.
+/*    dict_proxy_open() relays read-only or read-write operations
+/*    through the Postfix proxymap server.
 /*
-/*	The \fIopen_flags\fR argument must specify O_RDONLY
-/*	or O_RDWR. Depending on this, the client
-/*	connects to the proxymap multiserver or to the
-/*	proxywrite single updater.
+/*    The \fIopen_flags\fR argument must specify O_RDONLY
+/*    or O_RDWR. Depending on this, the client
+/*    connects to the proxymap multiserver or to the
+/*    proxywrite single updater.
 /*
-/*	The connection to the Postfix proxymap server is automatically
-/*	closed after $ipc_idle seconds of idle time, or after $ipc_ttl
-/*	seconds of activity.
+/*    The connection to the Postfix proxymap server is automatically
+/*    closed after $ipc_idle seconds of idle time, or after $ipc_ttl
+/*    seconds of activity.
 /* SECURITY
-/*	The proxy map server is not meant to be a trusted process. Proxy
-/*	maps must not be used to look up security sensitive information
-/*	such as user/group IDs, output files, or external commands.
+/*    The proxy map server is not meant to be a trusted process. Proxy
+/*    maps must not be used to look up security sensitive information
+/*    such as user/group IDs, output files, or external commands.
 /* SEE ALSO
-/*	dict(3) generic dictionary manager
-/*	clnt_stream(3) client endpoint connection management
+/*    dict(3) generic dictionary manager
+/*    clnt_stream(3) client endpoint connection management
 /* DIAGNOSTICS
-/*	Fatal errors: out of memory, unimplemented operation,
-/*	bad request parameter, map not approved for proxy access.
+/*    Fatal errors: out of memory, unimplemented operation,
+/*    bad request parameter, map not approved for proxy access.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -74,39 +74,39 @@
 /* Application-specific. */
 
 typedef struct {
-    DICT    dict;			/* generic members */
-    CLNT_STREAM *clnt;			/* client handle (shared) */
-    const char *service;		/* service name */
-    int     inst_flags;			/* saved dict flags */
-    VSTRING *reskey;			/* result key storage */
-    VSTRING *result;			/* storage */
+    DICT    dict;            /* generic members */
+    CLNT_STREAM *clnt;            /* client handle (shared) */
+    const char *service;        /* service name */
+    int     inst_flags;            /* saved dict flags */
+    VSTRING *reskey;            /* result key storage */
+    VSTRING *result;            /* storage */
 } DICT_PROXY;
 
  /*
   * SLMs.
   */
-#define STR(x)		vstring_str(x)
-#define VSTREQ(v,s)	(strcmp(STR(v),s) == 0)
+#define STR(x)        vstring_str(x)
+#define VSTREQ(v,s)    (strcmp(STR(v),s) == 0)
 
  /*
   * All proxied maps of the same type share the same query/reply socket.
   */
-static CLNT_STREAM *proxymap_stream;	/* read-only maps */
-static CLNT_STREAM *proxywrite_stream;	/* read-write maps */
+static CLNT_STREAM *proxymap_stream;    /* read-only maps */
+static CLNT_STREAM *proxywrite_stream;    /* read-write maps */
 
 /* dict_proxy_handshake - receive server protocol announcement */
 
 static int dict_proxy_handshake(VSTREAM *stream)
 {
     return (attr_scan(stream, ATTR_FLAG_STRICT,
-		 RECV_ATTR_STREQ(MAIL_ATTR_PROTO, MAIL_ATTR_PROTO_PROXYMAP),
-		      ATTR_TYPE_END));
+         RECV_ATTR_STREQ(MAIL_ATTR_PROTO, MAIL_ATTR_PROTO_PROXYMAP),
+              ATTR_TYPE_END));
 }
 
 /* dict_proxy_sequence - find first/next entry */
 
 static int dict_proxy_sequence(DICT *dict, int function,
-			               const char **key, const char **value)
+                           const char **key, const char **value)
 {
     const char *myname = "dict_proxy_sequence";
     DICT_PROXY *dict_proxy = (DICT_PROXY *) dict;
@@ -127,61 +127,61 @@ static int dict_proxy_sequence(DICT *dict, int function,
     VSTRING_RESET(dict_proxy->result);
     VSTRING_TERMINATE(dict_proxy->result);
     request_flags = dict_proxy->inst_flags
-	| (dict->flags & DICT_FLAG_RQST_MASK);
+    | (dict->flags & DICT_FLAG_RQST_MASK);
     for (;;) {
-	stream = clnt_stream_access(dict_proxy->clnt);
-	errno = 0;
-	count += 1;
-	if (stream == 0
-	    || attr_print(stream, ATTR_FLAG_NONE,
-			  SEND_ATTR_STR(MAIL_ATTR_REQ, PROXY_REQ_SEQUENCE),
-			  SEND_ATTR_STR(MAIL_ATTR_TABLE, dict->name),
-			  SEND_ATTR_INT(MAIL_ATTR_FLAGS, request_flags),
-			  SEND_ATTR_INT(MAIL_ATTR_FUNC, function),
-			  ATTR_TYPE_END) != 0
-	    || vstream_fflush(stream)
-	    || attr_scan(stream, ATTR_FLAG_STRICT,
-			 RECV_ATTR_INT(MAIL_ATTR_STATUS, &status),
-			 RECV_ATTR_STR(MAIL_ATTR_KEY, dict_proxy->reskey),
-			 RECV_ATTR_STR(MAIL_ATTR_VALUE, dict_proxy->result),
-			 ATTR_TYPE_END) != 3) {
-	    if (msg_verbose || count > 1 || (errno && errno != EPIPE && errno != ENOENT))
-		msg_warn("%s: service %s: %m", myname, dict_proxy->service);
-	} else {
-	    if (msg_verbose)
-		msg_info("%s: table=%s flags=%s func=%d -> status=%d key=%s val=%s",
-			 myname, dict->name, dict_flags_str(request_flags),
-			 function, status, STR(dict_proxy->reskey),
-			 STR(dict_proxy->result));
-	    switch (status) {
-	    case PROXY_STAT_BAD:
-		msg_fatal("%s sequence failed for table \"%s\" function %d: "
-			  "invalid request",
-			  dict_proxy->service, dict->name, function);
-	    case PROXY_STAT_DENY:
-		msg_fatal("%s service is not configured for table \"%s\"",
-			  dict_proxy->service, dict->name);
-	    case PROXY_STAT_OK:
-		*key = STR(dict_proxy->reskey);
-		*value = STR(dict_proxy->result);
-		DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE, DICT_STAT_SUCCESS);
-	    case PROXY_STAT_NOKEY:
-		*key = *value = 0;
-		DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE, DICT_STAT_FAIL);
-	    case PROXY_STAT_RETRY:
-		*key = *value = 0;
-		DICT_ERR_VAL_RETURN(dict, DICT_ERR_RETRY, DICT_STAT_ERROR);
-	    case PROXY_STAT_CONFIG:
-		*key = *value = 0;
-		DICT_ERR_VAL_RETURN(dict, DICT_ERR_CONFIG, DICT_STAT_ERROR);
-	    default:
-		msg_warn("%s sequence failed for table \"%s\" function %d: "
-			 "unexpected reply status %d",
-			 dict_proxy->service, dict->name, function, status);
-	    }
-	}
-	clnt_stream_recover(dict_proxy->clnt);
-	sleep(1);				/* XXX make configurable */
+    stream = clnt_stream_access(dict_proxy->clnt);
+    errno = 0;
+    count += 1;
+    if (stream == 0
+        || attr_print(stream, ATTR_FLAG_NONE,
+              SEND_ATTR_STR(MAIL_ATTR_REQ, PROXY_REQ_SEQUENCE),
+              SEND_ATTR_STR(MAIL_ATTR_TABLE, dict->name),
+              SEND_ATTR_INT(MAIL_ATTR_FLAGS, request_flags),
+              SEND_ATTR_INT(MAIL_ATTR_FUNC, function),
+              ATTR_TYPE_END) != 0
+        || vstream_fflush(stream)
+        || attr_scan(stream, ATTR_FLAG_STRICT,
+             RECV_ATTR_INT(MAIL_ATTR_STATUS, &status),
+             RECV_ATTR_STR(MAIL_ATTR_KEY, dict_proxy->reskey),
+             RECV_ATTR_STR(MAIL_ATTR_VALUE, dict_proxy->result),
+             ATTR_TYPE_END) != 3) {
+        if (msg_verbose || count > 1 || (errno && errno != EPIPE && errno != ENOENT))
+        msg_warn("%s: service %s: %m", myname, dict_proxy->service);
+    } else {
+        if (msg_verbose)
+        msg_info("%s: table=%s flags=%s func=%d -> status=%d key=%s val=%s",
+             myname, dict->name, dict_flags_str(request_flags),
+             function, status, STR(dict_proxy->reskey),
+             STR(dict_proxy->result));
+        switch (status) {
+        case PROXY_STAT_BAD:
+        msg_fatal("%s sequence failed for table \"%s\" function %d: "
+              "invalid request",
+              dict_proxy->service, dict->name, function);
+        case PROXY_STAT_DENY:
+        msg_fatal("%s service is not configured for table \"%s\"",
+              dict_proxy->service, dict->name);
+        case PROXY_STAT_OK:
+        *key = STR(dict_proxy->reskey);
+        *value = STR(dict_proxy->result);
+        DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE, DICT_STAT_SUCCESS);
+        case PROXY_STAT_NOKEY:
+        *key = *value = 0;
+        DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE, DICT_STAT_FAIL);
+        case PROXY_STAT_RETRY:
+        *key = *value = 0;
+        DICT_ERR_VAL_RETURN(dict, DICT_ERR_RETRY, DICT_STAT_ERROR);
+        case PROXY_STAT_CONFIG:
+        *key = *value = 0;
+        DICT_ERR_VAL_RETURN(dict, DICT_ERR_CONFIG, DICT_STAT_ERROR);
+        default:
+        msg_warn("%s sequence failed for table \"%s\" function %d: "
+             "unexpected reply status %d",
+             dict_proxy->service, dict->name, function, status);
+        }
+    }
+    clnt_stream_recover(dict_proxy->clnt);
+    sleep(1);                /* XXX make configurable */
     }
 }
 
@@ -206,55 +206,55 @@ static const char *dict_proxy_lookup(DICT *dict, const char *key)
     VSTRING_RESET(dict_proxy->result);
     VSTRING_TERMINATE(dict_proxy->result);
     request_flags = dict_proxy->inst_flags
-	| (dict->flags & DICT_FLAG_RQST_MASK);
+    | (dict->flags & DICT_FLAG_RQST_MASK);
     for (;;) {
-	stream = clnt_stream_access(dict_proxy->clnt);
-	errno = 0;
-	count += 1;
-	if (stream == 0
-	    || attr_print(stream, ATTR_FLAG_NONE,
-			  SEND_ATTR_STR(MAIL_ATTR_REQ, PROXY_REQ_LOOKUP),
-			  SEND_ATTR_STR(MAIL_ATTR_TABLE, dict->name),
-			  SEND_ATTR_INT(MAIL_ATTR_FLAGS, request_flags),
-			  SEND_ATTR_STR(MAIL_ATTR_KEY, key),
-			  ATTR_TYPE_END) != 0
-	    || vstream_fflush(stream)
-	    || attr_scan(stream, ATTR_FLAG_STRICT,
-			 RECV_ATTR_INT(MAIL_ATTR_STATUS, &status),
-			 RECV_ATTR_STR(MAIL_ATTR_VALUE, dict_proxy->result),
-			 ATTR_TYPE_END) != 2) {
-	    if (msg_verbose || count > 1 || (errno && errno != EPIPE && errno != ENOENT))
-		msg_warn("%s: service %s: %m", myname, dict_proxy->service);
-	} else {
-	    if (msg_verbose)
-		msg_info("%s: table=%s flags=%s key=%s -> status=%d result=%s",
-			 myname, dict->name,
-			 dict_flags_str(request_flags), key,
-			 status, STR(dict_proxy->result));
-	    switch (status) {
-	    case PROXY_STAT_BAD:
-		msg_fatal("%s lookup failed for table \"%s\" key \"%s\": "
-			  "invalid request",
-			  dict_proxy->service, dict->name, key);
-	    case PROXY_STAT_DENY:
-		msg_fatal("%s service is not configured for table \"%s\"",
-			  dict_proxy->service, dict->name);
-	    case PROXY_STAT_OK:
-		DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE, STR(dict_proxy->result));
-	    case PROXY_STAT_NOKEY:
-		DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE, (char *) 0);
-	    case PROXY_STAT_RETRY:
-		DICT_ERR_VAL_RETURN(dict, DICT_ERR_RETRY, (char *) 0);
-	    case PROXY_STAT_CONFIG:
-		DICT_ERR_VAL_RETURN(dict, DICT_ERR_CONFIG, (char *) 0);
-	    default:
-		msg_warn("%s lookup failed for table \"%s\" key \"%s\": "
-			 "unexpected reply status %d",
-			 dict_proxy->service, dict->name, key, status);
-	    }
-	}
-	clnt_stream_recover(dict_proxy->clnt);
-	sleep(1);				/* XXX make configurable */
+    stream = clnt_stream_access(dict_proxy->clnt);
+    errno = 0;
+    count += 1;
+    if (stream == 0
+        || attr_print(stream, ATTR_FLAG_NONE,
+              SEND_ATTR_STR(MAIL_ATTR_REQ, PROXY_REQ_LOOKUP),
+              SEND_ATTR_STR(MAIL_ATTR_TABLE, dict->name),
+              SEND_ATTR_INT(MAIL_ATTR_FLAGS, request_flags),
+              SEND_ATTR_STR(MAIL_ATTR_KEY, key),
+              ATTR_TYPE_END) != 0
+        || vstream_fflush(stream)
+        || attr_scan(stream, ATTR_FLAG_STRICT,
+             RECV_ATTR_INT(MAIL_ATTR_STATUS, &status),
+             RECV_ATTR_STR(MAIL_ATTR_VALUE, dict_proxy->result),
+             ATTR_TYPE_END) != 2) {
+        if (msg_verbose || count > 1 || (errno && errno != EPIPE && errno != ENOENT))
+        msg_warn("%s: service %s: %m", myname, dict_proxy->service);
+    } else {
+        if (msg_verbose)
+        msg_info("%s: table=%s flags=%s key=%s -> status=%d result=%s",
+             myname, dict->name,
+             dict_flags_str(request_flags), key,
+             status, STR(dict_proxy->result));
+        switch (status) {
+        case PROXY_STAT_BAD:
+        msg_fatal("%s lookup failed for table \"%s\" key \"%s\": "
+              "invalid request",
+              dict_proxy->service, dict->name, key);
+        case PROXY_STAT_DENY:
+        msg_fatal("%s service is not configured for table \"%s\"",
+              dict_proxy->service, dict->name);
+        case PROXY_STAT_OK:
+        DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE, STR(dict_proxy->result));
+        case PROXY_STAT_NOKEY:
+        DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE, (char *) 0);
+        case PROXY_STAT_RETRY:
+        DICT_ERR_VAL_RETURN(dict, DICT_ERR_RETRY, (char *) 0);
+        case PROXY_STAT_CONFIG:
+        DICT_ERR_VAL_RETURN(dict, DICT_ERR_CONFIG, (char *) 0);
+        default:
+        msg_warn("%s lookup failed for table \"%s\" key \"%s\": "
+             "unexpected reply status %d",
+             dict_proxy->service, dict->name, key, status);
+        }
+    }
+    clnt_stream_recover(dict_proxy->clnt);
+    sleep(1);                /* XXX make configurable */
     }
 }
 
@@ -277,54 +277,54 @@ static int dict_proxy_update(DICT *dict, const char *key, const char *value)
      * the table and the flags that were specified to dict_proxy_open().
      */
     request_flags = dict_proxy->inst_flags
-	| (dict->flags & DICT_FLAG_RQST_MASK);
+    | (dict->flags & DICT_FLAG_RQST_MASK);
     for (;;) {
-	stream = clnt_stream_access(dict_proxy->clnt);
-	errno = 0;
-	count += 1;
-	if (stream == 0
-	    || attr_print(stream, ATTR_FLAG_NONE,
-			  SEND_ATTR_STR(MAIL_ATTR_REQ, PROXY_REQ_UPDATE),
-			  SEND_ATTR_STR(MAIL_ATTR_TABLE, dict->name),
-			  SEND_ATTR_INT(MAIL_ATTR_FLAGS, request_flags),
-			  SEND_ATTR_STR(MAIL_ATTR_KEY, key),
-			  SEND_ATTR_STR(MAIL_ATTR_VALUE, value),
-			  ATTR_TYPE_END) != 0
-	    || vstream_fflush(stream)
-	    || attr_scan(stream, ATTR_FLAG_STRICT,
-			 RECV_ATTR_INT(MAIL_ATTR_STATUS, &status),
-			 ATTR_TYPE_END) != 1) {
-	    if (msg_verbose || count > 1 || (errno && errno != EPIPE && errno != ENOENT))
-		msg_warn("%s: service %s: %m", myname, dict_proxy->service);
-	} else {
-	    if (msg_verbose)
-		msg_info("%s: table=%s flags=%s key=%s value=%s -> status=%d",
-			 myname, dict->name, dict_flags_str(request_flags),
-			 key, value, status);
-	    switch (status) {
-	    case PROXY_STAT_BAD:
-		msg_fatal("%s update failed for table \"%s\" key \"%s\": "
-			  "invalid request",
-			  dict_proxy->service, dict->name, key);
-	    case PROXY_STAT_DENY:
-		msg_fatal("%s update access is not configured for table \"%s\"",
-			  dict_proxy->service, dict->name);
-	    case PROXY_STAT_OK:
-		DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE, DICT_STAT_SUCCESS);
-	    case PROXY_STAT_NOKEY:
-		DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE, DICT_STAT_FAIL);
-	    case PROXY_STAT_RETRY:
-		DICT_ERR_VAL_RETURN(dict, DICT_ERR_RETRY, DICT_STAT_ERROR);
-	    case PROXY_STAT_CONFIG:
-		DICT_ERR_VAL_RETURN(dict, DICT_ERR_CONFIG, DICT_STAT_ERROR);
-	    default:
-		msg_warn("%s update failed for table \"%s\" key \"%s\": "
-			 "unexpected reply status %d",
-			 dict_proxy->service, dict->name, key, status);
-	    }
-	}
-	clnt_stream_recover(dict_proxy->clnt);
-	sleep(1);				/* XXX make configurable */
+    stream = clnt_stream_access(dict_proxy->clnt);
+    errno = 0;
+    count += 1;
+    if (stream == 0
+        || attr_print(stream, ATTR_FLAG_NONE,
+              SEND_ATTR_STR(MAIL_ATTR_REQ, PROXY_REQ_UPDATE),
+              SEND_ATTR_STR(MAIL_ATTR_TABLE, dict->name),
+              SEND_ATTR_INT(MAIL_ATTR_FLAGS, request_flags),
+              SEND_ATTR_STR(MAIL_ATTR_KEY, key),
+              SEND_ATTR_STR(MAIL_ATTR_VALUE, value),
+              ATTR_TYPE_END) != 0
+        || vstream_fflush(stream)
+        || attr_scan(stream, ATTR_FLAG_STRICT,
+             RECV_ATTR_INT(MAIL_ATTR_STATUS, &status),
+             ATTR_TYPE_END) != 1) {
+        if (msg_verbose || count > 1 || (errno && errno != EPIPE && errno != ENOENT))
+        msg_warn("%s: service %s: %m", myname, dict_proxy->service);
+    } else {
+        if (msg_verbose)
+        msg_info("%s: table=%s flags=%s key=%s value=%s -> status=%d",
+             myname, dict->name, dict_flags_str(request_flags),
+             key, value, status);
+        switch (status) {
+        case PROXY_STAT_BAD:
+        msg_fatal("%s update failed for table \"%s\" key \"%s\": "
+              "invalid request",
+              dict_proxy->service, dict->name, key);
+        case PROXY_STAT_DENY:
+        msg_fatal("%s update access is not configured for table \"%s\"",
+              dict_proxy->service, dict->name);
+        case PROXY_STAT_OK:
+        DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE, DICT_STAT_SUCCESS);
+        case PROXY_STAT_NOKEY:
+        DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE, DICT_STAT_FAIL);
+        case PROXY_STAT_RETRY:
+        DICT_ERR_VAL_RETURN(dict, DICT_ERR_RETRY, DICT_STAT_ERROR);
+        case PROXY_STAT_CONFIG:
+        DICT_ERR_VAL_RETURN(dict, DICT_ERR_CONFIG, DICT_STAT_ERROR);
+        default:
+        msg_warn("%s update failed for table \"%s\" key \"%s\": "
+             "unexpected reply status %d",
+             dict_proxy->service, dict->name, key, status);
+        }
+    }
+    clnt_stream_recover(dict_proxy->clnt);
+    sleep(1);                /* XXX make configurable */
     }
 }
 
@@ -347,54 +347,54 @@ static int dict_proxy_delete(DICT *dict, const char *key)
      * the table and the flags that were specified to dict_proxy_open().
      */
     request_flags = dict_proxy->inst_flags
-	| (dict->flags & DICT_FLAG_RQST_MASK);
+    | (dict->flags & DICT_FLAG_RQST_MASK);
     for (;;) {
-	stream = clnt_stream_access(dict_proxy->clnt);
-	errno = 0;
-	count += 1;
-	if (stream == 0
-	    || attr_print(stream, ATTR_FLAG_NONE,
-			  SEND_ATTR_STR(MAIL_ATTR_REQ, PROXY_REQ_DELETE),
-			  SEND_ATTR_STR(MAIL_ATTR_TABLE, dict->name),
-			  SEND_ATTR_INT(MAIL_ATTR_FLAGS, request_flags),
-			  SEND_ATTR_STR(MAIL_ATTR_KEY, key),
-			  ATTR_TYPE_END) != 0
-	    || vstream_fflush(stream)
-	    || attr_scan(stream, ATTR_FLAG_STRICT,
-			 RECV_ATTR_INT(MAIL_ATTR_STATUS, &status),
-			 ATTR_TYPE_END) != 1) {
-	    if (msg_verbose || count > 1 || (errno && errno != EPIPE && errno !=
-					     ENOENT))
-		msg_warn("%s: service %s: %m", myname, dict_proxy->service);
-	} else {
-	    if (msg_verbose)
-		msg_info("%s: table=%s flags=%s key=%s -> status=%d",
-			 myname, dict->name, dict_flags_str(request_flags),
-			 key, status);
-	    switch (status) {
-	    case PROXY_STAT_BAD:
-		msg_fatal("%s delete failed for table \"%s\" key \"%s\": "
-			  "invalid request",
-			  dict_proxy->service, dict->name, key);
-	    case PROXY_STAT_DENY:
-		msg_fatal("%s update access is not configured for table \"%s\"",
-			  dict_proxy->service, dict->name);
-	    case PROXY_STAT_OK:
-		DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE, DICT_STAT_SUCCESS);
-	    case PROXY_STAT_NOKEY:
-		DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE, DICT_STAT_FAIL);
-	    case PROXY_STAT_RETRY:
-		DICT_ERR_VAL_RETURN(dict, DICT_ERR_RETRY, DICT_STAT_ERROR);
-	    case PROXY_STAT_CONFIG:
-		DICT_ERR_VAL_RETURN(dict, DICT_ERR_CONFIG, DICT_STAT_ERROR);
-	    default:
-		msg_warn("%s delete failed for table \"%s\" key \"%s\": "
-			 "unexpected reply status %d",
-			 dict_proxy->service, dict->name, key, status);
-	    }
-	}
-	clnt_stream_recover(dict_proxy->clnt);
-	sleep(1);				/* XXX make configurable */
+    stream = clnt_stream_access(dict_proxy->clnt);
+    errno = 0;
+    count += 1;
+    if (stream == 0
+        || attr_print(stream, ATTR_FLAG_NONE,
+              SEND_ATTR_STR(MAIL_ATTR_REQ, PROXY_REQ_DELETE),
+              SEND_ATTR_STR(MAIL_ATTR_TABLE, dict->name),
+              SEND_ATTR_INT(MAIL_ATTR_FLAGS, request_flags),
+              SEND_ATTR_STR(MAIL_ATTR_KEY, key),
+              ATTR_TYPE_END) != 0
+        || vstream_fflush(stream)
+        || attr_scan(stream, ATTR_FLAG_STRICT,
+             RECV_ATTR_INT(MAIL_ATTR_STATUS, &status),
+             ATTR_TYPE_END) != 1) {
+        if (msg_verbose || count > 1 || (errno && errno != EPIPE && errno !=
+                         ENOENT))
+        msg_warn("%s: service %s: %m", myname, dict_proxy->service);
+    } else {
+        if (msg_verbose)
+        msg_info("%s: table=%s flags=%s key=%s -> status=%d",
+             myname, dict->name, dict_flags_str(request_flags),
+             key, status);
+        switch (status) {
+        case PROXY_STAT_BAD:
+        msg_fatal("%s delete failed for table \"%s\" key \"%s\": "
+              "invalid request",
+              dict_proxy->service, dict->name, key);
+        case PROXY_STAT_DENY:
+        msg_fatal("%s update access is not configured for table \"%s\"",
+              dict_proxy->service, dict->name);
+        case PROXY_STAT_OK:
+        DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE, DICT_STAT_SUCCESS);
+        case PROXY_STAT_NOKEY:
+        DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE, DICT_STAT_FAIL);
+        case PROXY_STAT_RETRY:
+        DICT_ERR_VAL_RETURN(dict, DICT_ERR_RETRY, DICT_STAT_ERROR);
+        case PROXY_STAT_CONFIG:
+        DICT_ERR_VAL_RETURN(dict, DICT_ERR_CONFIG, DICT_STAT_ERROR);
+        default:
+        msg_warn("%s delete failed for table \"%s\" key \"%s\": "
+             "unexpected reply status %d",
+             dict_proxy->service, dict->name, key, status);
+        }
+    }
+    clnt_stream_recover(dict_proxy->clnt);
+    sleep(1);                /* XXX make configurable */
     }
 }
 
@@ -430,7 +430,7 @@ DICT   *dict_proxy_open(const char *map, int open_flags, int dict_flags)
      * unnecessary pain.
      */
     if (dict_flags & DICT_FLAG_NO_PROXY)
-	return (dict_open(map, open_flags, dict_flags));
+    return (dict_open(map, open_flags, dict_flags));
 
     /*
      * Use a shared stream for proxied table lookups of the same type.
@@ -443,36 +443,36 @@ DICT   *dict_proxy_open(const char *map, int open_flags, int dict_flags)
      * XXX Use absolute pathname to make this work from non-daemon processes.
      */
     if (open_flags == O_RDONLY) {
-	pstream = &proxymap_stream;
-	service = var_proxymap_service;
+    pstream = &proxymap_stream;
+    service = var_proxymap_service;
     } else if ((open_flags & O_RDWR) == O_RDWR) {
-	pstream = &proxywrite_stream;
-	service = var_proxywrite_service;
+    pstream = &proxywrite_stream;
+    service = var_proxywrite_service;
     } else
-	msg_fatal("%s: %s map open requires O_RDONLY or O_RDWR mode",
-		  map, DICT_TYPE_PROXY);
+    msg_fatal("%s: %s map open requires O_RDONLY or O_RDWR mode",
+          map, DICT_TYPE_PROXY);
 
     if (*pstream == 0) {
-	relative_path = concatenate(MAIL_CLASS_PRIVATE "/",
-				    service, (char *) 0);
-	if (access(relative_path, F_OK) == 0)
-	    prefix = MAIL_CLASS_PRIVATE;
-	else
-	    prefix = kludge = concatenate(var_queue_dir, "/",
-					  MAIL_CLASS_PRIVATE, (char *) 0);
-	*pstream = clnt_stream_create(prefix, service, var_ipc_idle_limit,
-				      var_ipc_ttl_limit,
-				      dict_proxy_handshake);
-	if (kludge)
-	    myfree(kludge);
-	myfree(relative_path);
+    relative_path = concatenate(MAIL_CLASS_PRIVATE "/",
+                    service, (char *) 0);
+    if (access(relative_path, F_OK) == 0)
+        prefix = MAIL_CLASS_PRIVATE;
+    else
+        prefix = kludge = concatenate(var_queue_dir, "/",
+                      MAIL_CLASS_PRIVATE, (char *) 0);
+    *pstream = clnt_stream_create(prefix, service, var_ipc_idle_limit,
+                      var_ipc_ttl_limit,
+                      dict_proxy_handshake);
+    if (kludge)
+        myfree(kludge);
+    myfree(relative_path);
     }
 
     /*
      * Local initialization.
      */
     dict_proxy = (DICT_PROXY *)
-	dict_alloc(DICT_TYPE_PROXY, map, sizeof(*dict_proxy));
+    dict_alloc(DICT_TYPE_PROXY, map, sizeof(*dict_proxy));
     dict_proxy->dict.lookup = dict_proxy_lookup;
     dict_proxy->dict.update = dict_proxy_update;
     dict_proxy->dict.delete = dict_proxy_delete;
@@ -490,43 +490,43 @@ DICT   *dict_proxy_open(const char *map, int open_flags, int dict_flags)
      * XXX Should retrieve flags from local instance.
      */
     for (;;) {
-	stream = clnt_stream_access(dict_proxy->clnt);
-	errno = 0;
-	if (stream == 0
-	    || attr_print(stream, ATTR_FLAG_NONE,
-			  SEND_ATTR_STR(MAIL_ATTR_REQ, PROXY_REQ_OPEN),
-		      SEND_ATTR_STR(MAIL_ATTR_TABLE, dict_proxy->dict.name),
-		     SEND_ATTR_INT(MAIL_ATTR_FLAGS, dict_proxy->inst_flags),
-			  ATTR_TYPE_END) != 0
-	    || vstream_fflush(stream)
-	    || attr_scan(stream, ATTR_FLAG_STRICT,
-			 RECV_ATTR_INT(MAIL_ATTR_STATUS, &status),
-			 RECV_ATTR_INT(MAIL_ATTR_FLAGS, &server_flags),
-			 ATTR_TYPE_END) != 2) {
-	    if (msg_verbose || (errno != EPIPE && errno != ENOENT))
-		msg_warn("%s: service %s: %m", myname, dict_proxy->service);
-	} else {
-	    if (msg_verbose)
-		msg_info("%s: connect to map=%s status=%d server_flags=%s",
-			 myname, dict_proxy->dict.name, status,
-			 dict_flags_str(server_flags));
-	    switch (status) {
-	    case PROXY_STAT_BAD:
-		msg_fatal("%s open failed for table \"%s\": invalid request",
-			  dict_proxy->service, dict_proxy->dict.name);
-	    case PROXY_STAT_DENY:
-		msg_fatal("%s service is not configured for table \"%s\"",
-			  dict_proxy->service, dict_proxy->dict.name);
-	    case PROXY_STAT_OK:
-		dict_proxy->dict.flags = (dict_flags & ~DICT_FLAG_IMPL_MASK)
-		    | (server_flags & DICT_FLAG_IMPL_MASK);
-		return (DICT_DEBUG (&dict_proxy->dict));
-	    default:
-		msg_warn("%s open failed for table \"%s\": unexpected status %d",
-			 dict_proxy->service, dict_proxy->dict.name, status);
-	    }
-	}
-	clnt_stream_recover(dict_proxy->clnt);
-	sleep(1);				/* XXX make configurable */
+    stream = clnt_stream_access(dict_proxy->clnt);
+    errno = 0;
+    if (stream == 0
+        || attr_print(stream, ATTR_FLAG_NONE,
+              SEND_ATTR_STR(MAIL_ATTR_REQ, PROXY_REQ_OPEN),
+              SEND_ATTR_STR(MAIL_ATTR_TABLE, dict_proxy->dict.name),
+             SEND_ATTR_INT(MAIL_ATTR_FLAGS, dict_proxy->inst_flags),
+              ATTR_TYPE_END) != 0
+        || vstream_fflush(stream)
+        || attr_scan(stream, ATTR_FLAG_STRICT,
+             RECV_ATTR_INT(MAIL_ATTR_STATUS, &status),
+             RECV_ATTR_INT(MAIL_ATTR_FLAGS, &server_flags),
+             ATTR_TYPE_END) != 2) {
+        if (msg_verbose || (errno != EPIPE && errno != ENOENT))
+        msg_warn("%s: service %s: %m", myname, dict_proxy->service);
+    } else {
+        if (msg_verbose)
+        msg_info("%s: connect to map=%s status=%d server_flags=%s",
+             myname, dict_proxy->dict.name, status,
+             dict_flags_str(server_flags));
+        switch (status) {
+        case PROXY_STAT_BAD:
+        msg_fatal("%s open failed for table \"%s\": invalid request",
+              dict_proxy->service, dict_proxy->dict.name);
+        case PROXY_STAT_DENY:
+        msg_fatal("%s service is not configured for table \"%s\"",
+              dict_proxy->service, dict_proxy->dict.name);
+        case PROXY_STAT_OK:
+        dict_proxy->dict.flags = (dict_flags & ~DICT_FLAG_IMPL_MASK)
+            | (server_flags & DICT_FLAG_IMPL_MASK);
+        return (DICT_DEBUG (&dict_proxy->dict));
+        default:
+        msg_warn("%s open failed for table \"%s\": unexpected status %d",
+             dict_proxy->service, dict_proxy->dict.name, status);
+        }
+    }
+    clnt_stream_recover(dict_proxy->clnt);
+    sleep(1);                /* XXX make configurable */
     }
 }

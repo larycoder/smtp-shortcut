@@ -1,32 +1,32 @@
 /*++
 /* NAME
-/*	mail_addr_form 3
+/*    mail_addr_form 3
 /* SUMMARY
-/*	mail address formats
+/*    mail address formats
 /* SYNOPSIS
-/*	#include <mail_addr_form.h>
+/*    #include <mail_addr_form.h>
 /*
-/*	int	mail_addr_form_from_string(const char *addr_form_name)
+/*    int    mail_addr_form_from_string(const char *addr_form_name)
 /*
-/*	const char *mail_addr_form_to_string(int addr_form)
+/*    const char *mail_addr_form_to_string(int addr_form)
 /* DESCRIPTION
-/*	mail_addr_form_from_string() converts a symbolic mail address
-/*	form name ("internal", "external", "internal-first") into the
-/*	corresponding internal code. The result is -1 if an unrecognized
-/*	name was specified.
+/*    mail_addr_form_from_string() converts a symbolic mail address
+/*    form name ("internal", "external", "internal-first") into the
+/*    corresponding internal code. The result is -1 if an unrecognized
+/*    name was specified.
 /*
-/*	mail_addr_form_to_string() converts from internal code
-/*	to the corresponding symbolic name. The result is null if
-/*	an unrecognized code was specified.
+/*    mail_addr_form_to_string() converts from internal code
+/*    to the corresponding symbolic name. The result is null if
+/*    an unrecognized code was specified.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
  /*

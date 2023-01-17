@@ -1,26 +1,26 @@
 /*++
 /* NAME
-/*	fifo_rdwr_bug 1
+/*    fifo_rdwr_bug 1
 /* SUMMARY
-/*	fifo server test program
+/*    fifo server test program
 /* SYNOPSIS
-/*	fifo_rdwr_bug
+/*    fifo_rdwr_bug
 /* DESCRIPTION
-/*	fifo_rdwr_bug creates a FIFO and opens it read-write mode.
-/*	On BSD/OS 3.1 select() will report that the FIFO is readable
-/*	even before any data is written to it. Doing an actual read
-/*	causes the read to block; a non-blocking read fails.
+/*    fifo_rdwr_bug creates a FIFO and opens it read-write mode.
+/*    On BSD/OS 3.1 select() will report that the FIFO is readable
+/*    even before any data is written to it. Doing an actual read
+/*    causes the read to block; a non-blocking read fails.
 /* DIAGNOSTICS
-/*	Problems are reported to the standard error stream.
+/*    Problems are reported to the standard error stream.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 #include <sys_defs.h>
@@ -41,7 +41,7 @@ static void cleanup(void)
 {
     printf("Removing fifo %s...\n", FIFO_PATH);
     if (unlink(FIFO_PATH))
-	perrorexit("unlink");
+    perrorexit("unlink");
     printf("Done.\n");
 }
 
@@ -56,13 +56,13 @@ int     main(int unused_argc, char **unused_argv)
 
     printf("Creating fifo %s...\n", FIFO_PATH);
     if (mkfifo(FIFO_PATH, 0600) < 0)
-	perrorexit("mkfifo");
+    perrorexit("mkfifo");
 
     printf("Opening fifo %s, read-write mode...\n", FIFO_PATH);
     if ((fd = open(FIFO_PATH, O_RDWR, 0)) < 0) {
-	perror("open");
-	cleanup();
-	exit(1);
+    perror("open");
+    cleanup();
+    exit(1);
     }
     printf("Selecting the fifo for readability...\n");
     FD_ZERO(&read_fds);
@@ -74,15 +74,15 @@ int     main(int unused_argc, char **unused_argv)
 
     switch (select(fd + 1, &read_fds, (fd_set *) 0, &except_fds, &tv)) {
     case -1:
-	perrorexit("select");
+    perrorexit("select");
     default:
-	if (FD_ISSET(fd, &read_fds)) {
-	    printf("Opening a fifo read-write makes it readable!!\n");
-	    break;
-	}
+    if (FD_ISSET(fd, &read_fds)) {
+        printf("Opening a fifo read-write makes it readable!!\n");
+        break;
+    }
     case 0:
-	printf("The fifo is not readable, as it should be.\n");
-	break;
+    printf("The fifo is not readable, as it should be.\n");
+    break;
     }
     cleanup();
     exit(0);

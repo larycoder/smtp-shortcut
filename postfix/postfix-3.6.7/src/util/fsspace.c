@@ -1,40 +1,40 @@
 /*++
 /* NAME
-/*	fsspace 3
+/*    fsspace 3
 /* SUMMARY
-/*	determine available file system space
+/*    determine available file system space
 /* SYNOPSIS
-/*	#include <fsspace.h>
+/*    #include <fsspace.h>
 /*
-/*	struct fsspace {
+/*    struct fsspace {
 /* .in +4
-/*		unsigned long block_size;
-/*		unsigned long block_free;
+/*        unsigned long block_size;
+/*        unsigned long block_free;
 /* .in -4
-/*	};
+/*    };
 /*
-/*	void	fsspace(path, sp)
-/*	const char *path;
-/*	struct fsspace *sp;
+/*    void    fsspace(path, sp)
+/*    const char *path;
+/*    struct fsspace *sp;
 /* DESCRIPTION
-/*	fsspace() returns the amount of available space in the file
-/*	system specified in \fIpath\fR, in terms of the block size and
-/*	of the number of available blocks.
+/*    fsspace() returns the amount of available space in the file
+/*    system specified in \fIpath\fR, in terms of the block size and
+/*    of the number of available blocks.
 /* DIAGNOSTICS
-/*	All errors are fatal.
+/*    All errors are fatal.
 /* BUGS
-/*	Use caution when doing computations with the result from fsspace().
-/*	It is easy to cause overflow (by multiplying large numbers) or to
-/*	cause underflow (by subtracting unsigned numbers).
+/*    Use caution when doing computations with the result from fsspace().
+/*    It is easy to cause overflow (by multiplying large numbers) or to
+/*    cause underflow (by subtracting unsigned numbers).
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -70,18 +70,18 @@ void    fsspace(const char *path, struct fsspace * sp)
     const char *myname = "fsspace";
 
 #ifdef USE_STATFS
-#ifdef USE_STRUCT_FS_DATA			/* Ultrix */
+#ifdef USE_STRUCT_FS_DATA            /* Ultrix */
     struct fs_data fsbuf;
 
     if (statfs(path, &fsbuf) < 0)
-	msg_fatal("statfs %s: %m", path);
+    msg_fatal("statfs %s: %m", path);
     sp->block_size = 1024;
     sp->block_free = fsbuf.fd_bfreen;
 #else
     struct statfs fsbuf;
 
     if (statfs(path, &fsbuf) < 0)
-	msg_fatal("statfs %s: %m", path);
+    msg_fatal("statfs %s: %m", path);
     sp->block_size = fsbuf.f_bsize;
     sp->block_free = fsbuf.f_bavail;
 #endif
@@ -90,13 +90,13 @@ void    fsspace(const char *path, struct fsspace * sp)
     struct statvfs fsbuf;
 
     if (statvfs(path, &fsbuf) < 0)
-	msg_fatal("statvfs %s: %m", path);
+    msg_fatal("statvfs %s: %m", path);
     sp->block_size = fsbuf.f_frsize;
     sp->block_free = fsbuf.f_bavail;
 #endif
     if (msg_verbose)
-	msg_info("%s: %s: block size %lu, blocks free %lu",
-		 myname, path, sp->block_size, sp->block_free);
+    msg_info("%s: %s: block size %lu, blocks free %lu",
+         myname, path, sp->block_size, sp->block_free);
 }
 
 #ifdef TEST
@@ -113,13 +113,13 @@ int     main(int argc, char **argv)
     struct fsspace sp;
 
     if (argc == 1)
-	msg_fatal("usage: %s filesystem...", argv[0]);
+    msg_fatal("usage: %s filesystem...", argv[0]);
 
     while (--argc && *++argv) {
-	fsspace(*argv, &sp);
-	vstream_printf("%10s: block size %lu, blocks free %lu\n",
-		       *argv, sp.block_size, sp.block_free);
-	vstream_fflush(VSTREAM_OUT);
+    fsspace(*argv, &sp);
+    vstream_printf("%10s: block size %lu, blocks free %lu\n",
+               *argv, sp.block_size, sp.block_free);
+    vstream_fflush(VSTREAM_OUT);
     }
     return (0);
 }

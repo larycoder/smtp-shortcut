@@ -1,34 +1,34 @@
 /*++
 /* NAME
-/*	killme_after 3
+/*    killme_after 3
 /* SUMMARY
-/*	programmed death
+/*    programmed death
 /* SYNOPSIS
-/*	#include <killme_after.h>
+/*    #include <killme_after.h>
 /*
-/*	void	killme_after(seconds)
-/*	unsigned int seconds;
+/*    void    killme_after(seconds)
+/*    unsigned int seconds;
 /* DESCRIPTION
-/*	The killme_after() function does a best effort to terminate
-/*	the process after the specified time, should it still exist.
-/*	It is meant to be used in a signal handler, as an insurance
-/*	against getting stuck somewhere while preparing for exit.
+/*    The killme_after() function does a best effort to terminate
+/*    the process after the specified time, should it still exist.
+/*    It is meant to be used in a signal handler, as an insurance
+/*    against getting stuck somewhere while preparing for exit.
 /* DIAGNOSTICS
-/*	None. This routine does a best effort, damn the torpedoes.
+/*    None. This routine does a best effort, damn the torpedoes.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */

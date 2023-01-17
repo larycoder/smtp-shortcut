@@ -1,271 +1,271 @@
 /*++
 /* NAME
-/*	anvil 8
+/*    anvil 8
 /* SUMMARY
-/*	Postfix session count and request rate control
+/*    Postfix session count and request rate control
 /* SYNOPSIS
-/*	\fBanvil\fR [generic Postfix daemon options]
+/*    \fBanvil\fR [generic Postfix daemon options]
 /* DESCRIPTION
-/*	The Postfix \fBanvil\fR(8) server maintains statistics about
-/*	client connection counts or client request rates. This
-/*	information can be used to defend against clients that
-/*	hammer a server with either too many simultaneous sessions,
-/*	or with too many successive requests within a configurable
-/*	time interval.  This server is designed to run under control
-/*	by the Postfix \fBmaster\fR(8) server.
+/*    The Postfix \fBanvil\fR(8) server maintains statistics about
+/*    client connection counts or client request rates. This
+/*    information can be used to defend against clients that
+/*    hammer a server with either too many simultaneous sessions,
+/*    or with too many successive requests within a configurable
+/*    time interval.  This server is designed to run under control
+/*    by the Postfix \fBmaster\fR(8) server.
 /*
-/*	In the following text, \fBident\fR specifies a (service,
-/*	client) combination. The exact syntax of that information
-/*	is application-dependent; the \fBanvil\fR(8) server does
-/*	not care.
+/*    In the following text, \fBident\fR specifies a (service,
+/*    client) combination. The exact syntax of that information
+/*    is application-dependent; the \fBanvil\fR(8) server does
+/*    not care.
 /* CONNECTION COUNT/RATE CONTROL
 /* .ad
 /* .fi
-/*	To register a new connection send the following request to
-/*	the \fBanvil\fR(8) server:
+/*    To register a new connection send the following request to
+/*    the \fBanvil\fR(8) server:
 /*
 /* .nf
-/*	    \fBrequest=connect\fR
-/*	    \fBident=\fIstring\fR
+/*        \fBrequest=connect\fR
+/*        \fBident=\fIstring\fR
 /* .fi
 /*
-/*	The \fBanvil\fR(8) server answers with the number of
-/*	simultaneous connections and the number of connections per
-/*	unit time for the (service, client) combination specified
-/*	with \fBident\fR:
+/*    The \fBanvil\fR(8) server answers with the number of
+/*    simultaneous connections and the number of connections per
+/*    unit time for the (service, client) combination specified
+/*    with \fBident\fR:
 /*
 /* .nf
-/*	    \fBstatus=0\fR
-/*	    \fBcount=\fInumber\fR
-/*	    \fBrate=\fInumber\fR
+/*        \fBstatus=0\fR
+/*        \fBcount=\fInumber\fR
+/*        \fBrate=\fInumber\fR
 /* .fi
 /*
-/*	To register a disconnect event send the following request
-/*	to the \fBanvil\fR(8) server:
+/*    To register a disconnect event send the following request
+/*    to the \fBanvil\fR(8) server:
 /*
 /* .nf
-/*	    \fBrequest=disconnect\fR
-/*	    \fBident=\fIstring\fR
+/*        \fBrequest=disconnect\fR
+/*        \fBident=\fIstring\fR
 /* .fi
 /*
-/*	The \fBanvil\fR(8) server replies with:
+/*    The \fBanvil\fR(8) server replies with:
 /*
 /* .nf
-/*	    \fBstatus=0\fR
+/*        \fBstatus=0\fR
 /* .fi
 /* MESSAGE RATE CONTROL
 /* .ad
 /* .fi
-/*	To register a message delivery request send the following
-/*	request to the \fBanvil\fR(8) server:
+/*    To register a message delivery request send the following
+/*    request to the \fBanvil\fR(8) server:
 /*
 /* .nf
-/*	    \fBrequest=message\fR
-/*	    \fBident=\fIstring\fR
+/*        \fBrequest=message\fR
+/*        \fBident=\fIstring\fR
 /* .fi
 /*
-/*	The \fBanvil\fR(8) server answers with the number of message
-/*	delivery requests per unit time for the (service, client)
-/*	combination specified with \fBident\fR:
+/*    The \fBanvil\fR(8) server answers with the number of message
+/*    delivery requests per unit time for the (service, client)
+/*    combination specified with \fBident\fR:
 /*
 /* .nf
-/*	    \fBstatus=0\fR
-/*	    \fBrate=\fInumber\fR
+/*        \fBstatus=0\fR
+/*        \fBrate=\fInumber\fR
 /* .fi
 /* RECIPIENT RATE CONTROL
 /* .ad
 /* .fi
-/*	To register a recipient request send the following request
-/*	to the \fBanvil\fR(8) server:
+/*    To register a recipient request send the following request
+/*    to the \fBanvil\fR(8) server:
 /*
 /* .nf
-/*	    \fBrequest=recipient\fR
-/*	    \fBident=\fIstring\fR
+/*        \fBrequest=recipient\fR
+/*        \fBident=\fIstring\fR
 /* .fi
 /*
-/*	The \fBanvil\fR(8) server answers with the number of recipient
-/*	addresses per unit time for the (service, client) combination
-/*	specified with \fBident\fR:
+/*    The \fBanvil\fR(8) server answers with the number of recipient
+/*    addresses per unit time for the (service, client) combination
+/*    specified with \fBident\fR:
 /*
 /* .nf
-/*	    \fBstatus=0\fR
-/*	    \fBrate=\fInumber\fR
+/*        \fBstatus=0\fR
+/*        \fBrate=\fInumber\fR
 /* .fi
 /* TLS SESSION NEGOTIATION RATE CONTROL
 /* .ad
 /* .fi
-/*	The features described in this section are available with
-/*	Postfix 2.3 and later.
+/*    The features described in this section are available with
+/*    Postfix 2.3 and later.
 /*
-/*	To register a request for a new (i.e. not cached) TLS session
-/*	send the following request to the \fBanvil\fR(8) server:
+/*    To register a request for a new (i.e. not cached) TLS session
+/*    send the following request to the \fBanvil\fR(8) server:
 /*
 /* .nf
-/*	    \fBrequest=newtls\fR
-/*	    \fBident=\fIstring\fR
+/*        \fBrequest=newtls\fR
+/*        \fBident=\fIstring\fR
 /* .fi
 /*
-/*	The \fBanvil\fR(8) server answers with the number of new
-/*	TLS session requests per unit time for the (service, client)
-/*	combination specified with \fBident\fR:
+/*    The \fBanvil\fR(8) server answers with the number of new
+/*    TLS session requests per unit time for the (service, client)
+/*    combination specified with \fBident\fR:
 /*
 /* .nf
-/*	    \fBstatus=0\fR
-/*	    \fBrate=\fInumber\fR
+/*        \fBstatus=0\fR
+/*        \fBrate=\fInumber\fR
 /* .fi
 /*
-/*	To retrieve new TLS session request rate information without
-/*	updating the counter information, send:
+/*    To retrieve new TLS session request rate information without
+/*    updating the counter information, send:
 /*
 /* .nf
-/*	    \fBrequest=newtls_report\fR
-/*	    \fBident=\fIstring\fR
+/*        \fBrequest=newtls_report\fR
+/*        \fBident=\fIstring\fR
 /* .fi
 /*
-/*	The \fBanvil\fR(8) server answers with the number of new
-/*	TLS session requests per unit time for the (service, client)
-/*	combination specified with \fBident\fR:
+/*    The \fBanvil\fR(8) server answers with the number of new
+/*    TLS session requests per unit time for the (service, client)
+/*    combination specified with \fBident\fR:
 /*
 /* .nf
-/*	    \fBstatus=0\fR
-/*	    \fBrate=\fInumber\fR
+/*        \fBstatus=0\fR
+/*        \fBrate=\fInumber\fR
 /* .fi
 /* AUTH RATE CONTROL
 /* .ad
 /* .fi
-/*	To register an AUTH request send the following request
-/*	to the \fBanvil\fR(8) server:
+/*    To register an AUTH request send the following request
+/*    to the \fBanvil\fR(8) server:
 /*
 /* .nf
-/*	    \fBrequest=auth\fR
-/*	    \fBident=\fIstring\fR
+/*        \fBrequest=auth\fR
+/*        \fBident=\fIstring\fR
 /* .fi
 /*
-/*	The \fBanvil\fR(8) server answers with the number of auth
-/*	requests per unit time for the (service, client) combination
-/*	specified with \fBident\fR:
+/*    The \fBanvil\fR(8) server answers with the number of auth
+/*    requests per unit time for the (service, client) combination
+/*    specified with \fBident\fR:
 /*
 /* .nf
-/*	    \fBstatus=0\fR
-/*	    \fBrate=\fInumber\fR
+/*        \fBstatus=0\fR
+/*        \fBrate=\fInumber\fR
 /* .fi
 /* SECURITY
 /* .ad
 /* .fi
-/*	The \fBanvil\fR(8) server does not talk to the network or to local
-/*	users, and can run chrooted at fixed low privilege.
+/*    The \fBanvil\fR(8) server does not talk to the network or to local
+/*    users, and can run chrooted at fixed low privilege.
 /*
-/*	The \fBanvil\fR(8) server maintains an in-memory table with
-/*	information about recent clients requests.  No persistent
-/*	state is kept because standard system library routines are
-/*	not sufficiently robust for update-intensive applications.
+/*    The \fBanvil\fR(8) server maintains an in-memory table with
+/*    information about recent clients requests.  No persistent
+/*    state is kept because standard system library routines are
+/*    not sufficiently robust for update-intensive applications.
 /*
-/*	Although the in-memory state is kept only temporarily, this
-/*	may require a lot of memory on systems that handle connections
-/*	from many remote clients.  To reduce memory usage, reduce
-/*	the time unit over which state is kept.
+/*    Although the in-memory state is kept only temporarily, this
+/*    may require a lot of memory on systems that handle connections
+/*    from many remote clients.  To reduce memory usage, reduce
+/*    the time unit over which state is kept.
 /* DIAGNOSTICS
-/*	Problems and transactions are logged to \fBsyslogd\fR(8)
-/*	or \fBpostlogd\fR(8).
+/*    Problems and transactions are logged to \fBsyslogd\fR(8)
+/*    or \fBpostlogd\fR(8).
 /*
-/*	Upon exit, and every \fBanvil_status_update_time\fR
-/*	seconds, the server logs the maximal count and rate values measured,
-/*	together with (service, client) information and the time of day
-/*	associated with those events.
-/*	In order to avoid unnecessary overhead, no measurements
-/*	are done for activity that isn't concurrency limited or
-/*	rate limited.
+/*    Upon exit, and every \fBanvil_status_update_time\fR
+/*    seconds, the server logs the maximal count and rate values measured,
+/*    together with (service, client) information and the time of day
+/*    associated with those events.
+/*    In order to avoid unnecessary overhead, no measurements
+/*    are done for activity that isn't concurrency limited or
+/*    rate limited.
 /* BUGS
-/*	Systems behind network address translating routers or proxies
-/*	appear to have the same client address and can run into connection
-/*	count and/or rate limits falsely.
+/*    Systems behind network address translating routers or proxies
+/*    appear to have the same client address and can run into connection
+/*    count and/or rate limits falsely.
 /*
-/*	In this preliminary implementation, a count (or rate) limited server
-/*	process can have only one remote client at a time. If a
-/*	server process reports
-/*	multiple simultaneous clients, state is kept only for the last
-/*	reported client.
+/*    In this preliminary implementation, a count (or rate) limited server
+/*    process can have only one remote client at a time. If a
+/*    server process reports
+/*    multiple simultaneous clients, state is kept only for the last
+/*    reported client.
 /*
-/*	The \fBanvil\fR(8) server automatically discards client
-/*	request information after it expires.  To prevent the
-/*	\fBanvil\fR(8) server from discarding client request rate
-/*	information too early or too late, a rate limited service
-/*	should always register connect/disconnect events even when
-/*	it does not explicitly limit them.
+/*    The \fBanvil\fR(8) server automatically discards client
+/*    request information after it expires.  To prevent the
+/*    \fBanvil\fR(8) server from discarding client request rate
+/*    information too early or too late, a rate limited service
+/*    should always register connect/disconnect events even when
+/*    it does not explicitly limit them.
 /* CONFIGURATION PARAMETERS
 /* .ad
 /* .fi
-/*	On low-traffic mail systems, changes to \fBmain.cf\fR are
-/*	picked up automatically as \fBanvil\fR(8) processes run for
-/*	only a limited amount of time. On other mail systems, use
-/*	the command "\fBpostfix reload\fR" to speed up a change.
+/*    On low-traffic mail systems, changes to \fBmain.cf\fR are
+/*    picked up automatically as \fBanvil\fR(8) processes run for
+/*    only a limited amount of time. On other mail systems, use
+/*    the command "\fBpostfix reload\fR" to speed up a change.
 /*
-/*	The text below provides only a parameter summary. See
-/*	\fBpostconf\fR(5) for more details including examples.
+/*    The text below provides only a parameter summary. See
+/*    \fBpostconf\fR(5) for more details including examples.
 /* .IP "\fBanvil_rate_time_unit (60s)\fR"
-/*	The time unit over which client connection rates and other rates
-/*	are calculated.
+/*    The time unit over which client connection rates and other rates
+/*    are calculated.
 /* .IP "\fBanvil_status_update_time (600s)\fR"
-/*	How frequently the \fBanvil\fR(8) connection and rate limiting server
-/*	logs peak usage information.
+/*    How frequently the \fBanvil\fR(8) connection and rate limiting server
+/*    logs peak usage information.
 /* .IP "\fBconfig_directory (see 'postconf -d' output)\fR"
-/*	The default location of the Postfix main.cf and master.cf
-/*	configuration files.
+/*    The default location of the Postfix main.cf and master.cf
+/*    configuration files.
 /* .IP "\fBdaemon_timeout (18000s)\fR"
-/*	How much time a Postfix daemon process may take to handle a
-/*	request before it is terminated by a built-in watchdog timer.
+/*    How much time a Postfix daemon process may take to handle a
+/*    request before it is terminated by a built-in watchdog timer.
 /* .IP "\fBipc_timeout (3600s)\fR"
-/*	The time limit for sending or receiving information over an internal
-/*	communication channel.
+/*    The time limit for sending or receiving information over an internal
+/*    communication channel.
 /* .IP "\fBmax_idle (100s)\fR"
-/*	The maximum amount of time that an idle Postfix daemon process waits
-/*	for an incoming connection before terminating voluntarily.
+/*    The maximum amount of time that an idle Postfix daemon process waits
+/*    for an incoming connection before terminating voluntarily.
 /* .IP "\fBmax_use (100)\fR"
-/*	The maximal number of incoming connections that a Postfix daemon
-/*	process will service before terminating voluntarily.
+/*    The maximal number of incoming connections that a Postfix daemon
+/*    process will service before terminating voluntarily.
 /* .IP "\fBprocess_id (read-only)\fR"
-/*	The process ID of a Postfix command or daemon process.
+/*    The process ID of a Postfix command or daemon process.
 /* .IP "\fBprocess_name (read-only)\fR"
-/*	The process name of a Postfix command or daemon process.
+/*    The process name of a Postfix command or daemon process.
 /* .IP "\fBsyslog_facility (mail)\fR"
-/*	The syslog facility of Postfix logging.
+/*    The syslog facility of Postfix logging.
 /* .IP "\fBsyslog_name (see 'postconf -d' output)\fR"
-/*	A prefix that is prepended to the process name in syslog
-/*	records, so that, for example, "smtpd" becomes "prefix/smtpd".
+/*    A prefix that is prepended to the process name in syslog
+/*    records, so that, for example, "smtpd" becomes "prefix/smtpd".
 /* .PP
-/*	Available in Postfix 3.3 and later:
+/*    Available in Postfix 3.3 and later:
 /* .IP "\fBservice_name (read-only)\fR"
-/*	The master.cf service name of a Postfix daemon process.
+/*    The master.cf service name of a Postfix daemon process.
 /* SEE ALSO
-/*	smtpd(8), Postfix SMTP server
-/*	postconf(5), configuration parameters
-/*	master(5), generic daemon options
+/*    smtpd(8), Postfix SMTP server
+/*    postconf(5), configuration parameters
+/*    master(5), generic daemon options
 /* README FILES
 /* .ad
 /* .fi
-/*	Use "\fBpostconf readme_directory\fR" or
-/*	"\fBpostconf html_directory\fR" to locate this information.
+/*    Use "\fBpostconf readme_directory\fR" or
+/*    "\fBpostconf html_directory\fR" to locate this information.
 /* .na
 /* .nf
-/*	TUNING_README, performance tuning
+/*    TUNING_README, performance tuning
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* HISTORY
 /* .ad
 /* .fi
-/*	The anvil service is available in Postfix 2.2 and later.
+/*    The anvil service is available in Postfix 2.2 and later.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -305,20 +305,20 @@ int     var_anvil_stat_time;
  /*
   * Global dynamic state.
   */
-static HTABLE *anvil_remote_map;	/* indexed by service+ remote client */
+static HTABLE *anvil_remote_map;    /* indexed by service+ remote client */
 
  /*
   * Remote connection state, one instance for each (service, client) pair.
   */
 typedef struct {
-    char   *ident;			/* lookup key */
-    int     count;			/* connection count */
-    int     rate;			/* connection rate */
-    int     mail;			/* message rate */
-    int     rcpt;			/* recipient rate */
-    int     ntls;			/* new TLS session rate */
-    int     auth;			/* AUTH request rate */
-    time_t  start;			/* time of first rate sample */
+    char   *ident;            /* lookup key */
+    int     count;            /* connection count */
+    int     rate;            /* connection rate */
+    int     mail;            /* message rate */
+    int     rcpt;            /* recipient rate */
+    int     ntls;            /* new TLS session rate */
+    int     auth;            /* AUTH request rate */
+    time_t  start;            /* time of first rate sample */
 } ANVIL_REMOTE;
 
  /*
@@ -327,7 +327,7 @@ typedef struct {
   * without cleaning up.
   */
 typedef struct {
-    ANVIL_REMOTE *anvil_remote;		/* XXX should be list */
+    ANVIL_REMOTE *anvil_remote;        /* XXX should be list */
 } ANVIL_LOCAL;
 
  /*
@@ -342,42 +342,42 @@ typedef struct {
 
 #define ANVIL_REMOTE_FIRST_CONN(remote, id) \
     do { \
-	(remote)->ident = mystrdup(id); \
-	(remote)->count = 1; \
-	(remote)->rate = 1; \
-	(remote)->mail = 0; \
-	(remote)->rcpt = 0; \
-	(remote)->ntls = 0; \
-	(remote)->auth = 0; \
-	(remote)->start = event_time(); \
+    (remote)->ident = mystrdup(id); \
+    (remote)->count = 1; \
+    (remote)->rate = 1; \
+    (remote)->mail = 0; \
+    (remote)->rcpt = 0; \
+    (remote)->ntls = 0; \
+    (remote)->auth = 0; \
+    (remote)->start = event_time(); \
     } while(0)
 
 /* Destroy unused (service, client) state. */
 
 #define ANVIL_REMOTE_FREE(remote) \
     do { \
-	myfree((remote)->ident); \
-	myfree((void *) (remote)); \
+    myfree((remote)->ident); \
+    myfree((void *) (remote)); \
     } while(0)
 
 /* Reset or update rate information for existing (service, client) state. */
 
 #define ANVIL_REMOTE_RSET_RATE(remote, _start) \
     do { \
-	(remote)->rate = 0; \
-	(remote)->mail = 0; \
-	(remote)->rcpt = 0; \
-	(remote)->ntls = 0; \
-	(remote)->auth = 0; \
-	(remote)->start = _start; \
+    (remote)->rate = 0; \
+    (remote)->mail = 0; \
+    (remote)->rcpt = 0; \
+    (remote)->ntls = 0; \
+    (remote)->auth = 0; \
+    (remote)->start = _start; \
     } while(0)
 
 #define ANVIL_REMOTE_INCR_RATE(remote, _what) \
     do { \
-	time_t _now = event_time(); \
-	if ((remote)->start + var_anvil_time_unit < _now) \
-	    ANVIL_REMOTE_RSET_RATE((remote), _now); \
-	if ((remote)->_what < INT_MAX) \
+    time_t _now = event_time(); \
+    if ((remote)->start + var_anvil_time_unit < _now) \
+        ANVIL_REMOTE_RSET_RATE((remote), _now); \
+    if ((remote)->_what < INT_MAX) \
             (remote)->_what += 1; \
     } while(0)
 
@@ -385,46 +385,46 @@ typedef struct {
 
 #define ANVIL_REMOTE_NEXT_CONN(remote) \
     do { \
-	ANVIL_REMOTE_INCR_RATE((remote), rate); \
-	if ((remote)->count == 0) \
-	    event_cancel_timer(anvil_remote_expire, (void *) remote); \
-	(remote)->count++; \
+    ANVIL_REMOTE_INCR_RATE((remote), rate); \
+    if ((remote)->count == 0) \
+        event_cancel_timer(anvil_remote_expire, (void *) remote); \
+    (remote)->count++; \
     } while(0)
 
-#define ANVIL_REMOTE_INCR_MAIL(remote)	ANVIL_REMOTE_INCR_RATE((remote), mail)
+#define ANVIL_REMOTE_INCR_MAIL(remote)    ANVIL_REMOTE_INCR_RATE((remote), mail)
 
-#define ANVIL_REMOTE_INCR_RCPT(remote)	ANVIL_REMOTE_INCR_RATE((remote), rcpt)
+#define ANVIL_REMOTE_INCR_RCPT(remote)    ANVIL_REMOTE_INCR_RATE((remote), rcpt)
 
-#define ANVIL_REMOTE_INCR_NTLS(remote)	ANVIL_REMOTE_INCR_RATE((remote), ntls)
+#define ANVIL_REMOTE_INCR_NTLS(remote)    ANVIL_REMOTE_INCR_RATE((remote), ntls)
 
-#define ANVIL_REMOTE_INCR_AUTH(remote)	ANVIL_REMOTE_INCR_RATE((remote), auth)
+#define ANVIL_REMOTE_INCR_AUTH(remote)    ANVIL_REMOTE_INCR_RATE((remote), auth)
 
 /* Drop connection from (service, client) state. */
 
 #define ANVIL_REMOTE_DROP_ONE(remote) \
     do { \
-	if ((remote) && (remote)->count > 0) { \
-	    if (--(remote)->count == 0) \
-		event_request_timer(anvil_remote_expire, (void *) remote, \
-			var_anvil_time_unit); \
-	} \
+    if ((remote) && (remote)->count > 0) { \
+        if (--(remote)->count == 0) \
+        event_request_timer(anvil_remote_expire, (void *) remote, \
+            var_anvil_time_unit); \
+    } \
     } while(0)
 
 /* Create local server state. */
 
 #define ANVIL_LOCAL_INIT(local) \
     do { \
-	(local)->anvil_remote = 0; \
+    (local)->anvil_remote = 0; \
     } while(0)
 
 /* Add remote connection to local server. */
 
 #define ANVIL_LOCAL_ADD_ONE(local, remote) \
     do { \
-	/* XXX allow multiple remote clients per local server. */ \
-	if ((local)->anvil_remote) \
-	    ANVIL_REMOTE_DROP_ONE((local)->anvil_remote); \
-	(local)->anvil_remote = (remote); \
+    /* XXX allow multiple remote clients per local server. */ \
+    if ((local)->anvil_remote) \
+        ANVIL_REMOTE_DROP_ONE((local)->anvil_remote); \
+    (local)->anvil_remote = (remote); \
     } while(0)
 
 /* Test if this remote connection is listed for this local server. */
@@ -436,18 +436,18 @@ typedef struct {
 
 #define ANVIL_LOCAL_DROP_ONE(local, remote) \
     do { \
-	/* XXX allow multiple remote clients per local server. */ \
-	if ((local)->anvil_remote == (remote)) \
-	    (local)->anvil_remote = 0; \
+    /* XXX allow multiple remote clients per local server. */ \
+    if ((local)->anvil_remote == (remote)) \
+        (local)->anvil_remote = 0; \
     } while(0)
 
 /* Drop all remote connections from local server. */
 
 #define ANVIL_LOCAL_DROP_ALL(stream, local) \
     do { \
-	 /* XXX allow multiple remote clients per local server. */ \
-	if ((local)->anvil_remote) \
-	    anvil_remote_disconnect((stream), (local)->anvil_remote->ident); \
+     /* XXX allow multiple remote clients per local server. */ \
+    if ((local)->anvil_remote) \
+        anvil_remote_disconnect((stream), (local)->anvil_remote->ident); \
     } while (0)
 
  /*
@@ -465,59 +465,59 @@ typedef struct {
   * configurable intervals.
   */
 typedef struct {
-    int     value;			/* peak value */
-    char   *ident;			/* lookup key */
-    time_t  when;			/* time of peak value */
+    int     value;            /* peak value */
+    char   *ident;            /* lookup key */
+    time_t  when;            /* time of peak value */
 } ANVIL_MAX;
 
-static ANVIL_MAX max_conn_count;	/* peak connection count */
-static ANVIL_MAX max_conn_rate;		/* peak connection rate */
-static ANVIL_MAX max_mail_rate;		/* peak message rate */
-static ANVIL_MAX max_rcpt_rate;		/* peak recipient rate */
-static ANVIL_MAX max_ntls_rate;		/* peak new TLS session rate */
-static ANVIL_MAX max_auth_rate;		/* peak AUTH request rate */
+static ANVIL_MAX max_conn_count;    /* peak connection count */
+static ANVIL_MAX max_conn_rate;        /* peak connection rate */
+static ANVIL_MAX max_mail_rate;        /* peak message rate */
+static ANVIL_MAX max_rcpt_rate;        /* peak recipient rate */
+static ANVIL_MAX max_ntls_rate;        /* peak new TLS session rate */
+static ANVIL_MAX max_auth_rate;        /* peak AUTH request rate */
 
-static int max_cache_size;		/* peak cache size */
-static time_t max_cache_time;		/* time of peak size */
+static int max_cache_size;        /* peak cache size */
+static time_t max_cache_time;        /* time of peak size */
 
 /* Update/report peak usage. */
 
 #define ANVIL_MAX_UPDATE(_max, _value, _ident) \
     do { \
-	_max.value = _value; \
-	if (_max.ident == 0) { \
-	    _max.ident = mystrdup(_ident); \
-	} else if (!STREQ(_max.ident, _ident)) { \
-	    myfree(_max.ident); \
-	    _max.ident = mystrdup(_ident); \
-	} \
-	_max.when = event_time(); \
+    _max.value = _value; \
+    if (_max.ident == 0) { \
+        _max.ident = mystrdup(_ident); \
+    } else if (!STREQ(_max.ident, _ident)) { \
+        myfree(_max.ident); \
+        _max.ident = mystrdup(_ident); \
+    } \
+    _max.when = event_time(); \
     } while (0)
 
 #define ANVIL_MAX_RATE_REPORT(_max, _name) \
     do { \
-	if (_max.value > 0) { \
-	    msg_info("statistics: max " _name " rate %d/%ds for (%s) at %.15s", \
-		_max.value, var_anvil_time_unit, \
-		_max.ident, ctime(&_max.when) + 4); \
-	    _max.value = 0; \
-	} \
+    if (_max.value > 0) { \
+        msg_info("statistics: max " _name " rate %d/%ds for (%s) at %.15s", \
+        _max.value, var_anvil_time_unit, \
+        _max.ident, ctime(&_max.when) + 4); \
+        _max.value = 0; \
+    } \
     } while (0);
 
 #define ANVIL_MAX_COUNT_REPORT(_max, _name) \
     do { \
-	if (_max.value > 0) { \
-	    msg_info("statistics: max " _name " count %d for (%s) at %.15s", \
-		_max.value, _max.ident, ctime(&_max.when) + 4); \
-	    _max.value = 0; \
-	} \
+    if (_max.value > 0) { \
+        msg_info("statistics: max " _name " count %d for (%s) at %.15s", \
+        _max.value, _max.ident, ctime(&_max.when) + 4); \
+        _max.value = 0; \
+    } \
     } while (0);
 
  /*
   * Silly little macros.
   */
-#define STR(x)			vstring_str(x)
-#define STREQ(x,y)		(strcmp((x), (y)) == 0)
+#define STR(x)            vstring_str(x)
+#define STREQ(x,y)        (strcmp((x), (y)) == 0)
 
 /* anvil_remote_expire - purge expired connection state */
 
@@ -527,19 +527,19 @@ static void anvil_remote_expire(int unused_event, void *context)
     const char *myname = "anvil_remote_expire";
 
     if (msg_verbose)
-	msg_info("%s %s", myname, anvil_remote->ident);
+    msg_info("%s %s", myname, anvil_remote->ident);
 
     if (anvil_remote->count != 0)
-	msg_panic("%s: bad connection count: %d",
-		  myname, anvil_remote->count);
+    msg_panic("%s: bad connection count: %d",
+          myname, anvil_remote->count);
 
     htable_delete(anvil_remote_map, anvil_remote->ident,
-		  (void (*) (void *)) 0);
+          (void (*) (void *)) 0);
     ANVIL_REMOTE_FREE(anvil_remote);
 
     if (msg_verbose)
-	msg_info("%s: anvil_remote_map used=%ld",
-		 myname, (long) anvil_remote_map->used);
+    msg_info("%s: anvil_remote_map used=%ld",
+         myname, (long) anvil_remote_map->used);
 }
 
 /* anvil_remote_lookup - dump address status */
@@ -550,41 +550,41 @@ static void anvil_remote_lookup(VSTREAM *client_stream, const char *ident)
     const char *myname = "anvil_remote_lookup";
 
     if (msg_verbose)
-	msg_info("%s fd=%d stream=0x%lx ident=%s",
-		 myname, vstream_fileno(client_stream),
-		 (unsigned long) client_stream, ident);
+    msg_info("%s fd=%d stream=0x%lx ident=%s",
+         myname, vstream_fileno(client_stream),
+         (unsigned long) client_stream, ident);
 
     /*
      * Look up remote client information.
      */
     if ((anvil_remote =
-	 (ANVIL_REMOTE *) htable_find(anvil_remote_map, ident)) == 0) {
-	attr_print_plain(client_stream, ATTR_FLAG_NONE,
-			 SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
-			 SEND_ATTR_INT(ANVIL_ATTR_COUNT, 0),
-			 SEND_ATTR_INT(ANVIL_ATTR_RATE, 0),
-			 SEND_ATTR_INT(ANVIL_ATTR_MAIL, 0),
-			 SEND_ATTR_INT(ANVIL_ATTR_RCPT, 0),
-			 SEND_ATTR_INT(ANVIL_ATTR_NTLS, 0),
-			 SEND_ATTR_INT(ANVIL_ATTR_AUTH, 0),
-			 ATTR_TYPE_END);
+     (ANVIL_REMOTE *) htable_find(anvil_remote_map, ident)) == 0) {
+    attr_print_plain(client_stream, ATTR_FLAG_NONE,
+             SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
+             SEND_ATTR_INT(ANVIL_ATTR_COUNT, 0),
+             SEND_ATTR_INT(ANVIL_ATTR_RATE, 0),
+             SEND_ATTR_INT(ANVIL_ATTR_MAIL, 0),
+             SEND_ATTR_INT(ANVIL_ATTR_RCPT, 0),
+             SEND_ATTR_INT(ANVIL_ATTR_NTLS, 0),
+             SEND_ATTR_INT(ANVIL_ATTR_AUTH, 0),
+             ATTR_TYPE_END);
     } else {
 
-	/*
-	 * Do not report stale information.
-	 */
-	if (anvil_remote->start != 0
-	    && anvil_remote->start + var_anvil_time_unit < event_time())
-	    ANVIL_REMOTE_RSET_RATE(anvil_remote, 0);
-	attr_print_plain(client_stream, ATTR_FLAG_NONE,
-			 SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
-		       SEND_ATTR_INT(ANVIL_ATTR_COUNT, anvil_remote->count),
-			 SEND_ATTR_INT(ANVIL_ATTR_RATE, anvil_remote->rate),
-			 SEND_ATTR_INT(ANVIL_ATTR_MAIL, anvil_remote->mail),
-			 SEND_ATTR_INT(ANVIL_ATTR_RCPT, anvil_remote->rcpt),
-			 SEND_ATTR_INT(ANVIL_ATTR_NTLS, anvil_remote->ntls),
-			 SEND_ATTR_INT(ANVIL_ATTR_AUTH, anvil_remote->auth),
-			 ATTR_TYPE_END);
+    /*
+     * Do not report stale information.
+     */
+    if (anvil_remote->start != 0
+        && anvil_remote->start + var_anvil_time_unit < event_time())
+        ANVIL_REMOTE_RSET_RATE(anvil_remote, 0);
+    attr_print_plain(client_stream, ATTR_FLAG_NONE,
+             SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
+               SEND_ATTR_INT(ANVIL_ATTR_COUNT, anvil_remote->count),
+             SEND_ATTR_INT(ANVIL_ATTR_RATE, anvil_remote->rate),
+             SEND_ATTR_INT(ANVIL_ATTR_MAIL, anvil_remote->mail),
+             SEND_ATTR_INT(ANVIL_ATTR_RCPT, anvil_remote->rcpt),
+             SEND_ATTR_INT(ANVIL_ATTR_NTLS, anvil_remote->ntls),
+             SEND_ATTR_INT(ANVIL_ATTR_AUTH, anvil_remote->auth),
+             ATTR_TYPE_END);
     }
 }
 
@@ -597,9 +597,9 @@ static ANVIL_REMOTE *anvil_remote_conn_update(VSTREAM *client_stream, const char
     const char *myname = "anvil_remote_conn_update";
 
     if (msg_verbose)
-	msg_info("%s fd=%d stream=0x%lx ident=%s",
-		 myname, vstream_fileno(client_stream),
-		 (unsigned long) client_stream, ident);
+    msg_info("%s fd=%d stream=0x%lx ident=%s",
+         myname, vstream_fileno(client_stream),
+         (unsigned long) client_stream, ident);
 
     /*
      * Look up remote connection count information. Update remote connection
@@ -608,16 +608,16 @@ static ANVIL_REMOTE *anvil_remote_conn_update(VSTREAM *client_stream, const char
      * a quicker response to tresspassers.
      */
     if ((anvil_remote =
-	 (ANVIL_REMOTE *) htable_find(anvil_remote_map, ident)) == 0) {
-	anvil_remote = (ANVIL_REMOTE *) mymalloc(sizeof(*anvil_remote));
-	ANVIL_REMOTE_FIRST_CONN(anvil_remote, ident);
-	htable_enter(anvil_remote_map, ident, (void *) anvil_remote);
-	if (max_cache_size < anvil_remote_map->used) {
-	    max_cache_size = anvil_remote_map->used;
-	    max_cache_time = event_time();
-	}
+     (ANVIL_REMOTE *) htable_find(anvil_remote_map, ident)) == 0) {
+    anvil_remote = (ANVIL_REMOTE *) mymalloc(sizeof(*anvil_remote));
+    ANVIL_REMOTE_FIRST_CONN(anvil_remote, ident);
+    htable_enter(anvil_remote_map, ident, (void *) anvil_remote);
+    if (max_cache_size < anvil_remote_map->used) {
+        max_cache_size = anvil_remote_map->used;
+        max_cache_time = event_time();
+    }
     } else {
-	ANVIL_REMOTE_NEXT_CONN(anvil_remote);
+    ANVIL_REMOTE_NEXT_CONN(anvil_remote);
     }
 
     /*
@@ -625,16 +625,16 @@ static ANVIL_REMOTE *anvil_remote_conn_update(VSTREAM *client_stream, const char
      * can clean up all its connection state when the local server goes away.
      */
     if ((anvil_local = (ANVIL_LOCAL *) vstream_context(client_stream)) == 0) {
-	anvil_local = (ANVIL_LOCAL *) mymalloc(sizeof(*anvil_local));
-	ANVIL_LOCAL_INIT(anvil_local);
-	vstream_control(client_stream,
-			CA_VSTREAM_CTL_CONTEXT((void *) anvil_local),
-			CA_VSTREAM_CTL_END);
+    anvil_local = (ANVIL_LOCAL *) mymalloc(sizeof(*anvil_local));
+    ANVIL_LOCAL_INIT(anvil_local);
+    vstream_control(client_stream,
+            CA_VSTREAM_CTL_CONTEXT((void *) anvil_local),
+            CA_VSTREAM_CTL_END);
     }
     ANVIL_LOCAL_ADD_ONE(anvil_local, anvil_remote);
     if (msg_verbose)
-	msg_info("%s: anvil_local 0x%lx",
-		 myname, (unsigned long) anvil_local);
+    msg_info("%s: anvil_local 0x%lx",
+         myname, (unsigned long) anvil_local);
 
     return (anvil_remote);
 }
@@ -654,18 +654,18 @@ static void anvil_remote_connect(VSTREAM *client_stream, const char *ident)
      * Respond to the local server.
      */
     attr_print_plain(client_stream, ATTR_FLAG_NONE,
-		     SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
-		     SEND_ATTR_INT(ANVIL_ATTR_COUNT, anvil_remote->count),
-		     SEND_ATTR_INT(ANVIL_ATTR_RATE, anvil_remote->rate),
-		     ATTR_TYPE_END);
+             SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
+             SEND_ATTR_INT(ANVIL_ATTR_COUNT, anvil_remote->count),
+             SEND_ATTR_INT(ANVIL_ATTR_RATE, anvil_remote->rate),
+             ATTR_TYPE_END);
 
     /*
      * Update peak statistics.
      */
     if (anvil_remote->rate > max_conn_rate.value)
-	ANVIL_MAX_UPDATE(max_conn_rate, anvil_remote->rate, anvil_remote->ident);
+    ANVIL_MAX_UPDATE(max_conn_rate, anvil_remote->rate, anvil_remote->ident);
     if (anvil_remote->count > max_conn_count.value)
-	ANVIL_MAX_UPDATE(max_conn_count, anvil_remote->count, anvil_remote->ident);
+    ANVIL_MAX_UPDATE(max_conn_count, anvil_remote->count, anvil_remote->ident);
 }
 
 /* anvil_remote_mail - register message delivery request */
@@ -678,23 +678,23 @@ static void anvil_remote_mail(VSTREAM *client_stream, const char *ident)
      * Be prepared for "postfix reload" after "connect".
      */
     if ((anvil_remote =
-	 (ANVIL_REMOTE *) htable_find(anvil_remote_map, ident)) == 0)
-	anvil_remote = anvil_remote_conn_update(client_stream, ident);
+     (ANVIL_REMOTE *) htable_find(anvil_remote_map, ident)) == 0)
+    anvil_remote = anvil_remote_conn_update(client_stream, ident);
 
     /*
      * Update message delivery request rate and respond to local server.
      */
     ANVIL_REMOTE_INCR_MAIL(anvil_remote);
     attr_print_plain(client_stream, ATTR_FLAG_NONE,
-		     SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
-		     SEND_ATTR_INT(ANVIL_ATTR_RATE, anvil_remote->mail),
-		     ATTR_TYPE_END);
+             SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
+             SEND_ATTR_INT(ANVIL_ATTR_RATE, anvil_remote->mail),
+             ATTR_TYPE_END);
 
     /*
      * Update peak statistics.
      */
     if (anvil_remote->mail > max_mail_rate.value)
-	ANVIL_MAX_UPDATE(max_mail_rate, anvil_remote->mail, anvil_remote->ident);
+    ANVIL_MAX_UPDATE(max_mail_rate, anvil_remote->mail, anvil_remote->ident);
 }
 
 /* anvil_remote_rcpt - register recipient address event */
@@ -707,23 +707,23 @@ static void anvil_remote_rcpt(VSTREAM *client_stream, const char *ident)
      * Be prepared for "postfix reload" after "connect".
      */
     if ((anvil_remote =
-	 (ANVIL_REMOTE *) htable_find(anvil_remote_map, ident)) == 0)
-	anvil_remote = anvil_remote_conn_update(client_stream, ident);
+     (ANVIL_REMOTE *) htable_find(anvil_remote_map, ident)) == 0)
+    anvil_remote = anvil_remote_conn_update(client_stream, ident);
 
     /*
      * Update recipient address rate and respond to local server.
      */
     ANVIL_REMOTE_INCR_RCPT(anvil_remote);
     attr_print_plain(client_stream, ATTR_FLAG_NONE,
-		     SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
-		     SEND_ATTR_INT(ANVIL_ATTR_RATE, anvil_remote->rcpt),
-		     ATTR_TYPE_END);
+             SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
+             SEND_ATTR_INT(ANVIL_ATTR_RATE, anvil_remote->rcpt),
+             ATTR_TYPE_END);
 
     /*
      * Update peak statistics.
      */
     if (anvil_remote->rcpt > max_rcpt_rate.value)
-	ANVIL_MAX_UPDATE(max_rcpt_rate, anvil_remote->rcpt, anvil_remote->ident);
+    ANVIL_MAX_UPDATE(max_rcpt_rate, anvil_remote->rcpt, anvil_remote->ident);
 }
 
 /* anvil_remote_auth - register auth request event */
@@ -736,23 +736,23 @@ static void anvil_remote_auth(VSTREAM *client_stream, const char *ident)
      * Be prepared for "postfix reload" after "connect".
      */
     if ((anvil_remote =
-	 (ANVIL_REMOTE *) htable_find(anvil_remote_map, ident)) == 0)
-	anvil_remote = anvil_remote_conn_update(client_stream, ident);
+     (ANVIL_REMOTE *) htable_find(anvil_remote_map, ident)) == 0)
+    anvil_remote = anvil_remote_conn_update(client_stream, ident);
 
     /*
      * Update recipient address rate and respond to local server.
      */
     ANVIL_REMOTE_INCR_AUTH(anvil_remote);
     attr_print_plain(client_stream, ATTR_FLAG_NONE,
-		     SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
-		     SEND_ATTR_INT(ANVIL_ATTR_RATE, anvil_remote->auth),
-		     ATTR_TYPE_END);
+             SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
+             SEND_ATTR_INT(ANVIL_ATTR_RATE, anvil_remote->auth),
+             ATTR_TYPE_END);
 
     /*
      * Update peak statistics.
      */
     if (anvil_remote->auth > max_auth_rate.value)
-	ANVIL_MAX_UPDATE(max_auth_rate, anvil_remote->auth, anvil_remote->ident);
+    ANVIL_MAX_UPDATE(max_auth_rate, anvil_remote->auth, anvil_remote->ident);
 }
 
 /* anvil_remote_newtls - register newtls event */
@@ -765,23 +765,23 @@ static void anvil_remote_newtls(VSTREAM *client_stream, const char *ident)
      * Be prepared for "postfix reload" after "connect".
      */
     if ((anvil_remote =
-	 (ANVIL_REMOTE *) htable_find(anvil_remote_map, ident)) == 0)
-	anvil_remote = anvil_remote_conn_update(client_stream, ident);
+     (ANVIL_REMOTE *) htable_find(anvil_remote_map, ident)) == 0)
+    anvil_remote = anvil_remote_conn_update(client_stream, ident);
 
     /*
      * Update newtls rate and respond to local server.
      */
     ANVIL_REMOTE_INCR_NTLS(anvil_remote);
     attr_print_plain(client_stream, ATTR_FLAG_NONE,
-		     SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
-		     SEND_ATTR_INT(ANVIL_ATTR_RATE, anvil_remote->ntls),
-		     ATTR_TYPE_END);
+             SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
+             SEND_ATTR_INT(ANVIL_ATTR_RATE, anvil_remote->ntls),
+             ATTR_TYPE_END);
 
     /*
      * Update peak statistics.
      */
     if (anvil_remote->ntls > max_ntls_rate.value)
-	ANVIL_MAX_UPDATE(max_ntls_rate, anvil_remote->ntls, anvil_remote->ident);
+    ANVIL_MAX_UPDATE(max_ntls_rate, anvil_remote->ntls, anvil_remote->ident);
 }
 
 /* anvil_remote_newtls_stat - report newtls stats */
@@ -795,27 +795,27 @@ static void anvil_remote_newtls_stat(VSTREAM *client_stream, const char *ident)
      * Be prepared for "postfix reload" after "connect".
      */
     if ((anvil_remote =
-	 (ANVIL_REMOTE *) htable_find(anvil_remote_map, ident)) == 0) {
-	rate = 0;
+     (ANVIL_REMOTE *) htable_find(anvil_remote_map, ident)) == 0) {
+    rate = 0;
     }
 
     /*
      * Do not report stale information.
      */
     else {
-	if (anvil_remote->start != 0
-	    && anvil_remote->start + var_anvil_time_unit < event_time())
-	    ANVIL_REMOTE_RSET_RATE(anvil_remote, 0);
-	rate = anvil_remote->ntls;
+    if (anvil_remote->start != 0
+        && anvil_remote->start + var_anvil_time_unit < event_time())
+        ANVIL_REMOTE_RSET_RATE(anvil_remote, 0);
+    rate = anvil_remote->ntls;
     }
 
     /*
      * Respond to local server.
      */
     attr_print_plain(client_stream, ATTR_FLAG_NONE,
-		     SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
-		     SEND_ATTR_INT(ANVIL_ATTR_RATE, rate),
-		     ATTR_TYPE_END);
+             SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
+             SEND_ATTR_INT(ANVIL_ATTR_RATE, rate),
+             ATTR_TYPE_END);
 }
 
 /* anvil_remote_disconnect - report disconnect event */
@@ -827,45 +827,45 @@ static void anvil_remote_disconnect(VSTREAM *client_stream, const char *ident)
     const char *myname = "anvil_remote_disconnect";
 
     if (msg_verbose)
-	msg_info("%s fd=%d stream=0x%lx ident=%s",
-		 myname, vstream_fileno(client_stream),
-		 (unsigned long) client_stream, ident);
+    msg_info("%s fd=%d stream=0x%lx ident=%s",
+         myname, vstream_fileno(client_stream),
+         (unsigned long) client_stream, ident);
 
     /*
      * Update local and remote info if this remote connection is listed for
      * this local server.
      */
     if ((anvil_local = (ANVIL_LOCAL *) vstream_context(client_stream)) != 0
-	&& (anvil_remote =
-	    (ANVIL_REMOTE *) htable_find(anvil_remote_map, ident)) != 0
-	&& ANVIL_LOCAL_REMOTE_LINKED(anvil_local, anvil_remote)) {
-	ANVIL_REMOTE_DROP_ONE(anvil_remote);
-	ANVIL_LOCAL_DROP_ONE(anvil_local, anvil_remote);
+    && (anvil_remote =
+        (ANVIL_REMOTE *) htable_find(anvil_remote_map, ident)) != 0
+    && ANVIL_LOCAL_REMOTE_LINKED(anvil_local, anvil_remote)) {
+    ANVIL_REMOTE_DROP_ONE(anvil_remote);
+    ANVIL_LOCAL_DROP_ONE(anvil_local, anvil_remote);
     }
     if (msg_verbose)
-	msg_info("%s: anvil_local 0x%lx",
-		 myname, (unsigned long) anvil_local);
+    msg_info("%s: anvil_local 0x%lx",
+         myname, (unsigned long) anvil_local);
 
     /*
      * Respond to the local server.
      */
     attr_print_plain(client_stream, ATTR_FLAG_NONE,
-		     SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
-		     ATTR_TYPE_END);
+             SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_OK),
+             ATTR_TYPE_END);
 }
 
 /* anvil_service_done - clean up */
 
 static void anvil_service_done(VSTREAM *client_stream, char *unused_service,
-			               char **unused_argv)
+                           char **unused_argv)
 {
     ANVIL_LOCAL *anvil_local;
     const char *myname = "anvil_service_done";
 
     if (msg_verbose)
-	msg_info("%s fd=%d stream=0x%lx",
-		 myname, vstream_fileno(client_stream),
-		 (unsigned long) client_stream);
+    msg_info("%s fd=%d stream=0x%lx",
+         myname, vstream_fileno(client_stream),
+         (unsigned long) client_stream);
 
     /*
      * Look up the local server, and get rid of any remote connection state
@@ -873,14 +873,14 @@ static void anvil_service_done(VSTREAM *client_stream, char *unused_service,
      * status information before it expires.
      */
     if ((anvil_local = (ANVIL_LOCAL *) vstream_context(client_stream)) != 0) {
-	if (msg_verbose)
-	    msg_info("%s: anvil_local 0x%lx",
-		     myname, (unsigned long) anvil_local);
-	ANVIL_LOCAL_DROP_ALL(client_stream, anvil_local);
-	myfree((void *) anvil_local);
+    if (msg_verbose)
+        msg_info("%s: anvil_local 0x%lx",
+             myname, (unsigned long) anvil_local);
+    ANVIL_LOCAL_DROP_ALL(client_stream, anvil_local);
+    myfree((void *) anvil_local);
     } else if (msg_verbose)
-	msg_info("client socket not found for fd=%d",
-		 vstream_fileno(client_stream));
+    msg_info("client socket not found for fd=%d",
+         vstream_fileno(client_stream));
 }
 
 /* anvil_status_dump - log and reset extreme usage */
@@ -895,9 +895,9 @@ static void anvil_status_dump(char *unused_name, char **unused_argv)
     ANVIL_MAX_RATE_REPORT(max_auth_rate, "auth");
 
     if (max_cache_size > 0) {
-	msg_info("statistics: max cache size %d at %.15s",
-		 max_cache_size, ctime(&max_cache_time) + 4);
-	max_cache_size = 0;
+    msg_info("statistics: max cache size %d at %.15s",
+         max_cache_size, ctime(&max_cache_time) + 4);
+    max_cache_size = 0;
     }
 }
 
@@ -916,15 +916,15 @@ static void anvil_service(VSTREAM *client_stream, char *unused_service, char **a
     static VSTRING *request;
     static VSTRING *ident;
     static const ANVIL_REQ_TABLE request_table[] = {
-	ANVIL_REQ_CONN, anvil_remote_connect,
-	ANVIL_REQ_MAIL, anvil_remote_mail,
-	ANVIL_REQ_RCPT, anvil_remote_rcpt,
-	ANVIL_REQ_NTLS, anvil_remote_newtls,
-	ANVIL_REQ_DISC, anvil_remote_disconnect,
-	ANVIL_REQ_NTLS_STAT, anvil_remote_newtls_stat,
-	ANVIL_REQ_AUTH, anvil_remote_auth,
-	ANVIL_REQ_LOOKUP, anvil_remote_lookup,
-	0, 0,
+    ANVIL_REQ_CONN, anvil_remote_connect,
+    ANVIL_REQ_MAIL, anvil_remote_mail,
+    ANVIL_REQ_RCPT, anvil_remote_rcpt,
+    ANVIL_REQ_NTLS, anvil_remote_newtls,
+    ANVIL_REQ_DISC, anvil_remote_disconnect,
+    ANVIL_REQ_NTLS_STAT, anvil_remote_newtls_stat,
+    ANVIL_REQ_AUTH, anvil_remote_auth,
+    ANVIL_REQ_LOOKUP, anvil_remote_lookup,
+    0, 0,
     };
     const ANVIL_REQ_TABLE *rp;
 
@@ -932,14 +932,14 @@ static void anvil_service(VSTREAM *client_stream, char *unused_service, char **a
      * Sanity check. This service takes no command-line arguments.
      */
     if (argv[0])
-	msg_fatal("unexpected command-line argument: %s", argv[0]);
+    msg_fatal("unexpected command-line argument: %s", argv[0]);
 
     /*
      * Initialize.
      */
     if (request == 0) {
-	request = vstring_alloc(10);
-	ident = vstring_alloc(10);
+    request = vstring_alloc(10);
+    ident = vstring_alloc(10);
     }
 
     /*
@@ -949,32 +949,32 @@ static void anvil_service(VSTREAM *client_stream, char *unused_service, char **a
      * multi_server.c.
      */
     if (msg_verbose)
-	msg_info("--- start request ---");
+    msg_info("--- start request ---");
     if (attr_scan_plain(client_stream,
-			ATTR_FLAG_MISSING | ATTR_FLAG_STRICT,
-			RECV_ATTR_STR(ANVIL_ATTR_REQ, request),
-			RECV_ATTR_STR(ANVIL_ATTR_IDENT, ident),
-			ATTR_TYPE_END) == 2) {
-	for (rp = request_table; /* see below */ ; rp++) {
-	    if (rp->name == 0) {
-		msg_warn("unrecognized request: \"%s\", ignored", STR(request));
-		attr_print_plain(client_stream, ATTR_FLAG_NONE,
-			  SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_FAIL),
-				 ATTR_TYPE_END);
-		break;
-	    }
-	    if (STREQ(rp->name, STR(request))) {
-		rp->action(client_stream, STR(ident));
-		break;
-	    }
-	}
-	vstream_fflush(client_stream);
+            ATTR_FLAG_MISSING | ATTR_FLAG_STRICT,
+            RECV_ATTR_STR(ANVIL_ATTR_REQ, request),
+            RECV_ATTR_STR(ANVIL_ATTR_IDENT, ident),
+            ATTR_TYPE_END) == 2) {
+    for (rp = request_table; /* see below */ ; rp++) {
+        if (rp->name == 0) {
+        msg_warn("unrecognized request: \"%s\", ignored", STR(request));
+        attr_print_plain(client_stream, ATTR_FLAG_NONE,
+              SEND_ATTR_INT(ANVIL_ATTR_STATUS, ANVIL_STAT_FAIL),
+                 ATTR_TYPE_END);
+        break;
+        }
+        if (STREQ(rp->name, STR(request))) {
+        rp->action(client_stream, STR(ident));
+        break;
+        }
+    }
+    vstream_fflush(client_stream);
     } else {
-	/* Note: invokes anvil_service_done() */
-	multi_server_disconnect(client_stream);
+    /* Note: invokes anvil_service_done() */
+    multi_server_disconnect(client_stream);
     }
     if (msg_verbose)
-	msg_info("--- end request ---");
+    msg_info("--- end request ---");
 }
 
 /* post_jail_init - post-jail initialization */
@@ -1001,7 +1001,7 @@ static void post_jail_init(char *unused_name, char **unused_argv)
      * Don't exit before the sampling interval ends.
      */
     if (var_idle_limit < var_anvil_time_unit)
-	var_idle_limit = var_anvil_time_unit;
+    var_idle_limit = var_anvil_time_unit;
 }
 
 MAIL_VERSION_STAMP_DECLARE;
@@ -1009,15 +1009,15 @@ MAIL_VERSION_STAMP_DECLARE;
 /* post_accept - announce our protocol */
 
 static void post_accept(VSTREAM *stream, char *unused_name,
-			        char **unused_argv, HTABLE *unused_table)
+                    char **unused_argv, HTABLE *unused_table)
 {
 
     /*
      * Announce the protocol.
      */
     attr_print_plain(stream, ATTR_FLAG_NONE,
-		     SEND_ATTR_STR(MAIL_ATTR_PROTO, MAIL_ATTR_PROTO_ANVIL),
-		     ATTR_TYPE_END);
+             SEND_ATTR_STR(MAIL_ATTR_PROTO, MAIL_ATTR_PROTO_ANVIL),
+             ATTR_TYPE_END);
     (void) vstream_fflush(stream);
 }
 
@@ -1026,9 +1026,9 @@ static void post_accept(VSTREAM *stream, char *unused_name,
 int     main(int argc, char **argv)
 {
     static const CONFIG_TIME_TABLE time_table[] = {
-	VAR_ANVIL_TIME_UNIT, DEF_ANVIL_TIME_UNIT, &var_anvil_time_unit, 1, 0,
-	VAR_ANVIL_STAT_TIME, DEF_ANVIL_STAT_TIME, &var_anvil_stat_time, 1, 0,
-	0,
+    VAR_ANVIL_TIME_UNIT, DEF_ANVIL_TIME_UNIT, &var_anvil_time_unit, 1, 0,
+    VAR_ANVIL_STAT_TIME, DEF_ANVIL_STAT_TIME, &var_anvil_stat_time, 1, 0,
+    0,
     };
 
     /*
@@ -1037,11 +1037,11 @@ int     main(int argc, char **argv)
     MAIL_VERSION_STAMP_ALLOCATE;
 
     multi_server_main(argc, argv, anvil_service,
-		      CA_MAIL_SERVER_TIME_TABLE(time_table),
-		      CA_MAIL_SERVER_POST_INIT(post_jail_init),
-		      CA_MAIL_SERVER_POST_ACCEPT(post_accept),
-		      CA_MAIL_SERVER_SOLITARY,
-		      CA_MAIL_SERVER_PRE_DISCONN(anvil_service_done),
-		      CA_MAIL_SERVER_EXIT(anvil_status_dump),
-		      0);
+              CA_MAIL_SERVER_TIME_TABLE(time_table),
+              CA_MAIL_SERVER_POST_INIT(post_jail_init),
+              CA_MAIL_SERVER_POST_ACCEPT(post_accept),
+              CA_MAIL_SERVER_SOLITARY,
+              CA_MAIL_SERVER_PRE_DISCONN(anvil_service_done),
+              CA_MAIL_SERVER_EXIT(anvil_status_dump),
+              0);
 }

@@ -1,35 +1,35 @@
 /*++
 /* NAME
-/*	qmqpd_state 3
+/*    qmqpd_state 3
 /* SUMMARY
-/*	Postfix QMQP server
+/*    Postfix QMQP server
 /* SYNOPSIS
-/*	#include "qmqpd.h"
+/*    #include "qmqpd.h"
 /*
-/*	QMQPD_STATE *qmqpd_state_alloc(stream)
-/*	VSTREAM *stream;
+/*    QMQPD_STATE *qmqpd_state_alloc(stream)
+/*    VSTREAM *stream;
 /*
-/*	void	qmqpd_state_free(state)
-/*	QMQPD_STATE *state;
+/*    void    qmqpd_state_free(state)
+/*    QMQPD_STATE *state;
 /* DESCRIPTION
-/*	qmqpd_state_alloc() creates and initializes session context.
+/*    qmqpd_state_alloc() creates and initializes session context.
 /*
-/*	qmqpd_state_free() destroys session context.
+/*    qmqpd_state_free() destroys session context.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP stream
-/*	Stream connected to peer. The stream is not copied.
+/*    Stream connected to peer. The stream is not copied.
 /* DIAGNOSTICS
-/*	All errors are fatal.
+/*    All errors are fatal.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -87,13 +87,13 @@ void    qmqpd_state_free(QMQPD_STATE *state)
     vstring_free(state->buf);
     qmqpd_peer_reset(state);
     if (state->queue_id)
-	myfree(state->queue_id);
+    myfree(state->queue_id);
     if (state->dest)
-	mail_stream_cleanup(state->dest);
+    mail_stream_cleanup(state->dest);
     if (state->sender)
-	myfree(state->sender);
+    myfree(state->sender);
     if (state->recipient)
-	myfree(state->recipient);
+    myfree(state->recipient);
     vstring_free(state->why_rejected);
     myfree((void *) state);
 }

@@ -1,115 +1,115 @@
 /*++
 /* NAME
-/*	discard 8
+/*    discard 8
 /* SUMMARY
-/*	Postfix discard mail delivery agent
+/*    Postfix discard mail delivery agent
 /* SYNOPSIS
-/*	\fBdiscard\fR [generic Postfix daemon options]
+/*    \fBdiscard\fR [generic Postfix daemon options]
 /* DESCRIPTION
-/*	The Postfix \fBdiscard\fR(8) delivery agent processes
-/*	delivery requests from
-/*	the queue manager. Each request specifies a queue file, a sender
-/*	address, a next-hop destination that is treated as the reason for
-/*	discarding the mail, and recipient information.
-/*	The reason may be prefixed with an RFC 3463-compatible detail code.
-/*	This program expects to be run from the \fBmaster\fR(8) process
-/*	manager.
+/*    The Postfix \fBdiscard\fR(8) delivery agent processes
+/*    delivery requests from
+/*    the queue manager. Each request specifies a queue file, a sender
+/*    address, a next-hop destination that is treated as the reason for
+/*    discarding the mail, and recipient information.
+/*    The reason may be prefixed with an RFC 3463-compatible detail code.
+/*    This program expects to be run from the \fBmaster\fR(8) process
+/*    manager.
 /*
-/*	The \fBdiscard\fR(8) delivery agent pretends to deliver all recipients
-/*	in the delivery request, logs the "next-hop" destination
-/*	as the reason for discarding the mail, updates the
-/*	queue file, and either marks recipients as finished or informs the
-/*	queue manager that delivery should be tried again at a later time.
+/*    The \fBdiscard\fR(8) delivery agent pretends to deliver all recipients
+/*    in the delivery request, logs the "next-hop" destination
+/*    as the reason for discarding the mail, updates the
+/*    queue file, and either marks recipients as finished or informs the
+/*    queue manager that delivery should be tried again at a later time.
 /*
-/*	Delivery status reports are sent to the \fBtrace\fR(8)
-/*	daemon as appropriate.
+/*    Delivery status reports are sent to the \fBtrace\fR(8)
+/*    daemon as appropriate.
 /* SECURITY
 /* .ad
 /* .fi
-/*	The \fBdiscard\fR(8) mailer is not security-sensitive. It does not talk
-/*	to the network, and can be run chrooted at fixed low privilege.
+/*    The \fBdiscard\fR(8) mailer is not security-sensitive. It does not talk
+/*    to the network, and can be run chrooted at fixed low privilege.
 /* STANDARDS
-/*	RFC 3463 (Enhanced Status Codes)
+/*    RFC 3463 (Enhanced Status Codes)
 /* DIAGNOSTICS
-/*	Problems and transactions are logged to \fBsyslogd\fR(8)
-/*	or \fBpostlogd\fR(8).
+/*    Problems and transactions are logged to \fBsyslogd\fR(8)
+/*    or \fBpostlogd\fR(8).
 /*
-/*	Depending on the setting of the \fBnotify_classes\fR parameter,
-/*	the postmaster is notified of bounces and of other trouble.
+/*    Depending on the setting of the \fBnotify_classes\fR parameter,
+/*    the postmaster is notified of bounces and of other trouble.
 /* CONFIGURATION PARAMETERS
 /* .ad
 /* .fi
-/*	Changes to \fBmain.cf\fR are picked up automatically as \fBdiscard\fR(8)
-/*	processes run for only a limited amount of time. Use the command
-/*	"\fBpostfix reload\fR" to speed up a change.
+/*    Changes to \fBmain.cf\fR are picked up automatically as \fBdiscard\fR(8)
+/*    processes run for only a limited amount of time. Use the command
+/*    "\fBpostfix reload\fR" to speed up a change.
 /*
-/*	The text below provides only a parameter summary. See
-/*	\fBpostconf\fR(5) for more details including examples.
+/*    The text below provides only a parameter summary. See
+/*    \fBpostconf\fR(5) for more details including examples.
 /* .IP "\fBconfig_directory (see 'postconf -d' output)\fR"
-/*	The default location of the Postfix main.cf and master.cf
-/*	configuration files.
+/*    The default location of the Postfix main.cf and master.cf
+/*    configuration files.
 /* .IP "\fBdaemon_timeout (18000s)\fR"
-/*	How much time a Postfix daemon process may take to handle a
-/*	request before it is terminated by a built-in watchdog timer.
+/*    How much time a Postfix daemon process may take to handle a
+/*    request before it is terminated by a built-in watchdog timer.
 /* .IP "\fBdelay_logging_resolution_limit (2)\fR"
-/*	The maximal number of digits after the decimal point when logging
-/*	sub-second delay values.
+/*    The maximal number of digits after the decimal point when logging
+/*    sub-second delay values.
 /* .IP "\fBdouble_bounce_sender (double-bounce)\fR"
-/*	The sender address of postmaster notifications that are generated
-/*	by the mail system.
+/*    The sender address of postmaster notifications that are generated
+/*    by the mail system.
 /* .IP "\fBipc_timeout (3600s)\fR"
-/*	The time limit for sending or receiving information over an internal
-/*	communication channel.
+/*    The time limit for sending or receiving information over an internal
+/*    communication channel.
 /* .IP "\fBmax_idle (100s)\fR"
-/*	The maximum amount of time that an idle Postfix daemon process waits
-/*	for an incoming connection before terminating voluntarily.
+/*    The maximum amount of time that an idle Postfix daemon process waits
+/*    for an incoming connection before terminating voluntarily.
 /* .IP "\fBmax_use (100)\fR"
-/*	The maximal number of incoming connections that a Postfix daemon
-/*	process will service before terminating voluntarily.
+/*    The maximal number of incoming connections that a Postfix daemon
+/*    process will service before terminating voluntarily.
 /* .IP "\fBprocess_id (read-only)\fR"
-/*	The process ID of a Postfix command or daemon process.
+/*    The process ID of a Postfix command or daemon process.
 /* .IP "\fBprocess_name (read-only)\fR"
-/*	The process name of a Postfix command or daemon process.
+/*    The process name of a Postfix command or daemon process.
 /* .IP "\fBqueue_directory (see 'postconf -d' output)\fR"
-/*	The location of the Postfix top-level queue directory.
+/*    The location of the Postfix top-level queue directory.
 /* .IP "\fBsyslog_facility (mail)\fR"
-/*	The syslog facility of Postfix logging.
+/*    The syslog facility of Postfix logging.
 /* .IP "\fBsyslog_name (see 'postconf -d' output)\fR"
-/*	A prefix that is prepended to the process name in syslog
-/*	records, so that, for example, "smtpd" becomes "prefix/smtpd".
+/*    A prefix that is prepended to the process name in syslog
+/*    records, so that, for example, "smtpd" becomes "prefix/smtpd".
 /* .PP
-/*	Available in Postfix 3.3 and later:
+/*    Available in Postfix 3.3 and later:
 /* .IP "\fBservice_name (read-only)\fR"
-/*	The master.cf service name of a Postfix daemon process.
+/*    The master.cf service name of a Postfix daemon process.
 /* SEE ALSO
-/*	qmgr(8), queue manager
-/*	bounce(8), delivery status reports
-/*	error(8), Postfix error delivery agent
-/*	postconf(5), configuration parameters
-/*	master(5), generic daemon options
-/*	master(8), process manager
-/*	postlogd(8), Postfix logging
-/*	syslogd(8), system logging
+/*    qmgr(8), queue manager
+/*    bounce(8), delivery status reports
+/*    error(8), Postfix error delivery agent
+/*    postconf(5), configuration parameters
+/*    master(5), generic daemon options
+/*    master(8), process manager
+/*    postlogd(8), Postfix logging
+/*    syslogd(8), system logging
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* HISTORY
-/*	This service was introduced with Postfix version 2.2.
+/*    This service was introduced with Postfix version 2.2.
 /* AUTHOR(S)
-/*	Victor Duchovni
-/*	Morgan Stanley
+/*    Victor Duchovni
+/*    Morgan Stanley
 /*
-/*	Based on code by:
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Based on code by:
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -152,15 +152,15 @@ static int deliver_message(DELIVER_REQUEST *request)
     DSN     dsn;
 
     if (msg_verbose)
-	msg_info("deliver_message: from %s", request->sender);
+    msg_info("deliver_message: from %s", request->sender);
 
     /*
      * Sanity checks.
      */
     if (request->nexthop[0] == 0)
-	msg_fatal("empty nexthop hostname");
+    msg_fatal("empty nexthop hostname");
     if (request->rcpt_list.len <= 0)
-	msg_fatal("recipient count: %d", request->rcpt_list.len);
+    msg_fatal("recipient count: %d", request->rcpt_list.len);
 
     /*
      * Open the queue file. Opening the file can fail for a variety of
@@ -169,12 +169,12 @@ static int deliver_message(DELIVER_REQUEST *request)
      * system to back off, and retry later.
      */
     src = mail_queue_open(request->queue_name, request->queue_id,
-			  O_RDWR, 0);
+              O_RDWR, 0);
     if (src == 0)
-	msg_fatal("%s: open %s %s: %m", myname,
-		  request->queue_name, request->queue_id);
+    msg_fatal("%s: open %s %s: %m", myname,
+          request->queue_name, request->queue_id);
     if (msg_verbose)
-	msg_info("%s: file %s", myname, VSTREAM_PATH(src));
+    msg_info("%s: file %s", myname, VSTREAM_PATH(src));
 
     /*
      * Discard all recipients.
@@ -184,19 +184,19 @@ static int deliver_message(DELIVER_REQUEST *request)
     dsn_split(&dp, "2.0.0", request->nexthop);
     (void) DSN_SIMPLE(&dsn, DSN_STATUS(dp.dsn), dp.text);
     for (nrcpt = 0; nrcpt < request->rcpt_list.len; nrcpt++) {
-	rcpt = request->rcpt_list.info + nrcpt;
-	status = sent(BOUNCE_FLAGS(request), request->queue_id,
-		      &request->msg_stats, rcpt, "none", &dsn);
-	if (status == 0 && (request->flags & DEL_REQ_FLAG_SUCCESS))
-	    deliver_completed(src, rcpt->offset);
-	result |= status;
+    rcpt = request->rcpt_list.info + nrcpt;
+    status = sent(BOUNCE_FLAGS(request), request->queue_id,
+              &request->msg_stats, rcpt, "none", &dsn);
+    if (status == 0 && (request->flags & DEL_REQ_FLAG_SUCCESS))
+        deliver_completed(src, rcpt->offset);
+    result |= status;
     }
 
     /*
      * Clean up.
      */
     if (vstream_fclose(src))
-	msg_warn("close %s %s: %m", request->queue_name, request->queue_id);
+    msg_warn("close %s %s: %m", request->queue_name, request->queue_id);
 
     return (result);
 }
@@ -212,7 +212,7 @@ static void discard_service(VSTREAM *client_stream, char *unused_service, char *
      * Sanity check. This service takes no command-line arguments.
      */
     if (argv[0])
-	msg_fatal("unexpected command-line argument: %s", argv[0]);
+    msg_fatal("unexpected command-line argument: %s", argv[0]);
 
     /*
      * This routine runs whenever a client connects to the UNIX-domain socket
@@ -223,8 +223,8 @@ static void discard_service(VSTREAM *client_stream, char *unused_service, char *
      * common code in single_server.c.
      */
     if ((request = deliver_request_read(client_stream)) != 0) {
-	status = deliver_message(request);
-	deliver_request_done(client_stream, request, status);
+    status = deliver_message(request);
+    deliver_request_done(client_stream, request, status);
     }
 }
 
@@ -248,6 +248,6 @@ int     main(int argc, char **argv)
     MAIL_VERSION_STAMP_ALLOCATE;
 
     single_server_main(argc, argv, discard_service,
-		       CA_MAIL_SERVER_PRE_INIT(pre_init),
-		       0);
+               CA_MAIL_SERVER_PRE_INIT(pre_init),
+               0);
 }

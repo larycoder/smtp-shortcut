@@ -1,26 +1,26 @@
 /*++
 /* NAME
-/*	sane_link 3
+/*    sane_link 3
 /* SUMMARY
-/*	sanitize link() error returns
+/*    sanitize link() error returns
 /* SYNOPSIS
-/*	#include <sane_fsops.h>
+/*    #include <sane_fsops.h>
 /*
-/*	int	sane_link(from, to)
-/*	const char *from;
-/*	const char *to;
+/*    int    sane_link(from, to)
+/*    const char *from;
+/*    const char *to;
 /* DESCRIPTION
-/*	sane_link() implements the link(2) system call, and works
-/*	around some errors that are possible with NFS file systems.
+/*    sane_link() implements the link(2) system call, and works
+/*    around some errors that are possible with NFS file systems.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -49,7 +49,7 @@ int     sane_link(const char *from, const char *to)
      * Normal case: link() succeeds.
      */
     if (link(from, to) >= 0)
-	return (0);
+    return (0);
 
     /*
      * Woops. Save errno, and see if the error is an NFS artefact. If it is,
@@ -57,11 +57,11 @@ int     sane_link(const char *from, const char *to)
      */
     saved_errno = errno;
     if (stat(from, &from_st) >= 0 && stat(to, &to_st) >= 0
-	&& from_st.st_dev == to_st.st_dev
-	&& from_st.st_ino == to_st.st_ino) {
-	msg_info("%s(%s,%s): worked around spurious NFS error",
-		 myname, from, to);
-	return (0);
+    && from_st.st_dev == to_st.st_dev
+    && from_st.st_ino == to_st.st_ino) {
+    msg_info("%s(%s,%s): worked around spurious NFS error",
+         myname, from, to);
+    return (0);
     }
 
     /*

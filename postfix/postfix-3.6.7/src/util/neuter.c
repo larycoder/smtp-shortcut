@@ -1,36 +1,36 @@
 /*++
 /* NAME
-/*	neuter 3
+/*    neuter 3
 /* SUMMARY
-/*	neutralize characters before they can explode
+/*    neutralize characters before they can explode
 /* SYNOPSIS
-/*	#include <stringops.h>
+/*    #include <stringops.h>
 /*
-/*	char	*neuter(buffer, bad, replacement)
-/*	char	*buffer;
-/*	const char *bad;
-/*	int	replacement;
+/*    char    *neuter(buffer, bad, replacement)
+/*    char    *buffer;
+/*    const char *bad;
+/*    int    replacement;
 /* DESCRIPTION
-/*	neuter() replaces bad characters in its input
-/*	by the given replacement.
+/*    neuter() replaces bad characters in its input
+/*    by the given replacement.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP buffer
-/*	The null-terminated input string.
+/*    The null-terminated input string.
 /* .IP bad
-/*	The null-terminated bad character string.
+/*    The null-terminated bad character string.
 /* .IP replacement
-/*	Replacement value for characters in \fIbuffer\fR that do not
-/*	pass the  bad character test.
+/*    Replacement value for characters in \fIbuffer\fR that do not
+/*    pass the  bad character test.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -50,7 +50,7 @@ char   *neuter(char *string, const char *bad, int replacement)
     int     ch;
 
     for (cp = string; (ch = *(unsigned char *) cp) != 0; cp++)
-	if (strchr(bad, ch) != 0)
-	    *cp = replacement;
+    if (strchr(bad, ch) != 0)
+        *cp = replacement;
     return (string);
 }

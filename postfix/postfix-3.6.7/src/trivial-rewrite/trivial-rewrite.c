@@ -1,295 +1,295 @@
 /*++
 /* NAME
-/*	trivial-rewrite 8
+/*    trivial-rewrite 8
 /* SUMMARY
-/*	Postfix address rewriting and resolving daemon
+/*    Postfix address rewriting and resolving daemon
 /* SYNOPSIS
-/*	\fBtrivial-rewrite\fR [generic Postfix daemon options]
+/*    \fBtrivial-rewrite\fR [generic Postfix daemon options]
 /* DESCRIPTION
-/*	The \fBtrivial-rewrite\fR(8) daemon processes three types of client
-/*	service requests:
+/*    The \fBtrivial-rewrite\fR(8) daemon processes three types of client
+/*    service requests:
 /* .IP "\fBrewrite \fIcontext address\fR"
-/*	Rewrite an address to standard form, according to the
-/*	address rewriting context:
+/*    Rewrite an address to standard form, according to the
+/*    address rewriting context:
 /* .RS
 /* .IP \fBlocal\fR
-/*	Append the domain names specified with \fB$myorigin\fR or
-/*	\fB$mydomain\fR to incomplete addresses; do \fBswap_bangpath\fR
-/*	and \fBallow_percent_hack\fR processing as described below, and
-/*	strip source routed addresses (\fI@site,@site:user@domain\fR)
-/*	to \fIuser@domain\fR form.
+/*    Append the domain names specified with \fB$myorigin\fR or
+/*    \fB$mydomain\fR to incomplete addresses; do \fBswap_bangpath\fR
+/*    and \fBallow_percent_hack\fR processing as described below, and
+/*    strip source routed addresses (\fI@site,@site:user@domain\fR)
+/*    to \fIuser@domain\fR form.
 /* .IP \fBremote\fR
-/*	Append the domain name specified with
-/*	\fB$remote_header_rewrite_domain\fR to incomplete
-/*	addresses. Otherwise the result is identical to that of
-/*	the \fBlocal\fR address rewriting context. This prevents
-/*	Postfix from appending the local domain to spam from poorly
-/*	written remote clients.
+/*    Append the domain name specified with
+/*    \fB$remote_header_rewrite_domain\fR to incomplete
+/*    addresses. Otherwise the result is identical to that of
+/*    the \fBlocal\fR address rewriting context. This prevents
+/*    Postfix from appending the local domain to spam from poorly
+/*    written remote clients.
 /* .RE
 /* .IP "\fBresolve \fIsender\fR \fIaddress\fR"
-/*	Resolve the address to a (\fItransport\fR, \fInexthop\fR,
-/*	\fIrecipient\fR, \fIflags\fR) quadruple. The meaning of
-/*	the results is as follows:
+/*    Resolve the address to a (\fItransport\fR, \fInexthop\fR,
+/*    \fIrecipient\fR, \fIflags\fR) quadruple. The meaning of
+/*    the results is as follows:
 /* .RS
 /* .IP \fItransport\fR
-/*	The delivery agent to use. This is the first field of an entry
-/*	in the \fBmaster.cf\fR file.
+/*    The delivery agent to use. This is the first field of an entry
+/*    in the \fBmaster.cf\fR file.
 /* .IP \fInexthop\fR
-/*	The host to send to and optional delivery method information.
+/*    The host to send to and optional delivery method information.
 /* .IP \fIrecipient\fR
-/*	The envelope recipient address that is passed on to \fInexthop\fR.
+/*    The envelope recipient address that is passed on to \fInexthop\fR.
 /* .IP \fIflags\fR
-/*	The address class, whether the address requires relaying,
-/*	whether the address has problems, and whether the request failed.
+/*    The address class, whether the address requires relaying,
+/*    whether the address has problems, and whether the request failed.
 /* .RE
 /* .IP "\fBverify \fIsender\fR \fIaddress\fR"
-/*	Resolve the address for address verification purposes.
+/*    Resolve the address for address verification purposes.
 /* SERVER PROCESS MANAGEMENT
 /* .ad
 /* .fi
-/*	The \fBtrivial-rewrite\fR(8) servers run under control by
-/*	the Postfix master
-/*	server.  Each server can handle multiple simultaneous connections.
-/*	When all servers are busy while a client connects, the master
-/*	creates a new server process, provided that the trivial-rewrite
-/*	server process limit is not exceeded.
-/*	Each trivial-rewrite server terminates after
-/*	serving at least \fB$max_use\fR clients of after \fB$max_idle\fR
-/*	seconds of idle time.
+/*    The \fBtrivial-rewrite\fR(8) servers run under control by
+/*    the Postfix master
+/*    server.  Each server can handle multiple simultaneous connections.
+/*    When all servers are busy while a client connects, the master
+/*    creates a new server process, provided that the trivial-rewrite
+/*    server process limit is not exceeded.
+/*    Each trivial-rewrite server terminates after
+/*    serving at least \fB$max_use\fR clients of after \fB$max_idle\fR
+/*    seconds of idle time.
 /* STANDARDS
 /* .ad
 /* .fi
-/*	None. The command does not interact with the outside world.
+/*    None. The command does not interact with the outside world.
 /* SECURITY
 /* .ad
 /* .fi
-/*	The \fBtrivial-rewrite\fR(8) daemon is not security sensitive.
-/*	By default, this daemon does not talk to remote or local users.
-/*	It can run at a fixed low privilege in a chrooted environment.
+/*    The \fBtrivial-rewrite\fR(8) daemon is not security sensitive.
+/*    By default, this daemon does not talk to remote or local users.
+/*    It can run at a fixed low privilege in a chrooted environment.
 /* DIAGNOSTICS
-/*	Problems and transactions are logged to \fBsyslogd\fR(8)
-/*	or \fBpostlogd\fR(8).
+/*    Problems and transactions are logged to \fBsyslogd\fR(8)
+/*    or \fBpostlogd\fR(8).
 /* CONFIGURATION PARAMETERS
 /* .ad
 /* .fi
-/*	On busy mail systems a long time may pass before a \fBmain.cf\fR
-/*	change affecting \fBtrivial-rewrite\fR(8) is picked up. Use the command
-/*	"\fBpostfix reload\fR" to speed up a change.
+/*    On busy mail systems a long time may pass before a \fBmain.cf\fR
+/*    change affecting \fBtrivial-rewrite\fR(8) is picked up. Use the command
+/*    "\fBpostfix reload\fR" to speed up a change.
 /*
-/*	The text below provides only a parameter summary. See
-/*	\fBpostconf\fR(5) for more details including examples.
+/*    The text below provides only a parameter summary. See
+/*    \fBpostconf\fR(5) for more details including examples.
 /* COMPATIBILITY CONTROLS
 /* .ad
 /* .fi
 /* .IP "\fBresolve_dequoted_address (yes)\fR"
-/*	Resolve a recipient address safely instead of correctly, by
-/*	looking inside quotes.
+/*    Resolve a recipient address safely instead of correctly, by
+/*    looking inside quotes.
 /* .PP
-/*	Available with Postfix version 2.1 and later:
+/*    Available with Postfix version 2.1 and later:
 /* .IP "\fBresolve_null_domain (no)\fR"
-/*	Resolve an address that ends in the "@" null domain as if the
-/*	local hostname were specified, instead of rejecting the address as
-/*	invalid.
+/*    Resolve an address that ends in the "@" null domain as if the
+/*    local hostname were specified, instead of rejecting the address as
+/*    invalid.
 /* .PP
-/*	Available with Postfix version 2.3 and later:
+/*    Available with Postfix version 2.3 and later:
 /* .IP "\fBresolve_numeric_domain (no)\fR"
-/*	Resolve "user@ipaddress" as "user@[ipaddress]", instead of
-/*	rejecting the address as invalid.
+/*    Resolve "user@ipaddress" as "user@[ipaddress]", instead of
+/*    rejecting the address as invalid.
 /* .PP
-/*	Available with Postfix version 2.5 and later:
+/*    Available with Postfix version 2.5 and later:
 /* .IP "\fBallow_min_user (no)\fR"
-/*	Allow a sender or recipient address to have `-' as the first
-/*	character.
+/*    Allow a sender or recipient address to have `-' as the first
+/*    character.
 /* ADDRESS REWRITING CONTROLS
 /* .ad
 /* .fi
 /* .IP "\fBmyorigin ($myhostname)\fR"
-/*	The domain name that locally-posted mail appears to come
-/*	from, and that locally posted mail is delivered to.
+/*    The domain name that locally-posted mail appears to come
+/*    from, and that locally posted mail is delivered to.
 /* .IP "\fBallow_percent_hack (yes)\fR"
-/*	Enable the rewriting of the form "user%domain" to "user@domain".
+/*    Enable the rewriting of the form "user%domain" to "user@domain".
 /* .IP "\fBappend_at_myorigin (yes)\fR"
-/*	With locally submitted mail, append the string "@$myorigin" to mail
-/*	addresses without domain information.
+/*    With locally submitted mail, append the string "@$myorigin" to mail
+/*    addresses without domain information.
 /* .IP "\fBappend_dot_mydomain (Postfix >= 3.0: no, Postfix < 3.0: yes)\fR"
-/*	With locally submitted mail, append the string ".$mydomain" to
-/*	addresses that have no ".domain" information.
+/*    With locally submitted mail, append the string ".$mydomain" to
+/*    addresses that have no ".domain" information.
 /* .IP "\fBrecipient_delimiter (empty)\fR"
-/*	The set of characters that can separate a user name from its
-/*	extension (example: user+foo), or a .forward file name from its
-/*	extension (example: .forward+foo).
+/*    The set of characters that can separate a user name from its
+/*    extension (example: user+foo), or a .forward file name from its
+/*    extension (example: .forward+foo).
 /* .IP "\fBswap_bangpath (yes)\fR"
-/*	Enable the rewriting of "site!user" into "user@site".
+/*    Enable the rewriting of "site!user" into "user@site".
 /* .PP
-/*	Available in Postfix 2.2 and later:
+/*    Available in Postfix 2.2 and later:
 /* .IP "\fBremote_header_rewrite_domain (empty)\fR"
-/*	Don't rewrite message headers from remote clients at all when
-/*	this parameter is empty; otherwise, rewrite message headers and
-/*	append the specified domain name to incomplete addresses.
+/*    Don't rewrite message headers from remote clients at all when
+/*    this parameter is empty; otherwise, rewrite message headers and
+/*    append the specified domain name to incomplete addresses.
 /* ROUTING CONTROLS
 /* .ad
 /* .fi
-/*	The following is applicable to Postfix version 2.0 and later.
-/*	Earlier versions do not have support for: virtual_transport,
-/*	relay_transport, virtual_alias_domains, virtual_mailbox_domains
-/*	or proxy_interfaces.
+/*    The following is applicable to Postfix version 2.0 and later.
+/*    Earlier versions do not have support for: virtual_transport,
+/*    relay_transport, virtual_alias_domains, virtual_mailbox_domains
+/*    or proxy_interfaces.
 /* .IP "\fBlocal_transport (local:$myhostname)\fR"
-/*	The default mail delivery transport and next-hop destination
-/*	for final delivery to domains listed with mydestination, and for
-/*	[ipaddress] destinations that match $inet_interfaces or $proxy_interfaces.
+/*    The default mail delivery transport and next-hop destination
+/*    for final delivery to domains listed with mydestination, and for
+/*    [ipaddress] destinations that match $inet_interfaces or $proxy_interfaces.
 /* .IP "\fBvirtual_transport (virtual)\fR"
-/*	The default mail delivery transport and next-hop destination for
-/*	final delivery to domains listed with $virtual_mailbox_domains.
+/*    The default mail delivery transport and next-hop destination for
+/*    final delivery to domains listed with $virtual_mailbox_domains.
 /* .IP "\fBrelay_transport (relay)\fR"
-/*	The default mail delivery transport and next-hop destination for
-/*	remote delivery to domains listed with $relay_domains.
+/*    The default mail delivery transport and next-hop destination for
+/*    remote delivery to domains listed with $relay_domains.
 /* .IP "\fBdefault_transport (smtp)\fR"
-/*	The default mail delivery transport and next-hop destination for
-/*	destinations that do not match $mydestination, $inet_interfaces,
-/*	$proxy_interfaces, $virtual_alias_domains, $virtual_mailbox_domains,
-/*	or $relay_domains.
+/*    The default mail delivery transport and next-hop destination for
+/*    destinations that do not match $mydestination, $inet_interfaces,
+/*    $proxy_interfaces, $virtual_alias_domains, $virtual_mailbox_domains,
+/*    or $relay_domains.
 /* .IP "\fBparent_domain_matches_subdomains (see 'postconf -d' output)\fR"
-/*	A list of Postfix features where the pattern "example.com" also
-/*	matches subdomains of example.com,
-/*	instead of requiring an explicit ".example.com" pattern.
+/*    A list of Postfix features where the pattern "example.com" also
+/*    matches subdomains of example.com,
+/*    instead of requiring an explicit ".example.com" pattern.
 /* .IP "\fBrelayhost (empty)\fR"
-/*	The next-hop destination(s) for non-local mail; overrides non-local
-/*	domains in recipient addresses.
+/*    The next-hop destination(s) for non-local mail; overrides non-local
+/*    domains in recipient addresses.
 /* .IP "\fBtransport_maps (empty)\fR"
-/*	Optional lookup tables with mappings from recipient address to
-/*	(message delivery transport, next-hop destination).
+/*    Optional lookup tables with mappings from recipient address to
+/*    (message delivery transport, next-hop destination).
 /* .PP
-/*	Available in Postfix version 2.3 and later:
+/*    Available in Postfix version 2.3 and later:
 /* .IP "\fBsender_dependent_relayhost_maps (empty)\fR"
-/*	A sender-dependent override for the global relayhost parameter
-/*	setting.
+/*    A sender-dependent override for the global relayhost parameter
+/*    setting.
 /* .PP
-/*	Available in Postfix version 2.5 and later:
+/*    Available in Postfix version 2.5 and later:
 /* .IP "\fBempty_address_relayhost_maps_lookup_key (<>)\fR"
-/*	The sender_dependent_relayhost_maps search string that will be
-/*	used instead of the null sender address.
+/*    The sender_dependent_relayhost_maps search string that will be
+/*    used instead of the null sender address.
 /* .PP
-/*	Available in Postfix version 2.7 and later:
+/*    Available in Postfix version 2.7 and later:
 /* .IP "\fBempty_address_default_transport_maps_lookup_key (<>)\fR"
-/*	The sender_dependent_default_transport_maps search string that
-/*	will be used instead of the null sender address.
+/*    The sender_dependent_default_transport_maps search string that
+/*    will be used instead of the null sender address.
 /* .IP "\fBsender_dependent_default_transport_maps (empty)\fR"
-/*	A sender-dependent override for the global default_transport
-/*	parameter setting.
+/*    A sender-dependent override for the global default_transport
+/*    parameter setting.
 /* ADDRESS VERIFICATION CONTROLS
 /* .ad
 /* .fi
-/*	Postfix version 2.1 introduces sender and recipient address verification.
-/*	This feature is implemented by sending probe email messages that
-/*	are not actually delivered.
-/*	By default, address verification probes use the same route
-/*	as regular mail. To override specific aspects of message
-/*	routing for address verification probes, specify one or more
-/*	of the following:
+/*    Postfix version 2.1 introduces sender and recipient address verification.
+/*    This feature is implemented by sending probe email messages that
+/*    are not actually delivered.
+/*    By default, address verification probes use the same route
+/*    as regular mail. To override specific aspects of message
+/*    routing for address verification probes, specify one or more
+/*    of the following:
 /* .IP "\fBaddress_verify_local_transport ($local_transport)\fR"
-/*	Overrides the local_transport parameter setting for address
-/*	verification probes.
+/*    Overrides the local_transport parameter setting for address
+/*    verification probes.
 /* .IP "\fBaddress_verify_virtual_transport ($virtual_transport)\fR"
-/*	Overrides the virtual_transport parameter setting for address
-/*	verification probes.
+/*    Overrides the virtual_transport parameter setting for address
+/*    verification probes.
 /* .IP "\fBaddress_verify_relay_transport ($relay_transport)\fR"
-/*	Overrides the relay_transport parameter setting for address
-/*	verification probes.
+/*    Overrides the relay_transport parameter setting for address
+/*    verification probes.
 /* .IP "\fBaddress_verify_default_transport ($default_transport)\fR"
-/*	Overrides the default_transport parameter setting for address
-/*	verification probes.
+/*    Overrides the default_transport parameter setting for address
+/*    verification probes.
 /* .IP "\fBaddress_verify_relayhost ($relayhost)\fR"
-/*	Overrides the relayhost parameter setting for address verification
-/*	probes.
+/*    Overrides the relayhost parameter setting for address verification
+/*    probes.
 /* .IP "\fBaddress_verify_transport_maps ($transport_maps)\fR"
-/*	Overrides the transport_maps parameter setting for address verification
-/*	probes.
+/*    Overrides the transport_maps parameter setting for address verification
+/*    probes.
 /* .PP
-/*	Available in Postfix version 2.3 and later:
+/*    Available in Postfix version 2.3 and later:
 /* .IP "\fBaddress_verify_sender_dependent_relayhost_maps ($sender_dependent_relayhost_maps)\fR"
-/*	Overrides the sender_dependent_relayhost_maps parameter setting for address
-/*	verification probes.
+/*    Overrides the sender_dependent_relayhost_maps parameter setting for address
+/*    verification probes.
 /* .PP
-/*	Available in Postfix version 2.7 and later:
+/*    Available in Postfix version 2.7 and later:
 /* .IP "\fBaddress_verify_sender_dependent_default_transport_maps ($sender_dependent_default_transport_maps)\fR"
-/*	Overrides the sender_dependent_default_transport_maps parameter
-/*	setting for address verification probes.
+/*    Overrides the sender_dependent_default_transport_maps parameter
+/*    setting for address verification probes.
 /* MISCELLANEOUS CONTROLS
 /* .ad
 /* .fi
 /* .IP "\fBconfig_directory (see 'postconf -d' output)\fR"
-/*	The default location of the Postfix main.cf and master.cf
-/*	configuration files.
+/*    The default location of the Postfix main.cf and master.cf
+/*    configuration files.
 /* .IP "\fBdaemon_timeout (18000s)\fR"
-/*	How much time a Postfix daemon process may take to handle a
-/*	request before it is terminated by a built-in watchdog timer.
+/*    How much time a Postfix daemon process may take to handle a
+/*    request before it is terminated by a built-in watchdog timer.
 /* .IP "\fBempty_address_recipient (MAILER-DAEMON)\fR"
-/*	The recipient of mail addressed to the null address.
+/*    The recipient of mail addressed to the null address.
 /* .IP "\fBipc_timeout (3600s)\fR"
-/*	The time limit for sending or receiving information over an internal
-/*	communication channel.
+/*    The time limit for sending or receiving information over an internal
+/*    communication channel.
 /* .IP "\fBmax_idle (100s)\fR"
-/*	The maximum amount of time that an idle Postfix daemon process waits
-/*	for an incoming connection before terminating voluntarily.
+/*    The maximum amount of time that an idle Postfix daemon process waits
+/*    for an incoming connection before terminating voluntarily.
 /* .IP "\fBmax_use (100)\fR"
-/*	The maximal number of incoming connections that a Postfix daemon
-/*	process will service before terminating voluntarily.
+/*    The maximal number of incoming connections that a Postfix daemon
+/*    process will service before terminating voluntarily.
 /* .IP "\fBrelocated_maps (empty)\fR"
-/*	Optional lookup tables with new contact information for users or
-/*	domains that no longer exist.
+/*    Optional lookup tables with new contact information for users or
+/*    domains that no longer exist.
 /* .IP "\fBprocess_id (read-only)\fR"
-/*	The process ID of a Postfix command or daemon process.
+/*    The process ID of a Postfix command or daemon process.
 /* .IP "\fBprocess_name (read-only)\fR"
-/*	The process name of a Postfix command or daemon process.
+/*    The process name of a Postfix command or daemon process.
 /* .IP "\fBqueue_directory (see 'postconf -d' output)\fR"
-/*	The location of the Postfix top-level queue directory.
+/*    The location of the Postfix top-level queue directory.
 /* .IP "\fBshow_user_unknown_table_name (yes)\fR"
-/*	Display the name of the recipient table in the "User unknown"
-/*	responses.
+/*    Display the name of the recipient table in the "User unknown"
+/*    responses.
 /* .IP "\fBsyslog_facility (mail)\fR"
-/*	The syslog facility of Postfix logging.
+/*    The syslog facility of Postfix logging.
 /* .IP "\fBsyslog_name (see 'postconf -d' output)\fR"
-/*	A prefix that is prepended to the process name in syslog
-/*	records, so that, for example, "smtpd" becomes "prefix/smtpd".
+/*    A prefix that is prepended to the process name in syslog
+/*    records, so that, for example, "smtpd" becomes "prefix/smtpd".
 /* .PP
-/*	Available in Postfix version 2.0 and later:
+/*    Available in Postfix version 2.0 and later:
 /* .IP "\fBhelpful_warnings (yes)\fR"
-/*	Log warnings about problematic configuration settings, and provide
-/*	helpful suggestions.
+/*    Log warnings about problematic configuration settings, and provide
+/*    helpful suggestions.
 /* .PP
-/*	Available in Postfix 3.3 and later:
+/*    Available in Postfix 3.3 and later:
 /* .IP "\fBservice_name (read-only)\fR"
-/*	The master.cf service name of a Postfix daemon process.
+/*    The master.cf service name of a Postfix daemon process.
 /* SEE ALSO
-/*	postconf(5), configuration parameters
-/*	transport(5), transport table format
-/*	relocated(5), format of the "user has moved" table
-/*	master(8), process manager
-/*	postlogd(8), Postfix logging
-/*	syslogd(8), system logging
+/*    postconf(5), configuration parameters
+/*    transport(5), transport table format
+/*    relocated(5), format of the "user has moved" table
+/*    master(8), process manager
+/*    postlogd(8), Postfix logging
+/*    syslogd(8), system logging
 /* README FILES
 /* .ad
 /* .fi
-/*	Use "\fBpostconf readme_directory\fR" or
-/*	"\fBpostconf html_directory\fR" to locate this information.
+/*    Use "\fBpostconf readme_directory\fR" or
+/*    "\fBpostconf html_directory\fR" to locate this information.
 /* .na
 /* .nf
-/*	ADDRESS_CLASS_README, Postfix address classes howto
-/*	ADDRESS_VERIFICATION_README, Postfix address verification
+/*    ADDRESS_CLASS_README, Postfix address classes howto
+/*    ADDRESS_VERIFICATION_README, Postfix address verification
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -345,8 +345,8 @@ char   *var_local_transport;
 char   *var_virt_transport;
 char   *var_relay_transport;
 int     var_resolve_dequoted;
-char   *var_virt_alias_maps;		/* XXX virtual_alias_domains */
-char   *var_virt_mailbox_maps;		/* XXX virtual_mailbox_domains */
+char   *var_virt_alias_maps;        /* XXX virtual_alias_domains */
+char   *var_virt_mailbox_maps;        /* XXX virtual_mailbox_domains */
 char   *var_virt_alias_doms;
 char   *var_virt_mailbox_doms;
 char   *var_relocated_maps;
@@ -447,9 +447,9 @@ int     server_flags;
  /*
   * Define exactly one of these.
   */
-/* #define DETACH_AND_ASK_CLIENTS_TO_RECONNECT	/* correct and complex */
-#define CHECK_TABLE_STATS_PERIODICALLY	/* quick */
-/* #define CHECK_TABLE_STATS_BEFORE_ACCEPT	/* slow */
+/* #define DETACH_AND_ASK_CLIENTS_TO_RECONNECT    /* correct and complex */
+#define CHECK_TABLE_STATS_PERIODICALLY    /* quick */
+/* #define CHECK_TABLE_STATS_BEFORE_ACCEPT    /* slow */
 
 /* rewrite_service - read request and send reply */
 
@@ -468,19 +468,19 @@ static void rewrite_service(VSTREAM *stream, char *unused_service, char **argv)
      * Sanity check. This service takes no command-line arguments.
      */
     if (argv[0])
-	msg_fatal("unexpected command-line argument: %s", argv[0]);
+    msg_fatal("unexpected command-line argument: %s", argv[0]);
 
     /*
      * Client connections are long-lived. Be sure to refesh timely.
      */
 #ifdef DETACH_AND_ASK_CLIENTS_TO_RECONNECT
     if (server_flags == 0 && (now = event_time()) - last > 10) {
-	if ((table = dict_changed_name()) != 0) {
-	    msg_info("table %s has changed -- restarting", table);
-	    if (multi_server_drain() == 0)
-		server_flags = 1;
-	}
-	last = now;
+    if ((table = dict_changed_name()) != 0) {
+        msg_info("table %s has changed -- restarting", table);
+        if (multi_server_drain() == 0)
+        server_flags = 1;
+    }
+    last = now;
     }
 #endif
 
@@ -490,20 +490,20 @@ static void rewrite_service(VSTREAM *stream, char *unused_service, char **argv)
      * handled by the common code in multi_server.c.
      */
     if (attr_scan(stream, ATTR_FLAG_STRICT | ATTR_FLAG_MORE,
-		  RECV_ATTR_STR(MAIL_ATTR_REQ, command),
-		  ATTR_TYPE_END) == 1) {
-	if (strcmp(vstring_str(command), REWRITE_ADDR) == 0) {
-	    status = rewrite_proto(stream);
-	} else if (strcmp(vstring_str(command), RESOLVE_REGULAR) == 0) {
-	    status = resolve_proto(&resolve_regular, stream);
-	} else if (strcmp(vstring_str(command), RESOLVE_VERIFY) == 0) {
-	    status = resolve_proto(&resolve_verify, stream);
-	} else {
-	    msg_warn("bad command %.30s", printable(vstring_str(command), '?'));
-	}
+          RECV_ATTR_STR(MAIL_ATTR_REQ, command),
+          ATTR_TYPE_END) == 1) {
+    if (strcmp(vstring_str(command), REWRITE_ADDR) == 0) {
+        status = rewrite_proto(stream);
+    } else if (strcmp(vstring_str(command), RESOLVE_REGULAR) == 0) {
+        status = resolve_proto(&resolve_regular, stream);
+    } else if (strcmp(vstring_str(command), RESOLVE_VERIFY) == 0) {
+        status = resolve_proto(&resolve_verify, stream);
+    } else {
+        msg_warn("bad command %.30s", printable(vstring_str(command), '?'));
+    }
     }
     if (status < 0)
-	multi_server_disconnect(stream);
+    multi_server_disconnect(stream);
 }
 
 /* pre_accept - see if tables have changed */
@@ -515,8 +515,8 @@ static void pre_accept(char *unused_name, char **unused_argv)
     const char *table;
 
     if ((table = dict_changed_name()) != 0) {
-	msg_info("table %s has changed -- restarting", table);
-	exit(0);
+    msg_info("table %s has changed -- restarting", table);
+    exit(0);
     }
 }
 
@@ -525,15 +525,15 @@ static void pre_accept(char *unused_name, char **unused_argv)
 /* post_accept - anounce our protocol name */
 
 static void post_accept(VSTREAM *stream, char *unused_name, char **unused_argv,
-			        HTABLE *unused_attr)
+                    HTABLE *unused_attr)
 {
 
     /*
      * Announce the protocol.
      */
     attr_print(stream, ATTR_FLAG_NONE,
-	       SEND_ATTR_STR(MAIL_ATTR_PROTO, MAIL_ATTR_PROTO_TRIVIAL),
-	       ATTR_TYPE_END);
+           SEND_ATTR_STR(MAIL_ATTR_PROTO, MAIL_ATTR_PROTO_TRIVIAL),
+           ATTR_TYPE_END);
     (void) vstream_fflush(stream);
 }
 
@@ -542,8 +542,8 @@ static void check_table_stats(int unused_event, void *unused_context)
     const char *table;
 
     if ((table = dict_changed_name()) != 0) {
-	msg_info("table %s has changed -- restarting", table);
-	exit(0);
+    msg_info("table %s has changed -- restarting", table);
+    exit(0);
     }
     event_request_timer(check_table_stats, (void *) 0, 10);
 }
@@ -556,37 +556,37 @@ static void pre_jail_init(char *unused_name, char **unused_argv)
     rewrite_init();
     resolve_init();
     if (*RES_PARAM_VALUE(resolve_regular.transport_maps))
-	resolve_regular.transport_info =
-	    transport_pre_init(resolve_regular.transport_maps_name,
-			   RES_PARAM_VALUE(resolve_regular.transport_maps));
+    resolve_regular.transport_info =
+        transport_pre_init(resolve_regular.transport_maps_name,
+               RES_PARAM_VALUE(resolve_regular.transport_maps));
     if (*RES_PARAM_VALUE(resolve_verify.transport_maps))
-	resolve_verify.transport_info =
-	    transport_pre_init(resolve_verify.transport_maps_name,
-			    RES_PARAM_VALUE(resolve_verify.transport_maps));
+    resolve_verify.transport_info =
+        transport_pre_init(resolve_verify.transport_maps_name,
+                RES_PARAM_VALUE(resolve_verify.transport_maps));
     if (*RES_PARAM_VALUE(resolve_regular.snd_relay_maps))
-	resolve_regular.snd_relay_info =
-	    maps_create(resolve_regular.snd_relay_maps_name,
-			RES_PARAM_VALUE(resolve_regular.snd_relay_maps),
-			DICT_FLAG_LOCK | DICT_FLAG_FOLD_FIX
-			| DICT_FLAG_NO_REGSUB | DICT_FLAG_UTF8_REQUEST);
+    resolve_regular.snd_relay_info =
+        maps_create(resolve_regular.snd_relay_maps_name,
+            RES_PARAM_VALUE(resolve_regular.snd_relay_maps),
+            DICT_FLAG_LOCK | DICT_FLAG_FOLD_FIX
+            | DICT_FLAG_NO_REGSUB | DICT_FLAG_UTF8_REQUEST);
     if (*RES_PARAM_VALUE(resolve_verify.snd_relay_maps))
-	resolve_verify.snd_relay_info =
-	    maps_create(resolve_verify.snd_relay_maps_name,
-			RES_PARAM_VALUE(resolve_verify.snd_relay_maps),
-			DICT_FLAG_LOCK | DICT_FLAG_FOLD_FIX
-			| DICT_FLAG_NO_REGSUB | DICT_FLAG_UTF8_REQUEST);
+    resolve_verify.snd_relay_info =
+        maps_create(resolve_verify.snd_relay_maps_name,
+            RES_PARAM_VALUE(resolve_verify.snd_relay_maps),
+            DICT_FLAG_LOCK | DICT_FLAG_FOLD_FIX
+            | DICT_FLAG_NO_REGSUB | DICT_FLAG_UTF8_REQUEST);
     if (*RES_PARAM_VALUE(resolve_regular.snd_def_xp_maps))
-	resolve_regular.snd_def_xp_info =
-	    maps_create(resolve_regular.snd_def_xp_maps_name,
-			RES_PARAM_VALUE(resolve_regular.snd_def_xp_maps),
-			DICT_FLAG_LOCK | DICT_FLAG_FOLD_FIX
-			| DICT_FLAG_NO_REGSUB | DICT_FLAG_UTF8_REQUEST);
+    resolve_regular.snd_def_xp_info =
+        maps_create(resolve_regular.snd_def_xp_maps_name,
+            RES_PARAM_VALUE(resolve_regular.snd_def_xp_maps),
+            DICT_FLAG_LOCK | DICT_FLAG_FOLD_FIX
+            | DICT_FLAG_NO_REGSUB | DICT_FLAG_UTF8_REQUEST);
     if (*RES_PARAM_VALUE(resolve_verify.snd_def_xp_maps))
-	resolve_verify.snd_def_xp_info =
-	    maps_create(resolve_verify.snd_def_xp_maps_name,
-			RES_PARAM_VALUE(resolve_verify.snd_def_xp_maps),
-			DICT_FLAG_LOCK | DICT_FLAG_FOLD_FIX
-			| DICT_FLAG_NO_REGSUB | DICT_FLAG_UTF8_REQUEST);
+    resolve_verify.snd_def_xp_info =
+        maps_create(resolve_verify.snd_def_xp_maps_name,
+            RES_PARAM_VALUE(resolve_verify.snd_def_xp_maps),
+            DICT_FLAG_LOCK | DICT_FLAG_FOLD_FIX
+            | DICT_FLAG_NO_REGSUB | DICT_FLAG_UTF8_REQUEST);
 }
 
 /* post_jail_init - initialize after entering chroot jail */
@@ -594,9 +594,9 @@ static void pre_jail_init(char *unused_name, char **unused_argv)
 static void post_jail_init(char *unused_name, char **unused_argv)
 {
     if (resolve_regular.transport_info)
-	transport_post_init(resolve_regular.transport_info);
+    transport_post_init(resolve_regular.transport_info);
     if (resolve_verify.transport_info)
-	transport_post_init(resolve_verify.transport_info);
+    transport_post_init(resolve_verify.transport_info);
     check_table_stats(0, (void *) 0);
 }
 
@@ -607,46 +607,46 @@ MAIL_VERSION_STAMP_DECLARE;
 int     main(int argc, char **argv)
 {
     static const CONFIG_STR_TABLE str_table[] = {
-	VAR_TRANSPORT_MAPS, DEF_TRANSPORT_MAPS, &var_transport_maps, 0, 0,
-	VAR_LOCAL_TRANSPORT, DEF_LOCAL_TRANSPORT, &var_local_transport, 1, 0,
-	VAR_VIRT_TRANSPORT, DEF_VIRT_TRANSPORT, &var_virt_transport, 1, 0,
-	VAR_RELAY_TRANSPORT, DEF_RELAY_TRANSPORT, &var_relay_transport, 1, 0,
-	VAR_DEF_TRANSPORT, DEF_DEF_TRANSPORT, &var_def_transport, 1, 0,
-	VAR_VIRT_ALIAS_MAPS, DEF_VIRT_ALIAS_MAPS, &var_virt_alias_maps, 0, 0,
-	VAR_VIRT_ALIAS_DOMS, DEF_VIRT_ALIAS_DOMS, &var_virt_alias_doms, 0, 0,
-	VAR_VIRT_MAILBOX_MAPS, DEF_VIRT_MAILBOX_MAPS, &var_virt_mailbox_maps, 0, 0,
-	VAR_VIRT_MAILBOX_DOMS, DEF_VIRT_MAILBOX_DOMS, &var_virt_mailbox_doms, 0, 0,
-	VAR_RELOCATED_MAPS, DEF_RELOCATED_MAPS, &var_relocated_maps, 0, 0,
-	VAR_EMPTY_ADDR, DEF_EMPTY_ADDR, &var_empty_addr, 1, 0,
-	VAR_VRFY_XPORT_MAPS, DEF_VRFY_XPORT_MAPS, &var_vrfy_xport_maps, 0, 0,
-	VAR_VRFY_LOCAL_XPORT, DEF_VRFY_LOCAL_XPORT, &var_vrfy_local_xport, 1, 0,
-	VAR_VRFY_VIRT_XPORT, DEF_VRFY_VIRT_XPORT, &var_vrfy_virt_xport, 1, 0,
-	VAR_VRFY_RELAY_XPORT, DEF_VRFY_RELAY_XPORT, &var_vrfy_relay_xport, 1, 0,
-	VAR_VRFY_DEF_XPORT, DEF_VRFY_DEF_XPORT, &var_vrfy_def_xport, 1, 0,
-	VAR_VRFY_RELAYHOST, DEF_VRFY_RELAYHOST, &var_vrfy_relayhost, 0, 0,
-	VAR_REM_RWR_DOMAIN, DEF_REM_RWR_DOMAIN, &var_remote_rwr_domain, 0, 0,
-	VAR_SND_RELAY_MAPS, DEF_SND_RELAY_MAPS, &var_snd_relay_maps, 0, 0,
-	VAR_NULL_RELAY_MAPS_KEY, DEF_NULL_RELAY_MAPS_KEY, &var_null_relay_maps_key, 1, 0,
-	VAR_VRFY_RELAY_MAPS, DEF_VRFY_RELAY_MAPS, &var_vrfy_relay_maps, 0, 0,
-	VAR_SND_DEF_XPORT_MAPS, DEF_SND_DEF_XPORT_MAPS, &var_snd_def_xport_maps, 0, 0,
-	VAR_NULL_DEF_XPORT_MAPS_KEY, DEF_NULL_DEF_XPORT_MAPS_KEY, &var_null_def_xport_maps_key, 1, 0,
-	VAR_VRFY_SND_DEF_XPORT_MAPS, DEF_VRFY_SND_DEF_XPORT_MAPS, &var_vrfy_snd_def_xport_maps, 0, 0,
-	0,
+    VAR_TRANSPORT_MAPS, DEF_TRANSPORT_MAPS, &var_transport_maps, 0, 0,
+    VAR_LOCAL_TRANSPORT, DEF_LOCAL_TRANSPORT, &var_local_transport, 1, 0,
+    VAR_VIRT_TRANSPORT, DEF_VIRT_TRANSPORT, &var_virt_transport, 1, 0,
+    VAR_RELAY_TRANSPORT, DEF_RELAY_TRANSPORT, &var_relay_transport, 1, 0,
+    VAR_DEF_TRANSPORT, DEF_DEF_TRANSPORT, &var_def_transport, 1, 0,
+    VAR_VIRT_ALIAS_MAPS, DEF_VIRT_ALIAS_MAPS, &var_virt_alias_maps, 0, 0,
+    VAR_VIRT_ALIAS_DOMS, DEF_VIRT_ALIAS_DOMS, &var_virt_alias_doms, 0, 0,
+    VAR_VIRT_MAILBOX_MAPS, DEF_VIRT_MAILBOX_MAPS, &var_virt_mailbox_maps, 0, 0,
+    VAR_VIRT_MAILBOX_DOMS, DEF_VIRT_MAILBOX_DOMS, &var_virt_mailbox_doms, 0, 0,
+    VAR_RELOCATED_MAPS, DEF_RELOCATED_MAPS, &var_relocated_maps, 0, 0,
+    VAR_EMPTY_ADDR, DEF_EMPTY_ADDR, &var_empty_addr, 1, 0,
+    VAR_VRFY_XPORT_MAPS, DEF_VRFY_XPORT_MAPS, &var_vrfy_xport_maps, 0, 0,
+    VAR_VRFY_LOCAL_XPORT, DEF_VRFY_LOCAL_XPORT, &var_vrfy_local_xport, 1, 0,
+    VAR_VRFY_VIRT_XPORT, DEF_VRFY_VIRT_XPORT, &var_vrfy_virt_xport, 1, 0,
+    VAR_VRFY_RELAY_XPORT, DEF_VRFY_RELAY_XPORT, &var_vrfy_relay_xport, 1, 0,
+    VAR_VRFY_DEF_XPORT, DEF_VRFY_DEF_XPORT, &var_vrfy_def_xport, 1, 0,
+    VAR_VRFY_RELAYHOST, DEF_VRFY_RELAYHOST, &var_vrfy_relayhost, 0, 0,
+    VAR_REM_RWR_DOMAIN, DEF_REM_RWR_DOMAIN, &var_remote_rwr_domain, 0, 0,
+    VAR_SND_RELAY_MAPS, DEF_SND_RELAY_MAPS, &var_snd_relay_maps, 0, 0,
+    VAR_NULL_RELAY_MAPS_KEY, DEF_NULL_RELAY_MAPS_KEY, &var_null_relay_maps_key, 1, 0,
+    VAR_VRFY_RELAY_MAPS, DEF_VRFY_RELAY_MAPS, &var_vrfy_relay_maps, 0, 0,
+    VAR_SND_DEF_XPORT_MAPS, DEF_SND_DEF_XPORT_MAPS, &var_snd_def_xport_maps, 0, 0,
+    VAR_NULL_DEF_XPORT_MAPS_KEY, DEF_NULL_DEF_XPORT_MAPS_KEY, &var_null_def_xport_maps_key, 1, 0,
+    VAR_VRFY_SND_DEF_XPORT_MAPS, DEF_VRFY_SND_DEF_XPORT_MAPS, &var_vrfy_snd_def_xport_maps, 0, 0,
+    0,
     };
     static const CONFIG_BOOL_TABLE bool_table[] = {
-	VAR_SWAP_BANGPATH, DEF_SWAP_BANGPATH, &var_swap_bangpath,
-	VAR_APP_AT_MYORIGIN, DEF_APP_AT_MYORIGIN, &var_append_at_myorigin,
-	VAR_PERCENT_HACK, DEF_PERCENT_HACK, &var_percent_hack,
-	VAR_RESOLVE_DEQUOTED, DEF_RESOLVE_DEQUOTED, &var_resolve_dequoted,
-	VAR_SHOW_UNK_RCPT_TABLE, DEF_SHOW_UNK_RCPT_TABLE, &var_show_unk_rcpt_table,
-	VAR_RESOLVE_NULLDOM, DEF_RESOLVE_NULLDOM, &var_resolve_nulldom,
-	VAR_RESOLVE_NUM_DOM, DEF_RESOLVE_NUM_DOM, &var_resolve_num_dom,
-	VAR_ALLOW_MIN_USER, DEF_ALLOW_MIN_USER, &var_allow_min_user,
-	0,
+    VAR_SWAP_BANGPATH, DEF_SWAP_BANGPATH, &var_swap_bangpath,
+    VAR_APP_AT_MYORIGIN, DEF_APP_AT_MYORIGIN, &var_append_at_myorigin,
+    VAR_PERCENT_HACK, DEF_PERCENT_HACK, &var_percent_hack,
+    VAR_RESOLVE_DEQUOTED, DEF_RESOLVE_DEQUOTED, &var_resolve_dequoted,
+    VAR_SHOW_UNK_RCPT_TABLE, DEF_SHOW_UNK_RCPT_TABLE, &var_show_unk_rcpt_table,
+    VAR_RESOLVE_NULLDOM, DEF_RESOLVE_NULLDOM, &var_resolve_nulldom,
+    VAR_RESOLVE_NUM_DOM, DEF_RESOLVE_NUM_DOM, &var_resolve_num_dom,
+    VAR_ALLOW_MIN_USER, DEF_ALLOW_MIN_USER, &var_allow_min_user,
+    0,
     };
     static const CONFIG_NBOOL_TABLE nbool_table[] = {
-	VAR_APP_DOT_MYDOMAIN, DEF_APP_DOT_MYDOMAIN, &var_append_dot_mydomain,
-	0,
+    VAR_APP_DOT_MYDOMAIN, DEF_APP_DOT_MYDOMAIN, &var_append_dot_mydomain,
+    0,
     };
 
     /*
@@ -655,14 +655,14 @@ int     main(int argc, char **argv)
     MAIL_VERSION_STAMP_ALLOCATE;
 
     multi_server_main(argc, argv, rewrite_service,
-		      CA_MAIL_SERVER_STR_TABLE(str_table),
-		      CA_MAIL_SERVER_BOOL_TABLE(bool_table),
-		      CA_MAIL_SERVER_NBOOL_TABLE(nbool_table),
-		      CA_MAIL_SERVER_PRE_INIT(pre_jail_init),
-		      CA_MAIL_SERVER_POST_INIT(post_jail_init),
+              CA_MAIL_SERVER_STR_TABLE(str_table),
+              CA_MAIL_SERVER_BOOL_TABLE(bool_table),
+              CA_MAIL_SERVER_NBOOL_TABLE(nbool_table),
+              CA_MAIL_SERVER_PRE_INIT(pre_jail_init),
+              CA_MAIL_SERVER_POST_INIT(post_jail_init),
 #ifdef CHECK_TABLE_STATS_BEFORE_ACCEPT
-		      CA_MAIL_SERVER_PRE_ACCEPT(pre_accept),
+              CA_MAIL_SERVER_PRE_ACCEPT(pre_accept),
 #endif
-		      CA_MAIL_SERVER_POST_ACCEPT(post_accept),
-		      0);
+              CA_MAIL_SERVER_POST_ACCEPT(post_accept),
+              0);
 }

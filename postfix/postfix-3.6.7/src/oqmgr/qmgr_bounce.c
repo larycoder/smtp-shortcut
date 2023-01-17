@@ -1,40 +1,40 @@
 /*++
 /* NAME
-/*	qmgr_bounce
+/*    qmgr_bounce
 /* SUMMARY
-/*	deal with mail that will not be delivered
+/*    deal with mail that will not be delivered
 /* SYNOPSIS
-/*	#include "qmgr.h"
+/*    #include "qmgr.h"
 /*
-/*	QMGR_QUEUE *qmgr_bounce_recipient(message, recipient, dsn)
-/*	QMGR_MESSAGE *message;
-/*	RECIPIENT *recipient;
-/*	DSN	*dsn;
+/*    QMGR_QUEUE *qmgr_bounce_recipient(message, recipient, dsn)
+/*    QMGR_MESSAGE *message;
+/*    RECIPIENT *recipient;
+/*    DSN    *dsn;
 /* DESCRIPTION
-/*	qmgr_bounce_recipient() produces a bounce log record.
-/*	Once the bounce record is written successfully, the recipient
-/*	is marked as done. When the bounce record cannot be written,
-/*	the message structure is updated to reflect that the mail is
-/*	deferred.
+/*    qmgr_bounce_recipient() produces a bounce log record.
+/*    Once the bounce record is written successfully, the recipient
+/*    is marked as done. When the bounce record cannot be written,
+/*    the message structure is updated to reflect that the mail is
+/*    deferred.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP message
-/*	Open queue file with the message being bounced.
+/*    Open queue file with the message being bounced.
 /* .IP recipient
-/*	The recipient that will not be delivered.
+/*    The recipient that will not be delivered.
 /* .IP dsn
-/*	Delivery status information. See dsn(3).
+/*    Delivery status information. See dsn(3).
 /* DIAGNOSTICS
-/*	Panic: consistency check failure. Fatal: out of memory.
+/*    Panic: consistency check failure. Fatal: out of memory.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -55,17 +55,17 @@
 /* qmgr_bounce_recipient - bounce one message recipient */
 
 void    qmgr_bounce_recipient(QMGR_MESSAGE *message, RECIPIENT *recipient,
-			              DSN *dsn)
+                          DSN *dsn)
 {
     MSG_STATS stats;
     int     status;
 
     status = bounce_append(message->tflags, message->queue_id,
-			   QMGR_MSG_STATS(&stats, message), recipient,
-			   "none", dsn);
+               QMGR_MSG_STATS(&stats, message), recipient,
+               "none", dsn);
 
     if (status == 0)
-	deliver_completed(message->fp, recipient->offset);
+    deliver_completed(message->fp, recipient->offset);
     else
-	message->flags |= status;
+    message->flags |= status;
 }

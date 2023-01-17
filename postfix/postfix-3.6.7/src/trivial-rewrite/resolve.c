@@ -1,55 +1,55 @@
 /*++
 /* NAME
-/*	resolve 3
+/*    resolve 3
 /* SUMMARY
-/*	mail address resolver
+/*    mail address resolver
 /* SYNOPSIS
-/*	#include "trivial-rewrite.h"
+/*    #include "trivial-rewrite.h"
 /*
-/*	void	resolve_init(void)
+/*    void    resolve_init(void)
 /*
-/*	int	resolve_class(domain)
-/*	const char *domain;
+/*    int    resolve_class(domain)
+/*    const char *domain;
 /*
-/*	void	resolve_proto(context, stream)
-/*	RES_CONTEXT *context;
-/*	VSTREAM	*stream;
+/*    void    resolve_proto(context, stream)
+/*    RES_CONTEXT *context;
+/*    VSTREAM    *stream;
 /* DESCRIPTION
-/*	This module implements the trivial address resolving engine.
-/*	It distinguishes between local and remote mail, and optionally
-/*	consults one or more transport tables that map a destination
-/*	to a transport, nexthop pair.
+/*    This module implements the trivial address resolving engine.
+/*    It distinguishes between local and remote mail, and optionally
+/*    consults one or more transport tables that map a destination
+/*    to a transport, nexthop pair.
 /*
-/*	resolve_init() initializes data structures that are private
-/*	to this module. It should be called once before using the
-/*	actual resolver routines.
+/*    resolve_init() initializes data structures that are private
+/*    to this module. It should be called once before using the
+/*    actual resolver routines.
 /*
-/*	resolve_class() returns the address class for the specified
-/*	domain, or -1 in case of error.
+/*    resolve_class() returns the address class for the specified
+/*    domain, or -1 in case of error.
 /*
-/*	resolve_proto() implements the client-server protocol:
-/*	read one address in FQDN form, reply with a (transport,
-/*	nexthop, internalized recipient) triple.
+/*    resolve_proto() implements the client-server protocol:
+/*    read one address in FQDN form, reply with a (transport,
+/*    nexthop, internalized recipient) triple.
 /* STANDARDS
 /* DIAGNOSTICS
-/*	Problems and transactions are logged to \fBsyslogd\fR(8)
-/*	or \fBpostlogd\fR(8).
+/*    Problems and transactions are logged to \fBsyslogd\fR(8)
+/*    or \fBpostlogd\fR(8).
 /* BUGS
 /* SEE ALSO
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -133,8 +133,8 @@
   * error transport).
   */
 
-#define STR	vstring_str
-#define LEN	VSTRING_LEN
+#define STR    vstring_str
+#define LEN    VSTRING_LEN
 
  /*
   * Some of the lists that define the address domain classes.
@@ -155,24 +155,24 @@ int     resolve_class(const char *domain)
      * Same order as in resolve_addr().
      */
     if ((ret = resolve_local(domain)) != 0)
-	return (ret > 0 ? RESOLVE_CLASS_LOCAL : -1);
+    return (ret > 0 ? RESOLVE_CLASS_LOCAL : -1);
     if (virt_alias_doms) {
-	if (string_list_match(virt_alias_doms, domain))
-	    return (RESOLVE_CLASS_ALIAS);
-	if (virt_alias_doms->error)
-	    return (-1);
+    if (string_list_match(virt_alias_doms, domain))
+        return (RESOLVE_CLASS_ALIAS);
+    if (virt_alias_doms->error)
+        return (-1);
     }
     if (virt_mailbox_doms) {
-	if (string_list_match(virt_mailbox_doms, domain))
-	    return (RESOLVE_CLASS_VIRTUAL);
-	if (virt_mailbox_doms->error)
-	    return (-1);
+    if (string_list_match(virt_mailbox_doms, domain))
+        return (RESOLVE_CLASS_VIRTUAL);
+    if (virt_mailbox_doms->error)
+        return (-1);
     }
     if (relay_domains) {
-	if (string_list_match(relay_domains, domain))
-	    return (RESOLVE_CLASS_RELAY);
-	if (relay_domains->error)
-	    return (-1);
+    if (string_list_match(relay_domains, domain))
+        return (RESOLVE_CLASS_RELAY);
+    if (relay_domains->error)
+        return (-1);
     }
     return (RESOLVE_CLASS_DEFAULT);
 }
@@ -180,8 +180,8 @@ int     resolve_class(const char *domain)
 /* resolve_addr - resolve address according to rule set */
 
 static void resolve_addr(RES_CONTEXT *rp, char *sender, char *addr,
-			         VSTRING *channel, VSTRING *nexthop,
-			         VSTRING *nextrcpt, int *flags)
+                     VSTRING *channel, VSTRING *nexthop,
+                     VSTRING *nextrcpt, int *flags)
 {
     const char *myname = "resolve_addr";
     VSTRING *addr_buf = vstring_alloc(100);
@@ -240,13 +240,13 @@ static void resolve_addr(RES_CONTEXT *rp, char *sender, char *addr,
      * multiple expansions of this macro by a GOTO to a single instance.
      */
 #define FREE_MEMORY_AND_RETURN { \
-	if (saved_domain) \
-	    tok822_free_tree(saved_domain); \
-	if(tree) \
-	    tok822_free_tree(tree); \
-	if (addr_buf) \
-	    vstring_free(addr_buf); \
-	return; \
+    if (saved_domain) \
+        tok822_free_tree(saved_domain); \
+    if(tree) \
+        tok822_free_tree(tree); \
+    if (addr_buf) \
+        vstring_free(addr_buf); \
+    return; \
     }
 
     /*
@@ -263,130 +263,130 @@ static void resolve_addr(RES_CONTEXT *rp, char *sender, char *addr,
 
     for (loop_count = 0, loop_max = addr_len + 100; /* void */ ; loop_count++) {
 
-	/*
-	 * XXX Should never happen, but if this happens with some
-	 * pathological address, then that is not sufficient reason to
-	 * disrupt the operation of an MTA.
-	 */
-	if (loop_count > loop_max) {
-	    msg_warn("resolve_addr: <%s>: giving up after %ld iterations",
-		     addr, (long) loop_count);
-	    *flags |= RESOLVE_FLAG_FAIL;
-	    FREE_MEMORY_AND_RETURN;
-	    break;
-	}
+    /*
+     * XXX Should never happen, but if this happens with some
+     * pathological address, then that is not sufficient reason to
+     * disrupt the operation of an MTA.
+     */
+    if (loop_count > loop_max) {
+        msg_warn("resolve_addr: <%s>: giving up after %ld iterations",
+             addr, (long) loop_count);
+        *flags |= RESOLVE_FLAG_FAIL;
+        FREE_MEMORY_AND_RETURN;
+        break;
+    }
 
-	/*
-	 * Strip trailing dot at end of domain, but not dot-dot or at-dot.
-	 * This merely makes diagnostics more accurate by leaving bogus
-	 * addresses alone.
-	 */
-	if (tree->tail
-	    && tree->tail->type == '.'
-	    && tok822_rfind_type(tree->tail, '@') != 0
-	    && tree->tail->prev->type != '.'
-	    && tree->tail->prev->type != '@')
-	    tok822_free_tree(tok822_sub_keep_before(tree, tree->tail));
+    /*
+     * Strip trailing dot at end of domain, but not dot-dot or at-dot.
+     * This merely makes diagnostics more accurate by leaving bogus
+     * addresses alone.
+     */
+    if (tree->tail
+        && tree->tail->type == '.'
+        && tok822_rfind_type(tree->tail, '@') != 0
+        && tree->tail->prev->type != '.'
+        && tree->tail->prev->type != '@')
+        tok822_free_tree(tok822_sub_keep_before(tree, tree->tail));
 
-	/*
-	 * Strip trailing @.
-	 */
-	if (var_resolve_nulldom
-	    && tree->tail
-	    && tree->tail->type == '@')
-	    tok822_free_tree(tok822_sub_keep_before(tree, tree->tail));
+    /*
+     * Strip trailing @.
+     */
+    if (var_resolve_nulldom
+        && tree->tail
+        && tree->tail->type == '@')
+        tok822_free_tree(tok822_sub_keep_before(tree, tree->tail));
 
-	/*
-	 * Strip (and save) @domain if local.
-	 * 
-	 * Grr. resolve_local() table lookups may fail. It may be OK for local
-	 * file lookup code to abort upon failure, but with network-based
-	 * tables it is preferable to return an error indication to the
-	 * requestor.
-	 */
-	if ((domain = tok822_rfind_type(tree->tail, '@')) != 0) {
-	    if (domain->next && (rc = RESOLVE_LOCAL(domain->next)) <= 0) {
-		if (rc < 0) {
-		    *flags |= RESOLVE_FLAG_FAIL;
-		    FREE_MEMORY_AND_RETURN;
-		}
-		break;
-	    }
-	    tok822_sub_keep_before(tree, domain);
-	    if (saved_domain)
-		tok822_free_tree(saved_domain);
-	    saved_domain = domain;
-	    domain = 0;				/* safety for future change */
-	}
+    /*
+     * Strip (and save) @domain if local.
+     * 
+     * Grr. resolve_local() table lookups may fail. It may be OK for local
+     * file lookup code to abort upon failure, but with network-based
+     * tables it is preferable to return an error indication to the
+     * requestor.
+     */
+    if ((domain = tok822_rfind_type(tree->tail, '@')) != 0) {
+        if (domain->next && (rc = RESOLVE_LOCAL(domain->next)) <= 0) {
+        if (rc < 0) {
+            *flags |= RESOLVE_FLAG_FAIL;
+            FREE_MEMORY_AND_RETURN;
+        }
+        break;
+        }
+        tok822_sub_keep_before(tree, domain);
+        if (saved_domain)
+        tok822_free_tree(saved_domain);
+        saved_domain = domain;
+        domain = 0;                /* safety for future change */
+    }
 
-	/*
-	 * After stripping the local domain, if any, replace foo%bar by
-	 * foo@bar, site!user by user@site, rewrite to canonical form, and
-	 * retry.
-	 */
-	if (tok822_rfind_type(tree->tail, '@')
-	    || (var_swap_bangpath && tok822_rfind_type(tree->tail, '!'))
-	    || (var_percent_hack && tok822_rfind_type(tree->tail, '%'))) {
-	    rewrite_tree(&local_context, tree);
-	    continue;
-	}
+    /*
+     * After stripping the local domain, if any, replace foo%bar by
+     * foo@bar, site!user by user@site, rewrite to canonical form, and
+     * retry.
+     */
+    if (tok822_rfind_type(tree->tail, '@')
+        || (var_swap_bangpath && tok822_rfind_type(tree->tail, '!'))
+        || (var_percent_hack && tok822_rfind_type(tree->tail, '%'))) {
+        rewrite_tree(&local_context, tree);
+        continue;
+    }
 
-	/*
-	 * If the local-part is a quoted string, crack it open when we're
-	 * permitted to do so and look for routing operators. This is
-	 * technically incorrect, but is needed to stop relaying problems.
-	 * 
-	 * XXX Do another feeble attempt to keep local-part info quoted.
-	 */
-	if (var_resolve_dequoted
-	    && tree->head && tree->head == tree->tail
-	    && tree->head->type == TOK822_QSTRING
-	    && ((oper = strrchr(local = STR(tree->head->vstr), '@')) != 0
-		|| (var_percent_hack && (oper = strrchr(local, '%')) != 0)
-	     || (var_swap_bangpath && (oper = strrchr(local, '!')) != 0))) {
-	    if (*oper == '%')
-		*oper = '@';
-	    tok822_internalize(addr_buf, tree->head, TOK822_STR_DEFL);
-	    if (*oper == '@') {
-		junk = mystrdup(STR(addr_buf));
-		quote_822_local(addr_buf, junk);
-		myfree(junk);
-	    }
-	    tok822_free(tree->head);
-	    tree->head = tok822_scan(STR(addr_buf), &tree->tail);
-	    rewrite_tree(&local_context, tree);
-	    continue;
-	}
+    /*
+     * If the local-part is a quoted string, crack it open when we're
+     * permitted to do so and look for routing operators. This is
+     * technically incorrect, but is needed to stop relaying problems.
+     * 
+     * XXX Do another feeble attempt to keep local-part info quoted.
+     */
+    if (var_resolve_dequoted
+        && tree->head && tree->head == tree->tail
+        && tree->head->type == TOK822_QSTRING
+        && ((oper = strrchr(local = STR(tree->head->vstr), '@')) != 0
+        || (var_percent_hack && (oper = strrchr(local, '%')) != 0)
+         || (var_swap_bangpath && (oper = strrchr(local, '!')) != 0))) {
+        if (*oper == '%')
+        *oper = '@';
+        tok822_internalize(addr_buf, tree->head, TOK822_STR_DEFL);
+        if (*oper == '@') {
+        junk = mystrdup(STR(addr_buf));
+        quote_822_local(addr_buf, junk);
+        myfree(junk);
+        }
+        tok822_free(tree->head);
+        tree->head = tok822_scan(STR(addr_buf), &tree->tail);
+        rewrite_tree(&local_context, tree);
+        continue;
+    }
 
-	/*
-	 * An empty local-part or an empty quoted string local-part becomes
-	 * the local MAILER-DAEMON, for consistency with our own From:
-	 * message headers.
-	 */
-	if (tree->head && tree->head == tree->tail
-	    && tree->head->type == TOK822_QSTRING
-	    && VSTRING_LEN(tree->head->vstr) == 0) {
-	    tok822_free(tree->head);
-	    tree->head = 0;
-	}
-	/* XXX Re-resolve the surrogate, in case already in user@domain form. */
-	if (tree->head == 0) {
-	    tree->head = tok822_scan(var_empty_addr, &tree->tail);
-	    continue;
-	}
-	/* XXX Re-resolve with @$myhostname for backwards compatibility. */
-	if (domain == 0 && saved_domain == 0) {
-	    tok822_sub_append(tree, tok822_alloc('@', (char *) 0));
-	    tok822_sub_append(tree, tok822_scan(var_myhostname, (TOK822 **) 0));
-	    continue;
-	}
+    /*
+     * An empty local-part or an empty quoted string local-part becomes
+     * the local MAILER-DAEMON, for consistency with our own From:
+     * message headers.
+     */
+    if (tree->head && tree->head == tree->tail
+        && tree->head->type == TOK822_QSTRING
+        && VSTRING_LEN(tree->head->vstr) == 0) {
+        tok822_free(tree->head);
+        tree->head = 0;
+    }
+    /* XXX Re-resolve the surrogate, in case already in user@domain form. */
+    if (tree->head == 0) {
+        tree->head = tok822_scan(var_empty_addr, &tree->tail);
+        continue;
+    }
+    /* XXX Re-resolve with @$myhostname for backwards compatibility. */
+    if (domain == 0 && saved_domain == 0) {
+        tok822_sub_append(tree, tok822_alloc('@', (char *) 0));
+        tok822_sub_append(tree, tok822_scan(var_myhostname, (TOK822 **) 0));
+        continue;
+    }
 
-	/*
-	 * We're done. There are no domains left to strip off the address,
-	 * and all null local-part information is sanitized.
-	 */
-	domain = 0;
-	break;
+    /*
+     * We're done. There are no domains left to strip off the address,
+     * and all null local-part information is sanitized.
+     */
+    domain = 0;
+    break;
     }
 
     vstring_free(addr_buf);
@@ -398,13 +398,13 @@ static void resolve_addr(RES_CONTEXT *rp, char *sender, char *addr,
      * above for what happens with an empty address.
      */
     if (domain == 0) {
-	if (saved_domain) {
-	    tok822_sub_append(tree, saved_domain);
-	    saved_domain = 0;
-	} else {
-	    tok822_sub_append(tree, tok822_alloc('@', (char *) 0));
-	    tok822_sub_append(tree, tok822_scan(var_myhostname, (TOK822 **) 0));
-	}
+    if (saved_domain) {
+        tok822_sub_append(tree, saved_domain);
+        saved_domain = 0;
+    } else {
+        tok822_sub_append(tree, tok822_alloc('@', (char *) 0));
+        tok822_sub_append(tree, tok822_scan(var_myhostname, (TOK822 **) 0));
+    }
     }
 
     /*
@@ -422,28 +422,28 @@ static void resolve_addr(RES_CONTEXT *rp, char *sender, char *addr,
     tok822_internalize(nextrcpt, tree, TOK822_STR_DEFL);
     rcpt_domain = strrchr(STR(nextrcpt), '@') + 1;
     if (rcpt_domain == (char *) 1)
-	msg_panic("no @ in address: \"%s\"", STR(nextrcpt));
+    msg_panic("no @ in address: \"%s\"", STR(nextrcpt));
     if (*rcpt_domain == '[') {
-	if (!valid_mailhost_literal(rcpt_domain, DONT_GRIPE))
-	    *flags |= RESOLVE_FLAG_ERROR;
+    if (!valid_mailhost_literal(rcpt_domain, DONT_GRIPE))
+        *flags |= RESOLVE_FLAG_ERROR;
     } else if (var_smtputf8_enable
-	       && valid_utf8_string(STR(nextrcpt), LEN(nextrcpt)) == 0) {
-	*flags |= RESOLVE_FLAG_ERROR;
+           && valid_utf8_string(STR(nextrcpt), LEN(nextrcpt)) == 0) {
+    *flags |= RESOLVE_FLAG_ERROR;
     } else if (!valid_utf8_hostname(var_smtputf8_enable, rcpt_domain,
-				    DONT_GRIPE)) {
-	if (var_resolve_num_dom && valid_hostaddr(rcpt_domain, DONT_GRIPE)) {
-	    vstring_insert(nextrcpt, rcpt_domain - STR(nextrcpt), "[", 1);
-	    vstring_strcat(nextrcpt, "]");
-	    rcpt_domain = strrchr(STR(nextrcpt), '@') + 1;
-	    if ((rc = resolve_local(rcpt_domain)) > 0)	/* XXX */
-		domain = 0;
-	    else if (rc < 0) {
-		*flags |= RESOLVE_FLAG_FAIL;
-		FREE_MEMORY_AND_RETURN;
-	    }
-	} else {
-	    *flags |= RESOLVE_FLAG_ERROR;
-	}
+                    DONT_GRIPE)) {
+    if (var_resolve_num_dom && valid_hostaddr(rcpt_domain, DONT_GRIPE)) {
+        vstring_insert(nextrcpt, rcpt_domain - STR(nextrcpt), "[", 1);
+        vstring_strcat(nextrcpt, "]");
+        rcpt_domain = strrchr(STR(nextrcpt), '@') + 1;
+        if ((rc = resolve_local(rcpt_domain)) > 0)    /* XXX */
+        domain = 0;
+        else if (rc < 0) {
+        *flags |= RESOLVE_FLAG_FAIL;
+        FREE_MEMORY_AND_RETURN;
+        }
+    } else {
+        *flags |= RESOLVE_FLAG_ERROR;
+    }
     }
     tok822_free_tree(tree);
     tree = 0;
@@ -452,8 +452,8 @@ static void resolve_addr(RES_CONTEXT *rp, char *sender, char *addr,
      * XXX Short-cut invalid address forms.
      */
     if (*flags & RESOLVE_FLAG_ERROR) {
-	*flags |= RESOLVE_CLASS_DEFAULT;
-	FREE_MEMORY_AND_RETURN;
+    *flags |= RESOLVE_CLASS_DEFAULT;
+    FREE_MEMORY_AND_RETURN;
     }
 
     /*
@@ -465,7 +465,7 @@ static void resolve_addr(RES_CONTEXT *rp, char *sender, char *addr,
      * can't know how the next MX host is set up.
      */
     if (strcmp(STR(nextrcpt) + strcspn(STR(nextrcpt), "@!%") + 1, rcpt_domain))
-	*flags |= RESOLVE_FLAG_ROUTED;
+    *flags |= RESOLVE_FLAG_ROUTED;
 
     /*
      * With local, virtual, relay, or other non-local destinations, give the
@@ -487,135 +487,135 @@ static void resolve_addr(RES_CONTEXT *rp, char *sender, char *addr,
 
     if (domain != 0) {
 
-	/*
-	 * Virtual alias domain.
-	 */
-	if (virt_alias_doms
-	    && string_list_match(virt_alias_doms, rcpt_domain)) {
-	    if (var_helpful_warnings) {
-		if (virt_mailbox_doms
-		    && string_list_match(virt_mailbox_doms, rcpt_domain))
-		    msg_warn("do not list domain %s in BOTH %s and %s",
-			     rcpt_domain, VAR_VIRT_ALIAS_DOMS,
-			     VAR_VIRT_MAILBOX_DOMS);
-		if (relay_domains
-		    && domain_list_match(relay_domains, rcpt_domain))
-		    msg_warn("do not list domain %s in BOTH %s and %s",
-			     rcpt_domain, VAR_VIRT_ALIAS_DOMS,
-			     VAR_RELAY_DOMAINS);
+    /*
+     * Virtual alias domain.
+     */
+    if (virt_alias_doms
+        && string_list_match(virt_alias_doms, rcpt_domain)) {
+        if (var_helpful_warnings) {
+        if (virt_mailbox_doms
+            && string_list_match(virt_mailbox_doms, rcpt_domain))
+            msg_warn("do not list domain %s in BOTH %s and %s",
+                 rcpt_domain, VAR_VIRT_ALIAS_DOMS,
+                 VAR_VIRT_MAILBOX_DOMS);
+        if (relay_domains
+            && domain_list_match(relay_domains, rcpt_domain))
+            msg_warn("do not list domain %s in BOTH %s and %s",
+                 rcpt_domain, VAR_VIRT_ALIAS_DOMS,
+                 VAR_RELAY_DOMAINS);
 #if 0
-		if (strcasecmp_utf8(rcpt_domain, var_myorigin) == 0)
-		    msg_warn("do not list $%s (%s) in %s",
-			   VAR_MYORIGIN, var_myorigin, VAR_VIRT_ALIAS_DOMS);
+        if (strcasecmp_utf8(rcpt_domain, var_myorigin) == 0)
+            msg_warn("do not list $%s (%s) in %s",
+               VAR_MYORIGIN, var_myorigin, VAR_VIRT_ALIAS_DOMS);
 #endif
-	    }
-	    vstring_strcpy(channel, MAIL_SERVICE_ERROR);
-	    vstring_sprintf(nexthop, "5.1.1 User unknown%s",
-			    var_show_unk_rcpt_table ?
-			    " in virtual alias table" : "");
-	    *flags |= RESOLVE_CLASS_ALIAS;
-	} else if (virt_alias_doms && virt_alias_doms->error != 0) {
-	    msg_warn("%s lookup failure", VAR_VIRT_ALIAS_DOMS);
-	    *flags |= RESOLVE_FLAG_FAIL;
-	    FREE_MEMORY_AND_RETURN;
-	}
+        }
+        vstring_strcpy(channel, MAIL_SERVICE_ERROR);
+        vstring_sprintf(nexthop, "5.1.1 User unknown%s",
+                var_show_unk_rcpt_table ?
+                " in virtual alias table" : "");
+        *flags |= RESOLVE_CLASS_ALIAS;
+    } else if (virt_alias_doms && virt_alias_doms->error != 0) {
+        msg_warn("%s lookup failure", VAR_VIRT_ALIAS_DOMS);
+        *flags |= RESOLVE_FLAG_FAIL;
+        FREE_MEMORY_AND_RETURN;
+    }
 
-	/*
-	 * Virtual mailbox domain.
-	 */
-	else if (virt_mailbox_doms
-		 && string_list_match(virt_mailbox_doms, rcpt_domain)) {
-	    if (var_helpful_warnings) {
-		if (relay_domains
-		    && domain_list_match(relay_domains, rcpt_domain))
-		    msg_warn("do not list domain %s in BOTH %s and %s",
-			     rcpt_domain, VAR_VIRT_MAILBOX_DOMS,
-			     VAR_RELAY_DOMAINS);
-	    }
-	    vstring_strcpy(channel, RES_PARAM_VALUE(rp->virt_transport));
-	    vstring_strcpy(nexthop, rcpt_domain);
-	    blame = rp->virt_transport_name;
-	    *flags |= RESOLVE_CLASS_VIRTUAL;
-	} else if (virt_mailbox_doms && virt_mailbox_doms->error != 0) {
-	    msg_warn("%s lookup failure", VAR_VIRT_MAILBOX_DOMS);
-	    *flags |= RESOLVE_FLAG_FAIL;
-	    FREE_MEMORY_AND_RETURN;
-	} else {
+    /*
+     * Virtual mailbox domain.
+     */
+    else if (virt_mailbox_doms
+         && string_list_match(virt_mailbox_doms, rcpt_domain)) {
+        if (var_helpful_warnings) {
+        if (relay_domains
+            && domain_list_match(relay_domains, rcpt_domain))
+            msg_warn("do not list domain %s in BOTH %s and %s",
+                 rcpt_domain, VAR_VIRT_MAILBOX_DOMS,
+                 VAR_RELAY_DOMAINS);
+        }
+        vstring_strcpy(channel, RES_PARAM_VALUE(rp->virt_transport));
+        vstring_strcpy(nexthop, rcpt_domain);
+        blame = rp->virt_transport_name;
+        *flags |= RESOLVE_CLASS_VIRTUAL;
+    } else if (virt_mailbox_doms && virt_mailbox_doms->error != 0) {
+        msg_warn("%s lookup failure", VAR_VIRT_MAILBOX_DOMS);
+        *flags |= RESOLVE_FLAG_FAIL;
+        FREE_MEMORY_AND_RETURN;
+    } else {
 
-	    /*
-	     * Off-host relay destination.
-	     */
-	    if (relay_domains
-		&& domain_list_match(relay_domains, rcpt_domain)) {
-		vstring_strcpy(channel, RES_PARAM_VALUE(rp->relay_transport));
-		blame = rp->relay_transport_name;
-		*flags |= RESOLVE_CLASS_RELAY;
-	    } else if (relay_domains && relay_domains->error != 0) {
-		msg_warn("%s lookup failure", VAR_RELAY_DOMAINS);
-		*flags |= RESOLVE_FLAG_FAIL;
-		FREE_MEMORY_AND_RETURN;
-	    }
+        /*
+         * Off-host relay destination.
+         */
+        if (relay_domains
+        && domain_list_match(relay_domains, rcpt_domain)) {
+        vstring_strcpy(channel, RES_PARAM_VALUE(rp->relay_transport));
+        blame = rp->relay_transport_name;
+        *flags |= RESOLVE_CLASS_RELAY;
+        } else if (relay_domains && relay_domains->error != 0) {
+        msg_warn("%s lookup failure", VAR_RELAY_DOMAINS);
+        *flags |= RESOLVE_FLAG_FAIL;
+        FREE_MEMORY_AND_RETURN;
+        }
 
-	    /*
-	     * Other off-host destination.
-	     */
-	    else {
-		if (rp->snd_def_xp_info
-		    && (xport = mail_addr_find(rp->snd_def_xp_info,
-					    sender_key = (*sender ? sender :
-					       var_null_def_xport_maps_key),
-					       (char **) 0)) != 0) {
-		    if (*xport == 0) {
-			msg_warn("%s: ignoring null lookup result for %s",
-				 rp->snd_def_xp_maps_name, sender_key);
-			xport = "DUNNO";
-		    }
-		    vstring_strcpy(channel, strcasecmp(xport, "DUNNO") == 0 ?
-				RES_PARAM_VALUE(rp->def_transport) : xport);
-		    blame = rp->snd_def_xp_maps_name;
-		} else if (rp->snd_def_xp_info
-			   && rp->snd_def_xp_info->error != 0) {
-		    msg_warn("%s lookup failure", rp->snd_def_xp_maps_name);
-		    *flags |= RESOLVE_FLAG_FAIL;
-		    FREE_MEMORY_AND_RETURN;
-		} else {
-		    vstring_strcpy(channel, RES_PARAM_VALUE(rp->def_transport));
-		    blame = rp->def_transport_name;
-		}
-		*flags |= RESOLVE_CLASS_DEFAULT;
-	    }
+        /*
+         * Other off-host destination.
+         */
+        else {
+        if (rp->snd_def_xp_info
+            && (xport = mail_addr_find(rp->snd_def_xp_info,
+                        sender_key = (*sender ? sender :
+                           var_null_def_xport_maps_key),
+                           (char **) 0)) != 0) {
+            if (*xport == 0) {
+            msg_warn("%s: ignoring null lookup result for %s",
+                 rp->snd_def_xp_maps_name, sender_key);
+            xport = "DUNNO";
+            }
+            vstring_strcpy(channel, strcasecmp(xport, "DUNNO") == 0 ?
+                RES_PARAM_VALUE(rp->def_transport) : xport);
+            blame = rp->snd_def_xp_maps_name;
+        } else if (rp->snd_def_xp_info
+               && rp->snd_def_xp_info->error != 0) {
+            msg_warn("%s lookup failure", rp->snd_def_xp_maps_name);
+            *flags |= RESOLVE_FLAG_FAIL;
+            FREE_MEMORY_AND_RETURN;
+        } else {
+            vstring_strcpy(channel, RES_PARAM_VALUE(rp->def_transport));
+            blame = rp->def_transport_name;
+        }
+        *flags |= RESOLVE_CLASS_DEFAULT;
+        }
 
-	    /*
-	     * With off-host delivery, sender-dependent or global relayhost
-	     * override the recipient domain.
-	     */
-	    if (rp->snd_relay_info
-		&& (relay = mail_addr_find(rp->snd_relay_info,
-					   sender_key = (*sender ? sender :
-						   var_null_relay_maps_key),
-					   (char **) 0)) != 0) {
-		if (*relay == 0) {
-		    msg_warn("%s: ignoring null lookup result for %s",
-			     rp->snd_relay_maps_name, sender_key);
-		    relay = 0;
-		} else if (strcasecmp_utf8(relay, "DUNNO") == 0)
-		    relay = 0;
-	    } else if (rp->snd_relay_info
-		       && rp->snd_relay_info->error != 0) {
-		msg_warn("%s lookup failure", rp->snd_relay_maps_name);
-		*flags |= RESOLVE_FLAG_FAIL;
-		FREE_MEMORY_AND_RETURN;
-	    } else {
-		relay = 0;
-	    }
-	    /* Enforce all the relayhost precedences in one place. */
-	    if (relay != 0) {
-		vstring_strcpy(nexthop, relay);
-	    } else if (*RES_PARAM_VALUE(rp->relayhost))
-		vstring_strcpy(nexthop, RES_PARAM_VALUE(rp->relayhost));
-	    else
-		vstring_strcpy(nexthop, rcpt_domain);
-	}
+        /*
+         * With off-host delivery, sender-dependent or global relayhost
+         * override the recipient domain.
+         */
+        if (rp->snd_relay_info
+        && (relay = mail_addr_find(rp->snd_relay_info,
+                       sender_key = (*sender ? sender :
+                           var_null_relay_maps_key),
+                       (char **) 0)) != 0) {
+        if (*relay == 0) {
+            msg_warn("%s: ignoring null lookup result for %s",
+                 rp->snd_relay_maps_name, sender_key);
+            relay = 0;
+        } else if (strcasecmp_utf8(relay, "DUNNO") == 0)
+            relay = 0;
+        } else if (rp->snd_relay_info
+               && rp->snd_relay_info->error != 0) {
+        msg_warn("%s lookup failure", rp->snd_relay_maps_name);
+        *flags |= RESOLVE_FLAG_FAIL;
+        FREE_MEMORY_AND_RETURN;
+        } else {
+        relay = 0;
+        }
+        /* Enforce all the relayhost precedences in one place. */
+        if (relay != 0) {
+        vstring_strcpy(nexthop, relay);
+        } else if (*RES_PARAM_VALUE(rp->relayhost))
+        vstring_strcpy(nexthop, RES_PARAM_VALUE(rp->relayhost));
+        else
+        vstring_strcpy(nexthop, rcpt_domain);
+    }
     }
 
     /*
@@ -625,20 +625,20 @@ static void resolve_addr(RES_CONTEXT *rp, char *sender, char *addr,
      * implementation defined, and may break when internals change.
      */
     else {
-	if (var_helpful_warnings) {
-	    if (virt_alias_doms
-		&& string_list_match(virt_alias_doms, rcpt_domain))
-		msg_warn("do not list domain %s in BOTH %s and %s",
-			 rcpt_domain, VAR_MYDEST, VAR_VIRT_ALIAS_DOMS);
-	    if (virt_mailbox_doms
-		&& string_list_match(virt_mailbox_doms, rcpt_domain))
-		msg_warn("do not list domain %s in BOTH %s and %s",
-			 rcpt_domain, VAR_MYDEST, VAR_VIRT_MAILBOX_DOMS);
-	}
-	vstring_strcpy(channel, RES_PARAM_VALUE(rp->local_transport));
-	vstring_strcpy(nexthop, rcpt_domain);
-	blame = rp->local_transport_name;
-	*flags |= RESOLVE_CLASS_LOCAL;
+    if (var_helpful_warnings) {
+        if (virt_alias_doms
+        && string_list_match(virt_alias_doms, rcpt_domain))
+        msg_warn("do not list domain %s in BOTH %s and %s",
+             rcpt_domain, VAR_MYDEST, VAR_VIRT_ALIAS_DOMS);
+        if (virt_mailbox_doms
+        && string_list_match(virt_mailbox_doms, rcpt_domain))
+        msg_warn("do not list domain %s in BOTH %s and %s",
+             rcpt_domain, VAR_MYDEST, VAR_VIRT_MAILBOX_DOMS);
+    }
+    vstring_strcpy(channel, RES_PARAM_VALUE(rp->local_transport));
+    vstring_strcpy(nexthop, rcpt_domain);
+    blame = rp->local_transport_name;
+    *flags |= RESOLVE_CLASS_LOCAL;
     }
 
     /*
@@ -650,21 +650,21 @@ static void resolve_addr(RES_CONTEXT *rp, char *sender, char *addr,
      * to share the same queue.
      */
     if ((destination = split_at(STR(channel), ':')) != 0 && *destination)
-	vstring_strcpy(nexthop, destination);
+    vstring_strcpy(nexthop, destination);
 
     /*
      * Sanity checks.
      */
     if (*STR(channel) == 0) {
-	if (blame == 0)
-	    msg_panic("%s: null blame", myname);
-	msg_warn("file %s/%s: parameter %s: null transport is not allowed",
-		 var_config_dir, MAIN_CONF_FILE, blame);
-	*flags |= RESOLVE_FLAG_FAIL;
-	FREE_MEMORY_AND_RETURN;
+    if (blame == 0)
+        msg_panic("%s: null blame", myname);
+    msg_warn("file %s/%s: parameter %s: null transport is not allowed",
+         var_config_dir, MAIN_CONF_FILE, blame);
+    *flags |= RESOLVE_FLAG_FAIL;
+    FREE_MEMORY_AND_RETURN;
     }
     if (*STR(nexthop) == 0)
-	msg_panic("%s: null nexthop", myname);
+    msg_panic("%s: null nexthop", myname);
 
     /*
      * The transport map can selectively override any transport and/or
@@ -694,13 +694,13 @@ static void resolve_addr(RES_CONTEXT *rp, char *sender, char *addr,
      * XXX Don't override the virtual alias class (error:User unknown) result.
      */
     if (rp->transport_info && !(*flags & RESOLVE_CLASS_ALIAS)) {
-	if (transport_lookup(rp->transport_info, STR(nextrcpt),
-			     rcpt_domain, channel, nexthop) == 0
-	    && rp->transport_info->transport_path->error != 0) {
-	    msg_warn("%s lookup failure", rp->transport_maps_name);
-	    *flags |= RESOLVE_FLAG_FAIL;
-	    FREE_MEMORY_AND_RETURN;
-	}
+    if (transport_lookup(rp->transport_info, STR(nextrcpt),
+                 rcpt_domain, channel, nexthop) == 0
+        && rp->transport_info->transport_path->error != 0) {
+        msg_warn("%s lookup failure", rp->transport_maps_name);
+        *flags |= RESOLVE_FLAG_FAIL;
+        FREE_MEMORY_AND_RETURN;
+    }
     }
 
     /*
@@ -715,18 +715,18 @@ static void resolve_addr(RES_CONTEXT *rp, char *sender, char *addr,
 #define IGNORE_ADDR_EXTENSION   ((char **) 0)
 
     if (relocated_maps != 0) {
-	const char *newloc;
+    const char *newloc;
 
-	if ((newloc = mail_addr_find(relocated_maps, STR(nextrcpt),
-				     IGNORE_ADDR_EXTENSION)) != 0) {
-	    vstring_strcpy(channel, MAIL_SERVICE_ERROR);
-	    /* 5.1.6 is the closest match, but not perfect. */
-	    vstring_sprintf(nexthop, "5.1.6 User has moved to %s", newloc);
-	} else if (relocated_maps->error != 0) {
-	    msg_warn("%s lookup failure", VAR_RELOCATED_MAPS);
-	    *flags |= RESOLVE_FLAG_FAIL;
-	    FREE_MEMORY_AND_RETURN;
-	}
+    if ((newloc = mail_addr_find(relocated_maps, STR(nextrcpt),
+                     IGNORE_ADDR_EXTENSION)) != 0) {
+        vstring_strcpy(channel, MAIL_SERVICE_ERROR);
+        /* 5.1.6 is the closest match, but not perfect. */
+        vstring_sprintf(nexthop, "5.1.6 User has moved to %s", newloc);
+    } else if (relocated_maps->error != 0) {
+        msg_warn("%s lookup failure", VAR_RELOCATED_MAPS);
+        *flags |= RESOLVE_FLAG_FAIL;
+        FREE_MEMORY_AND_RETURN;
+    }
     }
 
     /*
@@ -741,8 +741,8 @@ static void resolve_addr(RES_CONTEXT *rp, char *sender, char *addr,
      * bypassed.
      */
     if (var_allow_min_user == 0 && STR(nextrcpt)[0] == '-') {
-	*flags |= RESOLVE_FLAG_ERROR;
-	FREE_MEMORY_AND_RETURN;
+    *flags |= RESOLVE_FLAG_ERROR;
+    FREE_MEMORY_AND_RETURN;
     }
 
     /*
@@ -766,30 +766,30 @@ int     resolve_proto(RES_CONTEXT *context, VSTREAM *stream)
     int     flags;
 
     if (attr_scan(stream, ATTR_FLAG_STRICT,
-		  RECV_ATTR_STR(MAIL_ATTR_SENDER, sender),
-		  RECV_ATTR_STR(MAIL_ATTR_ADDR, query),
-		  ATTR_TYPE_END) != 2)
-	return (-1);
+          RECV_ATTR_STR(MAIL_ATTR_SENDER, sender),
+          RECV_ATTR_STR(MAIL_ATTR_ADDR, query),
+          ATTR_TYPE_END) != 2)
+    return (-1);
 
     resolve_addr(context, STR(sender), STR(query),
-		 channel, nexthop, nextrcpt, &flags);
+         channel, nexthop, nextrcpt, &flags);
 
     if (msg_verbose)
-	msg_info("`%s' -> `%s' -> (`%s' `%s' `%s' `%d')",
-		 STR(sender), STR(query), STR(channel),
-		 STR(nexthop), STR(nextrcpt), flags);
+    msg_info("`%s' -> `%s' -> (`%s' `%s' `%s' `%d')",
+         STR(sender), STR(query), STR(channel),
+         STR(nexthop), STR(nextrcpt), flags);
 
     attr_print(stream, ATTR_FLAG_NONE,
-	       SEND_ATTR_INT(MAIL_ATTR_FLAGS, server_flags),
-	       SEND_ATTR_STR(MAIL_ATTR_TRANSPORT, STR(channel)),
-	       SEND_ATTR_STR(MAIL_ATTR_NEXTHOP, STR(nexthop)),
-	       SEND_ATTR_STR(MAIL_ATTR_RECIP, STR(nextrcpt)),
-	       SEND_ATTR_INT(MAIL_ATTR_FLAGS, flags),
-	       ATTR_TYPE_END);
+           SEND_ATTR_INT(MAIL_ATTR_FLAGS, server_flags),
+           SEND_ATTR_STR(MAIL_ATTR_TRANSPORT, STR(channel)),
+           SEND_ATTR_STR(MAIL_ATTR_NEXTHOP, STR(nexthop)),
+           SEND_ATTR_STR(MAIL_ATTR_RECIP, STR(nextrcpt)),
+           SEND_ATTR_INT(MAIL_ATTR_FLAGS, flags),
+           ATTR_TYPE_END);
 
     if (vstream_fflush(stream) != 0) {
-	msg_warn("write resolver reply: %m");
-	return (-1);
+    msg_warn("write resolver reply: %m");
+    return (-1);
     }
     return (0);
 }
@@ -805,24 +805,24 @@ void    resolve_init(void)
     nextrcpt = vstring_alloc(100);
 
     if (*var_virt_alias_doms)
-	virt_alias_doms =
-	    string_list_init(VAR_VIRT_ALIAS_DOMS, MATCH_FLAG_RETURN,
-			     var_virt_alias_doms);
+    virt_alias_doms =
+        string_list_init(VAR_VIRT_ALIAS_DOMS, MATCH_FLAG_RETURN,
+                 var_virt_alias_doms);
 
     if (*var_virt_mailbox_doms)
-	virt_mailbox_doms =
-	    string_list_init(VAR_VIRT_MAILBOX_DOMS, MATCH_FLAG_RETURN,
-			     var_virt_mailbox_doms);
+    virt_mailbox_doms =
+        string_list_init(VAR_VIRT_MAILBOX_DOMS, MATCH_FLAG_RETURN,
+                 var_virt_mailbox_doms);
 
     if (*var_relay_domains)
-	relay_domains =
-	    domain_list_init(VAR_RELAY_DOMAINS, MATCH_FLAG_RETURN
-			     | match_parent_style(VAR_RELAY_DOMAINS),
-			     var_relay_domains);
+    relay_domains =
+        domain_list_init(VAR_RELAY_DOMAINS, MATCH_FLAG_RETURN
+                 | match_parent_style(VAR_RELAY_DOMAINS),
+                 var_relay_domains);
 
     if (*var_relocated_maps)
-	relocated_maps =
-	    maps_create(VAR_RELOCATED_MAPS, var_relocated_maps,
-			DICT_FLAG_LOCK | DICT_FLAG_FOLD_FIX
-			| DICT_FLAG_UTF8_REQUEST);
+    relocated_maps =
+        maps_create(VAR_RELOCATED_MAPS, var_relocated_maps,
+            DICT_FLAG_LOCK | DICT_FLAG_FOLD_FIX
+            | DICT_FLAG_UTF8_REQUEST);
 }

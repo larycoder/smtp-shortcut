@@ -1,73 +1,73 @@
 /*++
 /* NAME
-/*	smtp_sasl_auth_cache 3
+/*    smtp_sasl_auth_cache 3
 /* SUMMARY
-/*	Postfix SASL authentication reply cache
+/*    Postfix SASL authentication reply cache
 /* SYNOPSIS
-/*	#include "smtp.h"
-/*	#include "smtp_sasl_auth_cache.h"
+/*    #include "smtp.h"
+/*    #include "smtp_sasl_auth_cache.h"
 /*
-/*	SMTP_SASL_AUTH_CACHE *smtp_sasl_auth_cache_init(map, ttl)
-/*	const char *map
-/*	int	ttl;
+/*    SMTP_SASL_AUTH_CACHE *smtp_sasl_auth_cache_init(map, ttl)
+/*    const char *map
+/*    int    ttl;
 /*
-/*	void	smtp_sasl_auth_cache_store(auth_cache, session, resp)
-/*	SMTP_SASL_AUTH_CACHE *auth_cache;
-/*	const SMTP_SESSION *session;
-/*	const SMTP_RESP *resp;
+/*    void    smtp_sasl_auth_cache_store(auth_cache, session, resp)
+/*    SMTP_SASL_AUTH_CACHE *auth_cache;
+/*    const SMTP_SESSION *session;
+/*    const SMTP_RESP *resp;
 /*
-/*	int	smtp_sasl_auth_cache_find(auth_cache, session)
-/*	SMTP_SASL_AUTH_CACHE *auth_cache;
-/*	const SMTP_SESSION *session;
+/*    int    smtp_sasl_auth_cache_find(auth_cache, session)
+/*    SMTP_SASL_AUTH_CACHE *auth_cache;
+/*    const SMTP_SESSION *session;
 /*
-/*	char	*smtp_sasl_auth_cache_dsn(auth_cache)
-/*	SMTP_SASL_AUTH_CACHE *auth_cache;
+/*    char    *smtp_sasl_auth_cache_dsn(auth_cache)
+/*    SMTP_SASL_AUTH_CACHE *auth_cache;
 /*
-/*	char	*smtp_sasl_auth_cache_text(auth_cache)
-/*	SMTP_SASL_AUTH_CACHE *auth_cache;
+/*    char    *smtp_sasl_auth_cache_text(auth_cache)
+/*    SMTP_SASL_AUTH_CACHE *auth_cache;
 /* DESCRIPTION
-/*	This module maintains a cache of SASL authentication server replies.
-/*	This can be used to avoid repeated login failure errors.
+/*    This module maintains a cache of SASL authentication server replies.
+/*    This can be used to avoid repeated login failure errors.
 /*
-/*	smtp_sasl_auth_cache_init() opens or creates the named cache.
+/*    smtp_sasl_auth_cache_init() opens or creates the named cache.
 /*
-/*	smtp_sasl_auth_cache_store() stores information about a
-/*	SASL login attempt together with the server status and
-/*	complete response.
+/*    smtp_sasl_auth_cache_store() stores information about a
+/*    SASL login attempt together with the server status and
+/*    complete response.
 /*
-/*	smtp_sasl_auth_cache_find() returns non-zero when a cache
-/*	entry exists for the given host, username and password.
+/*    smtp_sasl_auth_cache_find() returns non-zero when a cache
+/*    entry exists for the given host, username and password.
 /*
-/*	smtp_sasl_auth_cache_dsn() and smtp_sasl_auth_cache_text()
-/*	return the status and complete server response as found
-/*	with smtp_sasl_auth_cache_find().
+/*    smtp_sasl_auth_cache_dsn() and smtp_sasl_auth_cache_text()
+/*    return the status and complete server response as found
+/*    with smtp_sasl_auth_cache_find().
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP map
-/*	Lookup table name. The name must be singular and must start
-/*	with "proxy:".
+/*    Lookup table name. The name must be singular and must start
+/*    with "proxy:".
 /* .IP ttl
-/*	The time after which a cache entry is considered expired.
+/*    The time after which a cache entry is considered expired.
 /* .IP session
-/*	Session context.
+/*    Session context.
 /* .IP resp
-/*	Remote SMTP server response, to be stored into the cache.
+/*    Remote SMTP server response, to be stored into the cache.
 /* DIAGNOSTICS
-/*	All errors are fatal.
+/*    All errors are fatal.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Original author:
-/*	Keean Schupke
-/*	Fry-IT Ltd.
+/*    Original author:
+/*    Keean Schupke
+/*    Fry-IT Ltd.
 /*
-/*	Updated by:
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Updated by:
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
  /*
@@ -117,12 +117,12 @@ SMTP_SASL_AUTH_CACHE *smtp_sasl_auth_cache_init(const char *map, int ttl)
 #define HAS_MULTIPLE_VALUES(s) ((s)[strcspn((s),  CHARS_COMMA_SP)] != 0)
 
     if (*map == 0)
-	msg_panic("%s: empty SASL authentication cache name", myname);
+    msg_panic("%s: empty SASL authentication cache name", myname);
     if (ttl < 0)
-	msg_panic("%s: bad SASL authentication cache ttl: %d", myname, ttl);
+    msg_panic("%s: bad SASL authentication cache ttl: %d", myname, ttl);
     if (HAS_MULTIPLE_VALUES(map))
-	msg_fatal("SASL authentication cache name \"%s\" "
-		  "contains multiple values", map);
+    msg_fatal("SASL authentication cache name \"%s\" "
+          "contains multiple values", map);
 
     /*
      * XXX To avoid multiple writers the map needs to be maintained by the
@@ -131,13 +131,13 @@ SMTP_SASL_AUTH_CACHE *smtp_sasl_auth_cache_init(const char *map, int ttl)
      * dict_proxy module one level down in the build dependency hierarchy.
      */
 #define CACHE_DICT_OPEN_FLAGS \
-	(DICT_FLAG_DUP_REPLACE | DICT_FLAG_SYNC_UPDATE | DICT_FLAG_UTF8_REQUEST)
-#define PROXY_COLON	DICT_TYPE_PROXY ":"
-#define PROXY_COLON_LEN	(sizeof(PROXY_COLON) - 1)
+    (DICT_FLAG_DUP_REPLACE | DICT_FLAG_SYNC_UPDATE | DICT_FLAG_UTF8_REQUEST)
+#define PROXY_COLON    DICT_TYPE_PROXY ":"
+#define PROXY_COLON_LEN    (sizeof(PROXY_COLON) - 1)
 
     if (strncmp(map, PROXY_COLON, PROXY_COLON_LEN) != 0)
-	msg_fatal("SASL authentication cache name \"%s\" must start with \""
-		  PROXY_COLON, map);
+    msg_fatal("SASL authentication cache name \"%s\" must start with \""
+          PROXY_COLON, map);
 
     auth_cache = (SMTP_SASL_AUTH_CACHE *) mymalloc(sizeof(*auth_cache));
     auth_cache->dict = dict_open(map, O_CREAT | O_RDWR, CACHE_DICT_OPEN_FLAGS);
@@ -172,16 +172,16 @@ static char *smtp_sasl_auth_cache_make_pass(const char *password)
     VSTRING *buf = vstring_alloc(2 * SHA_DIGEST_LENGTH);
 
     base64_encode(buf, (const char *) SHA1((const unsigned char *) password,
-					   strlen(password), 0),
-		  SHA_DIGEST_LENGTH);
+                       strlen(password), 0),
+          SHA_DIGEST_LENGTH);
     return (vstring_export(buf));
 }
 
 /* smtp_sasl_auth_cache_make_value - format auth failure cache value */
 
 static char *smtp_sasl_auth_cache_make_value(const char *password,
-					             const char *dsn,
-					             const char *rep_str)
+                                 const char *dsn,
+                                 const char *rep_str)
 {
     VSTRING *val_buf = vstring_alloc(100);
     char   *pwd_hash;
@@ -196,8 +196,8 @@ static char *smtp_sasl_auth_cache_make_value(const char *password,
 /* smtp_sasl_auth_cache_valid_value - validate auth failure cache value */
 
 static int smtp_sasl_auth_cache_valid_value(SMTP_SASL_AUTH_CACHE *auth_cache,
-					            const char *entry,
-					            const char *password)
+                                const char *entry,
+                                const char *password)
 {
     ssize_t len = strlen(entry);
     char   *cache_hash = mymalloc(len);
@@ -210,16 +210,16 @@ static int smtp_sasl_auth_cache_valid_value(SMTP_SASL_AUTH_CACHE *auth_cache,
     auth_cache->text = myrealloc(auth_cache->text, len);
 
     if (sscanf(entry, "%lu;%[^;];%[^;];%[^\n]", &time_stamp, cache_hash,
-	       auth_cache->dsn, auth_cache->text) != 4
-	|| !dsn_valid(auth_cache->dsn)) {
-	msg_warn("bad smtp_sasl_auth_cache entry: %.100s", entry);
-	valid = 0;
+           auth_cache->dsn, auth_cache->text) != 4
+    || !dsn_valid(auth_cache->dsn)) {
+    msg_warn("bad smtp_sasl_auth_cache entry: %.100s", entry);
+    valid = 0;
     } else if (time_stamp + auth_cache->ttl < now) {
-	valid = 0;
+    valid = 0;
     } else {
-	curr_hash = smtp_sasl_auth_cache_make_pass(password);
-	valid = (strcmp(cache_hash, curr_hash) == 0);
-	myfree(curr_hash);
+    curr_hash = smtp_sasl_auth_cache_make_pass(password);
+    valid = (strcmp(cache_hash, curr_hash) == 0);
+    myfree(curr_hash);
     }
     myfree(cache_hash);
     return (valid);
@@ -228,7 +228,7 @@ static int smtp_sasl_auth_cache_valid_value(SMTP_SASL_AUTH_CACHE *auth_cache,
 /* smtp_sasl_auth_cache_find - search auth failure cache */
 
 int     smtp_sasl_auth_cache_find(SMTP_SASL_AUTH_CACHE *auth_cache,
-				          const SMTP_SESSION *session)
+                          const SMTP_SESSION *session)
 {
     SMTP_ITERATOR *iter = session->iterator;
     char   *key;
@@ -237,15 +237,15 @@ int     smtp_sasl_auth_cache_find(SMTP_SASL_AUTH_CACHE *auth_cache,
 
     key = smtp_sasl_auth_cache_make_key(STR(iter->host), session->sasl_username);
     if ((entry = dict_get(auth_cache->dict, key)) != 0)
-	if ((valid = smtp_sasl_auth_cache_valid_value(auth_cache, entry,
-						session->sasl_passwd)) == 0)
-	    /* Remove expired, password changed, or malformed cache entry. */
-	    if (dict_del(auth_cache->dict, key) != 0)
-		msg_warn("SASL auth failure map %s: entry not deleted: %s",
-			 auth_cache->dict->name, key);
+    if ((valid = smtp_sasl_auth_cache_valid_value(auth_cache, entry,
+                        session->sasl_passwd)) == 0)
+        /* Remove expired, password changed, or malformed cache entry. */
+        if (dict_del(auth_cache->dict, key) != 0)
+        msg_warn("SASL auth failure map %s: entry not deleted: %s",
+             auth_cache->dict->name, key);
     if (auth_cache->dict->error)
-	msg_warn("SASL auth failure map %s: lookup failed for %s",
-		 auth_cache->dict->name, key);
+    msg_warn("SASL auth failure map %s: lookup failed for %s",
+         auth_cache->dict->name, key);
     myfree(key);
     return (valid);
 }
@@ -253,8 +253,8 @@ int     smtp_sasl_auth_cache_find(SMTP_SASL_AUTH_CACHE *auth_cache,
 /* smtp_sasl_auth_cache_store - update auth failure cache */
 
 void    smtp_sasl_auth_cache_store(SMTP_SASL_AUTH_CACHE *auth_cache,
-				           const SMTP_SESSION *session,
-				           const SMTP_RESP *resp)
+                           const SMTP_SESSION *session,
+                           const SMTP_RESP *resp)
 {
     SMTP_ITERATOR *iter = session->iterator;
     char   *key;
@@ -262,7 +262,7 @@ void    smtp_sasl_auth_cache_store(SMTP_SASL_AUTH_CACHE *auth_cache,
 
     key = smtp_sasl_auth_cache_make_key(STR(iter->host), session->sasl_username);
     value = smtp_sasl_auth_cache_make_value(session->sasl_passwd,
-					    resp->dsn, resp->str);
+                        resp->dsn, resp->str);
     dict_put(auth_cache->dict, key, value);
 
     myfree(value);

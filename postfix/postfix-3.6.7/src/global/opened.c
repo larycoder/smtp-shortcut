@@ -1,58 +1,58 @@
 /*++
 /* NAME
-/*	opened 3
+/*    opened 3
 /* SUMMARY
-/*	log that a message was opened
+/*    log that a message was opened
 /* SYNOPSIS
-/*	#include <opened.h>
+/*    #include <opened.h>
 /*
-/*	void	opened(queue_id, sender, size, nrcpt, format, ...)
-/*	const char *queue_id;
-/*	const char *sender;
-/*	long	size;
-/*	int	nrcpt;
-/*	const char *format;
+/*    void    opened(queue_id, sender, size, nrcpt, format, ...)
+/*    const char *queue_id;
+/*    const char *sender;
+/*    long    size;
+/*    int    nrcpt;
+/*    const char *format;
 /* DESCRIPTION
-/*	opened() logs that a message was successfully delivered.
+/*    opened() logs that a message was successfully delivered.
 /*
-/*	vopened() implements an alternative interface.
+/*    vopened() implements an alternative interface.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP queue_id
-/*	Message queue ID.
+/*    Message queue ID.
 /* .IP sender
-/*	Sender address.
+/*    Sender address.
 /* .IP size
-/*	Message content size.
+/*    Message content size.
 /* .IP nrcpt
-/*	Number of recipients.
+/*    Number of recipients.
 /* .IP format
-/*	Format of optional text.
+/*    Format of optional text.
 /* DIAGNOSTICS
-/*	Fatal: out of memory.
+/*    Fatal: out of memory.
 /* BUGS
-/*	Should be replaced by routines with an attribute-value based
-/*	interface instead of an interface that uses a rigid argument list.
+/*    Should be replaced by routines with an attribute-value based
+/*    interface instead of an interface that uses a rigid argument list.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
 
 #include <sys_defs.h>
-#include <stdlib.h>			/* 44BSD stdarg.h uses abort() */
+#include <stdlib.h>            /* 44BSD stdarg.h uses abort() */
 #include <stdarg.h>
 
 /* Utility library. */
@@ -68,7 +68,7 @@
 /* opened - log that a message was opened */
 
 void    opened(const char *queue_id, const char *sender, long size, int nrcpt,
-	               const char *fmt,...)
+                   const char *fmt,...)
 {
     va_list ap;
 
@@ -80,7 +80,7 @@ void    opened(const char *queue_id, const char *sender, long size, int nrcpt,
 /* vopened - log that a message was opened */
 
 void    vopened(const char *queue_id, const char *sender, long size, int nrcpt,
-		        const char *fmt, va_list ap)
+                const char *fmt, va_list ap)
 {
     VSTRING *text = vstring_alloc(100);
 
@@ -88,7 +88,7 @@ void    vopened(const char *queue_id, const char *sender, long size, int nrcpt,
 
     vstring_vsprintf(text, fmt, ap);
     msg_info("%s: from=<%s>, size=%ld, nrcpt=%d%s%s%s",
-	     queue_id, info_log_addr_form_sender(sender), size, nrcpt,
-	     *TEXT ? " (" : "", TEXT, *TEXT ? ")" : "");
+         queue_id, info_log_addr_form_sender(sender), size, nrcpt,
+         *TEXT ? " (" : "", TEXT, *TEXT ? ")" : "");
     vstring_free(text);
 }

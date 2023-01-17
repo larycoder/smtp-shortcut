@@ -1,26 +1,26 @@
 /*++
 /* NAME
-/*	skipblanks 3
+/*    skipblanks 3
 /* SUMMARY
-/*	skip leading whitespace
+/*    skip leading whitespace
 /* SYNOPSIS
-/*	#include <stringops.h>
+/*    #include <stringops.h>
 /*
-/*	char	*skipblanks(string)
-/*	const char *string;
+/*    char    *skipblanks(string)
+/*    const char *string;
 /* DESCRIPTION
-/*	skipblanks() returns a pointer to the first non-whitespace
-/*	character in the specified string, or a pointer to the string
-/*	terminator when the string contains all white-space characters.
+/*    skipblanks() returns a pointer to the first non-whitespace
+/*    character in the specified string, or a pointer to the string
+/*    terminator when the string contains all white-space characters.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -37,7 +37,7 @@ char   *skipblanks(const char *string)
     const char *cp;
 
     for (cp = string; *cp != 0; cp++)
-	if (!ISSPACE(*cp))
-	    break;
+    if (!ISSPACE(*cp))
+        break;
     return ((char *) cp);
 }

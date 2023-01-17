@@ -1,88 +1,88 @@
 /*++
 /* NAME
-/*	inet_proto 3
+/*    inet_proto 3
 /* SUMMARY
-/*	convert protocol names to assorted constants
+/*    convert protocol names to assorted constants
 /* SYNOPSIS
-/*	#include <inet_proto.h>
+/*    #include <inet_proto.h>
 /*
-/*	typedef struct {
+/*    typedef struct {
 /* .in +4
-/*		unsigned ai_family; /* PF_UNSPEC, PF_INET, or PF_INET6 */
-/*		unsigned *ai_family_list; /* PF_INET and/or PF_INET6 */
-/*		unsigned *dns_atype_list;/* TAAAA and/or TA */
-/*		unsigned char *sa_family_list;/* AF_INET6 and/or AF_INET */
+/*        unsigned ai_family; /* PF_UNSPEC, PF_INET, or PF_INET6 */
+/*        unsigned *ai_family_list; /* PF_INET and/or PF_INET6 */
+/*        unsigned *dns_atype_list;/* TAAAA and/or TA */
+/*        unsigned char *sa_family_list;/* AF_INET6 and/or AF_INET */
 /* .in -4
-/*	} INET_PROTO_INFO;
+/*    } INET_PROTO_INFO;
 /*
-/*	const INET_PROTO_INFO *inet_proto_init(context, protocols)
+/*    const INET_PROTO_INFO *inet_proto_init(context, protocols)
 /*
-/*	const INET_PROTO_INFO *inet_proto_info()
+/*    const INET_PROTO_INFO *inet_proto_info()
 /* DESCRIPTION
-/*	inet_proto_init() converts a string with protocol names
-/*	into null-terminated lists of appropriate constants used
-/*	by Postfix library routines.  The idea is that one should
-/*	be able to configure an MTA for IPv4 only, without having
-/*	to recompile code (what a concept).
+/*    inet_proto_init() converts a string with protocol names
+/*    into null-terminated lists of appropriate constants used
+/*    by Postfix library routines.  The idea is that one should
+/*    be able to configure an MTA for IPv4 only, without having
+/*    to recompile code (what a concept).
 /*
-/*	Unfortunately, some compilers won't link initialized data
-/*	without a function call into the same source module, so
-/*	we invoke inet_proto_info() in order to access the result
-/*	from inet_proto_init() from within library routines.
-/*	inet_proto_info() also conveniently initializes the data
-/*	to built-in defaults.
+/*    Unfortunately, some compilers won't link initialized data
+/*    without a function call into the same source module, so
+/*    we invoke inet_proto_info() in order to access the result
+/*    from inet_proto_init() from within library routines.
+/*    inet_proto_info() also conveniently initializes the data
+/*    to built-in defaults.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP context
-/*	Typically, a configuration parameter name.
+/*    Typically, a configuration parameter name.
 /* .IP protocols
-/*	Null-terminated string with protocol names separated by
-/*	whitespace and/or commas:
+/*    Null-terminated string with protocol names separated by
+/*    whitespace and/or commas:
 /* .RS
 /* .IP INET_PROTO_NAME_ALL
-/*	Enable all available IP protocols.
+/*    Enable all available IP protocols.
 /* .IP INET_PROTO_NAME_IPV4
-/*	Enable IP version 4 support.
+/*    Enable IP version 4 support.
 /* .IP INET_PROTO_NAME_IPV6
-/*	Enable IP version 6 support.
+/*    Enable IP version 6 support.
 /* .RS
 /* .PP
-/*	Results:
+/*    Results:
 /* .IP ai_family
-/*	Only one of PF_UNSPEC, PF_INET, or PF_INET6. This can be
-/*	used as input for the getaddrinfo() and getnameinfo()
-/*	routines.
+/*    Only one of PF_UNSPEC, PF_INET, or PF_INET6. This can be
+/*    used as input for the getaddrinfo() and getnameinfo()
+/*    routines.
 /* .IP ai_family_list
-/*	One or more of PF_INET or PF_INET6. This can be used as
-/*	input for the inet_addr_local() routine.
+/*    One or more of PF_INET or PF_INET6. This can be used as
+/*    input for the inet_addr_local() routine.
 /* .IP dns_atype_list
-/*	One or more of T_AAAA or T_A. This can be used as input for
-/*	the dns_lookup_v() and dns_lookup_l() routines.
+/*    One or more of T_AAAA or T_A. This can be used as input for
+/*    the dns_lookup_v() and dns_lookup_l() routines.
 /* .IP sa_family_list
-/*	One or more of AF_INET6 or AF_INET. This can be used as an
-/*	output filter for the results from the getaddrinfo() and
-/*	getnameinfo() routines.
+/*    One or more of AF_INET6 or AF_INET. This can be used as an
+/*    output filter for the results from the getaddrinfo() and
+/*    getnameinfo() routines.
 /* SEE ALSO
-/*	msg(3) diagnostics interface
+/*    msg(3) diagnostics interface
 /* DIAGNOSTICS
-/*	This module will warn and turn off support for any protocol
-/*	that is requested but unavailable.
+/*    This module will warn and turn off support for any protocol
+/*    that is requested but unavailable.
 /*
-/*	Fatal errors: memory allocation problem.
+/*    Fatal errors: memory allocation problem.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -118,8 +118,8 @@ INET_PROTO_INFO *inet_proto_table = 0;
  /*
   * Infrastructure: lookup table with the protocol names that we support.
   */
-#define INET_PROTO_MASK_IPV4	(1<<0)
-#define INET_PROTO_MASK_IPV6	(1<<1)
+#define INET_PROTO_MASK_IPV4    (1<<0)
+#define INET_PROTO_MASK_IPV6    (1<<1)
 
 static const NAME_MASK proto_table[] = {
 #ifdef HAS_IPV6
@@ -143,10 +143,10 @@ static unsigned char *make_uchar_vector(int len,...)
 
     va_start(ap, len);
     if (len <= 0)
-	msg_panic("%s: bad vector length: %d", myname, len);
+    msg_panic("%s: bad vector length: %d", myname, len);
     vp = (unsigned char *) mymalloc(sizeof(*vp) * len);
     for (count = 0; count < len; count++)
-	vp[count] = va_arg(ap, unsigned);
+    vp[count] = va_arg(ap, unsigned);
     va_end(ap);
     return (vp);
 }
@@ -162,10 +162,10 @@ static unsigned *make_unsigned_vector(int len,...)
 
     va_start(ap, len);
     if (len <= 0)
-	msg_panic("%s: bad vector length: %d", myname, len);
+    msg_panic("%s: bad vector length: %d", myname, len);
     vp = (unsigned *) mymalloc(sizeof(*vp) * len);
     for (count = 0; count < len; count++)
-	vp[count] = va_arg(ap, unsigned);
+    vp[count] = va_arg(ap, unsigned);
     va_end(ap);
     return (vp);
 }
@@ -197,25 +197,25 @@ const INET_PROTO_INFO *inet_proto_init(const char *context, const char *protocol
     inet_proto_mask = name_mask(context, proto_table, protocols);
 #ifdef HAS_IPV6
     if (inet_proto_mask & INET_PROTO_MASK_IPV6) {
-	if ((sock = socket(PF_INET6, SOCK_STREAM, 0)) >= 0) {
-	    close(sock);
-	} else if (errno == EAFNOSUPPORT || errno == EPROTONOSUPPORT) {
-	    msg_warn("%s: disabling IPv6 name/address support: %m", context);
-	    inet_proto_mask &= ~INET_PROTO_MASK_IPV6;
-	} else {
-	    msg_fatal("socket: %m");
-	}
+    if ((sock = socket(PF_INET6, SOCK_STREAM, 0)) >= 0) {
+        close(sock);
+    } else if (errno == EAFNOSUPPORT || errno == EPROTONOSUPPORT) {
+        msg_warn("%s: disabling IPv6 name/address support: %m", context);
+        inet_proto_mask &= ~INET_PROTO_MASK_IPV6;
+    } else {
+        msg_fatal("socket: %m");
+    }
     }
 #endif
     if (inet_proto_mask & INET_PROTO_MASK_IPV4) {
-	if ((sock = socket(PF_INET, SOCK_STREAM, 0)) >= 0) {
-	    close(sock);
-	} else if (errno == EAFNOSUPPORT || errno == EPROTONOSUPPORT) {
-	    msg_warn("%s: disabling IPv4 name/address support: %m", context);
-	    inet_proto_mask &= ~INET_PROTO_MASK_IPV4;
-	} else {
-	    msg_fatal("socket: %m");
-	}
+    if ((sock = socket(PF_INET, SOCK_STREAM, 0)) >= 0) {
+        close(sock);
+    } else if (errno == EAFNOSUPPORT || errno == EPROTONOSUPPORT) {
+        msg_warn("%s: disabling IPv4 name/address support: %m", context);
+        inet_proto_mask &= ~INET_PROTO_MASK_IPV4;
+    } else {
+        msg_fatal("socket: %m");
+    }
     }
 
     /*
@@ -229,39 +229,39 @@ const INET_PROTO_INFO *inet_proto_init(const char *context, const char *protocol
     switch (inet_proto_mask) {
 #ifdef HAS_IPV6
     case INET_PROTO_MASK_IPV6:
-	pf = (INET_PROTO_INFO *) mymalloc(sizeof(*pf));
-	pf->ai_family = PF_INET6;
-	pf->ai_family_list = make_unsigned_vector(2, PF_INET6, 0);
-	pf->dns_atype_list = make_unsigned_vector(2, T_AAAA, 0);
-	pf->sa_family_list = make_uchar_vector(2, AF_INET6, 0);
-	break;
+    pf = (INET_PROTO_INFO *) mymalloc(sizeof(*pf));
+    pf->ai_family = PF_INET6;
+    pf->ai_family_list = make_unsigned_vector(2, PF_INET6, 0);
+    pf->dns_atype_list = make_unsigned_vector(2, T_AAAA, 0);
+    pf->sa_family_list = make_uchar_vector(2, AF_INET6, 0);
+    break;
     case (INET_PROTO_MASK_IPV6 | INET_PROTO_MASK_IPV4):
-	pf = (INET_PROTO_INFO *) mymalloc(sizeof(*pf));
-	pf->ai_family = PF_UNSPEC;
-	pf->ai_family_list = make_unsigned_vector(3, PF_INET, PF_INET6, 0);
-	pf->dns_atype_list = make_unsigned_vector(3, T_A, T_AAAA, 0);
-	pf->sa_family_list = make_uchar_vector(3, AF_INET, AF_INET6, 0);
-	break;
+    pf = (INET_PROTO_INFO *) mymalloc(sizeof(*pf));
+    pf->ai_family = PF_UNSPEC;
+    pf->ai_family_list = make_unsigned_vector(3, PF_INET, PF_INET6, 0);
+    pf->dns_atype_list = make_unsigned_vector(3, T_A, T_AAAA, 0);
+    pf->sa_family_list = make_uchar_vector(3, AF_INET, AF_INET6, 0);
+    break;
 #endif
     case INET_PROTO_MASK_IPV4:
-	pf = (INET_PROTO_INFO *) mymalloc(sizeof(*pf));
-	pf->ai_family = PF_INET;
-	pf->ai_family_list = make_unsigned_vector(2, PF_INET, 0);
-	pf->dns_atype_list = make_unsigned_vector(2, T_A, 0);
-	pf->sa_family_list = make_uchar_vector(2, AF_INET, 0);
-	break;
+    pf = (INET_PROTO_INFO *) mymalloc(sizeof(*pf));
+    pf->ai_family = PF_INET;
+    pf->ai_family_list = make_unsigned_vector(2, PF_INET, 0);
+    pf->dns_atype_list = make_unsigned_vector(2, T_A, 0);
+    pf->sa_family_list = make_uchar_vector(2, AF_INET, 0);
+    break;
     case 0:
-	pf = (INET_PROTO_INFO *) mymalloc(sizeof(*pf));
-	pf->ai_family = PF_UNSPEC;
-	pf->ai_family_list = make_unsigned_vector(1, 0);
-	pf->dns_atype_list = make_unsigned_vector(1, 0);
-	pf->sa_family_list = make_uchar_vector(1, 0);
-	break;
+    pf = (INET_PROTO_INFO *) mymalloc(sizeof(*pf));
+    pf->ai_family = PF_UNSPEC;
+    pf->ai_family_list = make_unsigned_vector(1, 0);
+    pf->dns_atype_list = make_unsigned_vector(1, 0);
+    pf->sa_family_list = make_uchar_vector(1, 0);
+    break;
     default:
-	msg_panic("%s: bad inet_proto_mask 0x%x", myname, inet_proto_mask);
+    msg_panic("%s: bad inet_proto_mask 0x%x", myname, inet_proto_mask);
     }
     if (inet_proto_table)
-	inet_proto_free(inet_proto_table);
+    inet_proto_free(inet_proto_table);
     return (inet_proto_table = pf);
 }
 
@@ -277,9 +277,9 @@ static char *print_unsigned_vector(VSTRING *buf, unsigned *vector)
 
     VSTRING_RESET(buf);
     for (p = vector; *p; p++) {
-	vstring_sprintf_append(buf, "%u", *p);
-	if (p[1])
-	    VSTRING_ADDCH(buf, ' ');
+    vstring_sprintf_append(buf, "%u", *p);
+    if (p[1])
+        VSTRING_ADDCH(buf, ' ');
     }
     VSTRING_TERMINATE(buf);
     return (vstring_str(buf));
@@ -291,9 +291,9 @@ static char *print_uchar_vector(VSTRING *buf, unsigned char *vector)
 
     VSTRING_RESET(buf);
     for (p = vector; *p; p++) {
-	vstring_sprintf_append(buf, "%u", *p);
-	if (p[1])
-	    VSTRING_ADDCH(buf, ' ');
+    vstring_sprintf_append(buf, "%u", *p);
+    if (p[1])
+        VSTRING_ADDCH(buf, ' ');
     }
     VSTRING_TERMINATE(buf);
     return (vstring_str(buf));
@@ -306,20 +306,20 @@ int     main(int argc, char **argv)
     VSTRING *buf;
 
     if (argc < 2)
-	msg_fatal("usage: %s protocol(s)...", myname);
+    msg_fatal("usage: %s protocol(s)...", myname);
 
     buf = vstring_alloc(10);
     while (*++argv) {
-	msg_info("=== %s ===", *argv);
-	inet_proto_init(myname, *argv);
-	pf = inet_proto_table;
-	msg_info("ai_family = %u", pf->ai_family);
-	msg_info("ai_family_list = %s",
-		 print_unsigned_vector(buf, pf->ai_family_list));
-	msg_info("dns_atype_list = %s",
-		 print_unsigned_vector(buf, pf->dns_atype_list));
-	msg_info("sa_family_list = %s",
-		 print_uchar_vector(buf, pf->sa_family_list));
+    msg_info("=== %s ===", *argv);
+    inet_proto_init(myname, *argv);
+    pf = inet_proto_table;
+    msg_info("ai_family = %u", pf->ai_family);
+    msg_info("ai_family_list = %s",
+         print_unsigned_vector(buf, pf->ai_family_list));
+    msg_info("dns_atype_list = %s",
+         print_unsigned_vector(buf, pf->dns_atype_list));
+    msg_info("sa_family_list = %s",
+         print_uchar_vector(buf, pf->sa_family_list));
     }
     vstring_free(buf);
     return (0);

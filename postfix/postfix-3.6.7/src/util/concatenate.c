@@ -1,33 +1,33 @@
 /*++
 /* NAME
-/*	concatenate 3
+/*    concatenate 3
 /* SUMMARY
-/*	concatenate strings
+/*    concatenate strings
 /* SYNOPSIS
-/*	#include <stringops.h>
+/*    #include <stringops.h>
 /*
-/*	char	*concatenate(str, ...)
-/*	const char *str;
+/*    char    *concatenate(str, ...)
+/*    const char *str;
 /* DESCRIPTION
-/*	The \fBconcatenate\fR routine concatenates a null-terminated
-/*	list of pointers to null-terminated character strings.
-/*	The result is dynamically allocated and should be passed to myfree()
-/*	when no longer needed.
+/*    The \fBconcatenate\fR routine concatenates a null-terminated
+/*    list of pointers to null-terminated character strings.
+/*    The result is dynamically allocated and should be passed to myfree()
+/*    when no longer needed.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
 
 #include <sys_defs.h>
-#include <stdlib.h>			/* 44BSD stdarg.h uses abort() */
+#include <stdlib.h>            /* 44BSD stdarg.h uses abort() */
 #include <stdarg.h>
 #include <string.h>
 
@@ -58,7 +58,7 @@ char   *concatenate(const char *arg0,...)
      */
     len = strlen(arg0);
     while ((arg = va_arg(ap, char *)) != 0)
-	len += strlen(arg);
+    len += strlen(arg);
     va_end(ap);
 
     /*
@@ -67,7 +67,7 @@ char   *concatenate(const char *arg0,...)
     result = mymalloc(len + 1);
     strcpy(result, arg0);
     while ((arg = va_arg(ap2, char *)) != 0)
-	strcat(result, arg);
+    strcat(result, arg);
     va_end(ap2);
     return (result);
 }

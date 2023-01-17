@@ -1,74 +1,74 @@
 /*++
 /* NAME
-/*	dict_alloc 3
+/*    dict_alloc 3
 /* SUMMARY
-/*	dictionary memory manager
+/*    dictionary memory manager
 /* SYNOPSIS
-/*	#include <dict.h>
+/*    #include <dict.h>
 /*
-/*	DICT	*dict_alloc(dict_type, dict_name, size)
-/*	const char *dict_type;
-/*	const char *dict_name;
-/*	ssize_t	size;
+/*    DICT    *dict_alloc(dict_type, dict_name, size)
+/*    const char *dict_type;
+/*    const char *dict_name;
+/*    ssize_t    size;
 /*
-/*	void	dict_free(dict)
-/*	DICT	*ptr;
+/*    void    dict_free(dict)
+/*    DICT    *ptr;
 /*
-/*	void	dict_jmp_alloc(dict)
-/*	DICT	*ptr;
+/*    void    dict_jmp_alloc(dict)
+/*    DICT    *ptr;
 /* DESCRIPTION
-/*	dict_alloc() allocates memory for a dictionary structure of
-/*	\fIsize\fR bytes, initializes all generic dictionary
-/*	properties to default settings,
-/*	and installs default methods that do not support any operation.
-/*	The caller is supposed to override the default methods with
-/*	ones that it supports.
-/*	The purpose of the default methods is to trap an attempt to
-/*	invoke an unsupported method.
+/*    dict_alloc() allocates memory for a dictionary structure of
+/*    \fIsize\fR bytes, initializes all generic dictionary
+/*    properties to default settings,
+/*    and installs default methods that do not support any operation.
+/*    The caller is supposed to override the default methods with
+/*    ones that it supports.
+/*    The purpose of the default methods is to trap an attempt to
+/*    invoke an unsupported method.
 /*
-/*	One exception is the default lock function.  When the
-/*	dictionary provides a file handle for locking, the default
-/*	lock function returns the result from myflock with the
-/*	locking method specified in the lock_type member, otherwise
-/*	it returns 0. Presently, the lock function is used only to
-/*	implement the DICT_FLAG_OPEN_LOCK feature (lock the database
-/*	exclusively after it is opened) for databases that are not
-/*	multi-writer safe.
+/*    One exception is the default lock function.  When the
+/*    dictionary provides a file handle for locking, the default
+/*    lock function returns the result from myflock with the
+/*    locking method specified in the lock_type member, otherwise
+/*    it returns 0. Presently, the lock function is used only to
+/*    implement the DICT_FLAG_OPEN_LOCK feature (lock the database
+/*    exclusively after it is opened) for databases that are not
+/*    multi-writer safe.
 /*
-/*	dict_free() releases memory and cleans up after dict_alloc().
-/*	It is up to the caller to dispose of any memory that was allocated
-/*	by the caller.
+/*    dict_free() releases memory and cleans up after dict_alloc().
+/*    It is up to the caller to dispose of any memory that was allocated
+/*    by the caller.
 /*
-/*	dict_jmp_alloc() implements preliminary support for exception
-/*	handling. This will eventually be built into dict_alloc().
+/*    dict_jmp_alloc() implements preliminary support for exception
+/*    handling. This will eventually be built into dict_alloc().
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP dict_type
-/*	The official name for this type of dictionary, as used by
-/*	dict_open(3) etc. This is stored under the \fBtype\fR
-/*	member.
+/*    The official name for this type of dictionary, as used by
+/*    dict_open(3) etc. This is stored under the \fBtype\fR
+/*    member.
 /* .IP dict_name
-/*	Dictionary name. This is stored as the \fBname\fR member.
+/*    Dictionary name. This is stored as the \fBname\fR member.
 /* .IP size
-/*	The size in bytes of the dictionary subclass structure instance.
+/*    The size in bytes of the dictionary subclass structure instance.
 /* SEE ALSO
-/*	dict(3)
+/*    dict(3)
 /* DIAGNOSTICS
-/*	Fatal errors: the process invokes a default method.
+/*    Fatal errors: the process invokes a default method.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System libraries. */
@@ -87,16 +87,16 @@
 static const char *dict_default_lookup(DICT *dict, const char *unused_key)
 {
     msg_fatal("table %s:%s: lookup operation is not supported",
-	      dict->type, dict->name);
+          dict->type, dict->name);
 }
 
 /* dict_default_update - trap unimplemented operation */
 
 static int dict_default_update(DICT *dict, const char *unused_key,
-			               const char *unused_value)
+                           const char *unused_value)
 {
     msg_fatal("table %s:%s: update operation is not supported",
-	      dict->type, dict->name);
+          dict->type, dict->name);
 }
 
 /* dict_default_delete - trap unimplemented operation */
@@ -104,16 +104,16 @@ static int dict_default_update(DICT *dict, const char *unused_key,
 static int dict_default_delete(DICT *dict, const char *unused_key)
 {
     msg_fatal("table %s:%s: delete operation is not supported",
-	      dict->type, dict->name);
+          dict->type, dict->name);
 }
 
 /* dict_default_sequence - trap unimplemented operation */
 
 static int dict_default_sequence(DICT *dict, int unused_function,
-		         const char **unused_key, const char **unused_value)
+                 const char **unused_key, const char **unused_value)
 {
     msg_fatal("table %s:%s: sequence operation is not supported",
-	      dict->type, dict->name);
+          dict->type, dict->name);
 }
 
 /* dict_default_lock - default lock handler */
@@ -121,9 +121,9 @@ static int dict_default_sequence(DICT *dict, int unused_function,
 static int dict_default_lock(DICT *dict, int operation)
 {
     if (dict->lock_fd >= 0) {
-	return (myflock(dict->lock_fd, dict->lock_type, operation));
+    return (myflock(dict->lock_fd, dict->lock_type, operation));
     } else {
-	return (0);
+    return (0);
     }
 }
 
@@ -132,7 +132,7 @@ static int dict_default_lock(DICT *dict, int operation)
 static void dict_default_close(DICT *dict)
 {
     msg_fatal("table %s:%s: close operation is not supported",
-	      dict->type, dict->name);
+          dict->type, dict->name);
 }
 
 /* dict_alloc - allocate dictionary object, initialize super-class */
@@ -172,13 +172,13 @@ void    dict_free(DICT *dict)
     myfree(dict->type);
     myfree(dict->name);
     if (dict->jbuf)
-	myfree((void *) dict->jbuf);
+    myfree((void *) dict->jbuf);
     if (dict->utf8_backup)
-	myfree((void *) dict->utf8_backup);
+    myfree((void *) dict->utf8_backup);
     if (dict->file_buf)
-	vstring_free(dict->file_buf);
+    vstring_free(dict->file_buf);
     if (dict->file_b64)
-	vstring_free(dict->file_b64);
+    vstring_free(dict->file_b64);
     myfree((void *) dict);
 }
 
@@ -192,5 +192,5 @@ void    dict_free(DICT *dict)
 void    dict_jmp_alloc(DICT *dict)
 {
     if (dict->jbuf == 0)
-	dict->jbuf = (DICT_JMP_BUF *) mymalloc(sizeof(DICT_JMP_BUF));
+    dict->jbuf = (DICT_JMP_BUF *) mymalloc(sizeof(DICT_JMP_BUF));
 }

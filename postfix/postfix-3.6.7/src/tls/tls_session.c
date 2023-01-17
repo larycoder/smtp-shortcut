@@ -1,62 +1,62 @@
 /*++
 /* NAME
-/*	tls_session
+/*    tls_session
 /* SUMMARY
-/*	TLS client and server session routines
+/*    TLS client and server session routines
 /* SYNOPSIS
-/*	#include <tls.h>
+/*    #include <tls.h>
 /*
-/*	void	tls_session_stop(ctx, stream, timeout, failure, TLScontext)
-/*	TLS_APPL_STATE *ctx;
-/*	VSTREAM	*stream;
-/*	int	timeout;
-/*	int	failure;
-/*	TLS_SESS_STATE *TLScontext;
+/*    void    tls_session_stop(ctx, stream, timeout, failure, TLScontext)
+/*    TLS_APPL_STATE *ctx;
+/*    VSTREAM    *stream;
+/*    int    timeout;
+/*    int    failure;
+/*    TLS_SESS_STATE *TLScontext;
 /*
-/*	VSTRING	*tls_session_passivate(session)
-/*	SSL_SESSION *session;
+/*    VSTRING    *tls_session_passivate(session)
+/*    SSL_SESSION *session;
 /*
-/*	SSL_SESSION *tls_session_activate(session_data, session_data_len)
-/*	char	*session_data;
-/*	int	session_data_len;
+/*    SSL_SESSION *tls_session_activate(session_data, session_data_len)
+/*    char    *session_data;
+/*    int    session_data_len;
 /* DESCRIPTION
-/*	tls_session_stop() implements the tls_server_shutdown()
-/*	and the tls_client_shutdown() routines.
+/*    tls_session_stop() implements the tls_server_shutdown()
+/*    and the tls_client_shutdown() routines.
 /*
-/*	tls_session_passivate() converts an SSL_SESSION object to
-/*	VSTRING. The result is a null pointer in case of problems,
-/*	otherwise it should be disposed of with vstring_free().
+/*    tls_session_passivate() converts an SSL_SESSION object to
+/*    VSTRING. The result is a null pointer in case of problems,
+/*    otherwise it should be disposed of with vstring_free().
 /*
-/*	tls_session_activate() reanimates a passivated SSL_SESSION object.
-/*	The result is a null pointer in case of problems,
-/*	otherwise it should be disposed of with SSL_SESSION_free().
+/*    tls_session_activate() reanimates a passivated SSL_SESSION object.
+/*    The result is a null pointer in case of problems,
+/*    otherwise it should be disposed of with SSL_SESSION_free().
 /* LICENSE
 /* .ad
 /* .fi
-/*	This software is free. You can do with it whatever you want.
-/*	The original author kindly requests that you acknowledge
-/*	the use of his software.
+/*    This software is free. You can do with it whatever you want.
+/*    The original author kindly requests that you acknowledge
+/*    the use of his software.
 /* AUTHOR(S)
-/*	Originally written by:
-/*	Lutz Jaenicke
-/*	BTU Cottbus
-/*	Allgemeine Elektrotechnik
-/*	Universitaetsplatz 3-4
-/*	D-03044 Cottbus, Germany
+/*    Originally written by:
+/*    Lutz Jaenicke
+/*    BTU Cottbus
+/*    Allgemeine Elektrotechnik
+/*    Universitaetsplatz 3-4
+/*    D-03044 Cottbus, Germany
 /*
-/*	Updated by:
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Updated by:
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*
-/*	Victor Duchovni
-/*	Morgan Stanley
+/*    Victor Duchovni
+/*    Morgan Stanley
 /*--*/
 
 /* System library. */
@@ -82,12 +82,12 @@
 
 /* Application-specific. */
 
-#define STR	vstring_str
+#define STR    vstring_str
 
 /* tls_session_stop - shut down the TLS connection and reset state */
 
 void    tls_session_stop(TLS_APPL_STATE *unused_ctx, VSTREAM *stream, int timeout,
-			         int failure, TLS_SESS_STATE *TLScontext)
+                     int failure, TLS_SESS_STATE *TLScontext)
 {
     const char *myname = "tls_session_stop";
     int     retval;
@@ -96,7 +96,7 @@ void    tls_session_stop(TLS_APPL_STATE *unused_ctx, VSTREAM *stream, int timeou
      * Sanity check.
      */
     if (TLScontext == 0)
-	msg_panic("%s: stream has no active TLS context", myname);
+    msg_panic("%s: stream has no active TLS context", myname);
 
     /*
      * According to RFC 2246 (TLS 1.0), there is no requirement to wait for
@@ -119,9 +119,9 @@ void    tls_session_stop(TLS_APPL_STATE *unused_ctx, VSTREAM *stream, int timeou
      * as being bad.
      */
     if (!failure && !SSL_in_init(TLScontext->con)) {
-	retval = tls_bio_shutdown(vstream_fileno(stream), timeout, TLScontext);
-	if (!var_tls_fast_shutdown && retval == 0)
-	    tls_bio_shutdown(vstream_fileno(stream), timeout, TLScontext);
+    retval = tls_bio_shutdown(vstream_fileno(stream), timeout, TLScontext);
+    if (!var_tls_fast_shutdown && retval == 0)
+        tls_bio_shutdown(vstream_fileno(stream), timeout, TLScontext);
     }
     tls_free_context(TLScontext);
     tls_stream_stop(stream);
@@ -143,8 +143,8 @@ VSTRING *tls_session_passivate(SSL_SESSION *session)
      */
     estimate = i2d_SSL_SESSION(session, (unsigned char **) 0);
     if (estimate <= 0) {
-	msg_warn("%s: i2d_SSL_SESSION failed: unable to cache session", myname);
-	return (0);
+    msg_warn("%s: i2d_SSL_SESSION failed: unable to cache session", myname);
+    return (0);
     }
 
     /*
@@ -155,9 +155,9 @@ VSTRING *tls_session_passivate(SSL_SESSION *session)
     ptr = (unsigned char *) STR(session_data);
     actual_size = i2d_SSL_SESSION(session, &ptr);
     if (actual_size != estimate) {
-	msg_warn("%s: i2d_SSL_SESSION failed: unable to cache session", myname);
-	vstring_free(session_data);
-	return (0);
+    msg_warn("%s: i2d_SSL_SESSION failed: unable to cache session", myname);
+    vstring_free(session_data);
+    return (0);
     }
     vstring_set_payload_size(session_data, actual_size);
 
@@ -177,7 +177,7 @@ SSL_SESSION *tls_session_activate(const char *session_data, int session_data_len
     ptr = (const unsigned char *) session_data;
     session = d2i_SSL_SESSION((SSL_SESSION **) 0, &ptr, session_data_len);
     if (!session)
-	tls_print_errors();
+    tls_print_errors();
 
     return (session);
 }

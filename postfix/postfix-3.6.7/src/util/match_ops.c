@@ -1,68 +1,68 @@
 /*++
 /* NAME
-/*	match_ops 3
+/*    match_ops 3
 /* SUMMARY
-/*	simple string or host pattern matching
+/*    simple string or host pattern matching
 /* SYNOPSIS
-/*	#include <match_list.h>
+/*    #include <match_list.h>
 /*
-/*	int	match_string(list, string, pattern)
-/*	MATCH_LIST *list;
-/*	const char *string;
-/*	const char *pattern;
+/*    int    match_string(list, string, pattern)
+/*    MATCH_LIST *list;
+/*    const char *string;
+/*    const char *pattern;
 /*
-/*	int	match_hostname(list, name, pattern)
-/*	MATCH_LIST *list;
-/*	const char *name;
-/*	const char *pattern;
+/*    int    match_hostname(list, name, pattern)
+/*    MATCH_LIST *list;
+/*    const char *name;
+/*    const char *pattern;
 /*
-/*	int	match_hostaddr(list, addr, pattern)
-/*	MATCH_LIST *list;
-/*	const char *addr;
-/*	const char *pattern;
+/*    int    match_hostaddr(list, addr, pattern)
+/*    MATCH_LIST *list;
+/*    const char *addr;
+/*    const char *pattern;
 /* DESCRIPTION
-/*	This module implements simple string and host name or address
-/*	matching. The matching process is case insensitive. If a pattern
-/*	has the form type:name, table lookup is used instead of string
-/*	or address comparison.
+/*    This module implements simple string and host name or address
+/*    matching. The matching process is case insensitive. If a pattern
+/*    has the form type:name, table lookup is used instead of string
+/*    or address comparison.
 /*
-/*	match_string() matches the string against the pattern, requiring
-/*	an exact (case-insensitive) match. The flags argument is not used.
+/*    match_string() matches the string against the pattern, requiring
+/*    an exact (case-insensitive) match. The flags argument is not used.
 /*
-/*	match_hostname() matches the host name when the hostname matches
-/*	the pattern exactly, or when the pattern matches a parent domain
-/*	of the named host. The flags argument specifies the bit-wise OR
-/*	of zero or more of the following:
+/*    match_hostname() matches the host name when the hostname matches
+/*    the pattern exactly, or when the pattern matches a parent domain
+/*    of the named host. The flags argument specifies the bit-wise OR
+/*    of zero or more of the following:
 /* .IP MATCH_FLAG_PARENT
-/*	The hostname pattern foo.com matches itself and any name below
-/*	the domain foo.com. If this flag is cleared, foo.com matches itself
-/*	only, and .foo.com matches any name below the domain foo.com.
+/*    The hostname pattern foo.com matches itself and any name below
+/*    the domain foo.com. If this flag is cleared, foo.com matches itself
+/*    only, and .foo.com matches any name below the domain foo.com.
 /* .IP MATCH_FLAG_RETURN
-/*	Log a warning, return "not found", and set list->error to
-/*	a non-zero dictionary error code, instead of raising a fatal
-/*	run-time error.
+/*    Log a warning, return "not found", and set list->error to
+/*    a non-zero dictionary error code, instead of raising a fatal
+/*    run-time error.
 /* .RE
-/*	Specify MATCH_FLAG_NONE to request none of the above.
+/*    Specify MATCH_FLAG_NONE to request none of the above.
 /*
-/*	match_hostaddr() matches a host address when the pattern is
-/*	identical to the host address, or when the pattern is a net/mask
-/*	that contains the address. The mask specifies the number of
-/*	bits in the network part of the pattern. The flags argument is
-/*	not used.
+/*    match_hostaddr() matches a host address when the pattern is
+/*    identical to the host address, or when the pattern is a net/mask
+/*    that contains the address. The mask specifies the number of
+/*    bits in the network part of the pattern. The flags argument is
+/*    not used.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -100,9 +100,9 @@ static int match_error(MATCH_LIST *list, const char *fmt,...)
     vstring_vsprintf(buf, fmt, ap);
     va_end(ap);
     if (list->flags & MATCH_FLAG_RETURN) {
-	msg_warn("%s: %s", list->pname, vstring_str(buf));
+    msg_warn("%s: %s", list->pname, vstring_str(buf));
     } else {
-	msg_fatal("%s: %s", list->pname, vstring_str(buf));
+    msg_fatal("%s: %s", list->pname, vstring_str(buf));
     }
     vstring_free(buf);
     return (0);
@@ -116,20 +116,20 @@ int     match_string(MATCH_LIST *list, const char *string, const char *pattern)
     DICT   *dict;
 
     if (msg_verbose)
-	msg_info("%s: %s: %s ~? %s", myname, list->pname, string, pattern);
+    msg_info("%s: %s: %s ~? %s", myname, list->pname, string, pattern);
 
     /*
      * Try dictionary lookup: exact match.
      */
     if (MATCH_DICTIONARY(pattern)) {
-	if ((dict = dict_handle(pattern)) == 0)
-	    msg_panic("%s: unknown dictionary: %s", myname, pattern);
-	if (dict_get(dict, string) != 0)
-	    return (1);
-	if ((list->error = dict->error) != 0)
-	    return (match_error(list, "%s:%s: table lookup problem",
-				dict->type, dict->name));
-	return (0);
+    if ((dict = dict_handle(pattern)) == 0)
+        msg_panic("%s: unknown dictionary: %s", myname, pattern);
+    if (dict_get(dict, string) != 0)
+        return (1);
+    if ((list->error = dict->error) != 0)
+        return (match_error(list, "%s:%s: table lookup problem",
+                dict->type, dict->name));
+    return (0);
     }
 
     /*
@@ -137,7 +137,7 @@ int     match_string(MATCH_LIST *list, const char *string, const char *pattern)
      * already casefolded.
      */
     if (strcmp(string, pattern) == 0) {
-	return (1);
+    return (1);
     }
 
     /*
@@ -158,7 +158,7 @@ int     match_hostname(MATCH_LIST *list, const char *name, const char *pattern)
     DICT   *dict;
 
     if (msg_verbose)
-	msg_info("%s: %s: %s ~? %s", myname, list->pname, name, pattern);
+    msg_info("%s: %s: %s ~? %s", myname, list->pname, name, pattern);
 
     /*
      * Try dictionary lookup: exact match and parent domains.
@@ -166,28 +166,28 @@ int     match_hostname(MATCH_LIST *list, const char *name, const char *pattern)
      * Don't look up parent domain substrings with regexp maps etc.
      */
     if (MATCH_DICTIONARY(pattern)) {
-	if ((dict = dict_handle(pattern)) == 0)
-	    msg_panic("%s: unknown dictionary: %s", myname, pattern);
-	match = 0;
-	for (entry = name; *entry != 0; entry = next) {
-	    if (entry == name || (dict->flags & DICT_FLAG_FIXED)) {
-		match = (dict_get(dict, entry) != 0);
-		if (msg_verbose > 1)
-		    msg_info("%s: %s: lookup %s:%s %s: %s",
-			     myname, list->pname, dict->type, dict->name,
-			     entry, match ? "found" : "notfound");
-		if (match != 0)
-		    break;
-		if ((list->error = dict->error) != 0)
-		    return (match_error(list, "%s:%s: table lookup problem",
-					dict->type, dict->name));
-	    }
-	    if ((next = strchr(entry + 1, '.')) == 0)
-		break;
-	    if (list->flags & MATCH_FLAG_PARENT)
-		next += 1;
-	}
-	return (match);
+    if ((dict = dict_handle(pattern)) == 0)
+        msg_panic("%s: unknown dictionary: %s", myname, pattern);
+    match = 0;
+    for (entry = name; *entry != 0; entry = next) {
+        if (entry == name || (dict->flags & DICT_FLAG_FIXED)) {
+        match = (dict_get(dict, entry) != 0);
+        if (msg_verbose > 1)
+            msg_info("%s: %s: lookup %s:%s %s: %s",
+                 myname, list->pname, dict->type, dict->name,
+                 entry, match ? "found" : "notfound");
+        if (match != 0)
+            break;
+        if ((list->error = dict->error) != 0)
+            return (match_error(list, "%s:%s: table lookup problem",
+                    dict->type, dict->name));
+        }
+        if ((next = strchr(entry + 1, '.')) == 0)
+        break;
+        if (list->flags & MATCH_FLAG_PARENT)
+        next += 1;
+    }
+    return (match);
     }
 
     /*
@@ -195,7 +195,7 @@ int     match_hostname(MATCH_LIST *list, const char *name, const char *pattern)
      * pattern are already casefolded.
      */
     if (strcmp(name, pattern) == 0) {
-	return (1);
+    return (1);
     }
 
     /*
@@ -203,15 +203,15 @@ int     match_hostname(MATCH_LIST *list, const char *name, const char *pattern)
      * name and the pattern are already casefolded.
      */
     else {
-	if (list->flags & MATCH_FLAG_PARENT) {
-	    pd = name + strlen(name) - strlen(pattern);
-	    if (pd > name && pd[-1] == '.' && strcmp(pd, pattern) == 0)
-		return (1);
-	} else if (pattern[0] == '.') {
-	    pd = name + strlen(name) - strlen(pattern);
-	    if (pd > name && strcmp(pd, pattern) == 0)
-		return (1);
-	}
+    if (list->flags & MATCH_FLAG_PARENT) {
+        pd = name + strlen(name) - strlen(pattern);
+        if (pd > name && pd[-1] == '.' && strcmp(pd, pattern) == 0)
+        return (1);
+    } else if (pattern[0] == '.') {
+        pd = name + strlen(name) - strlen(pattern);
+        if (pd > name && strcmp(pd, pattern) == 0)
+        return (1);
+    }
     }
     return (0);
 }
@@ -228,26 +228,26 @@ int     match_hostaddr(MATCH_LIST *list, const char *addr, const char *pattern)
     int     rc;
 
     if (msg_verbose)
-	msg_info("%s: %s: %s ~? %s", myname, list->pname, addr, pattern);
+    msg_info("%s: %s: %s ~? %s", myname, list->pname, addr, pattern);
 
-#define V4_ADDR_STRING_CHARS	"01234567890."
-#define V6_ADDR_STRING_CHARS	V4_ADDR_STRING_CHARS "abcdefABCDEF:"
+#define V4_ADDR_STRING_CHARS    "01234567890."
+#define V6_ADDR_STRING_CHARS    V4_ADDR_STRING_CHARS "abcdefABCDEF:"
 
     if (addr[strspn(addr, V6_ADDR_STRING_CHARS)] != 0)
-	return (0);
+    return (0);
 
     /*
      * Try dictionary lookup. This can be case insensitive.
      */
     if (MATCH_DICTIONARY(pattern)) {
-	if ((dict = dict_handle(pattern)) == 0)
-	    msg_panic("%s: unknown dictionary: %s", myname, pattern);
-	if (dict_get(dict, addr) != 0)
-	    return (1);
-	if ((list->error = dict->error) != 0)
-	    return (match_error(list, "%s:%s: table lookup problem",
-				dict->type, dict->name));
-	return (0);
+    if ((dict = dict_handle(pattern)) == 0)
+        msg_panic("%s: unknown dictionary: %s", myname, pattern);
+    if (dict_get(dict, addr) != 0)
+        return (1);
+    if ((list->error = dict->error) != 0)
+        return (match_error(list, "%s:%s: table lookup problem",
+                dict->type, dict->name));
+    return (0);
     }
 
     /*
@@ -255,14 +255,14 @@ int     match_hostaddr(MATCH_LIST *list, const char *addr, const char *pattern)
      * pattern are already casefolded.
      */
     if (pattern[0] != '[') {
-	if (strcmp(addr, pattern) == 0)
-	    return (1);
+    if (strcmp(addr, pattern) == 0)
+        return (1);
     } else {
-	size_t  addr_len = strlen(addr);
+    size_t  addr_len = strlen(addr);
 
-	if (strncmp(addr, pattern + 1, addr_len) == 0
-	    && strcmp(pattern + 1 + addr_len, "]") == 0)
-	    return (1);
+    if (strncmp(addr, pattern + 1, addr_len) == 0
+        && strcmp(pattern + 1 + addr_len, "]") == 0)
+        return (1);
     }
 
     /*
@@ -286,10 +286,10 @@ int     match_hostaddr(MATCH_LIST *list, const char *addr, const char *pattern)
      * was silently ignored (principle of least astonishment).
      */
     if (!strchr(addr, ':') != !strchr(pattern, ':')
-	|| pattern[strcspn(pattern, ":/")] == 0
-	|| pattern[strspn(pattern, V4_ADDR_STRING_CHARS)] == 0
-	|| pattern[strspn(pattern, V6_ADDR_STRING_CHARS "[]/")] != 0)
-	return (0);
+    || pattern[strcspn(pattern, ":/")] == 0
+    || pattern[strspn(pattern, V4_ADDR_STRING_CHARS)] == 0
+    || pattern[strspn(pattern, V6_ADDR_STRING_CHARS "[]/")] != 0)
+    return (0);
 
     /*
      * No escape from expensive operations: either we have a net/mask
@@ -300,13 +300,13 @@ int     match_hostaddr(MATCH_LIST *list, const char *addr, const char *pattern)
      */
     saved_patt = mystrdup(pattern);
     err = cidr_match_parse(&match_info, saved_patt, CIDR_MATCH_TRUE,
-			   (VSTRING *) 0);
+               (VSTRING *) 0);
     myfree(saved_patt);
     if (err != 0) {
-	list->error = DICT_ERR_RETRY;
-	rc = match_error(list, "%s", vstring_str(err));
-	vstring_free(err);
-	return (rc);
+    list->error = DICT_ERR_RETRY;
+    rc = match_error(list, "%s", vstring_str(err));
+    vstring_free(err);
+    return (rc);
     }
     return (cidr_match_execute(&match_info, addr) != 0);
 }

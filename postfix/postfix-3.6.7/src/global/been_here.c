@@ -1,110 +1,110 @@
 /*++
 /* NAME
-/*	been_here 3
+/*    been_here 3
 /* SUMMARY
-/*	detect repeated occurrence of string
+/*    detect repeated occurrence of string
 /* SYNOPSIS
-/*	#include <been_here.h>
+/*    #include <been_here.h>
 /*
-/*	BH_TABLE *been_here_init(size, flags)
-/*	int	size;
-/*	int	flags;
+/*    BH_TABLE *been_here_init(size, flags)
+/*    int    size;
+/*    int    flags;
 /*
-/*	int	been_here_fixed(dup_filter, string)
-/*	BH_TABLE *dup_filter;
-/*	char	*string;
+/*    int    been_here_fixed(dup_filter, string)
+/*    BH_TABLE *dup_filter;
+/*    char    *string;
 /*
-/*	int	been_here(dup_filter, format, ...)
-/*	BH_TABLE *dup_filter;
-/*	char	*format;
+/*    int    been_here(dup_filter, format, ...)
+/*    BH_TABLE *dup_filter;
+/*    char    *format;
 /*
-/*	int	been_here_check_fixed(dup_filter, string)
-/*	BH_TABLE *dup_filter;
-/*	char	*string;
+/*    int    been_here_check_fixed(dup_filter, string)
+/*    BH_TABLE *dup_filter;
+/*    char    *string;
 /*
-/*	int	been_here_check(dup_filter, format, ...)
-/*	BH_TABLE *dup_filter;
-/*	char	*format;
+/*    int    been_here_check(dup_filter, format, ...)
+/*    BH_TABLE *dup_filter;
+/*    char    *format;
 /*
-/*	int	been_here_drop_fixed(dup_filter, string)
-/*	BH_TABLE *dup_filter;
-/*	char	*string;
+/*    int    been_here_drop_fixed(dup_filter, string)
+/*    BH_TABLE *dup_filter;
+/*    char    *string;
 /*
-/*	int	been_here_drop(dup_filter, format, ...)
-/*	BH_TABLE *dup_filter;
-/*	char	*format;
+/*    int    been_here_drop(dup_filter, format, ...)
+/*    BH_TABLE *dup_filter;
+/*    char    *format;
 /*
-/*	void	been_here_free(dup_filter)
-/*	BH_TABLE *dup_filter;
+/*    void    been_here_free(dup_filter)
+/*    BH_TABLE *dup_filter;
 /* DESCRIPTION
-/*	This module implements a simple filter to detect repeated
-/*	occurrences of character strings.
+/*    This module implements a simple filter to detect repeated
+/*    occurrences of character strings.
 /*
-/*	been_here_init() creates an empty duplicate filter.
+/*    been_here_init() creates an empty duplicate filter.
 /*
-/*	been_here_fixed() looks up a fixed string in the given table, and
-/*	makes an entry in the table if the string was not found. The result
-/*	is non-zero (true) if the string was found, zero (false) otherwise.
+/*    been_here_fixed() looks up a fixed string in the given table, and
+/*    makes an entry in the table if the string was not found. The result
+/*    is non-zero (true) if the string was found, zero (false) otherwise.
 /*
-/*	been_here() formats its arguments, looks up the result in the
-/*	given table, and makes an entry in the table if the string was
-/*	not found. The result is non-zero (true) if the formatted result was
-/*	found, zero (false) otherwise.
+/*    been_here() formats its arguments, looks up the result in the
+/*    given table, and makes an entry in the table if the string was
+/*    not found. The result is non-zero (true) if the formatted result was
+/*    found, zero (false) otherwise.
 /*
-/*	been_here_check_fixed() and been_here_check() are similar
-/*	but do not update the duplicate filter.
+/*    been_here_check_fixed() and been_here_check() are similar
+/*    but do not update the duplicate filter.
 /*
-/*	been_here_drop_fixed() looks up a fixed string in the given
-/*	table, and deletes the entry if the string was found. The
-/*	result is non-zero (true) if the string was found, zero
-/*	(false) otherwise.
+/*    been_here_drop_fixed() looks up a fixed string in the given
+/*    table, and deletes the entry if the string was found. The
+/*    result is non-zero (true) if the string was found, zero
+/*    (false) otherwise.
 /*
-/*	been_here_drop() formats its arguments, looks up the result
-/*	in the given table, and removes the entry if the formatted
-/*	result was found. The result is non-zero (true) if the
-/*	formatted result was found, zero (false) otherwise.
+/*    been_here_drop() formats its arguments, looks up the result
+/*    in the given table, and removes the entry if the formatted
+/*    result was found. The result is non-zero (true) if the
+/*    formatted result was found, zero (false) otherwise.
 /*
-/*	been_here_free() releases storage for a duplicate filter.
+/*    been_here_free() releases storage for a duplicate filter.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP size
-/*	Upper bound on the table size; at most \fIsize\fR strings will
-/*	be remembered.  Specify BH_BOUND_NONE to disable the upper bound.
+/*    Upper bound on the table size; at most \fIsize\fR strings will
+/*    be remembered.  Specify BH_BOUND_NONE to disable the upper bound.
 /* .IP flags
-/*	Requests for special processing. Specify the bitwise OR of zero
-/*	or more flags:
+/*    Requests for special processing. Specify the bitwise OR of zero
+/*    or more flags:
 /* .RS
 /* .IP BH_FLAG_FOLD
-/*	Enable case-insensitive lookup.
+/*    Enable case-insensitive lookup.
 /* .IP BH_FLAG_NONE
-/*	A manifest constant that requests no special processing.
+/*    A manifest constant that requests no special processing.
 /* .RE
 /* .IP dup_filter
-/*	The table with remembered names
+/*    The table with remembered names
 /* .IP string
-/*	Fixed search string.
+/*    Fixed search string.
 /* .IP format
-/*	Format for building the search string.
+/*    Format for building the search string.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
 
 #include "sys_defs.h"
-#include <stdlib.h>			/* 44BSD stdarg.h uses abort() */
+#include <stdlib.h>            /* 44BSD stdarg.h uses abort() */
 #include <stdarg.h>
 
 /* Utility library. */
@@ -119,7 +119,7 @@
 
 #include "been_here.h"
 
-#define STR(x)	vstring_str(x)
+#define STR(x)    vstring_str(x)
 
 /* been_here_init - initialize duplicate filter */
 
@@ -181,32 +181,32 @@ int     been_here_fixed(BH_TABLE *dup_filter, const char *string)
      * Special processing: case insensitive lookup.
      */
     if (dup_filter->flags & BH_FLAG_FOLD) {
-	folded_string = vstring_alloc(100);
-	lookup_key = casefold(folded_string, string);
+    folded_string = vstring_alloc(100);
+    lookup_key = casefold(folded_string, string);
     } else {
-	folded_string = 0;
-	lookup_key = string;
+    folded_string = 0;
+    lookup_key = string;
     }
 
     /*
      * Do the duplicate check.
      */
     if (htable_locate(dup_filter->table, lookup_key) != 0) {
-	status = 1;
+    status = 1;
     } else {
-	if (dup_filter->limit <= 0
-	    || dup_filter->limit > dup_filter->table->used)
-	    htable_enter(dup_filter->table, lookup_key, (void *) 0);
-	status = 0;
+    if (dup_filter->limit <= 0
+        || dup_filter->limit > dup_filter->table->used)
+        htable_enter(dup_filter->table, lookup_key, (void *) 0);
+    status = 0;
     }
     if (msg_verbose)
-	msg_info("been_here: %s: %d", string, status);
+    msg_info("been_here: %s: %d", string, status);
 
     /*
      * Cleanup.
      */
     if (folded_string)
-	vstring_free(folded_string);
+    vstring_free(folded_string);
 
     return (status);
 }
@@ -250,11 +250,11 @@ int     been_here_check_fixed(BH_TABLE *dup_filter, const char *string)
      * Special processing: case insensitive lookup.
      */
     if (dup_filter->flags & BH_FLAG_FOLD) {
-	folded_string = vstring_alloc(100);
-	lookup_key = casefold(folded_string, string);
+    folded_string = vstring_alloc(100);
+    lookup_key = casefold(folded_string, string);
     } else {
-	folded_string = 0;
-	lookup_key = string;
+    folded_string = 0;
+    lookup_key = string;
     }
 
     /*
@@ -262,13 +262,13 @@ int     been_here_check_fixed(BH_TABLE *dup_filter, const char *string)
      */
     status = (htable_locate(dup_filter->table, lookup_key) != 0);
     if (msg_verbose)
-	msg_info("been_here_check: %s: %d", string, status);
+    msg_info("been_here_check: %s: %d", string, status);
 
     /*
      * Cleanup.
      */
     if (folded_string)
-	vstring_free(folded_string);
+    vstring_free(folded_string);
 
     return (status);
 }
@@ -312,24 +312,24 @@ int     been_here_drop_fixed(BH_TABLE *dup_filter, const char *string)
      * Special processing: case insensitive lookup.
      */
     if (dup_filter->flags & BH_FLAG_FOLD) {
-	folded_string = vstring_alloc(100);
-	lookup_key = casefold(folded_string, string);
+    folded_string = vstring_alloc(100);
+    lookup_key = casefold(folded_string, string);
     } else {
-	folded_string = 0;
-	lookup_key = string;
+    folded_string = 0;
+    lookup_key = string;
     }
 
     /*
      * Drop the filter entry.
      */
     if ((status = been_here_check_fixed(dup_filter, lookup_key)) != 0)
-	htable_delete(dup_filter->table, lookup_key, (void (*) (void *)) 0);
+    htable_delete(dup_filter->table, lookup_key, (void (*) (void *)) 0);
 
     /*
      * Cleanup.
      */
     if (folded_string)
-	vstring_free(folded_string);
+    vstring_free(folded_string);
 
     return (status);
 }

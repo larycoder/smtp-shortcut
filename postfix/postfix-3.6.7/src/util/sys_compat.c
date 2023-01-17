@@ -1,71 +1,71 @@
 /*++
 /* NAME
-/*	sys_compat 3
+/*    sys_compat 3
 /* SUMMARY
-/*	compatibility routines
+/*    compatibility routines
 /* SYNOPSIS
-/*	#include <sys_defs.h>
+/*    #include <sys_defs.h>
 /*
-/*	void	closefrom(int lowfd)
-/*	int	lowfd;
+/*    void    closefrom(int lowfd)
+/*    int    lowfd;
 /*
-/*	const char *strerror(err)
-/*	int	err;
+/*    const char *strerror(err)
+/*    int    err;
 /*
-/*	int	setenv(name, value, clobber)
-/*	const char *name;
-/*	const char *value;
-/*	int	clobber;
+/*    int    setenv(name, value, clobber)
+/*    const char *name;
+/*    const char *value;
+/*    int    clobber;
 /*
-/*	int	unsetenv(name)
-/*	const char *name;
+/*    int    unsetenv(name)
+/*    const char *name;
 /*
-/*	int	seteuid(euid)
-/*	uid_t	euid;
+/*    int    seteuid(euid)
+/*    uid_t    euid;
 /*
-/*	int	setegid(egid)
-/*	gid_t	euid;
+/*    int    setegid(egid)
+/*    gid_t    euid;
 /*
-/*	int	mkfifo(path, mode)
-/*	char	*path;
-/*	int	mode;
+/*    int    mkfifo(path, mode)
+/*    char    *path;
+/*    int    mode;
 /*
-/*	int	waitpid(pid, statusp, options)
-/*	int	pid;
-/*	WAIT_STATUS_T *statusp;
-/*	int	options;
+/*    int    waitpid(pid, statusp, options)
+/*    int    pid;
+/*    WAIT_STATUS_T *statusp;
+/*    int    options;
 /*
-/*	int	setsid()
+/*    int    setsid()
 /*
-/*	void	dup2_pass_on_exec(int oldd, int newd)
+/*    void    dup2_pass_on_exec(int oldd, int newd)
 /*
-/*	char	*inet_ntop(af, src, dst, size)
-/*	int	af;
-/*	const void *src;
-/*	char	*dst;
-/*	SOCKADDR_SIZE size;
+/*    char    *inet_ntop(af, src, dst, size)
+/*    int    af;
+/*    const void *src;
+/*    char    *dst;
+/*    SOCKADDR_SIZE size;
 /*
-/*	int	inet_pton(af, src, dst)
-/*	int	af;
-/*	const char *src;
-/*	void	*dst;
+/*    int    inet_pton(af, src, dst)
+/*    int    af;
+/*    const char *src;
+/*    void    *dst;
 /* DESCRIPTION
-/*	These routines are compiled for platforms that lack the functionality
-/*	or that have broken versions that we prefer to stay away from.
+/*    These routines are compiled for platforms that lack the functionality
+/*    or that have broken versions that we prefer to stay away from.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -90,12 +90,12 @@ const char *strerror(int err)
     static VSTRING *buf;
 
     if (err < 0 || err >= sys_nerr) {
-	if (buf == 0)
-	    buf = vstring_alloc(10);
-	vstring_sprintf(buf, "Unknown error %d", err);
-	return (vstring_str(buf));
+    if (buf == 0)
+        buf = vstring_alloc(10);
+    vstring_sprintf(buf, "Unknown error %d", err);
+    return (vstring_str(buf));
     } else {
-	return (sys_errlist[errno]);
+    return (sys_errlist[errno]);
     }
 }
 
@@ -117,9 +117,9 @@ int     setenv(const char *name, const char *value, int clobber)
     char   *cp;
 
     if (clobber == 0 && getenv(name) != 0)
-	return (0);
+    return (0);
     if ((cp = malloc(strlen(name) + strlen(value) + 2)) == 0)
-	return (1);
+    return (1);
     sprintf(cp, "%s=%s", name, value);
     return (putenv(cp));
 }
@@ -134,12 +134,12 @@ int     unsetenv(const char *name)
     char  **dst_pp;
 
     for (dst_pp = src_pp = environ; *src_pp; src_pp++, dst_pp++) {
-	if (strncmp(*src_pp, name, name_len) == 0
-	    && *(*src_pp + name_len) == '=') {
-	    dst_pp--;
-	} else if (dst_pp != src_pp) {
-	    *dst_pp = *src_pp;
-	}
+    if (strncmp(*src_pp, name, name_len) == 0
+        && *(*src_pp + name_len) == '=') {
+        dst_pp--;
+    } else if (dst_pp != src_pp) {
+        *dst_pp = *src_pp;
+    }
     }
     *dst_pp = 0;
     return (0);
@@ -206,7 +206,7 @@ int     mkfifo(char *path, int mode)
 int     waitpid(int pid, WAIT_STATUS_T *status, int options)
 {
     if (pid == -1)
-	pid = 0;
+    pid = 0;
     return wait4(pid, status, options, (struct rusage *) 0);
 }
 
@@ -236,19 +236,19 @@ int     setsid(void)
     int     fd;
 
     if (setpgrp(p, p))
-	return -1;
+    return -1;
 
     fd = open("/dev/tty", O_RDONLY, 0);
     if (fd >= 0 || errno != ENXIO) {
-	if (fd < 0) {
-	    msg_warn("open /dev/tty: %m");
-	    return -1;
-	}
-	if (ioctl(fd, TIOCNOTTY, 0)) {
-	    msg_warn("ioctl TIOCNOTTY: %m");
-	    return -1;
-	}
-	close(fd);
+    if (fd < 0) {
+        msg_warn("open /dev/tty: %m");
+        return -1;
+    }
+    if (ioctl(fd, TIOCNOTTY, 0)) {
+        msg_warn("ioctl TIOCNOTTY: %m");
+        return -1;
+    }
+    close(fd);
     }
     return 0;
 }
@@ -271,7 +271,7 @@ int     dup2_pass_on_exec(int oldd, int newd)
     int     res;
 
     if ((res = dup2(oldd, newd)) >= 0)
-	close_on_exec(newd, PASS_ON_EXEC);
+    close_on_exec(newd, PASS_ON_EXEC);
 
     return res;
 }
@@ -297,13 +297,13 @@ int     closefrom(int lowfd)
      * restrictive resource limit.
      */
     if (lowfd < 0) {
-	errno = EBADF;
-	return (-1);
+    errno = EBADF;
+    return (-1);
     }
     if (fd_limit > 500)
-	fd_limit = 500;
+    fd_limit = 500;
     for (fd = lowfd; fd < fd_limit; fd++)
-	(void) close(fd);
+    (void) close(fd);
 
     return (0);
 }
@@ -329,22 +329,22 @@ const char *inet_ntop(int af, const void *src, char *dst, SOCKADDR_SIZE size)
     int     len;
 
     if (af != AF_INET) {
-	errno = EAFNOSUPPORT;
-	return (0);
+    errno = EAFNOSUPPORT;
+    return (0);
     }
     addr = (const unsigned char *) src;
 #if (CHAR_BIT > 8)
     sprintf(buffer, "%d.%d.%d.%d", addr[0] & 0xff,
-	    addr[1] & 0xff, addr[2] & 0xff, addr[3] & 0xff);
+        addr[1] & 0xff, addr[2] & 0xff, addr[3] & 0xff);
 #else
     sprintf(buffer, "%d.%d.%d.%d", addr[0], addr[1], addr[2], addr[3]);
 #endif
     if ((len = strlen(buffer)) >= size) {
-	errno = ENOSPC;
-	return (0);
+    errno = ENOSPC;
+    return (0);
     } else {
-	memcpy(dst, buffer, len + 1);
-	return (dst);
+    memcpy(dst, buffer, len + 1);
+    return (dst);
     }
 }
 
@@ -375,14 +375,14 @@ int     inet_pton(int af, const char *src, void *dst)
      * latter requires dotted quad form.
      */
     if (af != AF_INET) {
-	errno = EAFNOSUPPORT;
-	return (-1);
+    errno = EAFNOSUPPORT;
+    return (-1);
     } else if ((addr.s_addr = inet_addr(src)) == INADDR_NONE
-	       && strcmp(src, "255.255.255.255") != 0) {
-	return (0);
+           && strcmp(src, "255.255.255.255") != 0) {
+    return (0);
     } else {
-	memcpy(dst, (void *) &addr, sizeof(addr));
-	return (1);
+    memcpy(dst, (void *) &addr, sizeof(addr));
+    return (1);
     }
 }
 

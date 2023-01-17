@@ -1,34 +1,34 @@
 /*++
 /* NAME
-/*	sane_accept 3
+/*    sane_accept 3
 /* SUMMARY
-/*	sanitize accept() error returns
+/*    sanitize accept() error returns
 /* SYNOPSIS
-/*	#include <sane_accept.h>
+/*    #include <sane_accept.h>
 /*
-/*	int	sane_accept(sock, buf, len)
-/*	int	sock;
-/*	struct sockaddr	*buf;
-/*	SOCKADDR_SIZE *len;
+/*    int    sane_accept(sock, buf, len)
+/*    int    sock;
+/*    struct sockaddr    *buf;
+/*    SOCKADDR_SIZE *len;
 /* DESCRIPTION
-/*	sane_accept() implements the accept(2) socket call, and maps
-/*	known harmless error results to EAGAIN.
+/*    sane_accept() implements the accept(2) socket call, and maps
+/*    known harmless error results to EAGAIN.
 /*
-/*	If the buf and len arguments are not null, then additional
-/*	workarounds may be enabled that depend on the socket type.
+/*    If the buf and len arguments are not null, then additional
+/*    workarounds may be enabled that depend on the socket type.
 /* BUGS
-/*	Bizarre systems may have other harmless error results. Such
-/*	systems encourage programmers to ignore error results, and
-/*	penalize programmers who code defensively.
+/*    Bizarre systems may have other harmless error results. Such
+/*    systems encourage programmers to ignore error results, and
+/*    penalize programmers who code defensively.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -47,22 +47,22 @@
 int     sane_accept(int sock, struct sockaddr *sa, SOCKADDR_SIZE *len)
 {
     static int accept_ok_errors[] = {
-	EAGAIN,
-	ECONNREFUSED,
-	ECONNRESET,
-	EHOSTDOWN,
-	EHOSTUNREACH,
-	EINTR,
-	ENETDOWN,
-	ENETUNREACH,
-	ENOTCONN,
-	EWOULDBLOCK,
-	ENOBUFS,			/* HPUX11 */
-	ECONNABORTED,
+    EAGAIN,
+    ECONNREFUSED,
+    ECONNRESET,
+    EHOSTDOWN,
+    EHOSTUNREACH,
+    EINTR,
+    ENETDOWN,
+    ENETUNREACH,
+    ENOTCONN,
+    EWOULDBLOCK,
+    ENOBUFS,            /* HPUX11 */
+    ECONNABORTED,
 #ifdef EPROTO
-	EPROTO,				/* SunOS 5.5.1 */
+    EPROTO,                /* SunOS 5.5.1 */
 #endif
-	0,
+    0,
     };
     int     count;
     int     err;
@@ -92,12 +92,12 @@ int     sane_accept(int sock, struct sockaddr *sa, SOCKADDR_SIZE *len)
      * time.
      */
     if ((fd = accept(sock, sa, len)) < 0) {
-	for (count = 0; (err = accept_ok_errors[count]) != 0; count++) {
-	    if (errno == err) {
-		errno = EAGAIN;
-		break;
-	    }
-	}
+    for (count = 0; (err = accept_ok_errors[count]) != 0; count++) {
+        if (errno == err) {
+        errno = EAGAIN;
+        break;
+        }
+    }
     }
 
     /*
@@ -113,13 +113,13 @@ int     sane_accept(int sock, struct sockaddr *sa, SOCKADDR_SIZE *len)
      */
     else if (sa && (sa->sa_family == AF_INET
 #ifdef HAS_IPV6
-		    || sa->sa_family == AF_INET6
+            || sa->sa_family == AF_INET6
 #endif
-		    )) {
-	int     on = 1;
+            )) {
+    int     on = 1;
 
-	(void) setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE,
-			  (void *) &on, sizeof(on));
+    (void) setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE,
+              (void *) &on, sizeof(on));
     }
     return (fd);
 }

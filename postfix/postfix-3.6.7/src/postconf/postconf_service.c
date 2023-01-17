@@ -1,38 +1,38 @@
 /*++
 /* NAME
-/*	postconf_service 3
+/*    postconf_service 3
 /* SUMMARY
-/*	service-defined main.cf parameter name support
+/*    service-defined main.cf parameter name support
 /* SYNOPSIS
-/*	#include <postconf.h>
+/*    #include <postconf.h>
 /*
-/*	void    pcf_register_service_parameters()
+/*    void    pcf_register_service_parameters()
 /* DESCRIPTION
-/*	Service-defined parameter names are created by appending
-/*	postfix-defined suffixes to master.cf service names. All
-/*	service-defined parameters have default values that are
-/*	defined by a built-in parameter.
+/*    Service-defined parameter names are created by appending
+/*    postfix-defined suffixes to master.cf service names. All
+/*    service-defined parameters have default values that are
+/*    defined by a built-in parameter.
 /*
-/*	pcf_register_service_parameters() adds the service-defined
-/*	parameters to the global name space. This function must be
-/*	called after the built-in parameters are added to the global
-/*	name space, and after the master.cf file is read.
+/*    pcf_register_service_parameters() adds the service-defined
+/*    parameters to the global name space. This function must be
+/*    called after the built-in parameters are added to the global
+/*    name space, and after the master.cf file is read.
 /* DIAGNOSTICS
-/*	Problems are reported to the standard error stream.
+/*    Problems are reported to the standard error stream.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -62,13 +62,13 @@
   * file, or they should be made configurable.
   */
 #ifndef MAIL_PROGRAM_LOCAL
-#define MAIL_PROGRAM_LOCAL	"local"
-#define MAIL_PROGRAM_ERROR	"error"
-#define MAIL_PROGRAM_VIRTUAL	"virtual"
-#define MAIL_PROGRAM_SMTP	"smtp"
-#define MAIL_PROGRAM_LMTP	"lmtp"
-#define MAIL_PROGRAM_PIPE	"pipe"
-#define MAIL_PROGRAM_SPAWN	"spawn"
+#define MAIL_PROGRAM_LOCAL    "local"
+#define MAIL_PROGRAM_ERROR    "error"
+#define MAIL_PROGRAM_VIRTUAL    "virtual"
+#define MAIL_PROGRAM_SMTP    "smtp"
+#define MAIL_PROGRAM_LMTP    "lmtp"
+#define MAIL_PROGRAM_PIPE    "pipe"
+#define MAIL_PROGRAM_SPAWN    "spawn"
 #endif
 
  /*
@@ -91,8 +91,8 @@ static const char *pcf_convert_service_parameter(void *ptr)
 /* pcf_register_service_parameter - add service parameter name and default */
 
 static void pcf_register_service_parameter(const char *service,
-					           const char *suffix,
-					           const char *defparam)
+                               const char *suffix,
+                               const char *defparam)
 {
     char   *name = concatenate(service, suffix, (char *) 0);
     PCF_PARAM_NODE *node;
@@ -107,10 +107,10 @@ static void pcf_register_service_parameter(const char *service,
      * default but we correct the parameter class.
      */
     if ((node = PCF_PARAM_TABLE_FIND(pcf_param_table, name)) != 0) {
-	PCF_PARAM_CLASS_OVERRIDE(node, PCF_PARAM_FLAG_SERVICE);
+    PCF_PARAM_CLASS_OVERRIDE(node, PCF_PARAM_FLAG_SERVICE);
     } else {
-	PCF_PARAM_TABLE_ENTER(pcf_param_table, name, PCF_PARAM_FLAG_SERVICE,
-			  (void *) defparam, pcf_convert_service_parameter);
+    PCF_PARAM_TABLE_ENTER(pcf_param_table, name, PCF_PARAM_FLAG_SERVICE,
+              (void *) defparam, pcf_convert_service_parameter);
     }
     myfree(name);
 }
@@ -121,45 +121,45 @@ void    pcf_register_service_parameters(void)
 {
     const char *myname = "pcf_register_service_parameters";
     static const PCF_STRING_NV pipe_params[] = {
-	/* suffix, default parameter name */
-	_MAXTIME, VAR_COMMAND_MAXTIME,
+    /* suffix, default parameter name */
+    _MAXTIME, VAR_COMMAND_MAXTIME,
 #define service_params (pipe_params + 1)
-	_XPORT_RCPT_LIMIT, VAR_XPORT_RCPT_LIMIT,
-	_STACK_RCPT_LIMIT, VAR_STACK_RCPT_LIMIT,
-	_XPORT_REFILL_LIMIT, VAR_XPORT_REFILL_LIMIT,
-	_XPORT_REFILL_DELAY, VAR_XPORT_REFILL_DELAY,
-	_DELIVERY_SLOT_COST, VAR_DELIVERY_SLOT_COST,
-	_DELIVERY_SLOT_LOAN, VAR_DELIVERY_SLOT_LOAN,
-	_DELIVERY_SLOT_DISCOUNT, VAR_DELIVERY_SLOT_DISCOUNT,
-	_MIN_DELIVERY_SLOTS, VAR_MIN_DELIVERY_SLOTS,
-	_INIT_DEST_CON, VAR_INIT_DEST_CON,
-	_DEST_CON_LIMIT, VAR_DEST_CON_LIMIT,
-	_DEST_RCPT_LIMIT, VAR_DEST_RCPT_LIMIT,
-	_CONC_POS_FDBACK, VAR_CONC_POS_FDBACK,
-	_CONC_NEG_FDBACK, VAR_CONC_NEG_FDBACK,
-	_CONC_COHORT_LIM, VAR_CONC_COHORT_LIM,
-	_DEST_RATE_DELAY, VAR_DEST_RATE_DELAY,
-	_XPORT_RATE_DELAY, VAR_XPORT_RATE_DELAY,
-	0,
+    _XPORT_RCPT_LIMIT, VAR_XPORT_RCPT_LIMIT,
+    _STACK_RCPT_LIMIT, VAR_STACK_RCPT_LIMIT,
+    _XPORT_REFILL_LIMIT, VAR_XPORT_REFILL_LIMIT,
+    _XPORT_REFILL_DELAY, VAR_XPORT_REFILL_DELAY,
+    _DELIVERY_SLOT_COST, VAR_DELIVERY_SLOT_COST,
+    _DELIVERY_SLOT_LOAN, VAR_DELIVERY_SLOT_LOAN,
+    _DELIVERY_SLOT_DISCOUNT, VAR_DELIVERY_SLOT_DISCOUNT,
+    _MIN_DELIVERY_SLOTS, VAR_MIN_DELIVERY_SLOTS,
+    _INIT_DEST_CON, VAR_INIT_DEST_CON,
+    _DEST_CON_LIMIT, VAR_DEST_CON_LIMIT,
+    _DEST_RCPT_LIMIT, VAR_DEST_RCPT_LIMIT,
+    _CONC_POS_FDBACK, VAR_CONC_POS_FDBACK,
+    _CONC_NEG_FDBACK, VAR_CONC_NEG_FDBACK,
+    _CONC_COHORT_LIM, VAR_CONC_COHORT_LIM,
+    _DEST_RATE_DELAY, VAR_DEST_RATE_DELAY,
+    _XPORT_RATE_DELAY, VAR_XPORT_RATE_DELAY,
+    0,
     };
     static const PCF_STRING_NV spawn_params[] = {
-	/* suffix, default parameter name */
-	_MAXTIME, VAR_COMMAND_MAXTIME,
-	0,
+    /* suffix, default parameter name */
+    _MAXTIME, VAR_COMMAND_MAXTIME,
+    0,
     };
     typedef struct {
-	const char *progname;
-	const PCF_STRING_NV *params;
+    const char *progname;
+    const PCF_STRING_NV *params;
     } PCF_SERVICE_DEF;
     static const PCF_SERVICE_DEF service_defs[] = {
-	MAIL_PROGRAM_LOCAL, service_params,
-	MAIL_PROGRAM_ERROR, service_params,
-	MAIL_PROGRAM_VIRTUAL, service_params,
-	MAIL_PROGRAM_SMTP, service_params,
-	MAIL_PROGRAM_LMTP, service_params,
-	MAIL_PROGRAM_PIPE, pipe_params,
-	MAIL_PROGRAM_SPAWN, spawn_params,
-	0,
+    MAIL_PROGRAM_LOCAL, service_params,
+    MAIL_PROGRAM_ERROR, service_params,
+    MAIL_PROGRAM_VIRTUAL, service_params,
+    MAIL_PROGRAM_SMTP, service_params,
+    MAIL_PROGRAM_LMTP, service_params,
+    MAIL_PROGRAM_PIPE, pipe_params,
+    MAIL_PROGRAM_SPAWN, spawn_params,
+    0,
     };
     const PCF_STRING_NV *sp;
     const char *progname;
@@ -172,9 +172,9 @@ void    pcf_register_service_parameters(void)
      * Sanity checks.
      */
     if (pcf_param_table == 0)
-	msg_panic("%s: global parameter table is not initialized", myname);
+    msg_panic("%s: global parameter table is not initialized", myname);
     if (pcf_master_table == 0)
-	msg_panic("%s: master table is not initialized", myname);
+    msg_panic("%s: master table is not initialized", myname);
 
     /*
      * Extract service names from master.cf and generate service parameter
@@ -182,18 +182,18 @@ void    pcf_register_service_parameters(void)
      */
     for (masterp = pcf_master_table; (argv = masterp->argv) != 0; masterp++) {
 
-	/*
-	 * Add service parameters for message delivery transports or spawn
-	 * programs.
-	 */
-	progname = argv->argv[7];
-	for (sd = service_defs; sd->progname; sd++) {
-	    if (strcmp(sd->progname, progname) == 0) {
-		service = argv->argv[0];
-		for (sp = sd->params; sp->name; sp++)
-		    pcf_register_service_parameter(service, sp->name, sp->value);
-		break;
-	    }
-	}
+    /*
+     * Add service parameters for message delivery transports or spawn
+     * programs.
+     */
+    progname = argv->argv[7];
+    for (sd = service_defs; sd->progname; sd++) {
+        if (strcmp(sd->progname, progname) == 0) {
+        service = argv->argv[0];
+        for (sp = sd->params; sp->name; sp++)
+            pcf_register_service_parameter(service, sp->name, sp->value);
+        break;
+        }
+    }
     }
 }

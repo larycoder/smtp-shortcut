@@ -1,85 +1,85 @@
 /*++
 /* NAME
-/*	postkick 1
+/*    postkick 1
 /* SUMMARY
-/*	kick a Postfix service
+/*    kick a Postfix service
 /* SYNOPSIS
 /* .fi
-/*	\fBpostkick\fR [\fB-c \fIconfig_dir\fR] [\fB-v\fR]
-/*	\fIclass service request\fR
+/*    \fBpostkick\fR [\fB-c \fIconfig_dir\fR] [\fB-v\fR]
+/*    \fIclass service request\fR
 /* DESCRIPTION
-/*	The \fBpostkick\fR(1) command sends \fIrequest\fR to the
-/*	specified \fIservice\fR over a local transport channel.
-/*	This command makes Postfix private IPC accessible
-/*	for use in, for example, shell scripts.
+/*    The \fBpostkick\fR(1) command sends \fIrequest\fR to the
+/*    specified \fIservice\fR over a local transport channel.
+/*    This command makes Postfix private IPC accessible
+/*    for use in, for example, shell scripts.
 /*
-/*	Options:
+/*    Options:
 /* .IP "\fB-c\fR \fIconfig_dir\fR"
-/*	Read the \fBmain.cf\fR configuration file in the named directory
-/*	instead of the default configuration directory.
+/*    Read the \fBmain.cf\fR configuration file in the named directory
+/*    instead of the default configuration directory.
 /* .IP \fB-v\fR
-/*	Enable verbose logging for debugging purposes. Multiple \fB-v\fR
-/*	options make the software increasingly verbose.
+/*    Enable verbose logging for debugging purposes. Multiple \fB-v\fR
+/*    options make the software increasingly verbose.
 /* .PP
-/*	Arguments:
+/*    Arguments:
 /* .IP \fIclass\fR
-/*	Name of a class of local transport channel endpoints,
-/*	either \fBpublic\fR (accessible by any local user) or
-/*	\fBprivate\fR (administrative access only).
+/*    Name of a class of local transport channel endpoints,
+/*    either \fBpublic\fR (accessible by any local user) or
+/*    \fBprivate\fR (administrative access only).
 /* .IP \fIservice\fR
-/*	The name of a local transport endpoint within the named class.
+/*    The name of a local transport endpoint within the named class.
 /* .IP \fIrequest\fR
-/*	A string. The list of valid requests is service-specific.
+/*    A string. The list of valid requests is service-specific.
 /* DIAGNOSTICS
-/*	Problems and transactions are logged to the standard error
-/*	stream.
+/*    Problems and transactions are logged to the standard error
+/*    stream.
 /* ENVIRONMENT
 /* .ad
 /* .fi
 /* .IP \fBMAIL_CONFIG\fR
-/*	Directory with Postfix configuration files.
+/*    Directory with Postfix configuration files.
 /* .IP \fBMAIL_VERBOSE\fR
-/*	Enable verbose logging for debugging purposes.
+/*    Enable verbose logging for debugging purposes.
 /* CONFIGURATION PARAMETERS
 /* .ad
 /* .fi
-/*	The following \fBmain.cf\fR parameters are especially relevant to
-/*	this program.
-/*	The text below provides only a parameter summary. See
-/*	\fBpostconf\fR(5) for more details including examples.
+/*    The following \fBmain.cf\fR parameters are especially relevant to
+/*    this program.
+/*    The text below provides only a parameter summary. See
+/*    \fBpostconf\fR(5) for more details including examples.
 /* .IP "\fBconfig_directory (see 'postconf -d' output)\fR"
-/*	The default location of the Postfix main.cf and master.cf
-/*	configuration files.
+/*    The default location of the Postfix main.cf and master.cf
+/*    configuration files.
 /* .IP "\fBapplication_event_drain_time (100s)\fR"
-/*	How long the \fBpostkick\fR(1) command waits for a request to enter the
-/*	Postfix daemon process input buffer before giving up.
+/*    How long the \fBpostkick\fR(1) command waits for a request to enter the
+/*    Postfix daemon process input buffer before giving up.
 /* .IP "\fBimport_environment (see 'postconf -d' output)\fR"
-/*	The list of environment parameters that a privileged Postfix
-/*	process will import from a non-Postfix parent process, or name=value
-/*	environment overrides.
+/*    The list of environment parameters that a privileged Postfix
+/*    process will import from a non-Postfix parent process, or name=value
+/*    environment overrides.
 /* .IP "\fBqueue_directory (see 'postconf -d' output)\fR"
-/*	The location of the Postfix top-level queue directory.
+/*    The location of the Postfix top-level queue directory.
 /* FILES
-/*	/var/spool/postfix/private, private class endpoints
-/*	/var/spool/postfix/public, public class endpoints
+/*    /var/spool/postfix/private, private class endpoints
+/*    /var/spool/postfix/public, public class endpoints
 /* SEE ALSO
-/*	qmgr(8), queue manager trigger protocol
-/*	pickup(8), local pickup daemon
-/*	postconf(5), configuration parameters
+/*    qmgr(8), queue manager trigger protocol
+/*    pickup(8), local pickup daemon
+/*    postconf(5), configuration parameters
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -139,22 +139,22 @@ int     main(int argc, char **argv)
      * fstat can return EBADF on an open file descriptor.
      */
     for (fd = 0; fd < 3; fd++)
-	if (fstat(fd, &st) == -1
-	    && (close(fd), open("/dev/null", O_RDWR, 0)) != fd)
-	    msg_fatal("open /dev/null: %m");
+    if (fstat(fd, &st) == -1
+        && (close(fd), open("/dev/null", O_RDWR, 0)) != fd)
+        msg_fatal("open /dev/null: %m");
 
     /*
      * Process environment options as early as we can.
      */
     if (safe_getenv(CONF_ENV_VERB))
-	msg_verbose = 1;
+    msg_verbose = 1;
 
     /*
      * Initialize. Set up logging. Read the global configuration file after
      * parsing command-line arguments.
      */
     if ((slash = strrchr(argv[0], '/')) != 0 && slash[1])
-	argv[0] = slash + 1;
+    argv[0] = slash + 1;
     msg_vstream_init(argv[0], VSTREAM_ERR);
     set_mail_conf_str(VAR_PROCNAME, var_procname = mystrdup(argv[0]));
 
@@ -167,20 +167,20 @@ int     main(int argc, char **argv)
      * Parse JCL.
      */
     while ((c = GETOPT(argc, argv, "c:v")) > 0) {
-	switch (c) {
-	default:
-	    usage(argv[0]);
-	case 'c':
-	    if (setenv(CONF_ENV_PATH, optarg, 1) < 0)
-		msg_fatal("out of memory");
-	    break;
-	case 'v':
-	    msg_verbose++;
-	    break;
-	}
+    switch (c) {
+    default:
+        usage(argv[0]);
+    case 'c':
+        if (setenv(CONF_ENV_PATH, optarg, 1) < 0)
+        msg_fatal("out of memory");
+        break;
+    case 'v':
+        msg_verbose++;
+        break;
+    }
     }
     if (argc != optind + 3)
-	usage(argv[0]);
+    usage(argv[0]);
     class = argv[optind];
     service = argv[optind + 1];
     request = argv[optind + 2];
@@ -194,15 +194,15 @@ int     main(int argc, char **argv)
     update_env(import_env->argv);
     argv_free(import_env);
     if (chdir(var_queue_dir))
-	msg_fatal("chdir %s: %m", var_queue_dir);
+    msg_fatal("chdir %s: %m", var_queue_dir);
 
     /*
      * Kick the service.
      */
     if (mail_trigger(class, service, request, strlen(request)) < 0) {
-	msg_warn("Cannot contact class %s service %s - perhaps the mail system is down",
-		 class, service);
-	exit(1);
+    msg_warn("Cannot contact class %s service %s - perhaps the mail system is down",
+         class, service);
+    exit(1);
     }
 
     /*
@@ -215,7 +215,7 @@ int     main(int argc, char **argv)
      * for the event handler to run, but gives up when it takes too long.
      */
     else {
-	event_drain(var_event_drain);
-	exit(0);
+    event_drain(var_event_drain);
+    exit(0);
     }
 }

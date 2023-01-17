@@ -1,28 +1,28 @@
 /*++
 /* NAME
-/*	allspace 3
+/*    allspace 3
 /* SUMMARY
-/*	predicate if string is all space
+/*    predicate if string is all space
 /* SYNOPSIS
-/*	#include <stringops.h>
+/*    #include <stringops.h>
 /*
-/*	int	allspace(buffer)
-/*	const char *buffer;
+/*    int    allspace(buffer)
+/*    const char *buffer;
 /* DESCRIPTION
-/*	allspace() determines if its argument is an all-space string.
+/*    allspace() determines if its argument is an all-space string.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP buffer
-/*	The null-terminated input string.
+/*    The null-terminated input string.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -42,9 +42,9 @@ int     allspace(const char *string)
     int     ch;
 
     if (*string == 0)
-	return (0);
+    return (0);
     for (cp = string; (ch = *(unsigned char *) cp) != 0; cp++)
-	if (!ISASCII(ch) || !ISSPACE(ch))
-	    return (0);
+    if (!ISASCII(ch) || !ISSPACE(ch))
+        return (0);
     return (1);
 }

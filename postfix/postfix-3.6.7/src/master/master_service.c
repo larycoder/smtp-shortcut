@@ -1,45 +1,45 @@
 /*++
 /* NAME
-/*	master_service 3
+/*    master_service 3
 /* SUMMARY
-/*	Postfix master - start/stop services
+/*    Postfix master - start/stop services
 /* SYNOPSIS
-/*	#include "master.h"
+/*    #include "master.h"
 /*
-/*	void	master_start_service(serv)
-/*	MASTER_SERV *serv;
+/*    void    master_start_service(serv)
+/*    MASTER_SERV *serv;
 /*
-/*	void	master_stop_service(serv)
-/*	MASTER_SERV *serv;
+/*    void    master_stop_service(serv)
+/*    MASTER_SERV *serv;
 /*
-/*	void	master_restart_service(serv, conf_reload)
-/*	MASTER_SERV *serv;
-/*	int	conf_reload;
+/*    void    master_restart_service(serv, conf_reload)
+/*    MASTER_SERV *serv;
+/*    int    conf_reload;
 /* DESCRIPTION
-/*	master_start_service() enables the named service.
+/*    master_start_service() enables the named service.
 /*
-/*	master_stop_service() disables named service.
+/*    master_stop_service() disables named service.
 /*
-/*	master_restart_service() requests all running child processes to
-/*	commit suicide.  The conf_reload argument is either DO_CONF_RELOAD
-/*	(configuration files were reloaded, re-evaluate the child process
-/*	creation policy) or NO_CONF_RELOAD. 
+/*    master_restart_service() requests all running child processes to
+/*    commit suicide.  The conf_reload argument is either DO_CONF_RELOAD
+/*    (configuration files were reloaded, re-evaluate the child process
+/*    creation policy) or NO_CONF_RELOAD. 
 /* DIAGNOSTICS
 /* BUGS
 /* SEE ALSO
-/*	master_avail(3), process creation policy
-/*	master_wakeup(3), service automatic wakeup
-/*	master_status(3), child status reports
-/*	master_listen(3), unix/inet listeners
+/*    master_avail(3), process creation policy
+/*    master_wakeup(3), service automatic wakeup
+/*    master_status(3), child status reports
+/*    master_listen(3), unix/inet listeners
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System libraries. */
@@ -109,5 +109,5 @@ void    master_restart_service(MASTER_SERV *serv, int conf_reload)
      * Respond to configuration change.
      */
     if (conf_reload)
-	master_avail_listen(serv);
+    master_avail_listen(serv);
 }

@@ -1,116 +1,116 @@
 /*++
 /* NAME
-/*	mail_queue 3
+/*    mail_queue 3
 /* SUMMARY
-/*	mail queue file access
+/*    mail queue file access
 /* SYNOPSIS
-/*	#include <mail_queue.h>
+/*    #include <mail_queue.h>
 /*
-/*	VSTREAM	*mail_queue_enter(queue_name, mode, tp)
-/*	const char *queue_name;
-/*	mode_t	mode;
-/*	struct timeval *tp;
+/*    VSTREAM    *mail_queue_enter(queue_name, mode, tp)
+/*    const char *queue_name;
+/*    mode_t    mode;
+/*    struct timeval *tp;
 /*
-/*	VSTREAM	*mail_queue_open(queue_name, queue_id, flags, mode)
-/*	const char *queue_name;
-/*	const char *queue_id;
-/*	int	flags;
-/*	mode_t	mode;
+/*    VSTREAM    *mail_queue_open(queue_name, queue_id, flags, mode)
+/*    const char *queue_name;
+/*    const char *queue_id;
+/*    int    flags;
+/*    mode_t    mode;
 /*
-/*	char	*mail_queue_dir(buf, queue_name, queue_id)
-/*	VSTRING	*buf;
-/*	const char *queue_name;
-/*	const char *queue_id;
+/*    char    *mail_queue_dir(buf, queue_name, queue_id)
+/*    VSTRING    *buf;
+/*    const char *queue_name;
+/*    const char *queue_id;
 /*
-/*	char	*mail_queue_path(buf, queue_name, queue_id)
-/*	VSTRING	*buf;
-/*	const char *queue_name;
-/*	const char *queue_id;
+/*    char    *mail_queue_path(buf, queue_name, queue_id)
+/*    VSTRING    *buf;
+/*    const char *queue_name;
+/*    const char *queue_id;
 /*
-/*	int	mail_queue_mkdirs(path)
-/*	const char *path;
+/*    int    mail_queue_mkdirs(path)
+/*    const char *path;
 /*
-/*	int	mail_queue_rename(queue_id, old_queue, new_queue)
-/*	const char *queue_id;
-/*	const char *old_queue;
-/*	const char *new_queue;
+/*    int    mail_queue_rename(queue_id, old_queue, new_queue)
+/*    const char *queue_id;
+/*    const char *old_queue;
+/*    const char *new_queue;
 /*
-/*	int	mail_queue_remove(queue_name, queue_id)
-/*	const char *queue_name;
-/*	const char *queue_id;
+/*    int    mail_queue_remove(queue_name, queue_id)
+/*    const char *queue_name;
+/*    const char *queue_id;
 /*
-/*	int	mail_queue_name_ok(queue_name)
-/*	const char *queue_name;
+/*    int    mail_queue_name_ok(queue_name)
+/*    const char *queue_name;
 /*
-/*	int	mail_queue_id_ok(queue_id)
-/*	const char *queue_id;
+/*    int    mail_queue_id_ok(queue_id)
+/*    const char *queue_id;
 /* DESCRIPTION
-/*	This module encapsulates access to the mail queue hierarchy.
-/*	Unlike most other modules, this one does not abort the program
-/*	in case of file access problems. But it does abort when the
-/*	application attempts to use a malformed queue name or queue id.
+/*    This module encapsulates access to the mail queue hierarchy.
+/*    Unlike most other modules, this one does not abort the program
+/*    in case of file access problems. But it does abort when the
+/*    application attempts to use a malformed queue name or queue id.
 /*
-/*	mail_queue_enter() creates an entry in the named queue. The queue
-/*	id is the file base name, see VSTREAM_PATH().  Queue ids are
-/*	relatively short strings and are recycled in the course of time.
-/*	The only guarantee given is that on a given machine, no two queue
-/*	entries will have the same queue ID at the same time. The tp
-/*	argument, if not a null pointer, receives the time stamp that
-/*	corresponds with the queue ID.
+/*    mail_queue_enter() creates an entry in the named queue. The queue
+/*    id is the file base name, see VSTREAM_PATH().  Queue ids are
+/*    relatively short strings and are recycled in the course of time.
+/*    The only guarantee given is that on a given machine, no two queue
+/*    entries will have the same queue ID at the same time. The tp
+/*    argument, if not a null pointer, receives the time stamp that
+/*    corresponds with the queue ID.
 /*
-/*	mail_queue_open() opens the named queue file. The \fIflags\fR
-/*	and \fImode\fR arguments are as with open(2). The result is a
-/*	null pointer in case of problems.
+/*    mail_queue_open() opens the named queue file. The \fIflags\fR
+/*    and \fImode\fR arguments are as with open(2). The result is a
+/*    null pointer in case of problems.
 /*
-/*	mail_queue_dir() returns the directory name of the specified queue
-/*	file. When a null result buffer pointer is provided, the result is
-/*	written to a private buffer that may be overwritten upon the next
-/*	call.
+/*    mail_queue_dir() returns the directory name of the specified queue
+/*    file. When a null result buffer pointer is provided, the result is
+/*    written to a private buffer that may be overwritten upon the next
+/*    call.
 /*
-/*	mail_queue_path() returns the pathname of the specified queue
-/*	file. When a null result buffer pointer is provided, the result
-/*	is written to a private buffer that may be overwritten upon the
-/*	next call.
+/*    mail_queue_path() returns the pathname of the specified queue
+/*    file. When a null result buffer pointer is provided, the result
+/*    is written to a private buffer that may be overwritten upon the
+/*    next call.
 /*
-/*	mail_queue_mkdirs() creates missing parent directories
-/*	for the file named in \fBpath\fR. A non-zero result means
-/*	that the operation failed.
+/*    mail_queue_mkdirs() creates missing parent directories
+/*    for the file named in \fBpath\fR. A non-zero result means
+/*    that the operation failed.
 /*
-/*	mail_queue_rename() renames a queue file. A non-zero result
-/*	means the operation failed.
+/*    mail_queue_rename() renames a queue file. A non-zero result
+/*    means the operation failed.
 /*
-/*	mail_queue_remove() removes the named queue file. A non-zero result
-/*	means the operation failed.
+/*    mail_queue_remove() removes the named queue file. A non-zero result
+/*    means the operation failed.
 /*
-/*	mail_queue_name_ok() validates a mail queue name and returns
-/*	non-zero (true) if the name contains no nasty characters.
+/*    mail_queue_name_ok() validates a mail queue name and returns
+/*    non-zero (true) if the name contains no nasty characters.
 /*
-/*	mail_queue_id_ok() does the same thing for mail queue ID names.
+/*    mail_queue_id_ok() does the same thing for mail queue ID names.
 /* DIAGNOSTICS
-/*	Panic: invalid queue name or id given to mail_queue_path(),
-/*	mail_queue_rename(), or mail_queue_remove().
-/*	Fatal error: out of memory.
+/*    Panic: invalid queue name or id given to mail_queue_path(),
+/*    mail_queue_rename(), or mail_queue_remove().
+/*    Fatal error: out of memory.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
 
 #include <sys_defs.h>
-#include <stdio.h>			/* rename() */
+#include <stdio.h>            /* rename() */
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/time.h>			/* gettimeofday, not in POSIX */
+#include <sys/time.h>            /* gettimeofday, not in POSIX */
 #include <string.h>
 #include <errno.h>
 
@@ -138,12 +138,12 @@
 #define MAIL_QUEUE_INTERNAL
 #include "mail_queue.h"
 
-#define STR	vstring_str
+#define STR    vstring_str
 
 /* mail_queue_dir - construct mail queue directory name */
 
 const char *mail_queue_dir(VSTRING *buf, const char *queue_name,
-			           const char *queue_id)
+                       const char *queue_id)
 {
     const char *myname = "mail_queue_dir";
     static VSTRING *private_buf = 0;
@@ -157,21 +157,21 @@ const char *mail_queue_dir(VSTRING *buf, const char *queue_name,
      * Sanity checks.
      */
     if (mail_queue_name_ok(queue_name) == 0)
-	msg_panic("%s: bad queue name: %s", myname, queue_name);
+    msg_panic("%s: bad queue name: %s", myname, queue_name);
     if (mail_queue_id_ok(queue_id) == 0)
-	msg_panic("%s: bad queue id: %s", myname, queue_id);
+    msg_panic("%s: bad queue id: %s", myname, queue_id);
 
     /*
      * Initialize.
      */
     if (buf == 0) {
-	if (private_buf == 0)
-	    private_buf = vstring_alloc(100);
-	buf = private_buf;
+    if (private_buf == 0)
+        private_buf = vstring_alloc(100);
+    buf = private_buf;
     }
     if (hash_buf == 0) {
-	hash_buf = vstring_alloc(100);
-	hash_queue_names = argv_split(var_hash_queue_names, CHARS_COMMA_SP);
+    hash_buf = vstring_alloc(100);
+    hash_queue_names = argv_split(var_hash_queue_names, CHARS_COMMA_SP);
     }
 
     /*
@@ -184,17 +184,17 @@ const char *mail_queue_dir(VSTRING *buf, const char *queue_name,
      * Then, see if we need to append a little directory forest.
      */
     for (cpp = hash_queue_names->argv; *cpp; cpp++) {
-	if (strcasecmp(*cpp, queue_name) == 0) {
-	    if (MQID_FIND_LG_INUM_SEPARATOR(delim, queue_id)) {
-		if (usec_buf == 0)
-		    usec_buf = vstring_alloc(20);
-		MQID_LG_GET_HEX_USEC(usec_buf, delim);
-		queue_id = STR(usec_buf);
-	    }
-	    vstring_strcat(buf,
-		      dir_forest(hash_buf, queue_id, var_hash_queue_depth));
-	    break;
-	}
+    if (strcasecmp(*cpp, queue_name) == 0) {
+        if (MQID_FIND_LG_INUM_SEPARATOR(delim, queue_id)) {
+        if (usec_buf == 0)
+            usec_buf = vstring_alloc(20);
+        MQID_LG_GET_HEX_USEC(usec_buf, delim);
+        queue_id = STR(usec_buf);
+        }
+        vstring_strcat(buf,
+              dir_forest(hash_buf, queue_id, var_hash_queue_depth));
+        break;
+    }
     }
     return (STR(buf));
 }
@@ -202,7 +202,7 @@ const char *mail_queue_dir(VSTRING *buf, const char *queue_name,
 /* mail_queue_path - map mail queue id to path name */
 
 const char *mail_queue_path(VSTRING *buf, const char *queue_name,
-			            const char *queue_id)
+                        const char *queue_id)
 {
     static VSTRING *private_buf = 0;
 
@@ -210,9 +210,9 @@ const char *mail_queue_path(VSTRING *buf, const char *queue_name,
      * Initialize.
      */
     if (buf == 0) {
-	if (private_buf == 0)
-	    private_buf = vstring_alloc(100);
-	buf = private_buf;
+    if (private_buf == 0)
+        private_buf = vstring_alloc(100);
+    buf = private_buf;
     }
 
     /*
@@ -236,7 +236,7 @@ int     mail_queue_mkdirs(const char *path)
      * missing directories.
      */
     if (split_at_right(saved_path, '/') == 0)
-	msg_panic("%s: no slash in: %s", myname, saved_path);
+    msg_panic("%s: no slash in: %s", myname, saved_path);
     ret = make_dirs(saved_path, 0700);
     myfree(saved_path);
     return (ret);
@@ -245,7 +245,7 @@ int     mail_queue_mkdirs(const char *path)
 /* mail_queue_rename - move message to another queue */
 
 int     mail_queue_rename(const char *queue_id, const char *old_queue,
-			          const char *new_queue)
+                      const char *new_queue)
 {
     VSTRING *old_buf = vstring_alloc(100);
     VSTRING *new_buf = vstring_alloc(100);
@@ -256,9 +256,9 @@ int     mail_queue_rename(const char *queue_id, const char *old_queue,
      * intermediate directories.
      */
     error = sane_rename(mail_queue_path(old_buf, old_queue, queue_id),
-			mail_queue_path(new_buf, new_queue, queue_id));
+            mail_queue_path(new_buf, new_queue, queue_id));
     if (error != 0 && mail_queue_mkdirs(STR(new_buf)) == 0)
-	error = sane_rename(STR(old_buf), STR(new_buf));
+    error = sane_rename(STR(old_buf), STR(new_buf));
 
     /*
      * Cleanup.
@@ -283,11 +283,11 @@ int     mail_queue_name_ok(const char *queue_name)
     const char *cp;
 
     if (*queue_name == 0 || strlen(queue_name) > 100)
-	return (0);
+    return (0);
 
     for (cp = queue_name; *cp; cp++)
-	if (!ISALNUM(*cp))
-	    return (0);
+    if (!ISALNUM(*cp))
+        return (0);
     return (1);
 }
 
@@ -303,21 +303,21 @@ int     mail_queue_id_ok(const char *queue_id)
      * domain name with non-alphanumeric characters replaced by "_").
      */
     if (*queue_id == 0 || strlen(queue_id) > VALID_HOSTNAME_LEN)
-	return (0);
+    return (0);
 
     /*
      * OK if in time+inum form or in host_domain_tld form.
      */
     for (cp = queue_id; *cp; cp++)
-	if (!ISALNUM(*cp) && *cp != '_')
-	    return (0);
+    if (!ISALNUM(*cp) && *cp != '_')
+        return (0);
     return (1);
 }
 
 /* mail_queue_enter - make mail queue entry with locally-unique name */
 
 VSTREAM *mail_queue_enter(const char *queue_name, mode_t mode,
-			          struct timeval * tp)
+                      struct timeval * tp)
 {
     const char *myname = "mail_queue_enter";
     static VSTRING *sec_buf;
@@ -336,15 +336,15 @@ VSTREAM *mail_queue_enter(const char *queue_name, mode_t mode,
      * Initialize.
      */
     if (id_buf == 0) {
-	pid = getpid();
-	sec_buf = vstring_alloc(10);
-	usec_buf = vstring_alloc(10);
-	id_buf = vstring_alloc(10);
-	path_buf = vstring_alloc(10);
-	temp_path = vstring_alloc(100);
+    pid = getpid();
+    sec_buf = vstring_alloc(10);
+    usec_buf = vstring_alloc(10);
+    id_buf = vstring_alloc(10);
+    path_buf = vstring_alloc(10);
+    temp_path = vstring_alloc(100);
     }
     if (tp == 0)
-	tp = &tv;
+    tp = &tv;
 
     /*
      * Create a file with a temporary name that does not collide. The process
@@ -356,15 +356,15 @@ VSTREAM *mail_queue_enter(const char *queue_name, mode_t mode,
      * If someone is racing against us, try to win.
      */
     for (;;) {
-	GETTIMEOFDAY(tp);
-	vstring_sprintf(temp_path, "%s/%d.%d", queue_name,
-			(int) tp->tv_usec, pid);
-	if ((fd = open(STR(temp_path), O_RDWR | O_CREAT | O_EXCL, mode)) >= 0)
-	    break;
-	if (errno == EEXIST || errno == EISDIR)
-	    continue;
-	msg_warn("%s: create file %s: %m", myname, STR(temp_path));
-	sleep(10);
+    GETTIMEOFDAY(tp);
+    vstring_sprintf(temp_path, "%s/%d.%d", queue_name,
+            (int) tp->tv_usec, pid);
+    if ((fd = open(STR(temp_path), O_RDWR | O_CREAT | O_EXCL, mode)) >= 0)
+        break;
+    if (errno == EEXIST || errno == EISDIR)
+        continue;
+    msg_warn("%s: create file %s: %m", myname, STR(temp_path));
+    sleep(10);
     }
 
     /*
@@ -389,29 +389,29 @@ VSTREAM *mail_queue_enter(const char *queue_name, mode_t mode,
      * prevents multiple messages from getting the same Message-ID value.
      */
     for (count = 0;; count++) {
-	GETTIMEOFDAY(tp);
-	if (var_long_queue_ids) {
-	    vstring_sprintf(id_buf, "%s%s%c%s",
-			    MQID_LG_ENCODE_SEC(sec_buf, tp->tv_sec),
-			    MQID_LG_ENCODE_USEC(usec_buf, tp->tv_usec),
-			    MQID_LG_INUM_SEP, file_id);
-	} else {
-	    vstring_sprintf(id_buf, "%s%s",
-			    MQID_SH_ENCODE_USEC(usec_buf, tp->tv_usec),
-			    file_id);
-	}
-	mail_queue_path(path_buf, queue_name, STR(id_buf));
-	if (sane_rename(STR(temp_path), STR(path_buf)) == 0)	/* success */
-	    break;
-	if (errno == EPERM || errno == EISDIR)	/* collision. weird. */
-	    continue;
-	if (errno != ENOENT || mail_queue_mkdirs(STR(path_buf)) < 0) {
-	    msg_warn("%s: rename %s to %s: %m", myname,
-		     STR(temp_path), STR(path_buf));
-	}
-	if (count > 1000)			/* XXX whatever */
-	    msg_fatal("%s: rename %s to %s: giving up", myname,
-		      STR(temp_path), STR(path_buf));
+    GETTIMEOFDAY(tp);
+    if (var_long_queue_ids) {
+        vstring_sprintf(id_buf, "%s%s%c%s",
+                MQID_LG_ENCODE_SEC(sec_buf, tp->tv_sec),
+                MQID_LG_ENCODE_USEC(usec_buf, tp->tv_usec),
+                MQID_LG_INUM_SEP, file_id);
+    } else {
+        vstring_sprintf(id_buf, "%s%s",
+                MQID_SH_ENCODE_USEC(usec_buf, tp->tv_usec),
+                file_id);
+    }
+    mail_queue_path(path_buf, queue_name, STR(id_buf));
+    if (sane_rename(STR(temp_path), STR(path_buf)) == 0)    /* success */
+        break;
+    if (errno == EPERM || errno == EISDIR)    /* collision. weird. */
+        continue;
+    if (errno != ENOENT || mail_queue_mkdirs(STR(path_buf)) < 0) {
+        msg_warn("%s: rename %s to %s: %m", myname,
+             STR(temp_path), STR(path_buf));
+    }
+    if (count > 1000)            /* XXX whatever */
+        msg_fatal("%s: rename %s to %s: giving up", myname,
+              STR(temp_path), STR(path_buf));
     }
 
     stream = vstream_fdopen(fd, O_RDWR);
@@ -422,7 +422,7 @@ VSTREAM *mail_queue_enter(const char *queue_name, mode_t mode,
 /* mail_queue_open - open mail queue file */
 
 VSTREAM *mail_queue_open(const char *queue_name, const char *queue_id,
-			         int flags, mode_t mode)
+                     int flags, mode_t mode)
 {
     const char *path = mail_queue_path((VSTRING *) 0, queue_name, queue_id);
     VSTREAM *fp;
@@ -432,8 +432,8 @@ VSTREAM *mail_queue_open(const char *queue_name, const char *queue_id,
      * missing subdirectory.
      */
     if ((fp = vstream_fopen(path, flags, mode)) == 0)
-	if (errno == ENOENT)
-	    if ((flags & O_CREAT) == O_CREAT && mail_queue_mkdirs(path) == 0)
-		fp = vstream_fopen(path, flags, mode);
+    if (errno == ENOENT)
+        if ((flags & O_CREAT) == O_CREAT && mail_queue_mkdirs(path) == 0)
+        fp = vstream_fopen(path, flags, mode);
     return (fp);
 }

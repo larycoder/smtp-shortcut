@@ -1,36 +1,36 @@
 /*++
 /* NAME
-/*	stat_as 3
+/*    stat_as 3
 /* SUMMARY
-/*	stat file as user
+/*    stat file as user
 /* SYNOPSIS
-/*	#include <sys/stat.h>
-/*	#include <stat_as.h>
+/*    #include <sys/stat.h>
+/*    #include <stat_as.h>
 /*
-/*	int	stat_as(path, st, euid, egid)
-/*	const char *path;
-/*	struct stat *st;
-/*	uid_t	euid;
-/*	gid_t	egid;
+/*    int    stat_as(path, st, euid, egid)
+/*    const char *path;
+/*    struct stat *st;
+/*    uid_t    euid;
+/*    gid_t    egid;
 /* DESCRIPTION
-/*	stat_as() looks up the file status of the named \fIpath\fR,
-/*	using the effective rights specified by \fIeuid\fR
-/*	and \fIegid\fR, and stores the result into the structure pointed
-/*	to by \fIst\fR.  A -1 result means the lookup failed.
-/*	This call follows symbolic links.
+/*    stat_as() looks up the file status of the named \fIpath\fR,
+/*    using the effective rights specified by \fIeuid\fR
+/*    and \fIegid\fR, and stores the result into the structure pointed
+/*    to by \fIst\fR.  A -1 result means the lookup failed.
+/*    This call follows symbolic links.
 /* DIAGNOSTICS
-/*	Fatal error: no permission to change privilege level.
+/*    Fatal error: no permission to change privilege level.
 /* SEE ALSO
-/*	set_eugid(3) switch effective rights
+/*    set_eugid(3) switch effective rights
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */

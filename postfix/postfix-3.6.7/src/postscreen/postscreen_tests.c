@@ -1,96 +1,96 @@
 /*++
 /* NAME
-/*	postscreen_tests 3
+/*    postscreen_tests 3
 /* SUMMARY
-/*	postscreen tests timestamp/flag bulk support
+/*    postscreen tests timestamp/flag bulk support
 /* SYNOPSIS
-/*	#include <postscreen.h>
+/*    #include <postscreen.h>
 /*
-/*	void	PSC_INIT_TESTS(state)
-/*	PSC_STATE *state;
+/*    void    PSC_INIT_TESTS(state)
+/*    PSC_STATE *state;
 /*
-/*	void	psc_new_tests(state)
-/*	PSC_STATE *state;
+/*    void    psc_new_tests(state)
+/*    PSC_STATE *state;
 /*
-/*	void	psc_parse_tests(state, stamp_text, time_value)
-/*	PSC_STATE *state;
-/*	const char *stamp_text;
-/*	time_t time_value;
+/*    void    psc_parse_tests(state, stamp_text, time_value)
+/*    PSC_STATE *state;
+/*    const char *stamp_text;
+/*    time_t time_value;
 /*
-/*	void	psc_todo_tests(state, time_value)
-/*	PSC_STATE *state;
-/*	const char *stamp_text;
-/*	time_t time_value;
+/*    void    psc_todo_tests(state, time_value)
+/*    PSC_STATE *state;
+/*    const char *stamp_text;
+/*    time_t time_value;
 /*
-/*	char	*psc_print_tests(buffer, state)
-/*	VSTRING	*buffer;
-/*	PSC_STATE *state;
+/*    char    *psc_print_tests(buffer, state)
+/*    VSTRING    *buffer;
+/*    PSC_STATE *state;
 /*
-/*	char	*psc_print_grey_key(buffer, client, helo, sender, rcpt)
-/*	VSTRING	*buffer;
-/*	const char *client;
-/*	const char *helo;
-/*	const char *sender;
-/*	const char *rcpt;
+/*    char    *psc_print_grey_key(buffer, client, helo, sender, rcpt)
+/*    VSTRING    *buffer;
+/*    const char *client;
+/*    const char *helo;
+/*    const char *sender;
+/*    const char *rcpt;
 /*
-/*	const char *psc_test_name(tindx)
-/*	int	tindx;
+/*    const char *psc_test_name(tindx)
+/*    int    tindx;
 /* DESCRIPTION
-/*	The functions in this module overwrite the per-test expiration
-/*	time stamps and all flags bits.  Some functions are implemented
-/*	as unsafe macros, meaning they evaluate one or more arguments
-/*	multiple times.
+/*    The functions in this module overwrite the per-test expiration
+/*    time stamps and all flags bits.  Some functions are implemented
+/*    as unsafe macros, meaning they evaluate one or more arguments
+/*    multiple times.
 /*
-/*	PSC_INIT_TESTS() is an unsafe macro that sets the per-test
-/*	expiration time stamps to PSC_TIME_STAMP_INVALID, and that
-/*	zeroes all the flags bits. These values are not meant to
-/*	be stored into the postscreen(8) cache.
+/*    PSC_INIT_TESTS() is an unsafe macro that sets the per-test
+/*    expiration time stamps to PSC_TIME_STAMP_INVALID, and that
+/*    zeroes all the flags bits. These values are not meant to
+/*    be stored into the postscreen(8) cache.
 /*
-/*	PSC_INIT_TEST_FLAGS_ONLY() zeroes all the flag bits.  It
-/*	should be used when the time stamps are already initialized.
+/*    PSC_INIT_TEST_FLAGS_ONLY() zeroes all the flag bits.  It
+/*    should be used when the time stamps are already initialized.
 /*
-/*	psc_new_tests() sets all test expiration time stamps to
-/*	PSC_TIME_STAMP_NEW, and invokes psc_todo_tests().
+/*    psc_new_tests() sets all test expiration time stamps to
+/*    PSC_TIME_STAMP_NEW, and invokes psc_todo_tests().
 /*
-/*	psc_parse_tests() parses a cache file record and invokes
-/*	psc_todo_tests().
+/*    psc_parse_tests() parses a cache file record and invokes
+/*    psc_todo_tests().
 /*
-/*	psc_todo_tests() overwrites all per-session flag bits, and
-/*	populates the flags based on test expiration time stamp
-/*	information.  Tests are considered "expired" when they
-/*	would be expired at the specified time value. Only enabled
-/*	tests are flagged as "expired"; the object is flagged as
-/*	"new" if some enabled tests have "new" time stamps.
+/*    psc_todo_tests() overwrites all per-session flag bits, and
+/*    populates the flags based on test expiration time stamp
+/*    information.  Tests are considered "expired" when they
+/*    would be expired at the specified time value. Only enabled
+/*    tests are flagged as "expired"; the object is flagged as
+/*    "new" if some enabled tests have "new" time stamps.
 /*
-/*	psc_print_tests() creates a cache file record for the
-/*	specified flags and per-test expiration time stamps.
-/*	This may modify the time stamps for disabled tests.
+/*    psc_print_tests() creates a cache file record for the
+/*    specified flags and per-test expiration time stamps.
+/*    This may modify the time stamps for disabled tests.
 /*
-/*	psc_print_grey_key() prints a greylist lookup key.
+/*    psc_print_grey_key() prints a greylist lookup key.
 /*
-/*	psc_test_name() returns the name for the specified text
-/*	index.
+/*    psc_test_name() returns the name for the specified text
+/*    index.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
 
 #include <sys_defs.h>
-#include <stdio.h>			/* sscanf */
-#include <stdlib.h>			/* strtoul */
+#include <stdio.h>            /* sscanf */
+#include <stdlib.h>            /* strtoul */
 
 /* Utility library. */
 
@@ -108,8 +108,8 @@
  /*
   * Kludge to detect if some test is enabled.
   */
-#define PSC_PREGR_TEST_ENABLE()	(*var_psc_pregr_banner != 0)
-#define PSC_DNSBL_TEST_ENABLE()	(*var_psc_dnsbl_sites != 0)
+#define PSC_PREGR_TEST_ENABLE()    (*var_psc_pregr_banner != 0)
+#define PSC_DNSBL_TEST_ENABLE()    (*var_psc_dnsbl_sites != 0)
 
  /*
   * Format of a persistent cache entry (which is almost but not quite the
@@ -161,8 +161,8 @@ void    psc_new_tests(PSC_STATE *state)
 /* psc_parse_tests - parse test results from cache */
 
 void    psc_parse_tests(PSC_STATE *state,
-			        const char *stamp_str,
-			        time_t time_value)
+                    const char *stamp_str,
+                    time_t time_value)
 {
     const char *start = stamp_str;
     char   *cp;
@@ -175,16 +175,16 @@ void    psc_parse_tests(PSC_STATE *state,
      * at the time that the cache entry was written.
      */
     for (sp = time_stamps; sp < time_stamps + PSC_TINDX_COUNT; sp++) {
-	errno = 0;
-	*sp = strtoul(start, &cp, 10);
-	if (*start == 0 || (*cp != '\0' && *cp != ';') || errno == ERANGE)
-	    *sp = PSC_TIME_STAMP_DISABLED;
-	if (msg_verbose)
-	    msg_info("%s -> %lu", start, (unsigned long) *sp);
-	if (*cp == ';')
-	    start = cp + 1;
-	else
-	    start = cp;
+    errno = 0;
+    *sp = strtoul(start, &cp, 10);
+    if (*start == 0 || (*cp != '\0' && *cp != ';') || errno == ERANGE)
+        *sp = PSC_TIME_STAMP_DISABLED;
+    if (msg_verbose)
+        msg_info("%s -> %lu", start, (unsigned long) *sp);
+    if (*cp == ';')
+        start = cp + 1;
+    else
+        start = cp;
     }
 
     /*
@@ -211,8 +211,8 @@ void    psc_todo_tests(PSC_STATE *state, time_t time_value)
      * tests.
      */
     for (sp = expire_time; sp < expire_time + PSC_TINDX_COUNT; sp++) {
-	if (*sp == PSC_TIME_STAMP_NEW)
-	    state->flags |= PSC_STATE_FLAG_NEW;
+    if (*sp == PSC_TIME_STAMP_NEW)
+        state->flags |= PSC_STATE_FLAG_NEW;
     }
 
     /*
@@ -220,15 +220,15 @@ void    psc_todo_tests(PSC_STATE *state, time_t time_value)
      * make those bits go away.
      */
     if (PSC_PREGR_TEST_ENABLE() && time_value > expire_time[PSC_TINDX_PREGR])
-	state->flags |= PSC_STATE_FLAG_PREGR_TODO;
+    state->flags |= PSC_STATE_FLAG_PREGR_TODO;
     if (PSC_DNSBL_TEST_ENABLE() && time_value > expire_time[PSC_TINDX_DNSBL])
-	state->flags |= PSC_STATE_FLAG_DNSBL_TODO;
+    state->flags |= PSC_STATE_FLAG_DNSBL_TODO;
     if (var_psc_pipel_enable && time_value > expire_time[PSC_TINDX_PIPEL])
-	state->flags |= PSC_STATE_FLAG_PIPEL_TODO;
+    state->flags |= PSC_STATE_FLAG_PIPEL_TODO;
     if (var_psc_nsmtp_enable && time_value > expire_time[PSC_TINDX_NSMTP])
-	state->flags |= PSC_STATE_FLAG_NSMTP_TODO;
+    state->flags |= PSC_STATE_FLAG_NSMTP_TODO;
     if (var_psc_barlf_enable && time_value > expire_time[PSC_TINDX_BARLF])
-	state->flags |= PSC_STATE_FLAG_BARLF_TODO;
+    state->flags |= PSC_STATE_FLAG_BARLF_TODO;
 
     /*
      * If any test has expired, proactively refresh tests that will expire
@@ -239,19 +239,19 @@ void    psc_todo_tests(PSC_STATE *state, time_t time_value)
      */
 #ifdef VAR_PSC_REFRESH_TIME
     if ((state->flags & PSC_STATE_MASK_ANY_TODO) != 0
-	&& var_psc_refresh_time > 0) {
-	time_t  refresh_time = time_value + var_psc_refresh_time;
+    && var_psc_refresh_time > 0) {
+    time_t  refresh_time = time_value + var_psc_refresh_time;
 
-	if (PSC_PREGR_TEST_ENABLE() && refresh_time > expire_time[PSC_TINDX_PREGR])
-	    state->flags |= PSC_STATE_FLAG_PREGR_TODO;
-	if (PSC_DNSBL_TEST_ENABLE() && refresh_time > expire_time[PSC_TINDX_DNSBL])
-	    state->flags |= PSC_STATE_FLAG_DNSBL_TODO;
-	if (var_psc_pipel_enable && refresh_time > expire_time[PSC_TINDX_PIPEL])
-	    state->flags |= PSC_STATE_FLAG_PIPEL_TODO;
-	if (var_psc_nsmtp_enable && refresh_time > expire_time[PSC_TINDX_NSMTP])
-	    state->flags |= PSC_STATE_FLAG_NSMTP_TODO;
-	if (var_psc_barlf_enable && refresh_time > expire_time[PSC_TINDX_BARLF])
-	    state->flags |= PSC_STATE_FLAG_BARLF_TODO;
+    if (PSC_PREGR_TEST_ENABLE() && refresh_time > expire_time[PSC_TINDX_PREGR])
+        state->flags |= PSC_STATE_FLAG_PREGR_TODO;
+    if (PSC_DNSBL_TEST_ENABLE() && refresh_time > expire_time[PSC_TINDX_DNSBL])
+        state->flags |= PSC_STATE_FLAG_DNSBL_TODO;
+    if (var_psc_pipel_enable && refresh_time > expire_time[PSC_TINDX_PIPEL])
+        state->flags |= PSC_STATE_FLAG_PIPEL_TODO;
+    if (var_psc_nsmtp_enable && refresh_time > expire_time[PSC_TINDX_NSMTP])
+        state->flags |= PSC_STATE_FLAG_NSMTP_TODO;
+    if (var_psc_barlf_enable && refresh_time > expire_time[PSC_TINDX_BARLF])
+        state->flags |= PSC_STATE_FLAG_BARLF_TODO;
     }
 #endif
 
@@ -265,10 +265,10 @@ void    psc_todo_tests(PSC_STATE *state, time_t time_value)
      */
 #if 0
     if (state->flags & PSC_STATE_MASK_EARLY_TODO) {
-	if (PSC_PREGR_TEST_ENABLE())
-	    state->flags |= PSC_STATE_FLAG_PREGR_TODO;
-	if (PSC_DNSBL_TEST_ENABLE())
-	    state->flags |= PSC_STATE_FLAG_DNSBL_TODO;
+    if (PSC_PREGR_TEST_ENABLE())
+        state->flags |= PSC_STATE_FLAG_PREGR_TODO;
+    if (PSC_DNSBL_TEST_ENABLE())
+        state->flags |= PSC_STATE_FLAG_DNSBL_TODO;
     }
 #endif
 }
@@ -284,7 +284,7 @@ char   *psc_print_tests(VSTRING *buf, PSC_STATE *state)
      * Sanity check.
      */
     if ((state->flags & PSC_STATE_MASK_ANY_UPDATE) == 0)
-	msg_panic("%s: attempt to save a no-update record", myname);
+    msg_panic("%s: attempt to save a no-update record", myname);
 
     /*
      * Give disabled tests a dummy time stamp so that we don't log a client
@@ -292,33 +292,33 @@ char   *psc_print_tests(VSTRING *buf, PSC_STATE *state)
      * time.
      */
     if (PSC_PREGR_TEST_ENABLE() == 0 && expire_time[PSC_TINDX_PREGR] == PSC_TIME_STAMP_NEW)
-	expire_time[PSC_TINDX_PREGR] = PSC_TIME_STAMP_DISABLED;
+    expire_time[PSC_TINDX_PREGR] = PSC_TIME_STAMP_DISABLED;
     if (PSC_DNSBL_TEST_ENABLE() == 0 && expire_time[PSC_TINDX_DNSBL] == PSC_TIME_STAMP_NEW)
-	expire_time[PSC_TINDX_DNSBL] = PSC_TIME_STAMP_DISABLED;
+    expire_time[PSC_TINDX_DNSBL] = PSC_TIME_STAMP_DISABLED;
     if (var_psc_pipel_enable == 0 && expire_time[PSC_TINDX_PIPEL] == PSC_TIME_STAMP_NEW)
-	expire_time[PSC_TINDX_PIPEL] = PSC_TIME_STAMP_DISABLED;
+    expire_time[PSC_TINDX_PIPEL] = PSC_TIME_STAMP_DISABLED;
     if (var_psc_nsmtp_enable == 0 && expire_time[PSC_TINDX_NSMTP] == PSC_TIME_STAMP_NEW)
-	expire_time[PSC_TINDX_NSMTP] = PSC_TIME_STAMP_DISABLED;
+    expire_time[PSC_TINDX_NSMTP] = PSC_TIME_STAMP_DISABLED;
     if (var_psc_barlf_enable == 0 && expire_time[PSC_TINDX_BARLF] == PSC_TIME_STAMP_NEW)
-	expire_time[PSC_TINDX_BARLF] = PSC_TIME_STAMP_DISABLED;
+    expire_time[PSC_TINDX_BARLF] = PSC_TIME_STAMP_DISABLED;
 
     vstring_sprintf(buf, "%lu;%lu;%lu;%lu;%lu",
-		    (unsigned long) expire_time[PSC_TINDX_PREGR],
-		    (unsigned long) expire_time[PSC_TINDX_DNSBL],
-		    (unsigned long) expire_time[PSC_TINDX_PIPEL],
-		    (unsigned long) expire_time[PSC_TINDX_NSMTP],
-		    (unsigned long) expire_time[PSC_TINDX_BARLF]);
+            (unsigned long) expire_time[PSC_TINDX_PREGR],
+            (unsigned long) expire_time[PSC_TINDX_DNSBL],
+            (unsigned long) expire_time[PSC_TINDX_PIPEL],
+            (unsigned long) expire_time[PSC_TINDX_NSMTP],
+            (unsigned long) expire_time[PSC_TINDX_BARLF]);
     return (STR(buf));
 }
 
 /* psc_print_grey_key - print postscreen cache record */
 
 char   *psc_print_grey_key(VSTRING *buf, const char *client,
-			           const char *helo, const char *sender,
-			           const char *rcpt)
+                       const char *helo, const char *sender,
+                       const char *rcpt)
 {
     return (STR(vstring_sprintf(buf, "%s/%s/%s/%s",
-				client, helo, sender, rcpt)));
+                client, helo, sender, rcpt)));
 }
 
 /* psc_test_name - map test index to symbolic name */
@@ -327,16 +327,16 @@ const char *psc_test_name(int tindx)
 {
     const char *myname = "psc_test_name";
     const NAME_CODE test_name_map[] = {
-	PSC_TNAME_PREGR, PSC_TINDX_PREGR,
-	PSC_TNAME_DNSBL, PSC_TINDX_DNSBL,
-	PSC_TNAME_PIPEL, PSC_TINDX_PIPEL,
-	PSC_TNAME_NSMTP, PSC_TINDX_NSMTP,
-	PSC_TNAME_BARLF, PSC_TINDX_BARLF,
-	0, -1,
+    PSC_TNAME_PREGR, PSC_TINDX_PREGR,
+    PSC_TNAME_DNSBL, PSC_TINDX_DNSBL,
+    PSC_TNAME_PIPEL, PSC_TINDX_PIPEL,
+    PSC_TNAME_NSMTP, PSC_TINDX_NSMTP,
+    PSC_TNAME_BARLF, PSC_TINDX_BARLF,
+    0, -1,
     };
     const char *result;
 
     if ((result = str_name_code(test_name_map, tindx)) == 0)
-	msg_panic("%s: bad index %d", myname, tindx);
+    msg_panic("%s: bad index %d", myname, tindx);
     return (result);
 }

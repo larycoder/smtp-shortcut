@@ -1,41 +1,41 @@
 /*++
 /* NAME
-/*	master_status 3
+/*    master_status 3
 /* SUMMARY
-/*	Postfix master - process child status reports
+/*    Postfix master - process child status reports
 /* SYNOPSIS
-/*	#include "master.h"
+/*    #include "master.h"
 /*
-/*	void	master_status_init(serv)
-/*	MASTER_SERV *serv;
+/*    void    master_status_init(serv)
+/*    MASTER_SERV *serv;
 /*
-/*	void	master_status_cleanup(serv)
-/*	MASTER_SERV *serv;
+/*    void    master_status_cleanup(serv)
+/*    MASTER_SERV *serv;
 /* DESCRIPTION
-/*	This module reads and processes status reports from child processes.
+/*    This module reads and processes status reports from child processes.
 /*
-/*	master_status_init() enables the processing of child status updates
-/*	for the specified service. Child process status updates (process
-/*	available, process taken) are passed on to the master_avail_XXX()
-/*	routines.
+/*    master_status_init() enables the processing of child status updates
+/*    for the specified service. Child process status updates (process
+/*    available, process taken) are passed on to the master_avail_XXX()
+/*    routines.
 /*
-/*	master_status_cleanup() disables child status update processing
-/*	for the specified service.
+/*    master_status_cleanup() disables child status update processing
+/*    for the specified service.
 /* DIAGNOSTICS
-/*	Panic: internal inconsistency. Warnings: a child process sends
-/*	incomplete or incorrect information.
+/*    Panic: internal inconsistency. Warnings: a child process sends
+/*    incomplete or incorrect information.
 /* BUGS
 /* SEE ALSO
-/*	master_avail(3)
+/*    master_avail(3)
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System libraries. */
@@ -66,8 +66,8 @@ static void master_status_event(int event, void *context)
     MASTER_PID pid;
     int     n;
 
-    if (event == 0)				/* XXX Can this happen?  */
-	return;
+    if (event == 0)                /* XXX Can this happen?  */
+    return;
 
     /*
      * We always keep the child end of the status pipe open, so an EOF read
@@ -81,23 +81,23 @@ static void master_status_event(int event, void *context)
     switch (n = read(serv->status_fd[0], (void *) &stat, sizeof(stat))) {
 
     case -1:
-	msg_warn("%s: read: %m", myname);
-	return;
+    msg_warn("%s: read: %m", myname);
+    return;
 
     case 0:
-	msg_panic("%s: read EOF status", myname);
-	/* NOTREACHED */
+    msg_panic("%s: read EOF status", myname);
+    /* NOTREACHED */
 
     default:
-	msg_warn("service %s(%s): child (pid %d) sent partial status update (%d bytes)",
-		 serv->ext_name, serv->name, stat.pid, n);
-	return;
+    msg_warn("service %s(%s): child (pid %d) sent partial status update (%d bytes)",
+         serv->ext_name, serv->name, stat.pid, n);
+    return;
 
     case sizeof(stat):
-	pid = stat.pid;
-	if (msg_verbose)
-	    msg_info("%s: pid %d gen %u avail %d",
-		     myname, stat.pid, stat.gen, stat.avail);
+    pid = stat.pid;
+    if (msg_verbose)
+        msg_info("%s: pid %d gen %u avail %d",
+             myname, stat.pid, stat.gen, stat.avail);
     }
 
     /*
@@ -108,19 +108,19 @@ static void master_status_event(int event, void *context)
      * status update, so this is not an error.
      */
     if ((proc = (MASTER_PROC *) binhash_find(master_child_table,
-					(void *) &pid, sizeof(pid))) == 0) {
-	if (msg_verbose)
-	    msg_info("%s: process id not found: %d", myname, stat.pid);
-	return;
+                    (void *) &pid, sizeof(pid))) == 0) {
+    if (msg_verbose)
+        msg_info("%s: process id not found: %d", myname, stat.pid);
+    return;
     }
     if (proc->gen != stat.gen) {
-	msg_info("ignoring status update from child pid %d generation %u",
-		 pid, stat.gen);
-	return;
+    msg_info("ignoring status update from child pid %d generation %u",
+         pid, stat.gen);
+    return;
     }
     if (proc->serv != serv)
-	msg_panic("%s: pointer corruption: %p != %p",
-		  myname, (void *) proc->serv, (void *) serv);
+    msg_panic("%s: pointer corruption: %p != %p",
+          myname, (void *) proc->serv, (void *) serv);
 
     /*
      * Update our idea of the child process status. Allow redundant status
@@ -129,19 +129,19 @@ static void master_status_event(int event, void *context)
      * action. It's all gossip after all.
      */
     if (proc->avail == stat.avail)
-	return;
+    return;
     switch (stat.avail) {
     case MASTER_STAT_AVAIL:
-	proc->use_count++;
-	master_avail_more(serv, proc);
-	break;
+    proc->use_count++;
+    master_avail_more(serv, proc);
+    break;
     case MASTER_STAT_TAKEN:
-	master_avail_less(serv, proc);
-	break;
+    master_avail_less(serv, proc);
+    break;
     default:
-	msg_warn("%s: ignoring unknown status: %d allegedly from pid: %d",
-		 myname, stat.pid, stat.avail);
-	break;
+    msg_warn("%s: ignoring unknown status: %d allegedly from pid: %d",
+         myname, stat.pid, stat.avail);
+    break;
     }
 }
 
@@ -155,9 +155,9 @@ void    master_status_init(MASTER_SERV *serv)
      * Sanity checks.
      */
     if (serv->status_fd[0] >= 0 || serv->status_fd[1] >= 0)
-	msg_panic("%s: status events already enabled", myname);
+    msg_panic("%s: status events already enabled", myname);
     if (msg_verbose)
-	msg_info("%s: %s", myname, serv->name);
+    msg_info("%s: %s", myname, serv->name);
 
     /*
      * Make the read end of this service's status pipe non-blocking so that
@@ -165,7 +165,7 @@ void    master_status_init(MASTER_SERV *serv)
      * so that the child side becomes readable when the master goes away.
      */
     if (duplex_pipe(serv->status_fd) < 0)
-	msg_fatal("pipe: %m");
+    msg_fatal("pipe: %m");
     non_blocking(serv->status_fd[0], BLOCKING);
     close_on_exec(serv->status_fd[0], CLOSE_ON_EXEC);
     close_on_exec(serv->status_fd[1], CLOSE_ON_EXEC);
@@ -182,17 +182,17 @@ void    master_status_cleanup(MASTER_SERV *serv)
      * Sanity checks.
      */
     if (serv->status_fd[0] < 0 || serv->status_fd[1] < 0)
-	msg_panic("%s: status events not enabled", myname);
+    msg_panic("%s: status events not enabled", myname);
     if (msg_verbose)
-	msg_info("%s: %s", myname, serv->name);
+    msg_info("%s: %s", myname, serv->name);
 
     /*
      * Dispose of this service's status pipe after disabling read events.
      */
     event_disable_readwrite(serv->status_fd[0]);
     if (close(serv->status_fd[0]) != 0)
-	msg_warn("%s: close status descriptor (read side): %m", myname);
+    msg_warn("%s: close status descriptor (read side): %m", myname);
     if (close(serv->status_fd[1]) != 0)
-	msg_warn("%s: close status descriptor (write side): %m", myname);
+    msg_warn("%s: close status descriptor (write side): %m", myname);
     serv->status_fd[0] = serv->status_fd[1] = -1;
 }

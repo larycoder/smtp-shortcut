@@ -1,20 +1,20 @@
 /*++
 /* NAME
-/*	smtp_state 3
+/*    smtp_state 3
 /* SUMMARY
-/*	initialize/cleanup shared state
+/*    initialize/cleanup shared state
 /* SYNOPSIS
-/*	#include "smtp.h"
+/*    #include "smtp.h"
 /*
-/*	SMTP_STATE *smtp_state_alloc()
+/*    SMTP_STATE *smtp_state_alloc()
 /*
-/*	void	smtp_state_free(state)
-/*	SMTP_STATE *state;
+/*    void    smtp_state_free(state)
+/*    SMTP_STATE *state;
 /* DESCRIPTION
-/*	smtp_state_init() initializes the shared state, and allocates
-/*	memory for buffers etc.
+/*    smtp_state_init() initializes the shared state, and allocates
+/*    memory for buffers etc.
 /*
-/*	smtp_cleanup() destroys memory allocated by smtp_state_init().
+/*    smtp_cleanup() destroys memory allocated by smtp_state_init().
 /* STANDARDS
 /* DIAGNOSTICS
 /* BUGS
@@ -22,17 +22,17 @@
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -74,17 +74,17 @@ SMTP_STATE *smtp_state_alloc(void)
     state->iterator->addr = vstring_alloc(100);
     state->iterator->saved_dest = vstring_alloc(100);
     if (var_smtp_cache_conn) {
-	state->dest_label = vstring_alloc(10);
-	state->dest_prop = vstring_alloc(10);
-	state->endp_label = vstring_alloc(10);
-	state->endp_prop = vstring_alloc(10);
-	state->cache_used = htable_create(1);
+    state->dest_label = vstring_alloc(10);
+    state->dest_prop = vstring_alloc(10);
+    state->endp_label = vstring_alloc(10);
+    state->endp_prop = vstring_alloc(10);
+    state->cache_used = htable_create(1);
     } else {
-	state->dest_label = 0;
-	state->dest_prop = 0;
-	state->endp_label = 0;
-	state->endp_prop = 0;
-	state->cache_used = 0;
+    state->dest_label = 0;
+    state->dest_prop = 0;
+    state->endp_label = 0;
+    state->endp_prop = 0;
+    state->cache_used = 0;
     }
     state->why = dsb_create();
     state->debug_peer_per_nexthop = 0;
@@ -105,19 +105,19 @@ void    smtp_state_free(SMTP_STATE *state)
     vstring_free(state->iterator->addr);
     vstring_free(state->iterator->saved_dest);
     if (state->dest_label)
-	vstring_free(state->dest_label);
+    vstring_free(state->dest_label);
     if (state->dest_prop)
-	vstring_free(state->dest_prop);
+    vstring_free(state->dest_prop);
     if (state->endp_label)
-	vstring_free(state->endp_label);
+    vstring_free(state->endp_label);
     if (state->endp_prop)
-	vstring_free(state->endp_prop);
+    vstring_free(state->endp_prop);
     if (state->cache_used)
-	htable_free(state->cache_used, (void (*) (void *)) 0);
+    htable_free(state->cache_used, (void (*) (void *)) 0);
     if (state->why)
-	dsb_free(state->why);
+    dsb_free(state->why);
     if (state->debug_peer_per_nexthop)
-	debug_peer_restore();
+    debug_peer_restore();
 
     myfree((void *) state);
 }

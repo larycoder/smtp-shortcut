@@ -1,92 +1,92 @@
 /*++
 /* NAME
-/*	test_main 3
+/*    test_main 3
 /* SUMMARY
-/*	test main program
+/*    test main program
 /* SYNOPSIS
-/*	#include <test_main.h>
+/*    #include <test_main.h>
 /*
-/*	NORETURN test_main(argc, argv, test_driver, key, value, ...)
-/*	int	argc;
-/*	char	**argv;
-/*	void	(*test_driver)(int argc, char **argv);
-/*	int	key;
+/*    NORETURN test_main(argc, argv, test_driver, key, value, ...)
+/*    int    argc;
+/*    char    **argv;
+/*    void    (*test_driver)(int argc, char **argv);
+/*    int    key;
 /* DESCRIPTION
-/*	This module implements a test main program for stand-alone
-/*	module tests.
+/*    This module implements a test main program for stand-alone
+/*    module tests.
 /*
-/*	test_main() should be called from a main program. It does
-/*	generic command-line options processing, and initializes
-/*	configurable parameters. After calling the test_driver()
-/*	function, the test_main() function terminates.
+/*    test_main() should be called from a main program. It does
+/*    generic command-line options processing, and initializes
+/*    configurable parameters. After calling the test_driver()
+/*    function, the test_main() function terminates.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP "void (*test_driver)(int argc, char **argv)"
-/*	A pointer to a function that is called after processing
-/*	command-line options and initializing configuration parameters.
-/*	The argc and argv specify the process name and non-option
-/*	command-line arguments.
+/*    A pointer to a function that is called after processing
+/*    command-line options and initializing configuration parameters.
+/*    The argc and argv specify the process name and non-option
+/*    command-line arguments.
 /* .PP
-/*	Optional test_main() arguments are specified as a null-terminated
-/*	list with macros that have zero or more arguments:
+/*    Optional test_main() arguments are specified as a null-terminated
+/*    list with macros that have zero or more arguments:
 /* .IP "CA_TEST_MAIN_INT_TABLE(CONFIG_INT_TABLE *)"
-/*	A table with configurable parameters, to be loaded from the
-/*	global Postfix configuration file. Tables are loaded in the
-/*	order as specified, and multiple instances of the same type
-/*	are allowed.
+/*    A table with configurable parameters, to be loaded from the
+/*    global Postfix configuration file. Tables are loaded in the
+/*    order as specified, and multiple instances of the same type
+/*    are allowed.
 /* .IP "CA_TEST_MAIN_LONG_TABLE(CONFIG_LONG_TABLE *)"
-/*	A table with configurable parameters, to be loaded from the
-/*	global Postfix configuration file. Tables are loaded in the
-/*	order as specified, and multiple instances of the same type
-/*	are allowed.
+/*    A table with configurable parameters, to be loaded from the
+/*    global Postfix configuration file. Tables are loaded in the
+/*    order as specified, and multiple instances of the same type
+/*    are allowed.
 /* .IP "CA_TEST_MAIN_STR_TABLE(CONFIG_STR_TABLE *)"
-/*	A table with configurable parameters, to be loaded from the
-/*	global Postfix configuration file. Tables are loaded in the
-/*	order as specified, and multiple instances of the same type
-/*	are allowed.
+/*    A table with configurable parameters, to be loaded from the
+/*    global Postfix configuration file. Tables are loaded in the
+/*    order as specified, and multiple instances of the same type
+/*    are allowed.
 /* .IP "CA_TEST_MAIN_BOOL_TABLE(CONFIG_BOOL_TABLE *)"
-/*	A table with configurable parameters, to be loaded from the
-/*	global Postfix configuration file. Tables are loaded in the
-/*	order as specified, and multiple instances of the same type
-/*	are allowed.
+/*    A table with configurable parameters, to be loaded from the
+/*    global Postfix configuration file. Tables are loaded in the
+/*    order as specified, and multiple instances of the same type
+/*    are allowed.
 /* .IP "CA_TEST_MAIN_TIME_TABLE(CONFIG_TIME_TABLE *)"
-/*	A table with configurable parameters, to be loaded from the
-/*	global Postfix configuration file. Tables are loaded in the
-/*	order as specified, and multiple instances of the same type
-/*	are allowed.
+/*    A table with configurable parameters, to be loaded from the
+/*    global Postfix configuration file. Tables are loaded in the
+/*    order as specified, and multiple instances of the same type
+/*    are allowed.
 /* .IP "CA_TEST_MAIN_RAW_TABLE(CONFIG_RAW_TABLE *)"
-/*	A table with configurable parameters, to be loaded from the
-/*	global Postfix configuration file. Tables are loaded in the
-/*	order as specified, and multiple instances of the same type
-/*	are allowed. Raw parameters are not subjected to $name
-/*	evaluation.
+/*    A table with configurable parameters, to be loaded from the
+/*    global Postfix configuration file. Tables are loaded in the
+/*    order as specified, and multiple instances of the same type
+/*    are allowed. Raw parameters are not subjected to $name
+/*    evaluation.
 /* .IP "CA_TEST_MAIN_NINT_TABLE(CONFIG_NINT_TABLE *)"
-/*	A table with configurable parameters, to be loaded from the
-/*	global Postfix configuration file. Tables are loaded in the
-/*	order as specified, and multiple instances of the same type
-/*	are allowed.
+/*    A table with configurable parameters, to be loaded from the
+/*    global Postfix configuration file. Tables are loaded in the
+/*    order as specified, and multiple instances of the same type
+/*    are allowed.
 /* .IP "CA_TEST_MAIN_NBOOL_TABLE(CONFIG_NBOOL_TABLE *)"
-/*	A table with configurable parameters, to be loaded from the
-/*	global Postfix configuration file. Tables are loaded in the
-/*	order as specified, and multiple instances of the same type
-/*	are allowed.
+/*    A table with configurable parameters, to be loaded from the
+/*    global Postfix configuration file. Tables are loaded in the
+/*    order as specified, and multiple instances of the same type
+/*    are allowed.
 /* DIAGNOSTICS
-/*	Problems and transactions are logged stderr.
+/*    Problems and transactions are logged stderr.
 /* BUGS
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
  /*
@@ -144,19 +144,19 @@ NORETURN test_main(int argc, char **argv, TEST_DRIVER_FN test_driver,...)
      * Parse JCL.
      */
     while ((ch = GETOPT(argc, argv, "c:v")) > 0) {
-	switch (ch) {
-	case 'c':
-	    if (setenv(CONF_ENV_PATH, optarg, 1) < 0)
-		msg_fatal("out of memory");
-	    break;
-	case 'v':
-	    msg_verbose++;
-	    break;
-	default:
-	    msg_fatal("invalid option: %c. Usage: %s [-c config_dir] [-v]",
-		      optopt, argv[0]);
-	    break;
-	}
+    switch (ch) {
+    case 'c':
+        if (setenv(CONF_ENV_PATH, optarg, 1) < 0)
+        msg_fatal("out of memory");
+        break;
+    case 'v':
+        msg_verbose++;
+        break;
+    default:
+        msg_fatal("invalid option: %c. Usage: %s [-c config_dir] [-v]",
+              optopt, argv[0]);
+        break;
+    }
     }
 
     /*
@@ -177,34 +177,34 @@ NORETURN test_main(int argc, char **argv, TEST_DRIVER_FN test_driver,...)
      */
     va_start(ap, test_driver);
     while ((key = va_arg(ap, int)) != 0) {
-	switch (key) {
-	case TEST_MAIN_INT_TABLE:
-	    get_mail_conf_int_table(va_arg(ap, CONFIG_INT_TABLE *));
-	    break;
-	case TEST_MAIN_LONG_TABLE:
-	    get_mail_conf_long_table(va_arg(ap, CONFIG_LONG_TABLE *));
-	    break;
-	case TEST_MAIN_STR_TABLE:
-	    get_mail_conf_str_table(va_arg(ap, CONFIG_STR_TABLE *));
-	    break;
-	case TEST_MAIN_BOOL_TABLE:
-	    get_mail_conf_bool_table(va_arg(ap, CONFIG_BOOL_TABLE *));
-	    break;
-	case TEST_MAIN_TIME_TABLE:
-	    get_mail_conf_time_table(va_arg(ap, CONFIG_TIME_TABLE *));
-	    break;
-	case TEST_MAIN_RAW_TABLE:
-	    get_mail_conf_raw_table(va_arg(ap, CONFIG_RAW_TABLE *));
-	    break;
-	case TEST_MAIN_NINT_TABLE:
-	    get_mail_conf_nint_table(va_arg(ap, CONFIG_NINT_TABLE *));
-	    break;
-	case TEST_MAIN_NBOOL_TABLE:
-	    get_mail_conf_nbool_table(va_arg(ap, CONFIG_NBOOL_TABLE *));
-	    break;
-	default:
-	    msg_panic("%s: unknown argument type: %d", myname, key);
-	}
+    switch (key) {
+    case TEST_MAIN_INT_TABLE:
+        get_mail_conf_int_table(va_arg(ap, CONFIG_INT_TABLE *));
+        break;
+    case TEST_MAIN_LONG_TABLE:
+        get_mail_conf_long_table(va_arg(ap, CONFIG_LONG_TABLE *));
+        break;
+    case TEST_MAIN_STR_TABLE:
+        get_mail_conf_str_table(va_arg(ap, CONFIG_STR_TABLE *));
+        break;
+    case TEST_MAIN_BOOL_TABLE:
+        get_mail_conf_bool_table(va_arg(ap, CONFIG_BOOL_TABLE *));
+        break;
+    case TEST_MAIN_TIME_TABLE:
+        get_mail_conf_time_table(va_arg(ap, CONFIG_TIME_TABLE *));
+        break;
+    case TEST_MAIN_RAW_TABLE:
+        get_mail_conf_raw_table(va_arg(ap, CONFIG_RAW_TABLE *));
+        break;
+    case TEST_MAIN_NINT_TABLE:
+        get_mail_conf_nint_table(va_arg(ap, CONFIG_NINT_TABLE *));
+        break;
+    case TEST_MAIN_NBOOL_TABLE:
+        get_mail_conf_nbool_table(va_arg(ap, CONFIG_NBOOL_TABLE *));
+        break;
+    default:
+        msg_panic("%s: unknown argument type: %d", myname, key);
+    }
     }
     va_end(ap);
 
@@ -213,7 +213,7 @@ NORETURN test_main(int argc, char **argv, TEST_DRIVER_FN test_driver,...)
      */
     test_driver_argv = argv + optind - 1;
     if (test_driver_argv != argv)
-	test_driver_argv[0] = argv[0];
+    test_driver_argv[0] = argv[0];
     test_driver_argc = argc - optind + 1;
 
     /*

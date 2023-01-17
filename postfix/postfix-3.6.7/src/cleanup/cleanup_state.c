@@ -1,38 +1,38 @@
 /*++
 /* NAME
-/*	cleanup_state 3
+/*    cleanup_state 3
 /* SUMMARY
-/*	per-message state variables
+/*    per-message state variables
 /* SYNOPSIS
-/*	#include "cleanup.h"
+/*    #include "cleanup.h"
 /*
-/*	CLEANUP_STATE *cleanup_state_alloc(src)
-/*	VSTREAM	*src;
+/*    CLEANUP_STATE *cleanup_state_alloc(src)
+/*    VSTREAM    *src;
 /*
-/*	void	cleanup_state_free(state)
-/*	CLEANUP_STATE *state;
+/*    void    cleanup_state_free(state)
+/*    CLEANUP_STATE *state;
 /* DESCRIPTION
-/*	This module maintains about two dozen state variables
-/*	that are used by many routines in the course of processing one
-/*	message.
+/*    This module maintains about two dozen state variables
+/*    that are used by many routines in the course of processing one
+/*    message.
 /*
-/*	cleanup_state_alloc() initializes the per-message state variables.
+/*    cleanup_state_alloc() initializes the per-message state variables.
 /*
-/*	cleanup_state_free() cleans up.
+/*    cleanup_state_free() cleans up.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -70,7 +70,7 @@ CLEANUP_STATE *cleanup_state_alloc(VSTREAM *src)
     state->temp1 = vstring_alloc(10);
     state->temp2 = vstring_alloc(10);
     if (cleanup_strip_chars)
-	state->stripped_buf = vstring_alloc(10);
+    state->stripped_buf = vstring_alloc(10);
     state->src = src;
     state->dst = 0;
     state->handle = 0;
@@ -147,54 +147,54 @@ void    cleanup_state_free(CLEANUP_STATE *state)
     vstring_free(state->temp1);
     vstring_free(state->temp2);
     if (cleanup_strip_chars)
-	vstring_free(state->stripped_buf);
+    vstring_free(state->stripped_buf);
     if (state->fullname)
-	myfree(state->fullname);
+    myfree(state->fullname);
     if (state->sender)
-	myfree(state->sender);
+    myfree(state->sender);
     if (state->recip)
-	myfree(state->recip);
+    myfree(state->recip);
     if (state->orig_rcpt)
-	myfree(state->orig_rcpt);
+    myfree(state->orig_rcpt);
     if (state->return_receipt)
-	myfree(state->return_receipt);
+    myfree(state->return_receipt);
     if (state->errors_to)
-	myfree(state->errors_to);
+    myfree(state->errors_to);
     argv_free(state->auto_hdrs);
     if (state->hbc_rcpt)
-	argv_free(state->hbc_rcpt);
+    argv_free(state->hbc_rcpt);
     if (state->queue_name)
-	myfree(state->queue_name);
+    myfree(state->queue_name);
     if (state->queue_id)
-	myfree(state->queue_id);
+    myfree(state->queue_id);
     been_here_free(state->dups);
     if (state->reason)
-	myfree(state->reason);
+    myfree(state->reason);
     if (state->smtp_reply)
-	myfree(state->smtp_reply);
+    myfree(state->smtp_reply);
     nvtable_free(state->attr);
     if (state->mime_state)
-	mime_state_free(state->mime_state);
+    mime_state_free(state->mime_state);
     if (state->filter)
-	myfree(state->filter);
+    myfree(state->filter);
     if (state->redirect)
-	myfree(state->redirect);
+    myfree(state->redirect);
     if (state->dsn_envid)
-	myfree(state->dsn_envid);
+    myfree(state->dsn_envid);
     if (state->dsn_orcpt)
-	myfree(state->dsn_orcpt);
+    myfree(state->dsn_orcpt);
     if (state->verp_delims)
-	myfree(state->verp_delims);
+    myfree(state->verp_delims);
     if (state->milters)
-	milter_free(state->milters);
+    milter_free(state->milters);
     if (state->milter_ext_from)
-	vstring_free(state->milter_ext_from);
+    vstring_free(state->milter_ext_from);
     if (state->milter_ext_rcpt)
-	vstring_free(state->milter_ext_rcpt);
+    vstring_free(state->milter_ext_rcpt);
     if (state->milter_err_text)
-	vstring_free(state->milter_err_text);
+    vstring_free(state->milter_err_text);
     if (state->milter_dsn_buf)
-	vstring_free(state->milter_dsn_buf);
+    vstring_free(state->milter_dsn_buf);
     cleanup_region_done(state);
     myfree((void *) state);
 }

@@ -1,35 +1,35 @@
 /*++
 /* NAME
-/*	smtpd_milter 3
+/*    smtpd_milter 3
 /* SUMMARY
-/*	SMTP server milter glue
+/*    SMTP server milter glue
 /* SYNOPSIS
-/*	#include <smtpd.h>
-/*	#include <smtpd_milter.h>
+/*    #include <smtpd.h>
+/*    #include <smtpd_milter.h>
 /*
-/*	const char *smtpd_milter_eval(name, context)
-/*	const char *name;
-/*	void	*context;
+/*    const char *smtpd_milter_eval(name, context)
+/*    const char *name;
+/*    void    *context;
 /* DESCRIPTION
-/*	smtpd_milter_eval() is a milter(3) call-back routine to
-/*	expand Sendmail macros before they are sent to filters.
+/*    smtpd_milter_eval() is a milter(3) call-back routine to
+/*    expand Sendmail macros before they are sent to filters.
 /* DIAGNOSTICS
-/*	Panic: interface violations. Fatal errors: out of memory.
-/*	internal protocol errors.
+/*    Panic: interface violations. Fatal errors: out of memory.
+/*    internal protocol errors.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -60,7 +60,7 @@
  /*
   * SLMs.
   */
-#define STR(x)	vstring_str(x)
+#define STR(x)    vstring_str(x)
 
 /* smtpd_milter_eval - evaluate milter macro */
 
@@ -74,49 +74,49 @@ const char *smtpd_milter_eval(const char *name, void *ptr)
      * On-the-fly initialization.
      */
     if (state->expand_buf == 0)
-	state->expand_buf = vstring_alloc(10);
+    state->expand_buf = vstring_alloc(10);
 
     /*
      * System macros.
      */
     if (strcmp(name, S8_MAC_DAEMON_NAME) == 0)
-	return (var_milt_daemon_name);
+    return (var_milt_daemon_name);
     if (strcmp(name, S8_MAC_V) == 0)
-	return (var_milt_v);
+    return (var_milt_v);
 
     /*
      * Connect macros.
      */
     if (strcmp(name, S8_MAC__) == 0) {
-	vstring_sprintf(state->expand_buf, "%s [%s]",
-			state->reverse_name, state->addr);
-	if (strcasecmp_utf8(state->name, state->reverse_name) != 0)
-	    vstring_strcat(state->expand_buf, " (may be forged)");
-	return (STR(state->expand_buf));
+    vstring_sprintf(state->expand_buf, "%s [%s]",
+            state->reverse_name, state->addr);
+    if (strcasecmp_utf8(state->name, state->reverse_name) != 0)
+        vstring_strcat(state->expand_buf, " (may be forged)");
+    return (STR(state->expand_buf));
     }
     if (strcmp(name, S8_MAC_J) == 0)
-	return (var_myhostname);
+    return (var_myhostname);
     if (strcmp(name, S8_MAC_CLIENT_ADDR) == 0)
-	return (state->rfc_addr);
+    return (state->rfc_addr);
     if (strcmp(name, S8_MAC_CLIENT_PORT) == 0)
-	return (strcmp(state->port, CLIENT_PORT_UNKNOWN) ? state->port : "0");
+    return (strcmp(state->port, CLIENT_PORT_UNKNOWN) ? state->port : "0");
     if (strcmp(name, S8_MAC_CLIENT_CONN) == 0) {
-	vstring_sprintf(state->expand_buf, "%d", state->conn_count);
-	return (STR(state->expand_buf));
+    vstring_sprintf(state->expand_buf, "%d", state->conn_count);
+    return (STR(state->expand_buf));
     }
     if (strcmp(name, S8_MAC_CLIENT_NAME) == 0)
-	return (state->name);
+    return (state->name);
     if (strcmp(name, S8_MAC_CLIENT_PTR) == 0)
-	return (state->reverse_name);
+    return (state->reverse_name);
     if (strcmp(name, S8_MAC_CLIENT_RES) == 0)
-	return (state->name_status == SMTPD_PEER_CODE_OK ? "OK" :
-		state->name_status == SMTPD_PEER_CODE_FORGED ? "FORGED" :
-	      state->name_status == SMTPD_PEER_CODE_TEMP ? "TEMP" : "FAIL");
+    return (state->name_status == SMTPD_PEER_CODE_OK ? "OK" :
+        state->name_status == SMTPD_PEER_CODE_FORGED ? "FORGED" :
+          state->name_status == SMTPD_PEER_CODE_TEMP ? "TEMP" : "FAIL");
 
     if (strcmp(name, S8_MAC_DAEMON_ADDR) == 0)
-	return (state->dest_addr);
+    return (state->dest_addr);
     if (strcmp(name, S8_MAC_DAEMON_PORT) == 0)
-	return (state->dest_port);
+    return (state->dest_port);
 
     /*
      * HELO macros.
@@ -126,20 +126,20 @@ const char *smtpd_milter_eval(const char *name, void *ptr)
 #define IF_TRUSTED(x) (TLS_CERT_IS_TRUSTED(state->tls_context) ? (x) : 0)
 
     if (strcmp(name, S8_MAC_TLS_VERSION) == 0)
-	return (IF_ENCRYPTED(state->tls_context->protocol));
+    return (IF_ENCRYPTED(state->tls_context->protocol));
     if (strcmp(name, S8_MAC_CIPHER) == 0)
-	return (IF_ENCRYPTED(state->tls_context->cipher_name));
+    return (IF_ENCRYPTED(state->tls_context->cipher_name));
     if (strcmp(name, S8_MAC_CIPHER_BITS) == 0) {
-	if (state->tls_context == 0)
-	    return (0);
-	vstring_sprintf(state->expand_buf, "%d",
-			IF_ENCRYPTED(state->tls_context->cipher_usebits));
-	return (STR(state->expand_buf));
+    if (state->tls_context == 0)
+        return (0);
+    vstring_sprintf(state->expand_buf, "%d",
+            IF_ENCRYPTED(state->tls_context->cipher_usebits));
+    return (STR(state->expand_buf));
     }
     if (strcmp(name, S8_MAC_CERT_SUBJECT) == 0)
-	return (IF_TRUSTED(state->tls_context->peer_CN));
+    return (IF_TRUSTED(state->tls_context->peer_CN));
     if (strcmp(name, S8_MAC_CERT_ISSUER) == 0)
-	return (IF_TRUSTED(state->tls_context->issuer_CN));
+    return (IF_TRUSTED(state->tls_context->issuer_CN));
 #endif
 
     /*
@@ -148,82 +148,82 @@ const char *smtpd_milter_eval(const char *name, void *ptr)
 #define IF_SASL_ENABLED(s) ((s) ? (s) : 0)
 
     if (strcmp(name, S8_MAC_I) == 0)
-	return (state->queue_id);
+    return (state->queue_id);
 #ifdef USE_SASL_AUTH
     if (strcmp(name, S8_MAC_AUTH_TYPE) == 0)
-	return (IF_SASL_ENABLED(state->sasl_method));
+    return (IF_SASL_ENABLED(state->sasl_method));
     if (strcmp(name, S8_MAC_AUTH_AUTHEN) == 0)
-	return (IF_SASL_ENABLED(state->sasl_username));
+    return (IF_SASL_ENABLED(state->sasl_username));
     if (strcmp(name, S8_MAC_AUTH_AUTHOR) == 0)
-	return (IF_SASL_ENABLED(state->sasl_sender));
+    return (IF_SASL_ENABLED(state->sasl_sender));
 #endif
     if (strcmp(name, S8_MAC_MAIL_ADDR) == 0) {
-	if (state->sender == 0)
-	    return (0);
-	if (state->sender[0] == 0)
-	    return ("");
-	reply = smtpd_resolve_addr(state->recipient, state->sender);
-	/* Sendmail 8.13 does not externalize the null string. */
-	if (STR(reply->recipient)[0])
-	    quote_821_local(state->expand_buf, STR(reply->recipient));
-	else
-	    vstring_strcpy(state->expand_buf, STR(reply->recipient));
-	return (STR(state->expand_buf));
+    if (state->sender == 0)
+        return (0);
+    if (state->sender[0] == 0)
+        return ("");
+    reply = smtpd_resolve_addr(state->recipient, state->sender);
+    /* Sendmail 8.13 does not externalize the null string. */
+    if (STR(reply->recipient)[0])
+        quote_821_local(state->expand_buf, STR(reply->recipient));
+    else
+        vstring_strcpy(state->expand_buf, STR(reply->recipient));
+    return (STR(state->expand_buf));
     }
     if (strcmp(name, S8_MAC_MAIL_HOST) == 0) {
-	if (state->sender == 0)
-	    return (0);
-	reply = smtpd_resolve_addr(state->recipient, state->sender);
-	return (STR(reply->nexthop));
+    if (state->sender == 0)
+        return (0);
+    reply = smtpd_resolve_addr(state->recipient, state->sender);
+    return (STR(reply->nexthop));
     }
     if (strcmp(name, S8_MAC_MAIL_MAILER) == 0) {
-	if (state->sender == 0)
-	    return (0);
-	reply = smtpd_resolve_addr(state->recipient, state->sender);
-	return (STR(reply->transport));
+    if (state->sender == 0)
+        return (0);
+    reply = smtpd_resolve_addr(state->recipient, state->sender);
+    return (STR(reply->transport));
     }
 
     /*
      * RCPT TO macros.
      */
     if (strcmp(name, S8_MAC_RCPT_ADDR) == 0) {
-	if (state->recipient == 0)
-	    return (0);
-	if (state->recipient[0] == 0)
-	    return ("");
-	if (state->milter_reject_text) {
-	    /* 554 5.7.1 <user@example.com>: Relay access denied */
-	    vstring_strcpy(state->expand_buf, state->milter_reject_text + 4);
-	    cp = split_at(STR(state->expand_buf), ' ');
-	    return (cp ? split_at(cp, ' ') : cp);
-	}
-	reply = smtpd_resolve_addr(state->sender, state->recipient);
-	/* Sendmail 8.13 does not externalize the null string. */
-	if (STR(reply->recipient)[0])
-	    quote_821_local(state->expand_buf, STR(reply->recipient));
-	else
-	    vstring_strcpy(state->expand_buf, STR(reply->recipient));
-	return (STR(state->expand_buf));
+    if (state->recipient == 0)
+        return (0);
+    if (state->recipient[0] == 0)
+        return ("");
+    if (state->milter_reject_text) {
+        /* 554 5.7.1 <user@example.com>: Relay access denied */
+        vstring_strcpy(state->expand_buf, state->milter_reject_text + 4);
+        cp = split_at(STR(state->expand_buf), ' ');
+        return (cp ? split_at(cp, ' ') : cp);
+    }
+    reply = smtpd_resolve_addr(state->sender, state->recipient);
+    /* Sendmail 8.13 does not externalize the null string. */
+    if (STR(reply->recipient)[0])
+        quote_821_local(state->expand_buf, STR(reply->recipient));
+    else
+        vstring_strcpy(state->expand_buf, STR(reply->recipient));
+    return (STR(state->expand_buf));
     }
     if (strcmp(name, S8_MAC_RCPT_HOST) == 0) {
-	if (state->recipient == 0)
-	    return (0);
-	if (state->milter_reject_text) {
-	    /* 554 5.7.1 <user@example.com>: Relay access denied */
-	    vstring_strcpy(state->expand_buf, state->milter_reject_text + 4);
-	    (void) split_at(STR(state->expand_buf), ' ');
-	    return (STR(state->expand_buf));
-	}
-	reply = smtpd_resolve_addr(state->sender, state->recipient);
-	return (STR(reply->nexthop));
+    if (state->recipient == 0)
+        return (0);
+    if (state->milter_reject_text) {
+        /* 554 5.7.1 <user@example.com>: Relay access denied */
+        vstring_strcpy(state->expand_buf, state->milter_reject_text + 4);
+        (void) split_at(STR(state->expand_buf), ' ');
+        return (STR(state->expand_buf));
+    }
+    reply = smtpd_resolve_addr(state->sender, state->recipient);
+    return (STR(reply->nexthop));
     }
     if (strcmp(name, S8_MAC_RCPT_MAILER) == 0) {
-	if (state->recipient == 0)
-	    return (0);
-	if (state->milter_reject_text)
-	    return (S8_RCPT_MAILER_ERROR);
-	reply = smtpd_resolve_addr(state->sender, state->recipient);
-	return (STR(reply->transport));
+    if (state->recipient == 0)
+        return (0);
+    if (state->milter_reject_text)
+        return (S8_RCPT_MAILER_ERROR);
+    reply = smtpd_resolve_addr(state->sender, state->recipient);
+    return (STR(reply->transport));
     }
     return (0);
 }

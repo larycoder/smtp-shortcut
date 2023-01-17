@@ -1,33 +1,33 @@
 /*++
 /* NAME
-/*	dns_strtype 3
+/*    dns_strtype 3
 /* SUMMARY
-/*	name service lookup type codes and printable forms
+/*    name service lookup type codes and printable forms
 /* SYNOPSIS
-/*	#include <dns.h>
+/*    #include <dns.h>
 /*
-/*	const char *dns_strtype(code)
-/*	int	code;
+/*    const char *dns_strtype(code)
+/*    int    code;
 /*
-/*	int	dns_type(strval)
-/*	const char *strval;
+/*    int    dns_type(strval)
+/*    const char *strval;
 /* DESCRIPTION
-/*	dns_strtype() maps a name service lookup type to printable string.
-/*	The result is for read-only purposes, and unknown codes share a
-/*	common string buffer.
+/*    dns_strtype() maps a name service lookup type to printable string.
+/*    The result is for read-only purposes, and unknown codes share a
+/*    common string buffer.
 /*
-/*	dns_type() converts a name service lookup string value to a numeric
-/*	code. A null result means the code was not found. The input can be
-/*	in lower case, upper case or mixed case.
+/*    dns_type() converts a name service lookup string value to a numeric
+/*    code. A null result means the code was not found. The input can be
+/*    in lower case, upper case or mixed case.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -190,10 +190,10 @@ const char *dns_strtype(unsigned type)
     unsigned i;
 
     for (i = 0; i < sizeof(dns_type_map) / sizeof(dns_type_map[0]); i++)
-	if (dns_type_map[i].type == type)
-	    return (dns_type_map[i].text);
+    if (dns_type_map[i].type == type)
+        return (dns_type_map[i].text);
     if (unknown == 0)
-	unknown = vstring_alloc(sizeof("Unknown type XXXXXX"));
+    unknown = vstring_alloc(sizeof("Unknown type XXXXXX"));
     vstring_sprintf(unknown, "Unknown type %u", type);
     return (vstring_str(unknown));
 }
@@ -205,7 +205,7 @@ unsigned dns_type(const char *text)
     unsigned i;
 
     for (i = 0; i < sizeof(dns_type_map) / sizeof(dns_type_map[0]); i++)
-	if (strcasecmp(dns_type_map[i].text, text) == 0)
-	    return (dns_type_map[i].type);
+    if (strcasecmp(dns_type_map[i].text, text) == 0)
+        return (dns_type_map[i].type);
     return (0);
 }

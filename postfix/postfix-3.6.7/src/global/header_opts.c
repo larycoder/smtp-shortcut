@@ -1,31 +1,31 @@
 /*++
 /* NAME
-/*	header_opts 3
+/*    header_opts 3
 /* SUMMARY
-/*	message header classification
+/*    message header classification
 /* SYNOPSIS
-/*	#include <header_opts.h>
+/*    #include <header_opts.h>
 /*
-/*	const HEADER_OPTS *header_opts_find(string)
-/*	const char *string;
+/*    const HEADER_OPTS *header_opts_find(string)
+/*    const char *string;
 /* DESCRIPTION
-/*	header_opts_find() takes a message header line and looks up control
-/*	information for the corresponding header type.
+/*    header_opts_find() takes a message header line and looks up control
+/*    information for the corresponding header type.
 /* DIAGNOSTICS
-/*	Panic: input is not a valid header line. The result is a pointer
-/*	to HEADER_OPTS in case of success, a null pointer when the header
-/*	label was not recognized.
+/*    Panic: input is not a valid header line. The result is a pointer
+/*    to HEADER_OPTS in case of success, a null pointer when the header
+/*    label was not recognized.
 /* SEE ALSO
-/*	header_opts(3h) the gory details
+/*    header_opts(3h) the gory details
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -91,7 +91,7 @@ static HEADER_OPTS header_opts[] = {
 
 #define HEADER_OPTS_SIZE (sizeof(header_opts) / sizeof(header_opts[0]))
 
-static HTABLE *header_hash;		/* quick lookup */
+static HTABLE *header_hash;        /* quick lookup */
 static VSTRING *header_key;
 
 /* header_opts_init - initialize */
@@ -108,11 +108,11 @@ static void header_opts_init(void)
     header_key = vstring_alloc(10);
     header_hash = htable_create(HEADER_OPTS_SIZE);
     for (hp = header_opts; hp < header_opts + HEADER_OPTS_SIZE; hp++) {
-	VSTRING_RESET(header_key);
-	for (cp = hp->name; *cp; cp++)
-	    VSTRING_ADDCH(header_key, TOLOWER(*cp));
-	VSTRING_TERMINATE(header_key);
-	htable_enter(header_hash, vstring_str(header_key), (void *) hp);
+    VSTRING_RESET(header_key);
+    for (cp = hp->name; *cp; cp++)
+        VSTRING_ADDCH(header_key, TOLOWER(*cp));
+    VSTRING_TERMINATE(header_key);
+    htable_enter(header_hash, vstring_str(header_key), (void *) hp);
     }
 }
 
@@ -137,16 +137,16 @@ static void header_drop_init(void)
      */
     hdr_drop_list = argv_split(var_drop_hdrs, CHARS_COMMA_SP);
     for (cpp = hdr_drop_list->argv; *cpp; cpp++) {
-	lowercase(*cpp);
-	if ((ht = htable_locate(header_hash, *cpp)) == 0) {
-	    hp = (HEADER_OPTS *) mymalloc(sizeof(*hp));
-	    hp->type = HDR_OTHER;
-	    hp->flags = HDR_OPT_DROP;
-	    ht = htable_enter(header_hash, *cpp, (void *) hp);
-	    hp->name = ht->key;
-	} else
-	    hp = (HEADER_OPTS *) ht->value;
-	hp->flags |= HDR_OPT_DROP;
+    lowercase(*cpp);
+    if ((ht = htable_locate(header_hash, *cpp)) == 0) {
+        hp = (HEADER_OPTS *) mymalloc(sizeof(*hp));
+        hp->type = HDR_OTHER;
+        hp->flags = HDR_OPT_DROP;
+        ht = htable_enter(header_hash, *cpp, (void *) hp);
+        hp->name = ht->key;
+    } else
+        hp = (HEADER_OPTS *) ht->value;
+    hp->flags |= HDR_OPT_DROP;
     }
     argv_free(hdr_drop_list);
 }
@@ -158,8 +158,8 @@ const HEADER_OPTS *header_opts_find(const char *string)
     const char *cp;
 
     if (header_hash == 0) {
-	header_opts_init();
-	header_drop_init();
+    header_opts_init();
+    header_drop_init();
     }
 
     /*
@@ -167,13 +167,13 @@ const HEADER_OPTS *header_opts_find(const char *string)
      */
     VSTRING_RESET(header_key);
     for (cp = string; *cp != ':'; cp++) {
-	if (*cp == 0)
-	    msg_panic("header_opts_find: no colon in header: %.30s", string);
-	VSTRING_ADDCH(header_key, TOLOWER(*cp));
+    if (*cp == 0)
+        msg_panic("header_opts_find: no colon in header: %.30s", string);
+    VSTRING_ADDCH(header_key, TOLOWER(*cp));
     }
     vstring_truncate(header_key,
-		     trimblanks(vstring_str(header_key), cp - string)
-		     - vstring_str(header_key));
+             trimblanks(vstring_str(header_key), cp - string)
+             - vstring_str(header_key));
     VSTRING_TERMINATE(header_key);
     return ((const HEADER_OPTS *) htable_find(header_hash, vstring_str(header_key)));
 }

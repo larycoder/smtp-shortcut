@@ -1,25 +1,25 @@
 /*++
 /* NAME
-/*	cleanup_final 3
+/*    cleanup_final 3
 /* SUMMARY
-/*	finalize queue file
+/*    finalize queue file
 /* SYNOPSIS
-/*	#include "cleanup.h"
+/*    #include "cleanup.h"
 /*
-/*	void	cleanup_final(state)
-/*	CLEANUP_STATE *state;
+/*    void    cleanup_final(state)
+/*    CLEANUP_STATE *state;
 /* DESCRIPTION
-/*	cleanup_final() performs final queue file content (not
-/*	attribute) updates so that the file is ready to be closed.
+/*    cleanup_final() performs final queue file content (not
+/*    attribute) updates so that the file is ready to be closed.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -52,14 +52,14 @@ void    cleanup_final(CLEANUP_STATE *state)
      * straightforward.
      */
     if (vstream_fflush(state->dst)) {
-	if (errno == EFBIG) {
-	    msg_warn("%s: queue file size limit exceeded", state->queue_id);
-	    state->errs |= CLEANUP_STAT_SIZE;
-	} else {
-	    msg_warn("%s: write queue file: %m", state->queue_id);
-	    state->errs |= CLEANUP_STAT_WRITE;
-	}
-	return;
+    if (errno == EFBIG) {
+        msg_warn("%s: queue file size limit exceeded", state->queue_id);
+        state->errs |= CLEANUP_STAT_SIZE;
+    } else {
+        msg_warn("%s: write queue file: %m", state->queue_id);
+        state->errs |= CLEANUP_STAT_WRITE;
+    }
+    return;
     }
 
     /*
@@ -67,12 +67,12 @@ void    cleanup_final(CLEANUP_STATE *state)
      * values.
      */
     if (vstream_fseek(state->dst, 0L, SEEK_SET) < 0)
-	msg_fatal("%s: vstream_fseek %s: %m", myname, cleanup_path);
+    msg_fatal("%s: vstream_fseek %s: %m", myname, cleanup_path);
     cleanup_out_format(state, REC_TYPE_SIZE, REC_TYPE_SIZE_FORMAT,
-	    (REC_TYPE_SIZE_CAST1) (state->xtra_offset - state->data_offset),
-		       (REC_TYPE_SIZE_CAST2) state->data_offset,
-		       (REC_TYPE_SIZE_CAST3) state->rcpt_count,
-		       (REC_TYPE_SIZE_CAST4) state->qmgr_opts,
-		       (REC_TYPE_SIZE_CAST5) state->cont_length,
-		       (REC_TYPE_SIZE_CAST6) state->smtputf8);
+        (REC_TYPE_SIZE_CAST1) (state->xtra_offset - state->data_offset),
+               (REC_TYPE_SIZE_CAST2) state->data_offset,
+               (REC_TYPE_SIZE_CAST3) state->rcpt_count,
+               (REC_TYPE_SIZE_CAST4) state->qmgr_opts,
+               (REC_TYPE_SIZE_CAST5) state->cont_length,
+               (REC_TYPE_SIZE_CAST6) state->smtputf8);
 }

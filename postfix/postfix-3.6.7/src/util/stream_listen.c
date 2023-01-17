@@ -1,50 +1,50 @@
 /*++
 /* NAME
-/*	stream_listen 3
+/*    stream_listen 3
 /* SUMMARY
-/*	start stream listener
+/*    start stream listener
 /* SYNOPSIS
-/*	#include <listen.h>
+/*    #include <listen.h>
 /*
-/*	int	stream_listen(path, backlog, block_mode)
-/*	const char *path;
-/*	int	backlog;
-/*	int	block_mode;
+/*    int    stream_listen(path, backlog, block_mode)
+/*    const char *path;
+/*    int    backlog;
+/*    int    block_mode;
 /*
-/*	int	stream_accept(fd)
-/*	int	fd;
+/*    int    stream_accept(fd)
+/*    int    fd;
 /* DESCRIPTION
-/*	This module implements a substitute local IPC for systems that do
-/*	not have properly-working UNIX-domain sockets.
+/*    This module implements a substitute local IPC for systems that do
+/*    not have properly-working UNIX-domain sockets.
 /*
-/*	stream_listen() creates a listener endpoint with the specified
-/*	permissions, and returns a file descriptor to be used for accepting
-/*	connections.
+/*    stream_listen() creates a listener endpoint with the specified
+/*    permissions, and returns a file descriptor to be used for accepting
+/*    connections.
 /*
-/*	stream_accept() accepts a connection.
+/*    stream_accept() accepts a connection.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP path
-/*	Null-terminated string with connection destination.
+/*    Null-terminated string with connection destination.
 /* .IP backlog
-/*	This argument exists for compatibility and is ignored.
+/*    This argument exists for compatibility and is ignored.
 /* .IP block_mode
-/*	Either NON_BLOCKING or BLOCKING. This does not affect the
-/*	mode of accepted connections.
+/*    Either NON_BLOCKING or BLOCKING. This does not affect the
+/*    mode of accepted connections.
 /* .IP fd
-/*	File descriptor returned by stream_listen().
+/*    File descriptor returned by stream_listen().
 /* DIAGNOSTICS
-/*	Fatal errors: stream_listen() aborts upon any system call failure.
-/*	stream_accept() leaves all error handling up to the caller.
+/*    Fatal errors: stream_listen() aborts upon any system call failure.
+/*    stream_accept() leaves all error handling up to the caller.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System interfaces. */
@@ -94,7 +94,7 @@ int     stream_accept(int fd)
      * snatched the connection from us.
      */
     if (ioctl(fd, I_RECVFD, &fdinfo) < 0)
-	return (-1);
+    return (-1);
     return (fdinfo.fd);
 #else
             msg_fatal("stream connections are not implemented");

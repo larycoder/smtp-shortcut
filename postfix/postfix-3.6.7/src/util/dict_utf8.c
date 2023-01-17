@@ -1,43 +1,43 @@
 /*++
 /* NAME
-/*	dict_utf8 3
+/*    dict_utf8 3
 /* SUMMARY
-/*	dictionary UTF-8 helpers
+/*    dictionary UTF-8 helpers
 /* SYNOPSIS
-/*	#include <dict.h>
+/*    #include <dict.h>
 /*
-/*	DICT	*dict_utf8_activate(
-/*	DICT	*dict)
+/*    DICT    *dict_utf8_activate(
+/*    DICT    *dict)
 /* DESCRIPTION
-/*	dict_utf8_activate() wraps a dictionary's lookup/update/delete
-/*	methods with code that enforces UTF-8 checks on keys and
-/*	values, and that logs a warning when incorrect UTF-8 is
-/*	encountered. The original dictionary handle becomes invalid.
+/*    dict_utf8_activate() wraps a dictionary's lookup/update/delete
+/*    methods with code that enforces UTF-8 checks on keys and
+/*    values, and that logs a warning when incorrect UTF-8 is
+/*    encountered. The original dictionary handle becomes invalid.
 /*
-/*	The wrapper code enforces a policy that maximizes application
-/*	robustness (it avoids the need for new error-handling code
-/*	paths in application code).  Attempts to store non-UTF-8
-/*	keys or values are skipped while reporting a non-error
-/*	status, attempts to look up or delete non-UTF-8 keys are
-/*	skipped while reporting a non-error status, and lookup
-/*	results that contain a non-UTF-8 value are blocked while
-/*	reporting a configuration error.
+/*    The wrapper code enforces a policy that maximizes application
+/*    robustness (it avoids the need for new error-handling code
+/*    paths in application code).  Attempts to store non-UTF-8
+/*    keys or values are skipped while reporting a non-error
+/*    status, attempts to look up or delete non-UTF-8 keys are
+/*    skipped while reporting a non-error status, and lookup
+/*    results that contain a non-UTF-8 value are blocked while
+/*    reporting a configuration error.
 /* BUGS
-/*	dict_utf8_activate() does not nest.
+/*    dict_utf8_activate() does not nest.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
  /*
@@ -93,7 +93,7 @@
 /* dict_utf8_check_fold - casefold or validate string */
 
 static char *dict_utf8_check_fold(DICT *dict, const char *string,
-				          CONST_CHAR_STAR *err)
+                          CONST_CHAR_STAR *err)
 {
     int     fold_flag = (dict->flags & DICT_FLAG_FOLD_ANY);
 
@@ -101,20 +101,20 @@ static char *dict_utf8_check_fold(DICT *dict, const char *string,
      * Validate UTF-8 without casefolding.
      */
     if (!allascii(string) && valid_utf8_string(string, strlen(string)) == 0) {
-	if (err)
-	    *err = "malformed UTF-8 or invalid codepoint";
-	return (0);
+    if (err)
+        *err = "malformed UTF-8 or invalid codepoint";
+    return (0);
     }
 
     /*
      * Casefold UTF-8.
      */
     if (fold_flag != 0
-	&& (fold_flag & ((dict->flags & DICT_FLAG_FIXED) ?
-			 DICT_FLAG_FOLD_FIX : DICT_FLAG_FOLD_MUL))) {
-	if (dict->fold_buf == 0)
-	    dict->fold_buf = vstring_alloc(10);
-	return (casefold(dict->fold_buf, string));
+    && (fold_flag & ((dict->flags & DICT_FLAG_FIXED) ?
+             DICT_FLAG_FOLD_FIX : DICT_FLAG_FOLD_MUL))) {
+    if (dict->fold_buf == 0)
+        dict->fold_buf = vstring_alloc(10);
+    return (casefold(dict->fold_buf, string));
     }
     return ((char *) string);
 }
@@ -124,9 +124,9 @@ static char *dict_utf8_check_fold(DICT *dict, const char *string,
 static int dict_utf8_check(const char *string, CONST_CHAR_STAR *err)
 {
     if (!allascii(string) && valid_utf8_string(string, strlen(string)) == 0) {
-	if (err)
-	    *err = "malformed UTF-8 or invalid codepoint";
-	return (0);
+    if (err)
+        *err = "malformed UTF-8 or invalid codepoint";
+    return (0);
     }
     return (1);
 }
@@ -145,10 +145,10 @@ static const char *dict_utf8_lookup(DICT *dict, const char *key)
      * Validate and optionally fold the key, and if invalid skip the request.
      */
     if ((fold_res = dict_utf8_check_fold(dict, key, &utf8_err)) == 0) {
-	msg_warn("%s:%s: non-UTF-8 key \"%s\": %s",
-		 dict->type, dict->name, key, utf8_err);
-	dict->error = DICT_ERR_NONE;
-	return (0);
+    msg_warn("%s:%s: non-UTF-8 key \"%s\": %s",
+         dict->type, dict->name, key, utf8_err);
+    dict->error = DICT_ERR_NONE;
+    return (0);
     }
 
     /*
@@ -164,12 +164,12 @@ static const char *dict_utf8_lookup(DICT *dict, const char *key)
      * Validate the result, and if invalid fail the request.
      */
     if (value != 0 && dict_utf8_check(value, &utf8_err) == 0) {
-	msg_warn("%s:%s: key \"%s\": non-UTF-8 value \"%s\": %s",
-		 dict->type, dict->name, key, value, utf8_err);
-	dict->error = DICT_ERR_CONFIG;
-	return (0);
+    msg_warn("%s:%s: key \"%s\": non-UTF-8 value \"%s\": %s",
+         dict->type, dict->name, key, value, utf8_err);
+    dict->error = DICT_ERR_CONFIG;
+    return (0);
     } else {
-	return (value);
+    return (value);
     }
 }
 
@@ -187,32 +187,32 @@ static int dict_utf8_update(DICT *dict, const char *key, const char *value)
      * Validate or fold the key, and if invalid skip the request.
      */
     if ((fold_res = dict_utf8_check_fold(dict, key, &utf8_err)) == 0) {
-	msg_warn("%s:%s: non-UTF-8 key \"%s\": %s",
-		 dict->type, dict->name, key, utf8_err);
-	dict->error = DICT_ERR_NONE;
-	return (DICT_STAT_SUCCESS);
+    msg_warn("%s:%s: non-UTF-8 key \"%s\": %s",
+         dict->type, dict->name, key, utf8_err);
+    dict->error = DICT_ERR_NONE;
+    return (DICT_STAT_SUCCESS);
     }
 
     /*
      * Validate the value, and if invalid skip the request.
      */
     else if (dict_utf8_check(value, &utf8_err) == 0) {
-	msg_warn("%s:%s: key \"%s\": non-UTF-8 value \"%s\": %s",
-		 dict->type, dict->name, key, value, utf8_err);
-	dict->error = DICT_ERR_NONE;
-	return (DICT_STAT_SUCCESS);
+    msg_warn("%s:%s: key \"%s\": non-UTF-8 value \"%s\": %s",
+         dict->type, dict->name, key, value, utf8_err);
+    dict->error = DICT_ERR_NONE;
+    return (DICT_STAT_SUCCESS);
     }
 
     /*
      * Proxy the request with casefolding turned off.
      */
     else {
-	saved_flags = (dict->flags & DICT_FLAG_FOLD_ANY);
-	dict->flags &= ~DICT_FLAG_FOLD_ANY;
-	backup = dict->utf8_backup;
-	status = backup->update(dict, fold_res, value);
-	dict->flags |= saved_flags;
-	return (status);
+    saved_flags = (dict->flags & DICT_FLAG_FOLD_ANY);
+    dict->flags &= ~DICT_FLAG_FOLD_ANY;
+    backup = dict->utf8_backup;
+    status = backup->update(dict, fold_res, value);
+    dict->flags |= saved_flags;
+    return (status);
     }
 }
 
@@ -230,22 +230,22 @@ static int dict_utf8_delete(DICT *dict, const char *key)
      * Validate and optionally fold the key, and if invalid skip the request.
      */
     if ((fold_res = dict_utf8_check_fold(dict, key, &utf8_err)) == 0) {
-	msg_warn("%s:%s: non-UTF-8 key \"%s\": %s",
-		 dict->type, dict->name, key, utf8_err);
-	dict->error = DICT_ERR_NONE;
-	return (DICT_STAT_SUCCESS);
+    msg_warn("%s:%s: non-UTF-8 key \"%s\": %s",
+         dict->type, dict->name, key, utf8_err);
+    dict->error = DICT_ERR_NONE;
+    return (DICT_STAT_SUCCESS);
     }
 
     /*
      * Proxy the request with casefolding turned off.
      */
     else {
-	saved_flags = (dict->flags & DICT_FLAG_FOLD_ANY);
-	dict->flags &= ~DICT_FLAG_FOLD_ANY;
-	backup = dict->utf8_backup;
-	status = backup->delete(dict, fold_res);
-	dict->flags |= saved_flags;
-	return (status);
+    saved_flags = (dict->flags & DICT_FLAG_FOLD_ANY);
+    dict->flags &= ~DICT_FLAG_FOLD_ANY;
+    backup = dict->utf8_backup;
+    status = backup->delete(dict, fold_res);
+    dict->flags |= saved_flags;
+    return (status);
     }
 }
 
@@ -260,13 +260,13 @@ DICT   *dict_utf8_activate(DICT *dict)
      * Sanity check.
      */
     if (util_utf8_enable == 0)
-	msg_panic("%s: Unicode support is not available", myname);
+    msg_panic("%s: Unicode support is not available", myname);
     if ((dict->flags & DICT_FLAG_UTF8_REQUEST) == 0)
-	msg_panic("%s: %s:%s does not request Unicode support",
-		  myname, dict->type, dict->name);
+    msg_panic("%s: %s:%s does not request Unicode support",
+          myname, dict->type, dict->name);
     if ((dict->flags & DICT_FLAG_UTF8_ACTIVE) || dict->utf8_backup != 0)
-	msg_panic("%s: %s:%s Unicode support is already activated",
-		  myname, dict->type, dict->name);
+    msg_panic("%s: %s:%s Unicode support is already activated",
+          myname, dict->type, dict->name);
 
     /*
      * Unlike dict_debug(3) we do not put a proxy dict object in front of the

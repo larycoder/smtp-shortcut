@@ -1,83 +1,83 @@
 /*++
 /* NAME
-/*	clnt_stream 3
+/*    clnt_stream 3
 /* SUMMARY
-/*	client endpoint maintenance
+/*    client endpoint maintenance
 /* SYNOPSIS
-/*	#include <clnt_stream.h>
+/*    #include <clnt_stream.h>
 /*
-/*	typedef void (*CLNT_STREAM_HANDSHAKE_FN)(VSTREAM *)
+/*    typedef void (*CLNT_STREAM_HANDSHAKE_FN)(VSTREAM *)
 /*
-/*	CLNT_STREAM *clnt_stream_create(class, service, timeout, ttl,
-/*						handshake)
-/*	const char *class;
-/*	const char *service;
-/*	int	timeout;
-/*	int	ttl;
-/*	CLNT_STREAM_HANDSHAKE_FN *handshake;
+/*    CLNT_STREAM *clnt_stream_create(class, service, timeout, ttl,
+/*                        handshake)
+/*    const char *class;
+/*    const char *service;
+/*    int    timeout;
+/*    int    ttl;
+/*    CLNT_STREAM_HANDSHAKE_FN *handshake;
 /*
-/*	VSTREAM	*clnt_stream_access(clnt_stream)
-/*	CLNT_STREAM *clnt_stream;
+/*    VSTREAM    *clnt_stream_access(clnt_stream)
+/*    CLNT_STREAM *clnt_stream;
 /*
-/*	void	clnt_stream_recover(clnt_stream)
-/*	CLNT_STREAM *clnt_stream;
+/*    void    clnt_stream_recover(clnt_stream)
+/*    CLNT_STREAM *clnt_stream;
 /*
-/*	void	clnt_stream_free(clnt_stream)
-/*	CLNT_STREAM *clnt_stream;
+/*    void    clnt_stream_free(clnt_stream)
+/*    CLNT_STREAM *clnt_stream;
 /* DESCRIPTION
-/*	This module maintains local IPC client endpoints that automatically
-/*	disconnect after a being idle for a configurable amount of time,
-/*	that disconnect after a configurable time to live,
-/*	and that transparently handle most server-initiated disconnects.
-/*	Server disconnect is detected by read-selecting the client endpoint.
-/*	The code assumes that the server has disconnected when the endpoint
-/*	becomes readable.
+/*    This module maintains local IPC client endpoints that automatically
+/*    disconnect after a being idle for a configurable amount of time,
+/*    that disconnect after a configurable time to live,
+/*    and that transparently handle most server-initiated disconnects.
+/*    Server disconnect is detected by read-selecting the client endpoint.
+/*    The code assumes that the server has disconnected when the endpoint
+/*    becomes readable.
 /*
-/*	clnt_stream_create() instantiates a client endpoint.
+/*    clnt_stream_create() instantiates a client endpoint.
 /*
-/*	clnt_stream_access() returns an open stream to the service specified
-/*	to clnt_stream_create(). The stream instance may change between calls.
-/*	This function returns null when the handshake function returned an
-/*	error.
+/*    clnt_stream_access() returns an open stream to the service specified
+/*    to clnt_stream_create(). The stream instance may change between calls.
+/*    This function returns null when the handshake function returned an
+/*    error.
 /*
-/*	clnt_stream_recover() recovers from a server-initiated disconnect
-/*	that happened in the middle of an I/O operation.
+/*    clnt_stream_recover() recovers from a server-initiated disconnect
+/*    that happened in the middle of an I/O operation.
 /*
-/*	clnt_stream_free() destroys of the specified client endpoint.
+/*    clnt_stream_free() destroys of the specified client endpoint.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP class
-/*	The service class, private or public.
+/*    The service class, private or public.
 /* .IP service
-/*	The service endpoint name. The name is limited to local IPC
-/*	over sockets or equivalent.
+/*    The service endpoint name. The name is limited to local IPC
+/*    over sockets or equivalent.
 /* .IP timeout
-/*	Idle time after which the client disconnects.
+/*    Idle time after which the client disconnects.
 /* .IP ttl
-/*	Upper bound on the time that a connection is allowed to persist.
+/*    Upper bound on the time that a connection is allowed to persist.
 /* .IP handshake
-/*	Null pointer, or pointer to function that will be called
-/*	at the start of a new connection and that returns 0 in case
-/*	of success.
+/*    Null pointer, or pointer to function that will be called
+/*    at the start of a new connection and that returns 0 in case
+/*    of success.
 /* DIAGNOSTICS
-/*	Warnings: communication failure. Fatal error: mail system is down,
-/*	out of memory.
+/*    Warnings: communication failure. Fatal error: mail system is down,
+/*    out of memory.
 /* SEE ALSO
-/*	mail_proto(3h) low-level mail component glue.
+/*    mail_proto(3h) low-level mail component glue.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -105,12 +105,12 @@
   * be implemented as a macro, and access is not performance critical anyway.
   */
 struct CLNT_STREAM {
-    VSTREAM *vstream;			/* buffered I/O */
-    int     timeout;			/* time before client disconnect */
-    int     ttl;			/* time before client disconnect */
+    VSTREAM *vstream;            /* buffered I/O */
+    int     timeout;            /* time before client disconnect */
+    int     ttl;            /* time before client disconnect */
     CLNT_STREAM_HANDSHAKE_FN handshake;
-    char   *class;			/* server class */
-    char   *service;			/* server name */
+    char   *class;            /* server class */
+    char   *service;            /* server name */
 };
 
 static void clnt_stream_close(CLNT_STREAM *);
@@ -126,7 +126,7 @@ static void clnt_stream_event(int unused_event, void *context)
      * cannot be called when the stream is already closed.
      */
     if (clnt_stream->vstream == 0)
-	msg_panic("clnt_stream_event: stream is closed");
+    msg_panic("clnt_stream_event: stream is closed");
 
     clnt_stream_close(clnt_stream);
 }
@@ -160,7 +160,7 @@ static void clnt_stream_open(CLNT_STREAM *clnt_stream)
      * Sanity check.
      */
     if (clnt_stream->vstream)
-	msg_panic("clnt_stream_open: stream is open");
+    msg_panic("clnt_stream_open: stream is open");
 
     /*
      * Schedule a read event so that we can clean up when the remote side
@@ -172,14 +172,14 @@ static void clnt_stream_open(CLNT_STREAM *clnt_stream)
      * to a server forever.
      */
     clnt_stream->vstream = mail_connect_wait(clnt_stream->class,
-					     clnt_stream->service);
+                         clnt_stream->service);
     close_on_exec(vstream_fileno(clnt_stream->vstream), CLOSE_ON_EXEC);
     event_enable_read(vstream_fileno(clnt_stream->vstream), clnt_stream_event,
-		      (void *) clnt_stream);
+              (void *) clnt_stream);
     event_request_timer(clnt_stream_event, (void *) clnt_stream,
-			clnt_stream->timeout);
+            clnt_stream->timeout);
     event_request_timer(clnt_stream_ttl_event, (void *) clnt_stream,
-			clnt_stream->ttl);
+            clnt_stream->ttl);
 }
 
 /* clnt_stream_close - disconnect from service */
@@ -191,13 +191,13 @@ static void clnt_stream_close(CLNT_STREAM *clnt_stream)
      * Sanity check.
      */
     if (clnt_stream->vstream == 0)
-	msg_panic("clnt_stream_close: stream is closed");
+    msg_panic("clnt_stream_close: stream is closed");
 
     /*
      * Be sure to disable read and timer events.
      */
     if (msg_verbose)
-	msg_info("%s stream disconnect", clnt_stream->service);
+    msg_info("%s stream disconnect", clnt_stream->service);
     event_disable_readwrite(vstream_fileno(clnt_stream->vstream));
     event_cancel_timer(clnt_stream_event, (void *) clnt_stream);
     event_cancel_timer(clnt_stream_ttl_event, (void *) clnt_stream);
@@ -214,7 +214,7 @@ void    clnt_stream_recover(CLNT_STREAM *clnt_stream)
      * Clean up. Don't re-connect until the caller needs it.
      */
     if (clnt_stream->vstream)
-	clnt_stream_close(clnt_stream);
+    clnt_stream_close(clnt_stream);
 }
 
 /* clnt_stream_access - access a client stream */
@@ -229,27 +229,27 @@ VSTREAM *clnt_stream_access(CLNT_STREAM *clnt_stream)
      * Important! Do not restart the TTL timer!
      */
     if (clnt_stream->vstream == 0) {
-	clnt_stream_open(clnt_stream);
-	handshake = clnt_stream->handshake;
+    clnt_stream_open(clnt_stream);
+    handshake = clnt_stream->handshake;
     } else if (readable(vstream_fileno(clnt_stream->vstream))) {
-	clnt_stream_close(clnt_stream);
-	clnt_stream_open(clnt_stream);
-	handshake = clnt_stream->handshake;
+    clnt_stream_close(clnt_stream);
+    clnt_stream_open(clnt_stream);
+    handshake = clnt_stream->handshake;
     } else {
-	event_request_timer(clnt_stream_event, (void *) clnt_stream,
-			    clnt_stream->timeout);
-	handshake = 0;
+    event_request_timer(clnt_stream_event, (void *) clnt_stream,
+                clnt_stream->timeout);
+    handshake = 0;
     }
     if (handshake != 0 && handshake(clnt_stream->vstream) != 0)
-	return (0);
+    return (0);
     return (clnt_stream->vstream);
 }
 
 /* clnt_stream_create - create client stream connection */
 
 CLNT_STREAM *clnt_stream_create(const char *class, const char *service,
-				        int timeout, int ttl,
-				        CLNT_STREAM_HANDSHAKE_FN handshake)
+                        int timeout, int ttl,
+                        CLNT_STREAM_HANDSHAKE_FN handshake)
 {
     CLNT_STREAM *clnt_stream;
 
@@ -271,7 +271,7 @@ CLNT_STREAM *clnt_stream_create(const char *class, const char *service,
 void    clnt_stream_free(CLNT_STREAM *clnt_stream)
 {
     if (clnt_stream->vstream)
-	clnt_stream_close(clnt_stream);
+    clnt_stream_close(clnt_stream);
     myfree(clnt_stream->class);
     myfree(clnt_stream->service);
     myfree((void *) clnt_stream);

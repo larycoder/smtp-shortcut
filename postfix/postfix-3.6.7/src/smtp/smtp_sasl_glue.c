@@ -1,99 +1,99 @@
 /*++
 /* NAME
-/*	smtp_sasl_glue 3
+/*    smtp_sasl_glue 3
 /* SUMMARY
-/*	Postfix SASL interface for SMTP client
+/*    Postfix SASL interface for SMTP client
 /* SYNOPSIS
-/*	#include smtp_sasl.h
+/*    #include smtp_sasl.h
 /*
-/*	void	smtp_sasl_initialize()
+/*    void    smtp_sasl_initialize()
 /*
-/*	void	smtp_sasl_connect(session)
-/*	SMTP_SESSION *session;
+/*    void    smtp_sasl_connect(session)
+/*    SMTP_SESSION *session;
 /*
-/*	void	smtp_sasl_start(session, sasl_opts_name, sasl_opts_val)
-/*	SMTP_SESSION *session;
+/*    void    smtp_sasl_start(session, sasl_opts_name, sasl_opts_val)
+/*    SMTP_SESSION *session;
 /*
-/*	int     smtp_sasl_passwd_lookup(session)
-/*	SMTP_SESSION *session;
+/*    int     smtp_sasl_passwd_lookup(session)
+/*    SMTP_SESSION *session;
 /*
-/*	int	smtp_sasl_authenticate(session, why)
-/*	SMTP_SESSION *session;
-/*	DSN_BUF *why;
+/*    int    smtp_sasl_authenticate(session, why)
+/*    SMTP_SESSION *session;
+/*    DSN_BUF *why;
 /*
-/*	void	smtp_sasl_cleanup(session)
-/*	SMTP_SESSION *session;
+/*    void    smtp_sasl_cleanup(session)
+/*    SMTP_SESSION *session;
 /*
-/*	void	smtp_sasl_passivate(session, buf)
-/*	SMTP_SESSION *session;
-/*	VSTRING	*buf;
+/*    void    smtp_sasl_passivate(session, buf)
+/*    SMTP_SESSION *session;
+/*    VSTRING    *buf;
 /*
-/*	int	smtp_sasl_activate(session, buf)
-/*	SMTP_SESSION *session;
-/*	char	*buf;
+/*    int    smtp_sasl_activate(session, buf)
+/*    SMTP_SESSION *session;
+/*    char    *buf;
 /* DESCRIPTION
-/*	smtp_sasl_initialize() initializes the SASL library. This
-/*	routine must be called once at process startup, before any
-/*	chroot operations.
+/*    smtp_sasl_initialize() initializes the SASL library. This
+/*    routine must be called once at process startup, before any
+/*    chroot operations.
 /*
-/*	smtp_sasl_connect() performs per-session initialization. This
-/*	routine must be called once at the start of each connection.
+/*    smtp_sasl_connect() performs per-session initialization. This
+/*    routine must be called once at the start of each connection.
 /*
-/*	smtp_sasl_start() performs per-session initialization. This
-/*	routine must be called once per session before doing any SASL
-/*	authentication. The sasl_opts_name and sasl_opts_val parameters are
-/*	the postfix configuration parameters setting the security
-/*	policy of the SASL authentication.
+/*    smtp_sasl_start() performs per-session initialization. This
+/*    routine must be called once per session before doing any SASL
+/*    authentication. The sasl_opts_name and sasl_opts_val parameters are
+/*    the postfix configuration parameters setting the security
+/*    policy of the SASL authentication.
 /*
-/*	smtp_sasl_passwd_lookup() looks up the username/password
-/*	for the current SMTP server. The result is zero in case
-/*	of failure, a long jump in case of error.
+/*    smtp_sasl_passwd_lookup() looks up the username/password
+/*    for the current SMTP server. The result is zero in case
+/*    of failure, a long jump in case of error.
 /*
-/*	smtp_sasl_authenticate() implements the SASL authentication
-/*	dialog. The result is < 0 in case of protocol failure, zero in
-/*	case of unsuccessful authentication, > 0 in case of success.
-/*	The why argument is updated with a reason for failure.
-/*	This routine must be called only when smtp_sasl_passwd_lookup()
-/*	succeeds.
+/*    smtp_sasl_authenticate() implements the SASL authentication
+/*    dialog. The result is < 0 in case of protocol failure, zero in
+/*    case of unsuccessful authentication, > 0 in case of success.
+/*    The why argument is updated with a reason for failure.
+/*    This routine must be called only when smtp_sasl_passwd_lookup()
+/*    succeeds.
 /*
-/*	smtp_sasl_cleanup() cleans up. It must be called at the
-/*	end of every SMTP session that uses SASL authentication.
-/*	This routine is a noop for non-SASL sessions.
+/*    smtp_sasl_cleanup() cleans up. It must be called at the
+/*    end of every SMTP session that uses SASL authentication.
+/*    This routine is a noop for non-SASL sessions.
 /*
-/*	smtp_sasl_passivate() appends flattened SASL attributes to the
-/*	specified buffer. The SASL attributes are not destroyed.
+/*    smtp_sasl_passivate() appends flattened SASL attributes to the
+/*    specified buffer. The SASL attributes are not destroyed.
 /*
-/*	smtp_sasl_activate() restores SASL attributes from the
-/*	specified buffer. The buffer is modified. A result < 0
-/*	means there was an error.
+/*    smtp_sasl_activate() restores SASL attributes from the
+/*    specified buffer. The buffer is modified. A result < 0
+/*    means there was an error.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP session
-/*	Session context.
+/*    Session context.
 /* .IP mech_list
-/*	String of SASL mechanisms (separated by blanks)
+/*    String of SASL mechanisms (separated by blanks)
 /* DIAGNOSTICS
-/*	All errors are fatal.
+/*    All errors are fatal.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Original author:
-/*	Till Franke
-/*	SuSE Rhein/Main AG
-/*	65760 Eschborn, Germany
+/*    Original author:
+/*    Till Franke
+/*    SuSE Rhein/Main AG
+/*    65760 Eschborn, Germany
 /*
-/*	Adopted by:
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Adopted by:
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
  /*
@@ -171,7 +171,7 @@ int     smtp_sasl_passwd_lookup(SMTP_SESSION *session)
      * Sanity check.
      */
     if (smtp_sasl_passwd_map == 0)
-	msg_panic("%s: passwd map not initialized", myname);
+    msg_panic("%s: passwd map not initialized", myname);
 
     /*
      * Look up the per-server password information. Try the hostname first,
@@ -188,36 +188,36 @@ int     smtp_sasl_passwd_lookup(SMTP_SESSION *session)
      */
     smtp_sasl_passwd_map->error = 0;
     if ((smtp_mode
-	 && var_smtp_sender_auth && state->request->sender[0]
-	 && (value = mail_addr_find(smtp_sasl_passwd_map,
-				 state->request->sender, (char **) 0)) != 0)
-	|| (smtp_sasl_passwd_map->error == 0
-	    && (value = maps_find(smtp_sasl_passwd_map,
-				  STR(iter->host), 0)) != 0)
-	|| (smtp_sasl_passwd_map->error == 0
-	    && (value = maps_find(smtp_sasl_passwd_map,
-				  STR(iter->dest), 0)) != 0)) {
-	if (session->sasl_username)
-	    myfree(session->sasl_username);
-	session->sasl_username = mystrdup(value);
-	passwd = split_at(session->sasl_username, ':');
-	if (session->sasl_passwd)
-	    myfree(session->sasl_passwd);
-	session->sasl_passwd = mystrdup(passwd ? passwd : "");
-	if (msg_verbose)
-	    msg_info("%s: host `%s' user `%s' pass `%s'",
-		     myname, STR(iter->host),
-		     session->sasl_username, session->sasl_passwd);
-	return (1);
+     && var_smtp_sender_auth && state->request->sender[0]
+     && (value = mail_addr_find(smtp_sasl_passwd_map,
+                 state->request->sender, (char **) 0)) != 0)
+    || (smtp_sasl_passwd_map->error == 0
+        && (value = maps_find(smtp_sasl_passwd_map,
+                  STR(iter->host), 0)) != 0)
+    || (smtp_sasl_passwd_map->error == 0
+        && (value = maps_find(smtp_sasl_passwd_map,
+                  STR(iter->dest), 0)) != 0)) {
+    if (session->sasl_username)
+        myfree(session->sasl_username);
+    session->sasl_username = mystrdup(value);
+    passwd = split_at(session->sasl_username, ':');
+    if (session->sasl_passwd)
+        myfree(session->sasl_passwd);
+    session->sasl_passwd = mystrdup(passwd ? passwd : "");
+    if (msg_verbose)
+        msg_info("%s: host `%s' user `%s' pass `%s'",
+             myname, STR(iter->host),
+             session->sasl_username, session->sasl_passwd);
+    return (1);
     } else if (smtp_sasl_passwd_map->error) {
-	msg_warn("%s: %s lookup error",
-		 state->request->queue_id, smtp_sasl_passwd_map->title);
-	vstream_longjmp(session->stream, SMTP_ERR_DATA);
+    msg_warn("%s: %s lookup error",
+         state->request->queue_id, smtp_sasl_passwd_map->title);
+    vstream_longjmp(session->stream, SMTP_ERR_DATA);
     } else {
-	if (msg_verbose)
-	    msg_info("%s: no auth info found (sender=`%s', host=`%s')",
-		     myname, state->request->sender, STR(iter->host));
-	return (0);
+    if (msg_verbose)
+        msg_info("%s: no auth info found (sender=`%s', host=`%s')",
+             myname, state->request->sender, STR(iter->host));
+    return (0);
     }
 }
 
@@ -230,42 +230,42 @@ void    smtp_sasl_initialize(void)
      * Sanity check.
      */
     if (smtp_sasl_passwd_map || smtp_sasl_impl)
-	msg_panic("smtp_sasl_initialize: repeated call");
+    msg_panic("smtp_sasl_initialize: repeated call");
     if (*var_smtp_sasl_passwd == 0)
-	msg_fatal("specify a password table via the `%s' configuration parameter",
-		  VAR_LMTP_SMTP(SASL_PASSWD));
+    msg_fatal("specify a password table via the `%s' configuration parameter",
+          VAR_LMTP_SMTP(SASL_PASSWD));
 
     /*
      * Open the per-host password table and initialize the SASL library. Use
      * shared locks for reading, just in case someone updates the table.
      */
     smtp_sasl_passwd_map = maps_create(VAR_LMTP_SMTP(SASL_PASSWD),
-				       var_smtp_sasl_passwd,
-				       DICT_FLAG_LOCK | DICT_FLAG_FOLD_FIX
-				       | DICT_FLAG_UTF8_REQUEST);
+                       var_smtp_sasl_passwd,
+                       DICT_FLAG_LOCK | DICT_FLAG_FOLD_FIX
+                       | DICT_FLAG_UTF8_REQUEST);
     if ((smtp_sasl_impl = xsasl_client_init(var_smtp_sasl_type,
-					    var_smtp_sasl_path)) == 0)
-	msg_fatal("SASL library initialization");
+                        var_smtp_sasl_path)) == 0)
+    msg_fatal("SASL library initialization");
 
     /*
      * Initialize optional supported mechanism matchlist
      */
     if (*var_smtp_sasl_mechs)
-	smtp_sasl_mechs = string_list_init(VAR_SMTP_SASL_MECHS,
-					   MATCH_FLAG_NONE,
-					   var_smtp_sasl_mechs);
+    smtp_sasl_mechs = string_list_init(VAR_SMTP_SASL_MECHS,
+                       MATCH_FLAG_NONE,
+                       var_smtp_sasl_mechs);
 
     /*
      * Initialize the 535 SASL authentication failure cache.
      */
     if (*var_smtp_sasl_auth_cache_name) {
 #ifdef HAVE_SASL_AUTH_CACHE
-	smtp_sasl_auth_cache =
-	    smtp_sasl_auth_cache_init(var_smtp_sasl_auth_cache_name,
-				      var_smtp_sasl_auth_cache_time);
+    smtp_sasl_auth_cache =
+        smtp_sasl_auth_cache_init(var_smtp_sasl_auth_cache_name,
+                      var_smtp_sasl_auth_cache_time);
 #else
-	msg_warn("not compiled with TLS support -- "
-	    "ignoring the %s setting", VAR_LMTP_SMTP(SASL_AUTH_CACHE_NAME));
+    msg_warn("not compiled with TLS support -- "
+        "ignoring the %s setting", VAR_LMTP_SMTP(SASL_AUTH_CACHE_NAME));
 #endif
     }
 }
@@ -289,20 +289,20 @@ void    smtp_sasl_connect(SMTP_SESSION *session)
 /* smtp_sasl_start - per-session SASL initialization */
 
 void    smtp_sasl_start(SMTP_SESSION *session, const char *sasl_opts_name,
-			        const char *sasl_opts_val)
+                    const char *sasl_opts_val)
 {
     XSASL_CLIENT_CREATE_ARGS create_args;
     SMTP_ITERATOR *iter = session->iterator;
 
     if (msg_verbose)
-	msg_info("starting new SASL client");
+    msg_info("starting new SASL client");
     if ((session->sasl_client =
-	 XSASL_CLIENT_CREATE(smtp_sasl_impl, &create_args,
-			     stream = session->stream,
-			     service = var_procname,
-			     server_name = STR(iter->host),
-			     security_options = sasl_opts_val)) == 0)
-	msg_fatal("SASL per-connection initialization failed");
+     XSASL_CLIENT_CREATE(smtp_sasl_impl, &create_args,
+                 stream = session->stream,
+                 service = var_procname,
+                 server_name = STR(iter->host),
+                 security_options = sasl_opts_val)) == 0)
+    msg_fatal("SASL per-connection initialization failed");
     session->sasl_reply = vstring_alloc(20);
 }
 
@@ -322,28 +322,28 @@ int     smtp_sasl_authenticate(SMTP_SESSION *session, DSN_BUF *why)
      * Sanity check.
      */
     if (session->sasl_mechanism_list == 0)
-	msg_panic("%s: no mechanism list", myname);
+    msg_panic("%s: no mechanism list", myname);
 
     if (msg_verbose)
-	msg_info("%s: %s: SASL mechanisms %s",
-		 myname, session->namaddrport, session->sasl_mechanism_list);
+    msg_info("%s: %s: SASL mechanisms %s",
+         myname, session->namaddrport, session->sasl_mechanism_list);
 
     /*
      * Avoid repeated login failures after a recent 535 error.
      */
 #ifdef HAVE_SASL_AUTH_CACHE
     if (smtp_sasl_auth_cache
-	&& smtp_sasl_auth_cache_find(smtp_sasl_auth_cache, session)) {
-	char   *resp_dsn = smtp_sasl_auth_cache_dsn(smtp_sasl_auth_cache);
-	char   *resp_str = smtp_sasl_auth_cache_text(smtp_sasl_auth_cache);
+    && smtp_sasl_auth_cache_find(smtp_sasl_auth_cache, session)) {
+    char   *resp_dsn = smtp_sasl_auth_cache_dsn(smtp_sasl_auth_cache);
+    char   *resp_str = smtp_sasl_auth_cache_text(smtp_sasl_auth_cache);
 
-	if (var_smtp_sasl_auth_soft_bounce && resp_dsn[0] == '5')
-	    resp_dsn[0] = '4';
-	dsb_update(why, resp_dsn, DSB_DEF_ACTION, DSB_MTYPE_DNS,
-		   STR(iter->host), var_procname, resp_str,
-		   "SASL [CACHED] authentication failed; server %s said: %s",
-		   STR(iter->host), resp_str);
-	return (0);
+    if (var_smtp_sasl_auth_soft_bounce && resp_dsn[0] == '5')
+        resp_dsn[0] = '4';
+    dsb_update(why, resp_dsn, DSB_DEF_ACTION, DSB_MTYPE_DNS,
+           STR(iter->host), var_procname, resp_str,
+           "SASL [CACHED] authentication failed; server %s said: %s",
+           STR(iter->host), resp_str);
+    return (0);
     }
 #endif
 
@@ -351,17 +351,17 @@ int     smtp_sasl_authenticate(SMTP_SESSION *session, DSN_BUF *why)
      * Start the client side authentication protocol.
      */
     result = xsasl_client_first(session->sasl_client,
-				session->sasl_mechanism_list,
-				session->sasl_username,
-				session->sasl_passwd,
-				&mechanism, session->sasl_reply);
+                session->sasl_mechanism_list,
+                session->sasl_username,
+                session->sasl_passwd,
+                &mechanism, session->sasl_reply);
     if (result != XSASL_AUTH_OK) {
-	dsb_update(why, "4.7.0", DSB_DEF_ACTION, DSB_SKIP_RMTA,
-		   DSB_DTYPE_SASL, STR(session->sasl_reply),
-		   "SASL authentication failed; "
-		   "cannot authenticate to server %s: %s",
-		   session->namaddr, STR(session->sasl_reply));
-	return (-1);
+    dsb_update(why, "4.7.0", DSB_DEF_ACTION, DSB_SKIP_RMTA,
+           DSB_DTYPE_SASL, STR(session->sasl_reply),
+           "SASL authentication failed; "
+           "cannot authenticate to server %s: %s",
+           session->namaddr, STR(session->sasl_reply));
+    return (-1);
     }
     /*-
      * Send the AUTH command and the optional initial client response.
@@ -379,12 +379,12 @@ int     smtp_sasl_authenticate(SMTP_SESSION *session, DSN_BUF *why)
      * Defer the initial response if the resulting command exceeds the limit.
      */
     if (LEN(session->sasl_reply) > 0
-	&& strlen(mechanism) + LEN(session->sasl_reply) + 8 <= 512) {
-	smtp_chat_cmd(session, "AUTH %s %s", mechanism,
-		      STR(session->sasl_reply));
-	VSTRING_RESET(session->sasl_reply);	/* no deferred initial reply */
+    && strlen(mechanism) + LEN(session->sasl_reply) + 8 <= 512) {
+    smtp_chat_cmd(session, "AUTH %s %s", mechanism,
+              STR(session->sasl_reply));
+    VSTRING_RESET(session->sasl_reply);    /* no deferred initial reply */
     } else {
-	smtp_chat_cmd(session, "AUTH %s", mechanism);
+    smtp_chat_cmd(session, "AUTH %s", mechanism);
     }
 
     /*
@@ -396,54 +396,54 @@ int     smtp_sasl_authenticate(SMTP_SESSION *session, DSN_BUF *why)
      */
     while ((resp = smtp_chat_resp(session))->code / 100 == 3) {
 
-	/*
-	 * Sanity check.
-	 */
-	if (++steps > 100) {
-	    dsb_simple(why, "4.3.0", "SASL authentication failed; "
-		       "authentication protocol loop with server %s",
-		       session->namaddr);
-	    return (-1);
-	}
+    /*
+     * Sanity check.
+     */
+    if (++steps > 100) {
+        dsb_simple(why, "4.3.0", "SASL authentication failed; "
+               "authentication protocol loop with server %s",
+               session->namaddr);
+        return (-1);
+    }
 
-	/*
-	 * Process a server challenge.
-	 */
-	line = resp->str;
-	(void) mystrtok(&line, "- \t\n");	/* skip over result code */
+    /*
+     * Process a server challenge.
+     */
+    line = resp->str;
+    (void) mystrtok(&line, "- \t\n");    /* skip over result code */
 
-	if (LEN(session->sasl_reply) > 0) {
+    if (LEN(session->sasl_reply) > 0) {
 
-	    /*
-	     * Deferred initial response, the server challenge must be empty.
-	     * Cleared after actual transmission to the server.
-	     */
-	    if (*line) {
-		dsb_update(why, "4.7.0", DSB_DEF_ACTION,
-			   DSB_SKIP_RMTA, DSB_DTYPE_SASL, "protocol error",
-			   "SASL authentication failed; non-empty initial "
-			   "%s challenge from server %s: %s", mechanism,
-			   session->namaddr, STR(session->sasl_reply));
-		return (-1);
-	    }
-	} else {
-	    result = xsasl_client_next(session->sasl_client, line,
-				       session->sasl_reply);
-	    if (result != XSASL_AUTH_OK) {
-		dsb_update(why, "4.7.0", DSB_DEF_ACTION,	/* Fix 200512 */
-		    DSB_SKIP_RMTA, DSB_DTYPE_SASL, STR(session->sasl_reply),
-			   "SASL authentication failed; "
-			   "cannot authenticate to server %s: %s",
-			   session->namaddr, STR(session->sasl_reply));
-		return (-1);			/* Fix 200512 */
-	    }
-	}
+        /*
+         * Deferred initial response, the server challenge must be empty.
+         * Cleared after actual transmission to the server.
+         */
+        if (*line) {
+        dsb_update(why, "4.7.0", DSB_DEF_ACTION,
+               DSB_SKIP_RMTA, DSB_DTYPE_SASL, "protocol error",
+               "SASL authentication failed; non-empty initial "
+               "%s challenge from server %s: %s", mechanism,
+               session->namaddr, STR(session->sasl_reply));
+        return (-1);
+        }
+    } else {
+        result = xsasl_client_next(session->sasl_client, line,
+                       session->sasl_reply);
+        if (result != XSASL_AUTH_OK) {
+        dsb_update(why, "4.7.0", DSB_DEF_ACTION,    /* Fix 200512 */
+            DSB_SKIP_RMTA, DSB_DTYPE_SASL, STR(session->sasl_reply),
+               "SASL authentication failed; "
+               "cannot authenticate to server %s: %s",
+               session->namaddr, STR(session->sasl_reply));
+        return (-1);            /* Fix 200512 */
+        }
+    }
 
-	/*
-	 * Send a client response.
-	 */
-	smtp_chat_cmd(session, "%s", STR(session->sasl_reply));
-	VSTRING_RESET(session->sasl_reply);	/* clear initial reply */
+    /*
+     * Send a client response.
+     */
+    smtp_chat_cmd(session, "%s", STR(session->sasl_reply));
+    VSTRING_RESET(session->sasl_reply);    /* clear initial reply */
     }
 
     /*
@@ -451,18 +451,18 @@ int     smtp_sasl_authenticate(SMTP_SESSION *session, DSN_BUF *why)
      */
     if (resp->code / 100 != 2) {
 #ifdef HAVE_SASL_AUTH_CACHE
-	/* Update the 535 authentication failure cache. */
-	if (smtp_sasl_auth_cache && resp->code == 535)
-	    smtp_sasl_auth_cache_store(smtp_sasl_auth_cache, session, resp);
+    /* Update the 535 authentication failure cache. */
+    if (smtp_sasl_auth_cache && resp->code == 535)
+        smtp_sasl_auth_cache_store(smtp_sasl_auth_cache, session, resp);
 #endif
-	if (var_smtp_sasl_auth_soft_bounce && resp->code / 100 == 5)
-	    STR(resp->dsn_buf)[0] = '4';
-	dsb_update(why, resp->dsn, DSB_DEF_ACTION,
-		   DSB_MTYPE_DNS, STR(iter->host),
-		   var_procname, resp->str,
-		   "SASL authentication failed; server %s said: %s",
-		   session->namaddr, resp->str);
-	return (0);
+    if (var_smtp_sasl_auth_soft_bounce && resp->code / 100 == 5)
+        STR(resp->dsn_buf)[0] = '4';
+    dsb_update(why, resp->dsn, DSB_DEF_ACTION,
+           DSB_MTYPE_DNS, STR(iter->host),
+           var_procname, resp->str,
+           "SASL authentication failed; server %s said: %s",
+           session->namaddr, resp->str);
+    return (0);
     }
     return (1);
 }
@@ -472,27 +472,27 @@ int     smtp_sasl_authenticate(SMTP_SESSION *session, DSN_BUF *why)
 void    smtp_sasl_cleanup(SMTP_SESSION *session)
 {
     if (session->sasl_username) {
-	myfree(session->sasl_username);
-	session->sasl_username = 0;
+    myfree(session->sasl_username);
+    session->sasl_username = 0;
     }
     if (session->sasl_passwd) {
-	myfree(session->sasl_passwd);
-	session->sasl_passwd = 0;
+    myfree(session->sasl_passwd);
+    session->sasl_passwd = 0;
     }
     if (session->sasl_mechanism_list) {
-	/* allocated in smtp_sasl_helo_auth */
-	myfree(session->sasl_mechanism_list);
-	session->sasl_mechanism_list = 0;
+    /* allocated in smtp_sasl_helo_auth */
+    myfree(session->sasl_mechanism_list);
+    session->sasl_mechanism_list = 0;
     }
     if (session->sasl_client) {
-	if (msg_verbose)
-	    msg_info("disposing SASL state information");
-	xsasl_client_free(session->sasl_client);
-	session->sasl_client = 0;
+    if (msg_verbose)
+        msg_info("disposing SASL state information");
+    xsasl_client_free(session->sasl_client);
+    session->sasl_client = 0;
     }
     if (session->sasl_reply) {
-	vstring_free(session->sasl_reply);
-	session->sasl_reply = 0;
+    vstring_free(session->sasl_reply);
+    session->sasl_reply = 0;
     }
 }
 

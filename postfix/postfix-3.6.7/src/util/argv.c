@@ -1,127 +1,127 @@
 /*++
 /* NAME
-/*	argv 3
+/*    argv 3
 /* SUMMARY
-/*	string array utilities
+/*    string array utilities
 /* SYNOPSIS
-/*	#include <argv.h>
+/*    #include <argv.h>
 /*
-/*	ARGV	*argv_alloc(len)
-/*	ssize_t	len;
+/*    ARGV    *argv_alloc(len)
+/*    ssize_t    len;
 /*
-/*	ARGV    *argv_sort(argvp)
-/*	ARGV    *argvp;
+/*    ARGV    *argv_sort(argvp)
+/*    ARGV    *argvp;
 /*
-/*	ARGV	*argv_free(argvp)
-/*	ARGV	*argvp;
+/*    ARGV    *argv_free(argvp)
+/*    ARGV    *argvp;
 /*
-/*	void	argv_add(argvp, arg, ..., ARGV_END)
-/*	ARGV	*argvp;
-/*	char	*arg;
+/*    void    argv_add(argvp, arg, ..., ARGV_END)
+/*    ARGV    *argvp;
+/*    char    *arg;
 /*
-/*	void	argv_addn(argvp, arg, arg_len, ..., ARGV_END)
-/*	ARGV	*argvp;
-/*	char	*arg;
-/*	ssize_t	arg_len;
+/*    void    argv_addn(argvp, arg, arg_len, ..., ARGV_END)
+/*    ARGV    *argvp;
+/*    char    *arg;
+/*    ssize_t    arg_len;
 /*
-/*	void	argv_terminate(argvp);
-/*	ARGV	*argvp;
+/*    void    argv_terminate(argvp);
+/*    ARGV    *argvp;
 /*
-/*	void	argv_truncate(argvp, len);
-/*	ARGV	*argvp;
-/*	ssize_t	len;
+/*    void    argv_truncate(argvp, len);
+/*    ARGV    *argvp;
+/*    ssize_t    len;
 /*
-/*	void	argv_insert_one(argvp, pos, arg)
-/*	ARGV	*argvp;
-/*	ssize_t	pos;
-/*	const char *arg;
+/*    void    argv_insert_one(argvp, pos, arg)
+/*    ARGV    *argvp;
+/*    ssize_t    pos;
+/*    const char *arg;
 /*
-/*	void	argv_replace_one(argvp, pos, arg)
-/*	ARGV	*argvp;
-/*	ssize_t	pos;
-/*	const char *arg;
+/*    void    argv_replace_one(argvp, pos, arg)
+/*    ARGV    *argvp;
+/*    ssize_t    pos;
+/*    const char *arg;
 /*
-/*	void	argv_delete(argvp, pos, how_many)
-/*	ARGV	*argvp;
-/*	ssize_t	pos;
-/*	ssize_t	how_many;
+/*    void    argv_delete(argvp, pos, how_many)
+/*    ARGV    *argvp;
+/*    ssize_t    pos;
+/*    ssize_t    how_many;
 /*
-/*	void	ARGV_FAKE_BEGIN(argv, arg)
-/*	const char *arg;
+/*    void    ARGV_FAKE_BEGIN(argv, arg)
+/*    const char *arg;
 /*
-/*	void	ARGV_FAKE_END
+/*    void    ARGV_FAKE_END
 /* DESCRIPTION
-/*	The functions in this module manipulate arrays of string
-/*	pointers. An ARGV structure contains the following members:
+/*    The functions in this module manipulate arrays of string
+/*    pointers. An ARGV structure contains the following members:
 /* .IP len
-/*	The length of the \fIargv\fR array member.
+/*    The length of the \fIargv\fR array member.
 /* .IP argc
-/*	The number of \fIargv\fR elements used.
+/*    The number of \fIargv\fR elements used.
 /* .IP argv
-/*	An array of pointers to null-terminated strings.
+/*    An array of pointers to null-terminated strings.
 /* .PP
-/*	argv_alloc() returns an empty string array of the requested
-/*	length. The result is ready for use by argv_add(). The array
-/*	is null terminated.
+/*    argv_alloc() returns an empty string array of the requested
+/*    length. The result is ready for use by argv_add(). The array
+/*    is null terminated.
 /*
-/*	argv_sort() sorts the elements of argvp in place returning
-/*	the original array.
+/*    argv_sort() sorts the elements of argvp in place returning
+/*    the original array.
 /*
-/*	argv_add() copies zero or more strings and adds them to the
-/*	specified string array. The array is null terminated.
-/*	Terminate the argument list with a null pointer. The manifest
-/*	constant ARGV_END provides a convenient notation for this.
+/*    argv_add() copies zero or more strings and adds them to the
+/*    specified string array. The array is null terminated.
+/*    Terminate the argument list with a null pointer. The manifest
+/*    constant ARGV_END provides a convenient notation for this.
 /*
-/*	argv_addn() is like argv_add(), but each string is followed
-/*	by a string length argument.
+/*    argv_addn() is like argv_add(), but each string is followed
+/*    by a string length argument.
 /*
-/*	argv_free() releases storage for a string array, and conveniently
-/*	returns a null pointer.
+/*    argv_free() releases storage for a string array, and conveniently
+/*    returns a null pointer.
 /*
-/*	argv_terminate() null-terminates its string array argument.
+/*    argv_terminate() null-terminates its string array argument.
 /*
-/*	argv_truncate() trucates its argument to the specified
-/*	number of entries, but does not reallocate memory. The
-/*	result is null-terminated.
+/*    argv_truncate() trucates its argument to the specified
+/*    number of entries, but does not reallocate memory. The
+/*    result is null-terminated.
 /*
-/*	argv_insert_one() inserts one string at the specified array
-/*	position.
+/*    argv_insert_one() inserts one string at the specified array
+/*    position.
 /*
-/*	argv_replace_one() replaces one string at the specified
-/*	position. The old string is destroyed after the update is
-/*	made.
+/*    argv_replace_one() replaces one string at the specified
+/*    position. The old string is destroyed after the update is
+/*    made.
 /*
-/*	argv_delete() deletes the specified number of elements
-/*	starting at the specified array position. The result is
-/*	null-terminated.
+/*    argv_delete() deletes the specified number of elements
+/*    starting at the specified array position. The result is
+/*    null-terminated.
 /*
-/*	ARGV_FAKE_BEGIN/END are an optimization for the case where
-/*	a single string needs to be passed into an ARGV-based
-/*	interface.  ARGV_FAKE_BEGIN() opens a statement block and
-/*	allocates a stack-based ARGV structure named after the first
-/*	argument, that encapsulates the second argument.  This
-/*	implementation allocates no heap memory and creates no copy
-/*	of the second argument.  ARGV_FAKE_END closes the statement
-/*	block and thereby releases storage.
+/*    ARGV_FAKE_BEGIN/END are an optimization for the case where
+/*    a single string needs to be passed into an ARGV-based
+/*    interface.  ARGV_FAKE_BEGIN() opens a statement block and
+/*    allocates a stack-based ARGV structure named after the first
+/*    argument, that encapsulates the second argument.  This
+/*    implementation allocates no heap memory and creates no copy
+/*    of the second argument.  ARGV_FAKE_END closes the statement
+/*    block and thereby releases storage.
 /* SEE ALSO
-/*	msg(3) diagnostics interface
+/*    msg(3) diagnostics interface
 /* DIAGNOSTICS
-/*	Fatal errors: memory allocation problem.
+/*    Fatal errors: memory allocation problem.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System libraries. */
 
 #include <sys_defs.h>
-#include <stdlib.h>			/* 44BSD stdarg.h uses abort() */
+#include <stdlib.h>            /* 44BSD stdarg.h uses abort() */
 #include <stdarg.h>
 #include <string.h>
 
@@ -138,7 +138,7 @@ ARGV   *argv_free(ARGV *argvp)
     char  **cpp;
 
     for (cpp = argvp->argv; cpp < argvp->argv + argvp->argc; cpp++)
-	myfree(*cpp);
+    myfree(*cpp);
     myfree((void *) argvp->argv);
     myfree((void *) argvp);
     return (0);
@@ -188,7 +188,7 @@ static void argv_extend(ARGV *argvp)
 
     new_len = argvp->len * 2;
     argvp->argv = (char **)
-	myrealloc((void *) argvp->argv, (new_len + 1) * sizeof(char *));
+    myrealloc((void *) argvp->argv, (new_len + 1) * sizeof(char *));
     argvp->len = new_len;
 }
 
@@ -206,9 +206,9 @@ void    argv_add(ARGV *argvp,...)
 
     va_start(ap, argvp);
     while ((arg = va_arg(ap, char *)) != 0) {
-	if (ARGV_SPACE_LEFT(argvp) <= 0)
-	    argv_extend(argvp);
-	argvp->argv[argvp->argc++] = mystrdup(arg);
+    if (ARGV_SPACE_LEFT(argvp) <= 0)
+        argv_extend(argvp);
+    argvp->argv[argvp->argc++] = mystrdup(arg);
     }
     va_end(ap);
     argvp->argv[argvp->argc] = 0;
@@ -227,11 +227,11 @@ void    argv_addn(ARGV *argvp,...)
      */
     va_start(ap, argvp);
     while ((arg = va_arg(ap, char *)) != 0) {
-	if ((len = va_arg(ap, ssize_t)) < 0)
-	    msg_panic("argv_addn: bad string length %ld", (long) len);
-	if (ARGV_SPACE_LEFT(argvp) <= 0)
-	    argv_extend(argvp);
-	argvp->argv[argvp->argc++] = mystrndup(arg, len);
+    if ((len = va_arg(ap, ssize_t)) < 0)
+        msg_panic("argv_addn: bad string length %ld", (long) len);
+    if (ARGV_SPACE_LEFT(argvp) <= 0)
+        argv_extend(argvp);
+    argvp->argv[argvp->argc++] = mystrndup(arg, len);
     }
     va_end(ap);
     argvp->argv[argvp->argc] = 0;
@@ -258,13 +258,13 @@ void    argv_truncate(ARGV *argvp, ssize_t len)
      * Sanity check.
      */
     if (len < 0)
-	msg_panic("argv_truncate: bad length %ld", (long) len);
+    msg_panic("argv_truncate: bad length %ld", (long) len);
 
     if (len < argvp->argc) {
-	for (cpp = argvp->argv + len; cpp < argvp->argv + argvp->argc; cpp++)
-	    myfree(*cpp);
-	argvp->argc = len;
-	argvp->argv[argvp->argc] = 0;
+    for (cpp = argvp->argv + len; cpp < argvp->argv + argvp->argc; cpp++)
+        myfree(*cpp);
+    argvp->argc = len;
+    argvp->argv[argvp->argc] = 0;
     }
 }
 
@@ -278,12 +278,12 @@ void    argv_insert_one(ARGV *argvp, ssize_t where, const char *arg)
      * Sanity check.
      */
     if (where < 0 || where > argvp->argc)
-	msg_panic("argv_insert_one bad position: %ld", (long) where);
+    msg_panic("argv_insert_one bad position: %ld", (long) where);
 
     if (ARGV_SPACE_LEFT(argvp) <= 0)
-	argv_extend(argvp);
+    argv_extend(argvp);
     for (pos = argvp->argc; pos >= where; pos--)
-	argvp->argv[pos + 1] = argvp->argv[pos];
+    argvp->argv[pos + 1] = argvp->argv[pos];
     argvp->argv[where] = mystrdup(arg);
     argvp->argc += 1;
 }
@@ -298,7 +298,7 @@ void    argv_replace_one(ARGV *argvp, ssize_t where, const char *arg)
      * Sanity check.
      */
     if (where < 0 || where >= argvp->argc)
-	msg_panic("argv_replace_one bad position: %ld", (long) where);
+    msg_panic("argv_replace_one bad position: %ld", (long) where);
 
     temp = argvp->argv[where];
     argvp->argv[where] = mystrdup(arg);
@@ -315,12 +315,12 @@ void    argv_delete(ARGV *argvp, ssize_t first, ssize_t how_many)
      * Sanity check.
      */
     if (first < 0 || how_many < 0 || first + how_many > argvp->argc)
-	msg_panic("argv_delete bad range: (start=%ld count=%ld)",
-		  (long) first, (long) how_many);
+    msg_panic("argv_delete bad range: (start=%ld count=%ld)",
+          (long) first, (long) how_many);
 
     for (pos = first; pos < first + how_many; pos++)
-	myfree(argvp->argv[pos]);
+    myfree(argvp->argv[pos]);
     for (pos = first; pos <= argvp->argc - how_many; pos++)
-	argvp->argv[pos] = argvp->argv[pos + how_many];
+    argvp->argv[pos] = argvp->argv[pos + how_many];
     argvp->argc -= how_many;
 }

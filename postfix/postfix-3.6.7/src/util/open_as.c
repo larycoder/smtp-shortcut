@@ -1,34 +1,34 @@
 /*++
 /* NAME
-/*	open_as 3
+/*    open_as 3
 /* SUMMARY
-/*	open file as user
+/*    open file as user
 /* SYNOPSIS
-/*	#include <fcntl.h>
-/*	#include <open_as.h>
+/*    #include <fcntl.h>
+/*    #include <open_as.h>
 /*
-/*	int	open_as(path, flags, mode, euid, egid)
-/*	const char *path;
-/*	int	mode;
-/*	uid_t	euid;
-/*	gid_t	egid;
+/*    int    open_as(path, flags, mode, euid, egid)
+/*    const char *path;
+/*    int    mode;
+/*    uid_t    euid;
+/*    gid_t    egid;
 /* DESCRIPTION
-/*	open_as() opens the named \fIpath\fR with the named \fIflags\fR
-/*	and \fImode\fR, and with the effective rights specified by \fIeuid\fR
-/*	and \fIegid\fR.  A -1 result means the open failed.
+/*    open_as() opens the named \fIpath\fR with the named \fIflags\fR
+/*    and \fImode\fR, and with the effective rights specified by \fIeuid\fR
+/*    and \fIegid\fR.  A -1 result means the open failed.
 /* DIAGNOSTICS
-/*	Fatal error: no permission to change privilege level.
+/*    Fatal error: no permission to change privilege level.
 /* SEE ALSO
-/*	set_eugid(3) switch effective rights
+/*    set_eugid(3) switch effective rights
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */

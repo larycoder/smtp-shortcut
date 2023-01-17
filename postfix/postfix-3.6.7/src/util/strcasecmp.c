@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 1987, 1993
- *	The Regents of the University of California.  All rights reserved.
+ *    The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -12,8 +12,8 @@
  *    documentation and/or other materials provided with the distribution.
  * 3. All advertising materials mentioning features or use of this software
  *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
+ *    This product includes software developed by the University of
+ *    California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -32,8 +32,8 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char sccsid[] = "@(#)strcasecmp.c	8.1 (Berkeley) 6/4/93";
-#endif					/* LIBC_SCCS and not lint */
+static char sccsid[] = "@(#)strcasecmp.c    8.1 (Berkeley) 6/4/93";
+#endif                    /* LIBC_SCCS and not lint */
 
 #include <sys_defs.h>
 #include <ctype.h>
@@ -44,23 +44,23 @@ int     strcasecmp(const char *s1, const char *s2)
     const unsigned char *us2 = (const unsigned char *) s2;
 
     while (tolower(*us1) == tolower(*us2++))
-	if (*us1++ == '\0')
-	    return (0);
+    if (*us1++ == '\0')
+        return (0);
     return (tolower(*us1) - tolower(*--us2));
 }
 
 int     strncasecmp(const char *s1, const char *s2, size_t n)
 {
     if (n != 0) {
-	const unsigned char *us1 = (const unsigned char *) s1;
-	const unsigned char *us2 = (const unsigned char *) s2;
+    const unsigned char *us1 = (const unsigned char *) s1;
+    const unsigned char *us2 = (const unsigned char *) s2;
 
-	do {
-	    if (tolower(*us1) != tolower(*us2++))
-		return (tolower(*us1) - tolower(*--us2));
-	    if (*us1++ == '\0')
-		break;
-	} while (--n != 0);
+    do {
+        if (tolower(*us1) != tolower(*us2++))
+        return (tolower(*us1) - tolower(*--us2));
+        if (*us1++ == '\0')
+        break;
+    } while (--n != 0);
     }
     return (0);
 }

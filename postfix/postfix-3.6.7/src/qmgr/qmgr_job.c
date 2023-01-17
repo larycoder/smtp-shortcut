@@ -1,63 +1,63 @@
 /*++
 /* NAME
-/*	qmgr_job 3
+/*    qmgr_job 3
 /* SUMMARY
-/*	per-transport jobs
+/*    per-transport jobs
 /* SYNOPSIS
-/*	#include "qmgr.h"
+/*    #include "qmgr.h"
 /*
-/*	QMGR_JOB *qmgr_job_obtain(message, transport)
-/*	QMGR_MESSAGE *message;
-/*	QMGR_TRANSPORT *transport;
+/*    QMGR_JOB *qmgr_job_obtain(message, transport)
+/*    QMGR_MESSAGE *message;
+/*    QMGR_TRANSPORT *transport;
 /*
-/*	void qmgr_job_free(job)
-/*	QMGR_JOB *job;
+/*    void qmgr_job_free(job)
+/*    QMGR_JOB *job;
 /*
-/*	void qmgr_job_move_limits(job)
-/*	QMGR_JOB *job;
+/*    void qmgr_job_move_limits(job)
+/*    QMGR_JOB *job;
 /*
-/*	QMGR_ENTRY *qmgr_job_entry_select(transport)
-/*	QMGR_TRANSPORT *transport;
+/*    QMGR_ENTRY *qmgr_job_entry_select(transport)
+/*    QMGR_TRANSPORT *transport;
 /*
-/*	void	qmgr_job_blocker_update(queue)
-/*	QMGR_QUEUE *queue;
+/*    void    qmgr_job_blocker_update(queue)
+/*    QMGR_QUEUE *queue;
 /* DESCRIPTION
-/*	These routines add/delete/manipulate per-transport jobs.
-/*	Each job corresponds to a specific transport and message.
-/*	Each job has a peer list containing all pending delivery
-/*	requests for that message.
+/*    These routines add/delete/manipulate per-transport jobs.
+/*    Each job corresponds to a specific transport and message.
+/*    Each job has a peer list containing all pending delivery
+/*    requests for that message.
 /*
-/*	qmgr_job_obtain() finds an existing job for named message and
-/*	transport combination. New empty job is created if no existing can
-/*	be found. In either case, the job is prepared for assignment of
-/*	(more) message recipients.
+/*    qmgr_job_obtain() finds an existing job for named message and
+/*    transport combination. New empty job is created if no existing can
+/*    be found. In either case, the job is prepared for assignment of
+/*    (more) message recipients.
 /*
-/*	qmgr_job_free() disposes of a per-transport job after all
-/*	its entries have been taken care of. It is an error to dispose
-/*	of a job that is still in use.
+/*    qmgr_job_free() disposes of a per-transport job after all
+/*    its entries have been taken care of. It is an error to dispose
+/*    of a job that is still in use.
 /*
-/*	qmgr_job_entry_select() attempts to find the next entry suitable
-/*	for delivery. The job preempting algorithm is also exercised.
-/*	If necessary, an attempt to read more recipients into core is made.
-/*	This can result in creation of more job, queue and entry structures.
+/*    qmgr_job_entry_select() attempts to find the next entry suitable
+/*    for delivery. The job preempting algorithm is also exercised.
+/*    If necessary, an attempt to read more recipients into core is made.
+/*    This can result in creation of more job, queue and entry structures.
 /*
-/*	qmgr_job_blocker_update() updates the status of blocked
-/*	jobs after a decrease in the queue's concurrency level,
-/*	after the queue is throttled, or after the queue is resumed
-/*	from suspension.
+/*    qmgr_job_blocker_update() updates the status of blocked
+/*    jobs after a decrease in the queue's concurrency level,
+/*    after the queue is throttled, or after the queue is resumed
+/*    from suspension.
 /*
-/*	qmgr_job_move_limits() takes care of proper distribution of the
-/*	per-transport recipients limit among the per-transport jobs.
-/*	Should be called whenever a job's recipient slot becomes available.
+/*    qmgr_job_move_limits() takes care of proper distribution of the
+/*    per-transport recipients limit among the per-transport jobs.
+/*    Should be called whenever a job's recipient slot becomes available.
 /* DIAGNOSTICS
-/*	Panic: consistency check failure.
+/*    Panic: consistency check failure.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Patrik Rak
-/*	patrik@raxoft.cz
+/*    Patrik Rak
+/*    patrik@raxoft.cz
 /*--*/
 
 /* System library. */
@@ -137,7 +137,7 @@ static void qmgr_job_link(QMGR_JOB *job)
      * Sanity checks.
      */
     if (job->stack_level >= 0)
-	msg_panic("qmgr_job_link: already on the job lists (%d)", job->stack_level);
+    msg_panic("qmgr_job_link: already on the job lists (%d)", job->stack_level);
 
     /*
      * Traverse the time list and the scheduler list from the end and stop
@@ -168,26 +168,26 @@ static void qmgr_job_link(QMGR_JOB *job)
      */
     current = transport->job_current;
     for (next = 0, prev = transport->job_list.prev; prev;
-	 next = prev, prev = prev->transport_peers.prev) {
-	if (prev->stack_parent == 0) {
-	    delay = message->queued_time - prev->message->queued_time;
-	    if (delay >= 0)
-		break;
-	}
-	if (current == prev)
-	    current = 0;
+     next = prev, prev = prev->transport_peers.prev) {
+    if (prev->stack_parent == 0) {
+        delay = message->queued_time - prev->message->queued_time;
+        if (delay >= 0)
+        break;
+    }
+    if (current == prev)
+        current = 0;
     }
     list_prev = prev;
     list_next = next;
 
     unread = transport->job_next_unread;
     for (next = 0, prev = transport->job_bytime.prev; prev;
-	 next = prev, prev = prev->time_peers.prev) {
-	delay = message->queued_time - prev->message->queued_time;
-	if (delay >= 0)
-	    break;
-	if (unread == prev)
-	    unread = 0;
+     next = prev, prev = prev->time_peers.prev) {
+    delay = message->queued_time - prev->message->queued_time;
+    if (delay >= 0)
+        break;
+    if (unread == prev)
+        unread = 0;
     }
 
     /*
@@ -202,17 +202,17 @@ static void qmgr_job_link(QMGR_JOB *job)
      * Update the current job pointer if necessary.
      */
     if (current == 0)
-	transport->job_current = job;
+    transport->job_current = job;
 
     /*
      * Update the pointer to the first unread job on the job list and steal
      * the unused recipient slots from the old one.
      */
     if (unread == 0) {
-	unread = transport->job_next_unread;
-	transport->job_next_unread = job;
-	if (unread != 0)
-	    qmgr_job_move_limits(unread);
+    unread = transport->job_next_unread;
+    transport->job_next_unread = job;
+    if (unread != 0)
+        qmgr_job_move_limits(unread);
     }
 
     /*
@@ -221,9 +221,9 @@ static void qmgr_job_link(QMGR_JOB *job)
      * (which is usually after all recipients have been read in core).
      */
     if (transport->rcpt_unused > 0) {
-	job->rcpt_limit += transport->rcpt_unused;
-	message->rcpt_limit += transport->rcpt_unused;
-	transport->rcpt_unused = 0;
+    job->rcpt_limit += transport->rcpt_unused;
+    message->rcpt_limit += transport->rcpt_unused;
+    transport->rcpt_unused = 0;
     }
 }
 
@@ -253,9 +253,9 @@ QMGR_JOB *qmgr_job_obtain(QMGR_MESSAGE *message, QMGR_TRANSPORT *transport)
      * either case, the job ends linked on the job lists.
      */
     if ((job = qmgr_job_find(message, transport)) == 0)
-	job = qmgr_job_create(message, transport);
+    job = qmgr_job_create(message, transport);
     if (job->stack_level < 0)
-	qmgr_job_link(job);
+    qmgr_job_link(job);
 
     /*
      * Reset the candidate cache because of the new expected recipients. Make
@@ -267,8 +267,8 @@ QMGR_JOB *qmgr_job_obtain(QMGR_MESSAGE *message, QMGR_TRANSPORT *transport)
      */
     RESET_CANDIDATE_CACHE(transport);
     if (IS_BLOCKER(job, transport)) {
-	job->blocker_tag = 0;
-	transport->job_current = transport->job_list.next;
+    job->blocker_tag = 0;
+    transport->job_current = transport->job_list.next;
     }
     return (job);
 }
@@ -288,10 +288,10 @@ void    qmgr_job_move_limits(QMGR_JOB *job)
      * that we use the time list whose ordering doesn't change over time.
      */
     if (job == next) {
-	for (next = next->time_peers.next; next; next = next->time_peers.next)
-	    if (next->message->rcpt_offset != 0)
-		break;
-	transport->job_next_unread = next;
+    for (next = next->time_peers.next; next; next = next->time_peers.next)
+        if (next->message->rcpt_offset != 0)
+        break;
+    transport->job_next_unread = next;
     }
 
     /*
@@ -300,7 +300,7 @@ void    qmgr_job_move_limits(QMGR_JOB *job)
     rcpt_unused = job->rcpt_limit - job->rcpt_count;
     msg_rcpt_unused = message->rcpt_limit - message->rcpt_count;
     if (msg_rcpt_unused < rcpt_unused)
-	rcpt_unused = msg_rcpt_unused;
+    rcpt_unused = msg_rcpt_unused;
 
     /*
      * Transfer the unused recipient slots back to the transport pool and to
@@ -309,14 +309,14 @@ void    qmgr_job_move_limits(QMGR_JOB *job)
      * some of the rcpt_per_stack slots.
      */
     if (rcpt_unused > 0) {
-	job->rcpt_limit -= rcpt_unused;
-	message->rcpt_limit -= rcpt_unused;
-	transport->rcpt_unused += rcpt_unused;
-	if (next != 0 && (rcpt_unused = transport->rcpt_unused) > 0) {
-	    next->rcpt_limit += rcpt_unused;
-	    next->message->rcpt_limit += rcpt_unused;
-	    transport->rcpt_unused = 0;
-	}
+    job->rcpt_limit -= rcpt_unused;
+    message->rcpt_limit -= rcpt_unused;
+    transport->rcpt_unused += rcpt_unused;
+    if (next != 0 && (rcpt_unused = transport->rcpt_unused) > 0) {
+        next->rcpt_limit += rcpt_unused;
+        next->message->rcpt_limit += rcpt_unused;
+        transport->rcpt_unused = 0;
+    }
     }
 }
 
@@ -327,10 +327,10 @@ static void qmgr_job_parent_gone(QMGR_JOB *job, QMGR_JOB *parent)
     QMGR_JOB *child;
 
     while ((child = job->stack_children.next) != 0) {
-	QMGR_LIST_UNLINK(job->stack_children, QMGR_JOB *, child, stack_siblings);
-	if (parent != 0)
-	    QMGR_LIST_APPEND(parent->stack_children, child, stack_siblings);
-	child->stack_parent = parent;
+    QMGR_LIST_UNLINK(job->stack_children, QMGR_JOB *, child, stack_siblings);
+    if (parent != 0)
+        QMGR_LIST_APPEND(parent->stack_children, child, stack_siblings);
+    child->stack_parent = parent;
     }
 }
 
@@ -345,11 +345,11 @@ static void qmgr_job_unlink(QMGR_JOB *job)
      * Sanity checks.
      */
     if (job->stack_level != 0)
-	msg_panic("%s: non-zero stack level (%d)", myname, job->stack_level);
+    msg_panic("%s: non-zero stack level (%d)", myname, job->stack_level);
     if (job->stack_parent != 0)
-	msg_panic("%s: parent present", myname);
+    msg_panic("%s: parent present", myname);
     if (job->stack_siblings.next != 0)
-	msg_panic("%s: siblings present", myname);
+    msg_panic("%s: siblings present", myname);
 
     /*
      * Make sure that children of job on zero stack level are informed that
@@ -361,14 +361,14 @@ static void qmgr_job_unlink(QMGR_JOB *job)
      * Update the current job pointer if necessary.
      */
     if (transport->job_current == job)
-	transport->job_current = job->transport_peers.next;
+    transport->job_current = job->transport_peers.next;
 
     /*
      * Invalidate the candidate selection cache if necessary.
      */
     if (job == transport->candidate_cache
-	|| job == transport->candidate_cache_current)
-	RESET_CANDIDATE_CACHE(transport);
+    || job == transport->candidate_cache_current)
+    RESET_CANDIDATE_CACHE(transport);
 
     /*
      * Remove the job from the job lists and mark it as unlinked.
@@ -383,13 +383,13 @@ static void qmgr_job_unlink(QMGR_JOB *job)
 static void qmgr_job_retire(QMGR_JOB *job)
 {
     if (msg_verbose)
-	msg_info("qmgr_job_retire: %s", job->message->queue_id);
+    msg_info("qmgr_job_retire: %s", job->message->queue_id);
 
     /*
      * Pop the job from the job stack if necessary.
      */
     if (job->stack_level > 0)
-	qmgr_job_pop(job);
+    qmgr_job_pop(job);
 
     /*
      * Make sure this job is not cached as the next unread job for this
@@ -416,33 +416,33 @@ void    qmgr_job_free(QMGR_JOB *job)
     QMGR_TRANSPORT *transport = job->transport;
 
     if (msg_verbose)
-	msg_info("%s: %s %s", myname, message->queue_id, transport->name);
+    msg_info("%s: %s %s", myname, message->queue_id, transport->name);
 
     /*
      * Sanity checks.
      */
     if (job->rcpt_count)
-	msg_panic("%s: non-zero recipient count (%d)", myname, job->rcpt_count);
+    msg_panic("%s: non-zero recipient count (%d)", myname, job->rcpt_count);
 
     /*
      * Pop the job from the job stack if necessary.
      */
     if (job->stack_level > 0)
-	qmgr_job_pop(job);
+    qmgr_job_pop(job);
 
     /*
      * Return any remaining recipient slots back to the recipient slots pool.
      */
     qmgr_job_move_limits(job);
     if (job->rcpt_limit)
-	msg_panic("%s: recipient slots leak (%d)", myname, job->rcpt_limit);
+    msg_panic("%s: recipient slots leak (%d)", myname, job->rcpt_limit);
 
     /*
      * Unlink and discard the structure. Check if the job is still linked on
      * the job lists or if it was already retired before unlinking it.
      */
     if (job->stack_level >= 0)
-	qmgr_job_unlink(job);
+    qmgr_job_unlink(job);
     QMGR_LIST_UNLINK(message->job_list, QMGR_JOB *, job, message_peers);
     htable_delete(transport->job_byname, message->queue_id, (void (*) (void *)) 0);
     htable_free(job->peer_byname, (void (*) (void *)) 0);
@@ -476,7 +476,7 @@ static void qmgr_job_count_slots(QMGR_JOB *job)
      * cache would be considered valid in such case.
      */
     if (job != job->transport->candidate_cache_current)
-	RESET_CANDIDATE_CACHE(job->transport);
+    RESET_CANDIDATE_CACHE(job->transport);
 }
 
 /* qmgr_job_candidate - find best job candidate for preempting given job */
@@ -503,9 +503,9 @@ static QMGR_JOB *qmgr_job_candidate(QMGR_JOB *current)
      * cache resetting rules, depending on the automatic cache timeout.
      */
     if (transport->candidate_cache_current == current
-	&& (transport->candidate_cache_time == now
-	    || transport->candidate_cache == 0))
-	return (transport->candidate_cache);
+    && (transport->candidate_cache_time == now
+        || transport->candidate_cache == 0))
+    return (transport->candidate_cache);
 
     /*
      * Estimate the minimum amount of delivery slots that can ever be
@@ -513,7 +513,7 @@ static QMGR_JOB *qmgr_job_candidate(QMGR_JOB *current)
      * slots are excluded from the candidate selection.
      */
     max_slots = (MIN_ENTRIES(current) - current->selected_entries
-		 + current->slots_available) / transport->slot_cost;
+         + current->slots_available) / transport->slot_cost;
 
     /*
      * Select the candidate with best time_since_queued/total_recipients
@@ -535,26 +535,26 @@ static QMGR_JOB *qmgr_job_candidate(QMGR_JOB *current)
      * anyway.
      */
     if (max_slots > 0) {
-	for (job = current->transport_peers.next; job; job = job->transport_peers.next) {
-	    if (job->stack_children.next != 0 || IS_BLOCKER(job, transport))
-		continue;
-	    max_total_entries = MAX_ENTRIES(job);
-	    max_needed_entries = max_total_entries - job->selected_entries;
-	    delay = now - job->message->queued_time + 1;
-	    if (max_needed_entries > 0 && max_needed_entries <= max_slots) {
-		score = (double) delay / max_total_entries;
-		if (score > best_score) {
-		    best_score = score;
-		    best_job = job;
-		}
-	    }
+    for (job = current->transport_peers.next; job; job = job->transport_peers.next) {
+        if (job->stack_children.next != 0 || IS_BLOCKER(job, transport))
+        continue;
+        max_total_entries = MAX_ENTRIES(job);
+        max_needed_entries = max_total_entries - job->selected_entries;
+        delay = now - job->message->queued_time + 1;
+        if (max_needed_entries > 0 && max_needed_entries <= max_slots) {
+        score = (double) delay / max_total_entries;
+        if (score > best_score) {
+            best_score = score;
+            best_job = job;
+        }
+        }
 
-	    /*
-	     * Stop early if the best score is as good as it can get.
-	     */
-	    if (delay <= best_score && job->stack_level == 0)
-		break;
-	}
+        /*
+         * Stop early if the best score is as good as it can get.
+         */
+        if (delay <= best_score && job->stack_level == 0)
+        break;
+    }
     }
 
     /*
@@ -586,7 +586,7 @@ static QMGR_JOB *qmgr_job_preempt(QMGR_JOB *current)
      */
     if (current->slots_available <= 0
       || MAX_ENTRIES(current) < transport->min_slots * transport->slot_cost)
-	return (current);
+    return (current);
 
     /*
      * Find best candidate for preempting the current job.
@@ -596,17 +596,17 @@ static QMGR_JOB *qmgr_job_preempt(QMGR_JOB *current)
      * accumulate.
      */
     if ((job = qmgr_job_candidate(current)) == 0)
-	return (current);
+    return (current);
 
     /*
      * Sanity checks.
      */
     if (job == current)
-	msg_panic("%s: attempt to preempt itself", myname);
+    msg_panic("%s: attempt to preempt itself", myname);
     if (job->stack_children.next != 0)
-	msg_panic("%s: already on the job stack (%d)", myname, job->stack_level);
+    msg_panic("%s: already on the job stack (%d)", myname, job->stack_level);
     if (job->stack_level < 0)
-	msg_panic("%s: not on the job list (%d)", myname, job->stack_level);
+    msg_panic("%s: not on the job list (%d)", myname, job->stack_level);
 
     /*
      * Check if there is enough available delivery slots accumulated to
@@ -620,8 +620,8 @@ static QMGR_JOB *qmgr_job_preempt(QMGR_JOB *current)
      */
     expected_slots = MAX_ENTRIES(job) - job->selected_entries;
     if (current->slots_available / transport->slot_cost + transport->slot_loan
-	< expected_slots * transport->slot_loan_factor / 100.0)
-	return (current);
+    < expected_slots * transport->slot_loan_factor / 100.0)
+    return (current);
 
     /*
      * Preempt the current job.
@@ -632,7 +632,7 @@ static QMGR_JOB *qmgr_job_preempt(QMGR_JOB *current)
      * taken from its previous job stack which it might be top of.
      */
     if (job->stack_level > 0)
-	qmgr_job_pop(job);
+    qmgr_job_pop(job);
     QMGR_LIST_UNLINK(transport->job_list, QMGR_JOB *, job, transport_peers);
     prev = current->transport_peers.prev;
     QMGR_LIST_LINK(transport->job_list, prev, job, current, transport_peers);
@@ -671,14 +671,14 @@ static QMGR_JOB *qmgr_job_preempt(QMGR_JOB *current)
      * case.
      */
     if (job->message->rcpt_offset != 0) {
-	rcpt_slots = (transport->rcpt_per_stack + transport->rcpt_unused + 1) / 2;
-	job->rcpt_limit += rcpt_slots;
-	job->message->rcpt_limit += rcpt_slots;
-	transport->rcpt_unused -= rcpt_slots;
+    rcpt_slots = (transport->rcpt_per_stack + transport->rcpt_unused + 1) / 2;
+    job->rcpt_limit += rcpt_slots;
+    job->message->rcpt_limit += rcpt_slots;
+    transport->rcpt_unused -= rcpt_slots;
     }
     if (msg_verbose)
-	msg_info("%s: %s by %s, level %d", myname, current->message->queue_id,
-		 job->message->queue_id, job->stack_level);
+    msg_info("%s: %s by %s, level %d", myname, current->message->queue_id,
+         job->message->queue_id, job->stack_level);
 
     return (job);
 }
@@ -692,13 +692,13 @@ static void qmgr_job_pop(QMGR_JOB *job)
     QMGR_JOB *parent;
 
     if (msg_verbose)
-	msg_info("%s: %s", myname, job->message->queue_id);
+    msg_info("%s: %s", myname, job->message->queue_id);
 
     /*
      * Sanity checks.
      */
     if (job->stack_level <= 0)
-	msg_panic("%s: not on the job stack (%d)", myname, job->stack_level);
+    msg_panic("%s: not on the job stack (%d)", myname, job->stack_level);
 
     /*
      * Adjust the number of delivery slots available to preempt job's parent.
@@ -717,15 +717,15 @@ static void qmgr_job_pop(QMGR_JOB *job)
      * This is another key part of the theory behind this preempting scheduler.
      */
     if ((parent = job->stack_parent) != 0
-	&& job->stack_level == parent->stack_level + 1)
-	parent->slots_available -= job->slots_used * transport->slot_cost;
+    && job->stack_level == parent->stack_level + 1)
+    parent->slots_available -= job->slots_used * transport->slot_cost;
 
     /*
      * Remove the job from its parent's children list.
      */
     if (parent != 0) {
-	QMGR_LIST_UNLINK(parent->stack_children, QMGR_JOB *, job, stack_siblings);
-	job->stack_parent = 0;
+    QMGR_LIST_UNLINK(parent->stack_children, QMGR_JOB *, job, stack_siblings);
+    job->stack_parent = 0;
     }
 
     /*
@@ -759,7 +759,7 @@ static void qmgr_job_pop(QMGR_JOB *job)
     QMGR_LIST_LINK(transport->job_list, some_prev, job, some_next, transport_peers);
 
     if (transport->job_current == job)
-	transport->job_current = job->transport_peers.next;
+    transport->job_current = job->transport_peers.next;
 #endif
 }
 
@@ -795,17 +795,17 @@ static QMGR_PEER *qmgr_job_peer_select(QMGR_JOB *job)
      * rare that it is not critical. Still we seek for better solution.
      */
     if (message->rcpt_offset != 0
-	&& message->refcount > 0
-	&& (message->rcpt_limit - message->rcpt_count >= job->transport->refill_limit
-	    || (message->rcpt_limit > message->rcpt_count
+    && message->refcount > 0
+    && (message->rcpt_limit - message->rcpt_count >= job->transport->refill_limit
+        || (message->rcpt_limit > message->rcpt_count
     && sane_time() - message->refill_time >= job->transport->refill_delay)))
-	qmgr_message_realloc(message);
+    qmgr_message_realloc(message);
 
     /*
      * Get the next suitable peer, if there is any.
      */
     if (HAS_ENTRIES(job) && (peer = qmgr_peer_select(job)) != 0)
-	return (peer);
+    return (peer);
 
     /*
      * There is no suitable peer in-core, so try reading in more recipients
@@ -815,11 +815,11 @@ static QMGR_PEER *qmgr_job_peer_select(QMGR_JOB *job)
      * XXX For message->refcount, see above.
      */
     if (message->rcpt_offset != 0
-	&& message->refcount > 0
-	&& message->rcpt_limit > message->rcpt_count) {
-	qmgr_message_realloc(message);
-	if (HAS_ENTRIES(job))
-	    return (qmgr_peer_select(job));
+    && message->refcount > 0
+    && message->rcpt_limit > message->rcpt_count) {
+    qmgr_message_realloc(message);
+    if (HAS_ENTRIES(job))
+        return (qmgr_peer_select(job));
     }
     return (0);
 }
@@ -836,7 +836,7 @@ QMGR_ENTRY *qmgr_job_entry_select(QMGR_TRANSPORT *transport)
      * Get the current job if there is one.
      */
     if ((job = transport->job_current) == 0)
-	return (0);
+    return (0);
 
     /*
      * Exercise the preempting algorithm if enabled.
@@ -845,7 +845,7 @@ QMGR_ENTRY *qmgr_job_entry_select(QMGR_TRANSPORT *transport)
      * therefore disabled too.
      */
     if (transport->slot_cost >= 2)
-	job = qmgr_job_preempt(job);
+    job = qmgr_job_preempt(job);
 
     /*
      * Select next entry suitable for delivery. In case the current job can't
@@ -863,76 +863,76 @@ QMGR_ENTRY *qmgr_job_entry_select(QMGR_TRANSPORT *transport)
      * we retire such jobs below if we happen to come across some.
      */
     for ( /* empty */ ; job; job = next) {
-	next = job->transport_peers.next;
+    next = job->transport_peers.next;
 
-	/*
-	 * Don't bother if the job is known to have no available entries
-	 * because of the per-destination concurrency limits.
-	 */
-	if (IS_BLOCKER(job, transport))
-	    continue;
+    /*
+     * Don't bother if the job is known to have no available entries
+     * because of the per-destination concurrency limits.
+     */
+    if (IS_BLOCKER(job, transport))
+        continue;
 
-	if ((peer = qmgr_job_peer_select(job)) != 0) {
+    if ((peer = qmgr_job_peer_select(job)) != 0) {
 
-	    /*
-	     * We have found a suitable peer. Select one of its entries and
-	     * adjust the delivery slot counters.
-	     */
-	    entry = qmgr_entry_select(peer);
-	    qmgr_job_count_slots(job);
+        /*
+         * We have found a suitable peer. Select one of its entries and
+         * adjust the delivery slot counters.
+         */
+        entry = qmgr_entry_select(peer);
+        qmgr_job_count_slots(job);
 
-	    /*
-	     * Remember the current job for the next time so we don't have to
-	     * crawl over all those blockers again. They will be reconsidered
-	     * when the concurrency limit permits.
-	     */
-	    transport->job_current = job;
+        /*
+         * Remember the current job for the next time so we don't have to
+         * crawl over all those blockers again. They will be reconsidered
+         * when the concurrency limit permits.
+         */
+        transport->job_current = job;
 
-	    /*
-	     * In case we selected the very last job entry, remove the job
-	     * from the job lists right now.
-	     * 
-	     * This action uses the assumption that once the job entry has been
-	     * selected, it can be unselected only before the message ifself
-	     * is deferred. Thus the job with all entries selected can't
-	     * re-appear with more entries available for selection again
-	     * (without reading in more entries from the queue file, which in
-	     * turn invokes qmgr_job_obtain() which re-links the job back on
-	     * the lists if necessary).
-	     * 
-	     * Note that qmgr_job_move_limits() transfers the recipients slots
-	     * correctly even if the job is unlinked from the job list thanks
-	     * to the job_next_unread caching.
-	     */
-	    if (!HAS_ENTRIES(job) && job->message->rcpt_offset == 0)
-		qmgr_job_retire(job);
+        /*
+         * In case we selected the very last job entry, remove the job
+         * from the job lists right now.
+         * 
+         * This action uses the assumption that once the job entry has been
+         * selected, it can be unselected only before the message ifself
+         * is deferred. Thus the job with all entries selected can't
+         * re-appear with more entries available for selection again
+         * (without reading in more entries from the queue file, which in
+         * turn invokes qmgr_job_obtain() which re-links the job back on
+         * the lists if necessary).
+         * 
+         * Note that qmgr_job_move_limits() transfers the recipients slots
+         * correctly even if the job is unlinked from the job list thanks
+         * to the job_next_unread caching.
+         */
+        if (!HAS_ENTRIES(job) && job->message->rcpt_offset == 0)
+        qmgr_job_retire(job);
 
-	    /*
-	     * Finally. Hand back the fruit of our tedious effort.
-	     */
-	    return (entry);
-	} else if (HAS_ENTRIES(job)) {
+        /*
+         * Finally. Hand back the fruit of our tedious effort.
+         */
+        return (entry);
+    } else if (HAS_ENTRIES(job)) {
 
-	    /*
-	     * The job can't be selected due the concurrency limits. Mark it
-	     * together with its queues so we know they are blocking the job
-	     * list and they get the appropriate treatment. In particular,
-	     * all blockers will be reconsidered when one of the problematic
-	     * queues will accept more deliveries. And the job itself will be
-	     * reconsidered if it is assigned some more entries.
-	     */
-	    job->blocker_tag = transport->blocker_tag;
-	    for (peer = job->peer_list.next; peer; peer = peer->peers.next)
-		if (peer->entry_list.next != 0)
-		    peer->queue->blocker_tag = transport->blocker_tag;
-	} else {
+        /*
+         * The job can't be selected due the concurrency limits. Mark it
+         * together with its queues so we know they are blocking the job
+         * list and they get the appropriate treatment. In particular,
+         * all blockers will be reconsidered when one of the problematic
+         * queues will accept more deliveries. And the job itself will be
+         * reconsidered if it is assigned some more entries.
+         */
+        job->blocker_tag = transport->blocker_tag;
+        for (peer = job->peer_list.next; peer; peer = peer->peers.next)
+        if (peer->entry_list.next != 0)
+            peer->queue->blocker_tag = transport->blocker_tag;
+    } else {
 
-	    /*
-	     * The job is "stalled". Retire it until it either gets freed or
-	     * gets more entries later.
-	     */
-	    qmgr_job_retire(job);
-	}
+        /*
+         * The job is "stalled". Retire it until it either gets freed or
+         * gets more entries later.
+         */
+        qmgr_job_retire(job);
+    }
     }
 
     /*
@@ -967,12 +967,12 @@ void    qmgr_job_blocker_update(QMGR_QUEUE *queue)
      * never matches jobs that are not explicitly marked as blockers.
      */
     if (queue->blocker_tag == transport->blocker_tag) {
-	if (queue->window > queue->busy_refcount && queue->todo.next != 0) {
-	    transport->blocker_tag += 2;
-	    transport->job_current = transport->job_list.next;
-	    transport->candidate_cache_current = 0;
-	}
-	if (queue->window > queue->busy_refcount || QMGR_QUEUE_THROTTLED(queue))
-	    queue->blocker_tag = 0;
+    if (queue->window > queue->busy_refcount && queue->todo.next != 0) {
+        transport->blocker_tag += 2;
+        transport->job_current = transport->job_list.next;
+        transport->candidate_cache_current = 0;
+    }
+    if (queue->window > queue->busy_refcount || QMGR_QUEUE_THROTTLED(queue))
+        queue->blocker_tag = 0;
     }
 }

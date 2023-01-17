@@ -1,45 +1,45 @@
 /*++
 /* NAME
-/*	deliver_flock 3
+/*    deliver_flock 3
 /* SUMMARY
-/*	lock open file for mail delivery
+/*    lock open file for mail delivery
 /* SYNOPSIS
-/*	#include <deliver_flock.h>
+/*    #include <deliver_flock.h>
 /*
-/*	int	deliver_flock(fd, lock_style, why)
-/*	int	fd;
-/*	int	lock_style;
-/*	VSTRING	*why;
+/*    int    deliver_flock(fd, lock_style, why)
+/*    int    fd;
+/*    int    lock_style;
+/*    VSTRING    *why;
 /* DESCRIPTION
-/*	deliver_flock() sets one exclusive kernel lock on an open file,
-/*	for example in order to deliver mail.
-/*	It performs several non-blocking attempts to acquire an exclusive
-/*	lock before giving up.
+/*    deliver_flock() sets one exclusive kernel lock on an open file,
+/*    for example in order to deliver mail.
+/*    It performs several non-blocking attempts to acquire an exclusive
+/*    lock before giving up.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP fd
-/*	A file descriptor that is associated with an open file.
+/*    A file descriptor that is associated with an open file.
 /* .IP lock_style
-/*	A locking style defined in myflock(3).
+/*    A locking style defined in myflock(3).
 /* .IP why
-/*	A null pointer, or storage for diagnostics.
+/*    A null pointer, or storage for diagnostics.
 /* DIAGNOSTICS
-/*	deliver_flock() returns -1 in case of problems, 0 in case
-/*	of success. The reason for failure is returned via the \fIwhy\fR
-/*	parameter.
+/*    deliver_flock() returns -1 in case of problems, 0 in case
+/*    of success. The reason for failure is returned via the \fIwhy\fR
+/*    parameter.
 /* CONFIGURATION PARAMETERS
-/*	deliver_lock_attempts, number of locking attempts
-/*	deliver_lock_delay, time in seconds between attempts
-/*	sun_mailtool_compatibility, disable kernel locking
+/*    deliver_lock_attempts, number of locking attempts
+/*    deliver_lock_delay, time in seconds between attempts
+/*    sun_mailtool_compatibility, disable kernel locking
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -60,7 +60,7 @@
 
 /* Application-specific. */
 
-#define MILLION	1000000
+#define MILLION    1000000
 
 /* deliver_flock - lock open file for mail delivery */
 
@@ -69,14 +69,14 @@ int     deliver_flock(int fd, int lock_style, VSTRING *why)
     int     i;
 
     for (i = 1; /* void */ ; i++) {
-	if (myflock(fd, lock_style,
-		    MYFLOCK_OP_EXCLUSIVE | MYFLOCK_OP_NOWAIT) == 0)
-	    return (0);
-	if (i >= var_flock_tries)
-	    break;
-	rand_sleep(var_flock_delay * MILLION, var_flock_delay * MILLION / 2);
+    if (myflock(fd, lock_style,
+            MYFLOCK_OP_EXCLUSIVE | MYFLOCK_OP_NOWAIT) == 0)
+        return (0);
+    if (i >= var_flock_tries)
+        break;
+    rand_sleep(var_flock_delay * MILLION, var_flock_delay * MILLION / 2);
     }
     if (why)
-	vstring_sprintf(why, "unable to lock for exclusive access: %m");
+    vstring_sprintf(why, "unable to lock for exclusive access: %m");
     return (-1);
 }

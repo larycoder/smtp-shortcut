@@ -1,36 +1,36 @@
 /*++
 /* NAME
-/*	deliver_attr 3
+/*    deliver_attr 3
 /* SUMMARY
-/*	initialize message delivery attributes
+/*    initialize message delivery attributes
 /* SYNOPSIS
-/*	#include "virtual.h"
+/*    #include "virtual.h"
 /*
-/*	void	deliver_attr_init(attrp)
-/*	DELIVER_ATTR *attrp;
+/*    void    deliver_attr_init(attrp)
+/*    DELIVER_ATTR *attrp;
 /*
-/*	void	deliver_attr_dump(attrp)
-/*	DELIVER_ATTR *attrp;
+/*    void    deliver_attr_dump(attrp)
+/*    DELIVER_ATTR *attrp;
 /*
-/*	void	deliver_attr_free(attrp)
-/*	DELIVER_ATTR *attrp;
+/*    void    deliver_attr_free(attrp)
+/*    DELIVER_ATTR *attrp;
 /* DESCRIPTION
-/*	deliver_attr_init() initializes a structure with message delivery
-/*	attributes to a known initial state (all zeros).
+/*    deliver_attr_init() initializes a structure with message delivery
+/*    attributes to a known initial state (all zeros).
 /*
-/*	deliver_attr_dump() logs the contents of the given attribute list.
+/*    deliver_attr_dump() logs the contents of the given attribute list.
 /*
-/*	deliver_attr_free() releases memory that was allocated by
-/*	deliver_attr_init().
+/*    deliver_attr_free() releases memory that was allocated by
+/*    deliver_attr_init().
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */

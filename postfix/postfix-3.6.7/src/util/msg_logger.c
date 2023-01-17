@@ -1,85 +1,85 @@
 /*++
 /* NAME
-/*	msg_logger 3
+/*    msg_logger 3
 /* SUMMARY
-/*	direct diagnostics to logger service
+/*    direct diagnostics to logger service
 /* SYNOPSIS
-/*	#include <msg_logger.h>
+/*    #include <msg_logger.h>
 /*
-/*	void	msg_logger_init(
-/*	const char *progname,
-/*	const char *hostname,
-/*	const char *unix_path,
-/*	void	(*fallback)(const char *))
+/*    void    msg_logger_init(
+/*    const char *progname,
+/*    const char *hostname,
+/*    const char *unix_path,
+/*    void    (*fallback)(const char *))
 /*
-/*	void	msg_logger_control(
-/*	int	key,...)
+/*    void    msg_logger_control(
+/*    int    key,...)
 /* DESCRIPTION
-/*	This module implements support to report msg(3) diagnostics
-/*	through a logger daemon, with an optional fallback mechanism.
-/*	The log record format is like traditional syslog:
+/*    This module implements support to report msg(3) diagnostics
+/*    through a logger daemon, with an optional fallback mechanism.
+/*    The log record format is like traditional syslog:
 /*
 /* .nf
-/*	    Mmm dd host progname[pid]: text...
+/*        Mmm dd host progname[pid]: text...
 /* .fi
 /*
-/*	msg_logger_init() arranges that subsequent msg(3) calls
-/*	will write to an internal logging service. This function
-/*	may also be used to update msg_logger settings.
+/*    msg_logger_init() arranges that subsequent msg(3) calls
+/*    will write to an internal logging service. This function
+/*    may also be used to update msg_logger settings.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP progname
-/*	The program name that is prepended to a log record.
+/*    The program name that is prepended to a log record.
 /* .IP hostname
-/*	The host name that is prepended to a log record. Only the
-/*	first hostname label will be used.
+/*    The host name that is prepended to a log record. Only the
+/*    first hostname label will be used.
 /* .IP unix_path
-/*	Pathname of a unix-domain datagram service endpoint. A
-/*	typical use case is the pathname of the postlog socket.
+/*    Pathname of a unix-domain datagram service endpoint. A
+/*    typical use case is the pathname of the postlog socket.
 /* .IP fallback
-/*	Null pointer, or pointer to function that will be called
-/*	with a formatted message when the logger service is not
-/*	(yet) available. A typical use case is to pass the record
-/*	to the logwriter(3) module.
+/*    Null pointer, or pointer to function that will be called
+/*    with a formatted message when the logger service is not
+/*    (yet) available. A typical use case is to pass the record
+/*    to the logwriter(3) module.
 /* .PP
-/*	msg_logger_control() makes adjustments to the msg_logger
-/*	client. These adjustments remain in effect until the next
-/*	msg_logger_init() or msg_logger_control() call. The arguments
-/*	are a list of macros with zero or more arguments, terminated
-/*	with CA_MSG_LOGGER_CTL_END which has none. The following
-/*	lists the names and the types of the corresponding value
-/*	arguments.
+/*    msg_logger_control() makes adjustments to the msg_logger
+/*    client. These adjustments remain in effect until the next
+/*    msg_logger_init() or msg_logger_control() call. The arguments
+/*    are a list of macros with zero or more arguments, terminated
+/*    with CA_MSG_LOGGER_CTL_END which has none. The following
+/*    lists the names and the types of the corresponding value
+/*    arguments.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP CA_MSG_LOGGER_CTL_FALLBACK_ONLY
-/*	Disable the logging socket, and use the fallback function
-/*	only. This remains in effect until the next msg_logger_init()
-/*	call.
+/*    Disable the logging socket, and use the fallback function
+/*    only. This remains in effect until the next msg_logger_init()
+/*    call.
 /* .IP CA_MSG_LOGGER_CTL_FALLBACK(void (*)(const char *))
-/*	Override the fallback setting (see above) with the specified
-/*	function pointer. This remains in effect until the next
-/*	msg_logger_init() or msg_logger_control() call.
+/*    Override the fallback setting (see above) with the specified
+/*    function pointer. This remains in effect until the next
+/*    msg_logger_init() or msg_logger_control() call.
 /* .IP CA_MSG_LOGGER_CTL_DISABLE
-/*	Disable the msg_logger. This remains in effect until the
-/*	next msg_logger_init() call.
+/*    Disable the msg_logger. This remains in effect until the
+/*    next msg_logger_init() call.
 /* .IP CA_MSG_LOGGER_CTL_CONNECT_NOW
-/*	Close the logging socket if it was already open, and open
-/*	the logging socket now, if permitted by current settings.
-/*	Otherwise, the open is delayed until a logging request.
+/*    Close the logging socket if it was already open, and open
+/*    the logging socket now, if permitted by current settings.
+/*    Otherwise, the open is delayed until a logging request.
 /* SEE ALSO
-/*	msg(3)  diagnostics module
+/*    msg(3)  diagnostics module
 /* BUGS
-/*	Output records are truncated to ~2000 characters, because
-/*	unlimited logging is a liability.
+/*    Output records are truncated to ~2000 characters, because
+/*    unlimited logging is a liability.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
  /*
@@ -120,7 +120,7 @@ static int msg_logger_enable = 0;
  /*
   * Other state.
   */
-#define MSG_LOGGER_SOCK_NONE	(-1)
+#define MSG_LOGGER_SOCK_NONE    (-1)
 
 static VSTRING *msg_logger_buf;
 static int msg_logger_sock = MSG_LOGGER_SOCK_NONE;
@@ -128,22 +128,22 @@ static int msg_logger_sock = MSG_LOGGER_SOCK_NONE;
  /*
   * Safety limit.
   */
-#define MSG_LOGGER_RECLEN	2000
+#define MSG_LOGGER_RECLEN    2000
 
  /*
   * SLMs.
   */
-#define STR(x)	vstring_str(x)
-#define LEN(x)	VSTRING_LEN(x)
+#define STR(x)    vstring_str(x)
+#define LEN(x)    VSTRING_LEN(x)
 
 /* msg_logger_connect - connect to logger service */
 
 static void msg_logger_connect(void)
 {
     if (msg_logger_sock == MSG_LOGGER_SOCK_NONE) {
-	msg_logger_sock = unix_dgram_connect(msg_logger_unix_path, BLOCKING);
-	if (msg_logger_sock >= 0)
-	    close_on_exec(msg_logger_sock, CLOSE_ON_EXEC);
+    msg_logger_sock = unix_dgram_connect(msg_logger_unix_path, BLOCKING);
+    if (msg_logger_sock >= 0)
+        close_on_exec(msg_logger_sock, CLOSE_ON_EXEC);
     }
 }
 
@@ -152,8 +152,8 @@ static void msg_logger_connect(void)
 static void msg_logger_disconnect(void)
 {
     if (msg_logger_sock != MSG_LOGGER_SOCK_NONE) {
-	(void) close(msg_logger_sock);
-	msg_logger_sock = MSG_LOGGER_SOCK_NONE;
+    (void) close(msg_logger_sock);
+    msg_logger_sock = MSG_LOGGER_SOCK_NONE;
     }
 }
 
@@ -169,10 +169,10 @@ static void msg_logger_print(int level, const char *text)
      * TODO: this should be a reusable NAME_CODE table plus lookup function.
      */
     static int log_level[] = {
-	MSG_INFO, MSG_WARN, MSG_ERROR, MSG_FATAL, MSG_PANIC,
+    MSG_INFO, MSG_WARN, MSG_ERROR, MSG_FATAL, MSG_PANIC,
     };
     static char *severity_name[] = {
-	"info", "warning", "error", "fatal", "panic",
+    "info", "warning", "error", "fatal", "panic",
     };
 
     /*
@@ -180,7 +180,7 @@ static void msg_logger_print(int level, const char *text)
      * msg_logger_print() function.
      */
     if (msg_logger_enable == 0)
-	return;
+    return;
 
     /*
      * Note: there is code in postlogd(8) that attempts to strip off
@@ -192,36 +192,36 @@ static void msg_logger_print(int level, const char *text)
      * Format the time stamp.
      */
     if (time(&now) < 0)
-	msg_fatal("no time: %m");
+    msg_fatal("no time: %m");
     lt = localtime(&now);
     VSTRING_RESET(msg_logger_buf);
     if ((len = strftime(vstring_str(msg_logger_buf),
-			vstring_avail(msg_logger_buf),
-			"%b %d %H:%M:%S ", lt)) == 0)
-	msg_fatal("strftime: %m");
+            vstring_avail(msg_logger_buf),
+            "%b %d %H:%M:%S ", lt)) == 0)
+    msg_fatal("strftime: %m");
     vstring_set_payload_size(msg_logger_buf, len);
 
     /*
      * Format the host name (first name label only).
      */
     vstring_sprintf_append(msg_logger_buf, "%.*s ",
-			   (int) strcspn(msg_logger_hostname, "."),
-			   msg_logger_hostname);
+               (int) strcspn(msg_logger_hostname, "."),
+               msg_logger_hostname);
 
     /*
      * Format the message.
      */
     if (level < 0 || level >= (int) (sizeof(log_level) / sizeof(log_level[0])))
-	msg_panic("msg_logger_print: invalid severity level: %d", level);
+    msg_panic("msg_logger_print: invalid severity level: %d", level);
 
     if (level == MSG_INFO) {
-	vstring_sprintf_append(msg_logger_buf, "%s[%ld]: %.*s",
-			       msg_logger_progname, (long) getpid(),
-			       (int) MSG_LOGGER_RECLEN, text);
+    vstring_sprintf_append(msg_logger_buf, "%s[%ld]: %.*s",
+                   msg_logger_progname, (long) getpid(),
+                   (int) MSG_LOGGER_RECLEN, text);
     } else {
-	vstring_sprintf_append(msg_logger_buf, "%s[%ld]: %s: %.*s",
-			       msg_logger_progname, (long) getpid(),
-		       severity_name[level], (int) MSG_LOGGER_RECLEN, text);
+    vstring_sprintf_append(msg_logger_buf, "%s[%ld]: %s: %.*s",
+                   msg_logger_progname, (long) getpid(),
+               severity_name[level], (int) MSG_LOGGER_RECLEN, text);
     }
 
     /*
@@ -230,18 +230,18 @@ static void msg_logger_print(int level, const char *text)
      * server has opened the endpoint.
      */
     if (MSG_LOGGER_NEED_SOCKET())
-	msg_logger_connect();
+    msg_logger_connect();
     if (msg_logger_sock != MSG_LOGGER_SOCK_NONE) {
-	send(msg_logger_sock, STR(msg_logger_buf), LEN(msg_logger_buf), 0);
+    send(msg_logger_sock, STR(msg_logger_buf), LEN(msg_logger_buf), 0);
     } else if (msg_logger_fallback_fn) {
-	msg_logger_fallback_fn(STR(msg_logger_buf));
+    msg_logger_fallback_fn(STR(msg_logger_buf));
     }
 }
 
 /* msg_logger_init - initialize */
 
 void    msg_logger_init(const char *progname, const char *hostname,
-	             const char *unix_path, void (*fallback) (const char *))
+                 const char *unix_path, void (*fallback) (const char *))
 {
     static int first_call = 1;
     extern char **environ;
@@ -251,13 +251,13 @@ void    msg_logger_init(const char *progname, const char *hostname,
      * scrubbing code is in the wrong place.
      */
     if (first_call) {
-	if (unsafe())
-	    while (getenv("TZ"))		/* There may be multiple. */
-		if (unsetenv("TZ") < 0) {	/* Desperate measures. */
-		    environ[0] = 0;
-		    msg_fatal("unsetenv: %m");
-		}
-	tzset();
+    if (unsafe())
+        while (getenv("TZ"))        /* There may be multiple. */
+        if (unsetenv("TZ") < 0) {    /* Desperate measures. */
+            environ[0] = 0;
+            msg_fatal("unsetenv: %m");
+        }
+    tzset();
     }
 
     /*
@@ -265,11 +265,11 @@ void    msg_logger_init(const char *progname, const char *hostname,
      * accessed when mystrdup() runs out of memory.
      */
 #define UPDATE_AND_FREE(dst, src) do { \
-	if ((dst) == 0 || strcmp((dst), (src)) != 0) { \
-	    char *_bak = (dst); \
-	    (dst) = mystrdup(src); \
-	    if ((_bak)) myfree(_bak); \
-	} \
+    if ((dst) == 0 || strcmp((dst), (src)) != 0) { \
+        char *_bak = (dst); \
+        (dst) = mystrdup(src); \
+        if ((_bak)) myfree(_bak); \
+    } \
     } while (0)
 
     UPDATE_AND_FREE(msg_logger_progname, progname);
@@ -281,9 +281,9 @@ void    msg_logger_init(const char *progname, const char *hostname,
      * One-time activity: register the output handler, and allocate a buffer.
      */
     if (first_call) {
-	first_call = 0;
-	msg_output(msg_logger_print);
-	msg_logger_buf = vstring_alloc(2048);
+    first_call = 0;
+    msg_output(msg_logger_print);
+    msg_logger_buf = vstring_alloc(2048);
     }
 
     /*
@@ -305,25 +305,25 @@ void    msg_logger_control(int name,...)
      * msg_logger_control() call,
      */
     for (va_start(ap, name); name != MSG_LOGGER_CTL_END; name = va_arg(ap, int)) {
-	switch (name) {
-	case MSG_LOGGER_CTL_FALLBACK_ONLY:
-	    msg_logger_fallback_only_override = 1;
-	    msg_logger_disconnect();
-	    break;
-	case MSG_LOGGER_CTL_FALLBACK_FN:
-	    msg_logger_fallback_fn = va_arg(ap, MSG_LOGGER_FALLBACK_FN);
-	    break;
-	case MSG_LOGGER_CTL_DISABLE:
-	    msg_logger_enable = 0;
-	    break;
-	case MSG_LOGGER_CTL_CONNECT_NOW:
-	    msg_logger_disconnect();
-	    if (MSG_LOGGER_NEED_SOCKET())
-		msg_logger_connect();
-	    break;
-	default:
-	    msg_panic("%s: bad name %d", myname, name);
-	}
+    switch (name) {
+    case MSG_LOGGER_CTL_FALLBACK_ONLY:
+        msg_logger_fallback_only_override = 1;
+        msg_logger_disconnect();
+        break;
+    case MSG_LOGGER_CTL_FALLBACK_FN:
+        msg_logger_fallback_fn = va_arg(ap, MSG_LOGGER_FALLBACK_FN);
+        break;
+    case MSG_LOGGER_CTL_DISABLE:
+        msg_logger_enable = 0;
+        break;
+    case MSG_LOGGER_CTL_CONNECT_NOW:
+        msg_logger_disconnect();
+        if (MSG_LOGGER_NEED_SOCKET())
+        msg_logger_connect();
+        break;
+    default:
+        msg_panic("%s: bad name %d", myname, name);
+    }
     }
     va_end(ap);
 }
@@ -340,8 +340,8 @@ static char *fallback_path;
 static void fallback(const char *msg)
 {
     if (logwriter_one_shot(fallback_path, msg) != 0)
-	msg_fatal("unable to fall back to directly write %s: %m",
-		  fallback_path);
+    msg_fatal("unable to fall back to directly write %s: %m",
+          fallback_path);
 }
 
 int     main(int argc, char **argv)
@@ -349,15 +349,15 @@ int     main(int argc, char **argv)
     VSTRING *vp = vstring_alloc(256);
 
     if (argc < 4)
-	msg_fatal("usage: %s host port path text to log", argv[0]);
+    msg_fatal("usage: %s host port path text to log", argv[0]);
     msg_logger_init(argv[0], argv[1], argv[2], fallback);
     fallback_path = argv[3];
     argc -= 3;
     argv += 3;
     while (--argc && *++argv) {
-	vstring_strcat(vp, *argv);
-	if (argv[1])
-	    vstring_strcat(vp, " ");
+    vstring_strcat(vp, *argv);
+    if (argv[1])
+        vstring_strcat(vp, " ");
     }
     msg_warn("static text");
     msg_warn("dynamic text: >%s<", vstring_str(vp));

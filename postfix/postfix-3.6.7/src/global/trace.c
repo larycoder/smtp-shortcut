@@ -1,89 +1,89 @@
 /*++
 /* NAME
-/*	trace 3
+/*    trace 3
 /* SUMMARY
-/*	user requested delivery tracing
+/*    user requested delivery tracing
 /* SYNOPSIS
-/*	#include <trace.h>
+/*    #include <trace.h>
 /*
-/*	int	trace_append(flags, id, stats, rcpt, relay, dsn)
-/*	int	flags;
-/*	const char *id;
-/*	MSG_STATS *stats;
-/*	RECIPIENT *rcpt;
-/*	const char *relay;
-/*	DSN	*dsn;
+/*    int    trace_append(flags, id, stats, rcpt, relay, dsn)
+/*    int    flags;
+/*    const char *id;
+/*    MSG_STATS *stats;
+/*    RECIPIENT *rcpt;
+/*    const char *relay;
+/*    DSN    *dsn;
 /*
-/*	int     trace_flush(flags, queue, id, encoding, sender,
-/*				dsn_envid, dsn_ret)
-/*	int     flags;
-/*	const char *queue;
-/*	const char *id;
-/*	const char *encoding;
-/*	const char *sender;
-/*	const char *dsn_envid;
-/*	int	dsn_ret;
+/*    int     trace_flush(flags, queue, id, encoding, sender,
+/*                dsn_envid, dsn_ret)
+/*    int     flags;
+/*    const char *queue;
+/*    const char *id;
+/*    const char *encoding;
+/*    const char *sender;
+/*    const char *dsn_envid;
+/*    int    dsn_ret;
 /* DESCRIPTION
-/*	trace_append() updates the message delivery record that is
-/*	mailed back to the originator. In case of a trace-only
-/*	message, the recipient status is also written to the
-/*	mailer logfile.
+/*    trace_append() updates the message delivery record that is
+/*    mailed back to the originator. In case of a trace-only
+/*    message, the recipient status is also written to the
+/*    mailer logfile.
 /*
-/*	trace_flush() returns the specified message to the specified
-/*	sender, including the message delivery record log that was built
-/*	with vtrace_append().
+/*    trace_flush() returns the specified message to the specified
+/*    sender, including the message delivery record log that was built
+/*    with vtrace_append().
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP flags
-/*	The bitwise OR of zero or more of the following (specify
-/*	BOUNCE_FLAG_NONE to request no special processing):
+/*    The bitwise OR of zero or more of the following (specify
+/*    BOUNCE_FLAG_NONE to request no special processing):
 /* .RS
 /* .IP BOUNCE_FLAG_CLEAN
-/*	Delete the logfile in case of an error (as in: pretend
-/*	that we never even tried to deliver this message).
+/*    Delete the logfile in case of an error (as in: pretend
+/*    that we never even tried to deliver this message).
 /* .RE
 /* .IP queue
-/*	The message queue name of the original message file.
+/*    The message queue name of the original message file.
 /* .IP id
-/*	The message queue id.
+/*    The message queue id.
 /* .IP encoding
-/*	The body content encoding: MAIL_ATTR_ENC_{7BIT,8BIT,NONE}.
+/*    The body content encoding: MAIL_ATTR_ENC_{7BIT,8BIT,NONE}.
 /* .IP sender
-/*	The sender envelope address.
+/*    The sender envelope address.
 /* .IP dsn_envid
-/*	Optional DSN envelope ID.
+/*    Optional DSN envelope ID.
 /* .IP dsn_ret
-/*	Optional DSN return full/headers option.
+/*    Optional DSN return full/headers option.
 /* .IP stats
-/*	Time stamps from different message delivery stages
-/*	and session reuse count.
+/*    Time stamps from different message delivery stages
+/*    and session reuse count.
 /* .IP rcpt
-/*	Recipient information. See recipient_list(3).
+/*    Recipient information. See recipient_list(3).
 /* .IP relay
-/*	The host we sent the mail to.
+/*    The host we sent the mail to.
 /* .IP dsn
-/*	Delivery status information. See dsn(3).
+/*    Delivery status information. See dsn(3).
 /* DIAGNOSTICS
-/*	A non-zero result means the operation failed.
+/*    A non-zero result means the operation failed.
 /*
-/*	Fatal: out of memory.
+/*    Fatal: out of memory.
 /* BUGS
-/*	Should be replaced by routines with an attribute-value based
-/*	interface instead of an interface that uses a rigid argument list.
+/*    Should be replaced by routines with an attribute-value based
+/*    interface instead of an interface that uses a rigid argument list.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -109,8 +109,8 @@
 /* trace_append - append to message delivery record */
 
 int     trace_append(int flags, const char *id, MSG_STATS *stats,
-		             RECIPIENT *rcpt, const char *relay,
-		             DSN *dsn)
+                     RECIPIENT *rcpt, const char *relay,
+                     DSN *dsn)
 {
     VSTRING *why = vstring_alloc(100);
     DSN     my_dsn = *dsn;
@@ -121,24 +121,24 @@ int     trace_append(int flags, const char *id, MSG_STATS *stats,
      * notification.
      */
     if (strcmp(relay, NO_RELAY_AGENT) != 0)
-	vstring_sprintf(why, "delivery via %s: ", relay);
+    vstring_sprintf(why, "delivery via %s: ", relay);
     vstring_strcat(why, my_dsn.reason);
     my_dsn.reason = vstring_str(why);
 
     if (mail_command_client(MAIL_CLASS_PRIVATE, var_trace_service,
-			    MAIL_ATTR_PROTO_BOUNCE,
-			    SEND_ATTR_INT(MAIL_ATTR_NREQ, BOUNCE_CMD_APPEND),
-			    SEND_ATTR_INT(MAIL_ATTR_FLAGS, flags),
-			    SEND_ATTR_STR(MAIL_ATTR_QUEUEID, id),
-			    SEND_ATTR_FUNC(rcpt_print, (void *) rcpt),
-			    SEND_ATTR_FUNC(dsn_print, (void *) &my_dsn),
-			    ATTR_TYPE_END) != 0) {
-	msg_warn("%s: %s service failure", id, var_trace_service);
-	req_stat = -1;
+                MAIL_ATTR_PROTO_BOUNCE,
+                SEND_ATTR_INT(MAIL_ATTR_NREQ, BOUNCE_CMD_APPEND),
+                SEND_ATTR_INT(MAIL_ATTR_FLAGS, flags),
+                SEND_ATTR_STR(MAIL_ATTR_QUEUEID, id),
+                SEND_ATTR_FUNC(rcpt_print, (void *) rcpt),
+                SEND_ATTR_FUNC(dsn_print, (void *) &my_dsn),
+                ATTR_TYPE_END) != 0) {
+    msg_warn("%s: %s service failure", id, var_trace_service);
+    req_stat = -1;
     } else {
-	if (flags & DEL_REQ_FLAG_USR_VRFY)
-	    log_adhoc(id, stats, rcpt, relay, dsn, my_dsn.action);
-	req_stat = 0;
+    if (flags & DEL_REQ_FLAG_USR_VRFY)
+        log_adhoc(id, stats, rcpt, relay, dsn, my_dsn.action);
+    req_stat = 0;
     }
     vstring_free(why);
     return (req_stat);
@@ -147,22 +147,22 @@ int     trace_append(int flags, const char *id, MSG_STATS *stats,
 /* trace_flush - deliver delivery record to the sender */
 
 int     trace_flush(int flags, const char *queue, const char *id,
-		            const char *encoding, const char *sender,
-		            const char *dsn_envid, int dsn_ret)
+                    const char *encoding, const char *sender,
+                    const char *dsn_envid, int dsn_ret)
 {
     if (mail_command_client(MAIL_CLASS_PRIVATE, var_trace_service,
-			    MAIL_ATTR_PROTO_BOUNCE,
-			    SEND_ATTR_INT(MAIL_ATTR_NREQ, BOUNCE_CMD_TRACE),
-			    SEND_ATTR_INT(MAIL_ATTR_FLAGS, flags),
-			    SEND_ATTR_STR(MAIL_ATTR_QUEUE, queue),
-			    SEND_ATTR_STR(MAIL_ATTR_QUEUEID, id),
-			    SEND_ATTR_STR(MAIL_ATTR_ENCODING, encoding),
-			    SEND_ATTR_STR(MAIL_ATTR_SENDER, sender),
-			    SEND_ATTR_STR(MAIL_ATTR_DSN_ENVID, dsn_envid),
-			    SEND_ATTR_INT(MAIL_ATTR_DSN_RET, dsn_ret),
-			    ATTR_TYPE_END) == 0) {
-	return (0);
+                MAIL_ATTR_PROTO_BOUNCE,
+                SEND_ATTR_INT(MAIL_ATTR_NREQ, BOUNCE_CMD_TRACE),
+                SEND_ATTR_INT(MAIL_ATTR_FLAGS, flags),
+                SEND_ATTR_STR(MAIL_ATTR_QUEUE, queue),
+                SEND_ATTR_STR(MAIL_ATTR_QUEUEID, id),
+                SEND_ATTR_STR(MAIL_ATTR_ENCODING, encoding),
+                SEND_ATTR_STR(MAIL_ATTR_SENDER, sender),
+                SEND_ATTR_STR(MAIL_ATTR_DSN_ENVID, dsn_envid),
+                SEND_ATTR_INT(MAIL_ATTR_DSN_RET, dsn_ret),
+                ATTR_TYPE_END) == 0) {
+    return (0);
     } else {
-	return (-1);
+    return (-1);
     }
 }

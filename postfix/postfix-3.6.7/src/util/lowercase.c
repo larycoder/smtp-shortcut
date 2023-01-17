@@ -1,25 +1,25 @@
 /*++
 /* NAME
-/*	lowercase 3
+/*    lowercase 3
 /* SUMMARY
-/*	map uppercase characters to lowercase
+/*    map uppercase characters to lowercase
 /* SYNOPSIS
-/*	#include <stringops.h>
+/*    #include <stringops.h>
 /*
-/*	char	*lowercase(buf)
-/*	char	*buf;
+/*    char    *lowercase(buf)
+/*    char    *buf;
 /* DESCRIPTION
-/*	lowercase() replaces uppercase characters in its null-terminated
-/*	input by their lowercase equivalent.
+/*    lowercase() replaces uppercase characters in its null-terminated
+/*    input by their lowercase equivalent.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -37,7 +37,7 @@ char   *lowercase(char *string)
     int     ch;
 
     for (cp = string; (ch = *cp) != 0; cp++)
-	if (ISUPPER(ch))
-	    *cp = TOLOWER(ch);
+    if (ISUPPER(ch))
+        *cp = TOLOWER(ch);
     return (string);
 }

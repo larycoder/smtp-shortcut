@@ -1,47 +1,47 @@
 /*++
 /* NAME
-/*	mail_command_server 3
+/*    mail_command_server 3
 /* SUMMARY
-/*	single-command server
+/*    single-command server
 /* SYNOPSIS
-/*	#include <mail_proto.h>
+/*    #include <mail_proto.h>
 /*
-/*	int	mail_command_server(stream, type, name, ...)
-/*	VSTREAM	*stream;
-/*	int	type;
-/*	const char *name;
+/*    int    mail_command_server(stream, type, name, ...)
+/*    VSTREAM    *stream;
+/*    int    type;
+/*    const char *name;
 /* DESCRIPTION
-/*	This module implements the server interface for single-command
-/*	requests: a clients sends a single command and expects a single
-/*	completion status code.
+/*    This module implements the server interface for single-command
+/*    requests: a clients sends a single command and expects a single
+/*    completion status code.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP stream
-/*	Server endpoint.
+/*    Server endpoint.
 /* .IP "type, name, ..."
-/*	Attribute list as defined in attr_scan(3).
+/*    Attribute list as defined in attr_scan(3).
 /* DIAGNOSTICS
-/*	Fatal: out of memory.
+/*    Fatal: out of memory.
 /* SEE ALSO
-/*	attr_scan(3)
-/*	mail_command_client(3) client interface
-/*	mail_proto(3h), client-server protocol
+/*    attr_scan(3)
+/*    mail_command_client(3) client interface
+/*    mail_proto(3h), client-server protocol
 #include <mail_proto.h>
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
 
 #include <sys_defs.h>
-#include <stdlib.h>		/* 44BSD stdarg.h uses abort() */
+#include <stdlib.h>        /* 44BSD stdarg.h uses abort() */
 #include <stdarg.h>
 #include <string.h>
 

@@ -1,30 +1,30 @@
 /*++
 /* NAME
-/*	get_hostname 3
+/*    get_hostname 3
 /* SUMMARY
-/*	network name lookup
+/*    network name lookup
 /* SYNOPSIS
-/*	#include <get_hostname.h>
+/*    #include <get_hostname.h>
 /*
-/*	const char *get_hostname()
+/*    const char *get_hostname()
 /* DESCRIPTION
-/*	get_hostname() returns the local hostname as obtained
-/*	via gethostname() or its moral equivalent. This routine
-/*	goes to great length to avoid dependencies on any network
-/*	services.
+/*    get_hostname() returns the local hostname as obtained
+/*    via gethostname() or its moral equivalent. This routine
+/*    goes to great length to avoid dependencies on any network
+/*    services.
 /* DIAGNOSTICS
-/*	Fatal errors: no hostname, invalid hostname.
+/*    Fatal errors: no hostname, invalid hostname.
 /* SEE ALSO
-/*	valid_hostname(3)
+/*    valid_hostname(3)
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -36,7 +36,7 @@
 
 #if (MAXHOSTNAMELEN < 256)
 #undef MAXHOSTNAMELEN
-#define MAXHOSTNAMELEN	256
+#define MAXHOSTNAMELEN    256
 #endif
 
 /* Utility library. */
@@ -70,15 +70,15 @@ const char *get_hostname(void)
      * USE A DEFAULT DOMAIN NAME "LOCALDOMAIN".
      */
     if (my_host_name == 0) {
-	/* DO NOT CALL GETHOSTBYNAME FROM THIS FUNCTION */
-	if (gethostname(namebuf, sizeof(namebuf)) < 0)
-	    msg_fatal("gethostname: %m");
-	namebuf[MAXHOSTNAMELEN] = 0;
-	/* DO NOT CALL GETHOSTBYNAME FROM THIS FUNCTION */
-	if (valid_hostname(namebuf, DO_GRIPE) == 0)
-	    msg_fatal("unable to use my own hostname");
-	/* DO NOT CALL GETHOSTBYNAME FROM THIS FUNCTION */
-	my_host_name = mystrdup(namebuf);
+    /* DO NOT CALL GETHOSTBYNAME FROM THIS FUNCTION */
+    if (gethostname(namebuf, sizeof(namebuf)) < 0)
+        msg_fatal("gethostname: %m");
+    namebuf[MAXHOSTNAMELEN] = 0;
+    /* DO NOT CALL GETHOSTBYNAME FROM THIS FUNCTION */
+    if (valid_hostname(namebuf, DO_GRIPE) == 0)
+        msg_fatal("unable to use my own hostname");
+    /* DO NOT CALL GETHOSTBYNAME FROM THIS FUNCTION */
+    my_host_name = mystrdup(namebuf);
     }
     return (my_host_name);
 }

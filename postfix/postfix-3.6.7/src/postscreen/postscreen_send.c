@@ -1,62 +1,62 @@
 /*++
 /* NAME
-/*	postscreen_send 3
+/*    postscreen_send 3
 /* SUMMARY
-/*	postscreen low-level output
+/*    postscreen low-level output
 /* SYNOPSIS
-/*	#include <postscreen.h>
+/*    #include <postscreen.h>
 /*
-/*	void	pcs_send_pre_jail_init(void)
+/*    void    pcs_send_pre_jail_init(void)
 /*
-/*	int	psc_send_reply(state, text)
-/*	PSC_STATE *state;
-/*	const char *text;
+/*    int    psc_send_reply(state, text)
+/*    PSC_STATE *state;
+/*    const char *text;
 /*
-/*	int	PSC_SEND_REPLY(state, text)
-/*	PSC_STATE *state;
-/*	const char *text;
+/*    int    PSC_SEND_REPLY(state, text)
+/*    PSC_STATE *state;
+/*    const char *text;
 /*
-/*	void	psc_send_socket(state)
-/*	PSC_STATE *state;
+/*    void    psc_send_socket(state)
+/*    PSC_STATE *state;
 /* DESCRIPTION
-/*	pcs_send_pre_jail_init() performs one-time initialization.
+/*    pcs_send_pre_jail_init() performs one-time initialization.
 /*
-/*	psc_send_reply() sends the specified text to the specified
-/*	remote SMTP client.  In case of an immediate error, it logs
-/*	a warning (except EPIPE) with the client address and port,
-/*	and returns a non-zero result (all errors including EPIPE).
+/*    psc_send_reply() sends the specified text to the specified
+/*    remote SMTP client.  In case of an immediate error, it logs
+/*    a warning (except EPIPE) with the client address and port,
+/*    and returns a non-zero result (all errors including EPIPE).
 /*
-/*	psc_send_reply() does a best effort to send the reply, but
-/*	it won't block when the output is throttled by a hostile
-/*	peer.
+/*    psc_send_reply() does a best effort to send the reply, but
+/*    it won't block when the output is throttled by a hostile
+/*    peer.
 /*
-/*	PSC_SEND_REPLY() is a legacy wrapper for psc_send_reply().
-/*	It will eventually be replaced by its expansion.
+/*    PSC_SEND_REPLY() is a legacy wrapper for psc_send_reply().
+/*    It will eventually be replaced by its expansion.
 /*
-/*	psc_send_socket() sends the specified socket to the real
-/*	Postfix SMTP server. The socket is delivered in the background.
-/*	This function must be called after all other session-related
-/*	work is finished including postscreen cache updates.
+/*    psc_send_socket() sends the specified socket to the real
+/*    Postfix SMTP server. The socket is delivered in the background.
+/*    This function must be called after all other session-related
+/*    work is finished including postscreen cache updates.
 /*
-/*	In case of an immediate error, psc_send_socket() sends a 421
-/*	reply to the remote SMTP client and closes the connection.
-/*	If the 220- greeting was sent, sending 421 would be invalid;
-/*	instead, the client is redirected to the dummy SMTP engine
-/*	which sends the 421 reply at the first legitimate opportunity.
+/*    In case of an immediate error, psc_send_socket() sends a 421
+/*    reply to the remote SMTP client and closes the connection.
+/*    If the 220- greeting was sent, sending 421 would be invalid;
+/*    instead, the client is redirected to the dummy SMTP engine
+/*    which sends the 421 reply at the first legitimate opportunity.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -90,8 +90,8 @@ static MAPS *psc_rej_ftr_maps;
   * This program screens all inbound SMTP connections, so it better not waste
   * time.
   */
-#define PSC_SEND_SOCK_CONNECT_TIMEOUT	1
-#define PSC_SEND_SOCK_NOTIFY_TIMEOUT	100
+#define PSC_SEND_SOCK_CONNECT_TIMEOUT    1
+#define PSC_SEND_SOCK_NOTIFY_TIMEOUT    100
 
 /* pcs_send_pre_jail_init - initialize */
 
@@ -100,15 +100,15 @@ void    pcs_send_pre_jail_init(void)
     static int init_count = 0;
 
     if (init_count++ != 0)
-	msg_panic("pcs_send_pre_jail_init: multiple calls");
+    msg_panic("pcs_send_pre_jail_init: multiple calls");
 
     /*
      * SMTP server reject footer.
      */
     if (*var_psc_rej_ftr_maps)
-	psc_rej_ftr_maps = maps_create(VAR_SMTPD_REJ_FTR_MAPS,
-				       var_psc_rej_ftr_maps,
-				       DICT_FLAG_LOCK);
+    psc_rej_ftr_maps = maps_create(VAR_SMTPD_REJ_FTR_MAPS,
+                       var_psc_rej_ftr_maps,
+                       DICT_FLAG_LOCK);
 }
 
 /* psc_get_footer - find that footer */
@@ -118,7 +118,7 @@ static const char *psc_get_footer(const char *text, ssize_t text_len)
     static VSTRING *footer_buf = 0;
 
     if (footer_buf == 0)
-	footer_buf = vstring_alloc(100);
+    footer_buf = vstring_alloc(100);
     /* Strip the \r\n for consistency with smtpd. */
     vstring_strncpy(footer_buf, text, text_len);
     return (psc_maps_find(psc_rej_ftr_maps, STR(footer_buf), 0));
@@ -134,8 +134,8 @@ int     psc_send_reply(PSC_STATE *state, const char *text)
     ssize_t text_len = strlen(text) - 2;
 
     if (msg_verbose)
-	msg_info("> [%s]:%s: %.*s", state->smtp_client_addr,
-		 state->smtp_client_port, (int) text_len, text);
+    msg_info("> [%s]:%s: %.*s", state->smtp_client_addr,
+         state->smtp_client_port, (int) text_len, text);
 
     /*
      * Append the new text to earlier text that could not be sent because the
@@ -150,34 +150,34 @@ int     psc_send_reply(PSC_STATE *state, const char *text)
      * some double work, but it is for debugging only.
      */
     if (var_soft_bounce) {
-	if (text[0] == '5')
-	    STR(state->send_buf)[start + 0] = '4';
-	if (text[4] == '5')
-	    STR(state->send_buf)[start + 4] = '4';
+    if (text[0] == '5')
+        STR(state->send_buf)[start + 0] = '4';
+    if (text[4] == '5')
+        STR(state->send_buf)[start + 4] = '4';
     }
 
     /*
      * Append the optional reply footer.
      */
     if ((*text == '4' || *text == '5')
-	&& ((psc_rej_ftr_maps != 0
-	     && (footer = psc_get_footer(text, text_len)) != 0)
-	    || *(footer = var_psc_rej_footer) != 0))
-	smtp_reply_footer(state->send_buf, start, footer,
-			  STR(psc_expand_filter), psc_expand_lookup,
-			  (void *) state);
+    && ((psc_rej_ftr_maps != 0
+         && (footer = psc_get_footer(text, text_len)) != 0)
+        || *(footer = var_psc_rej_footer) != 0))
+    smtp_reply_footer(state->send_buf, start, footer,
+              STR(psc_expand_filter), psc_expand_lookup,
+              (void *) state);
 
     /*
      * Do a best effort sending text, but don't block when the output is
      * throttled by a hostile peer.
      */
     ret = write(vstream_fileno(state->smtp_client_stream),
-		STR(state->send_buf), LEN(state->send_buf));
+        STR(state->send_buf), LEN(state->send_buf));
     if (ret > 0)
-	vstring_truncate(state->send_buf, ret - LEN(state->send_buf));
+    vstring_truncate(state->send_buf, ret - LEN(state->send_buf));
     if (ret < 0 && errno != EAGAIN && errno != EPIPE && errno != ECONNRESET)
-	msg_warn("write [%s]:%s: %m", state->smtp_client_addr,
-		 state->smtp_client_port);
+    msg_warn("write [%s]:%s: %m", state->smtp_client_addr,
+         state->smtp_client_port);
     return (ret < 0 && errno != EAGAIN);
 }
 
@@ -189,10 +189,10 @@ static void psc_send_socket_close_event(int event, void *context)
     PSC_STATE *state = (PSC_STATE *) context;
 
     if (msg_verbose > 1)
-	msg_info("%s: sq=%d cq=%d event %d on send socket %d from [%s]:%s",
-		 myname, psc_post_queue_length, psc_check_queue_length,
-		 event, state->smtp_server_fd, state->smtp_client_addr,
-		 state->smtp_client_port);
+    msg_info("%s: sq=%d cq=%d event %d on send socket %d from [%s]:%s",
+         myname, psc_post_queue_length, psc_check_queue_length,
+         event, state->smtp_server_fd, state->smtp_client_addr,
+         state->smtp_client_port);
 
     /*
      * The real SMTP server has closed the local IPC channel, or we have
@@ -201,10 +201,10 @@ static void psc_send_socket_close_event(int event, void *context)
      * should not interfere.
      */
     PSC_CLEAR_EVENT_REQUEST(state->smtp_server_fd, psc_send_socket_close_event,
-			    context);
+                context);
     if (event == EVENT_TIME)
-	msg_warn("timeout sending connection to service %s",
-		 psc_smtpd_service_name);
+    msg_warn("timeout sending connection to service %s",
+         psc_smtpd_service_name);
     psc_free_session_state(state);
 }
 
@@ -218,10 +218,10 @@ void    psc_send_socket(PSC_STATE *state)
     VSTREAM *fp;
 
     if (msg_verbose > 1)
-	msg_info("%s: sq=%d cq=%d send socket %d from [%s]:%s",
-		 myname, psc_post_queue_length, psc_check_queue_length,
-		 vstream_fileno(state->smtp_client_stream),
-		 state->smtp_client_addr, state->smtp_client_port);
+    msg_info("%s: sq=%d cq=%d send socket %d from [%s]:%s",
+         myname, psc_post_queue_length, psc_check_queue_length,
+         vstream_fileno(state->smtp_client_stream),
+         state->smtp_client_addr, state->smtp_client_port);
 
     /*
      * Connect to the real SMTP service over a local IPC channel, send the
@@ -240,54 +240,54 @@ void    psc_send_socket(PSC_STATE *state)
      * Postfix-specific.
      */
     if ((server_fd =
-	 LOCAL_CONNECT(psc_smtpd_service_name, NON_BLOCKING,
-		       PSC_SEND_SOCK_CONNECT_TIMEOUT)) < 0) {
-	msg_warn("cannot connect to service %s: %m", psc_smtpd_service_name);
-	if (state->flags & PSC_STATE_FLAG_PREGR_TODO) {
-	    PSC_SMTPD_X21(state, "421 4.3.2 No system resources\r\n");
-	} else {
-	    PSC_SEND_REPLY(state, "421 4.3.2 All server ports are busy\r\n");
-	    psc_free_session_state(state);
-	}
-	return;
+     LOCAL_CONNECT(psc_smtpd_service_name, NON_BLOCKING,
+               PSC_SEND_SOCK_CONNECT_TIMEOUT)) < 0) {
+    msg_warn("cannot connect to service %s: %m", psc_smtpd_service_name);
+    if (state->flags & PSC_STATE_FLAG_PREGR_TODO) {
+        PSC_SMTPD_X21(state, "421 4.3.2 No system resources\r\n");
+    } else {
+        PSC_SEND_REPLY(state, "421 4.3.2 All server ports are busy\r\n");
+        psc_free_session_state(state);
+    }
+    return;
     }
     /* XXX Note: no dummy read between LOCAL_SEND_FD() and attr_print(). */
     fp = vstream_fdopen(server_fd, O_RDWR);
     pass_err =
-	(LOCAL_SEND_FD(server_fd,
-		       vstream_fileno(state->smtp_client_stream)) < 0
-	 || (attr_print(fp, ATTR_FLAG_NONE,
-	  SEND_ATTR_STR(MAIL_ATTR_ACT_CLIENT_ADDR, state->smtp_client_addr),
-	  SEND_ATTR_STR(MAIL_ATTR_ACT_CLIENT_PORT, state->smtp_client_port),
-	  SEND_ATTR_STR(MAIL_ATTR_ACT_SERVER_ADDR, state->smtp_server_addr),
-	  SEND_ATTR_STR(MAIL_ATTR_ACT_SERVER_PORT, state->smtp_server_port),
-			ATTR_TYPE_END) || vstream_fflush(fp)));
+    (LOCAL_SEND_FD(server_fd,
+               vstream_fileno(state->smtp_client_stream)) < 0
+     || (attr_print(fp, ATTR_FLAG_NONE,
+      SEND_ATTR_STR(MAIL_ATTR_ACT_CLIENT_ADDR, state->smtp_client_addr),
+      SEND_ATTR_STR(MAIL_ATTR_ACT_CLIENT_PORT, state->smtp_client_port),
+      SEND_ATTR_STR(MAIL_ATTR_ACT_SERVER_ADDR, state->smtp_server_addr),
+      SEND_ATTR_STR(MAIL_ATTR_ACT_SERVER_PORT, state->smtp_server_port),
+            ATTR_TYPE_END) || vstream_fflush(fp)));
     /* XXX Note: no read between attr_print() and vstream_fdclose(). */
     (void) vstream_fdclose(fp);
     if (pass_err != 0) {
-	msg_warn("cannot pass connection to service %s: %m",
-		 psc_smtpd_service_name);
-	(void) close(server_fd);
-	if (state->flags & PSC_STATE_FLAG_PREGR_TODO) {
-	    PSC_SMTPD_X21(state, "421 4.3.2 No system resources\r\n");
-	} else {
-	    PSC_SEND_REPLY(state, "421 4.3.2 No system resources\r\n");
-	    psc_free_session_state(state);
-	}
-	return;
+    msg_warn("cannot pass connection to service %s: %m",
+         psc_smtpd_service_name);
+    (void) close(server_fd);
+    if (state->flags & PSC_STATE_FLAG_PREGR_TODO) {
+        PSC_SMTPD_X21(state, "421 4.3.2 No system resources\r\n");
+    } else {
+        PSC_SEND_REPLY(state, "421 4.3.2 No system resources\r\n");
+        psc_free_session_state(state);
+    }
+    return;
     } else {
 
-	/*
-	 * Closing the smtp_client_fd here triggers a FreeBSD 7.1 kernel bug
-	 * where smtp-source sometimes sees the connection being closed after
-	 * it has already received the real SMTP server's 220 greeting!
-	 */
+    /*
+     * Closing the smtp_client_fd here triggers a FreeBSD 7.1 kernel bug
+     * where smtp-source sometimes sees the connection being closed after
+     * it has already received the real SMTP server's 220 greeting!
+     */
 #if 0
-	PSC_DEL_CLIENT_STATE(state);
+    PSC_DEL_CLIENT_STATE(state);
 #endif
-	PSC_ADD_SERVER_STATE(state, server_fd);
-	PSC_READ_EVENT_REQUEST(state->smtp_server_fd, psc_send_socket_close_event,
-			       (void *) state, PSC_SEND_SOCK_NOTIFY_TIMEOUT);
-	return;
+    PSC_ADD_SERVER_STATE(state, server_fd);
+    PSC_READ_EVENT_REQUEST(state->smtp_server_fd, psc_send_socket_close_event,
+                   (void *) state, PSC_SEND_SOCK_NOTIFY_TIMEOUT);
+    return;
     }
 }

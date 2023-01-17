@@ -1,40 +1,40 @@
 /*++
 /* NAME
-/*	dict_nisplus 3
+/*    dict_nisplus 3
 /* SUMMARY
-/*	dictionary manager interface to NIS+ maps
+/*    dictionary manager interface to NIS+ maps
 /* SYNOPSIS
-/*	#include <dict_nisplus.h>
+/*    #include <dict_nisplus.h>
 /*
-/*	DICT	*dict_nisplus_open(map, open_flags, dict_flags)
-/*	const char *map;
-/*	int	dummy;
-/*	int	dict_flags;
+/*    DICT    *dict_nisplus_open(map, open_flags, dict_flags)
+/*    const char *map;
+/*    int    dummy;
+/*    int    dict_flags;
 /* DESCRIPTION
-/*	dict_nisplus_open() makes the specified NIS+ map accessible via
-/*	the generic dictionary operations described in dict_open(3).
-/*	The \fIdummy\fR argument is not used.
+/*    dict_nisplus_open() makes the specified NIS+ map accessible via
+/*    the generic dictionary operations described in dict_open(3).
+/*    The \fIdummy\fR argument is not used.
 /* SEE ALSO
-/*	dict(3) generic dictionary manager
+/*    dict(3) generic dictionary manager
 /* DIAGNOSTICS
-/*	Fatal errors:
+/*    Fatal errors:
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Geoff Gibbs
-/*	UK-HGMP-RC
-/*	Hinxton
-/*	Cambridge
-/*	CB10 1SB, UK
+/*    Geoff Gibbs
+/*    UK-HGMP-RC
+/*    Hinxton
+/*    Cambridge
+/*    CB10 1SB, UK
 /*
-/*	based on the code for dict_nis.c et al by :-
+/*    based on the code for dict_nis.c et al by :-
 /*
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -45,7 +45,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #ifdef HAS_NISPLUS
-#include <rpcsvc/nis.h>			/* for nis_list */
+#include <rpcsvc/nis.h>            /* for nis_list */
 #endif
 
 /* Utility library. */
@@ -62,9 +62,9 @@
 /* Application-specific. */
 
 typedef struct {
-    DICT    dict;			/* generic members */
-    char   *template;			/* parsed query template */
-    int     column;			/* NIS+ field number (start at 1) */
+    DICT    dict;            /* generic members */
+    char   *template;            /* parsed query template */
+    int     column;            /* NIS+ field number (start at 1) */
 } DICT_NISPLUS;
 
  /*
@@ -132,19 +132,19 @@ static const char *dict_nisplus_lookup(DICT *dict, const char *key)
      * Initialize.
      */
     if (quoted_key == 0) {
-	query = vstring_alloc(100);
-	retval = vstring_alloc(100);
-	quoted_key = vstring_alloc(100);
+    query = vstring_alloc(100);
+    retval = vstring_alloc(100);
+    quoted_key = vstring_alloc(100);
     }
 
     /*
      * Optionally fold the key.
      */
     if (dict->flags & DICT_FLAG_FOLD_FIX) {
-	if (dict->fold_buf == 0)
-	    dict->fold_buf = vstring_alloc(10);
-	vstring_strcpy(dict->fold_buf, key);
-	key = lowercase(vstring_str(dict->fold_buf));
+    if (dict->fold_buf == 0)
+        dict->fold_buf = vstring_alloc(10);
+    vstring_strcpy(dict->fold_buf, key);
+    key = lowercase(vstring_str(dict->fold_buf));
     }
 
     /*
@@ -157,15 +157,15 @@ static const char *dict_nisplus_lookup(DICT *dict, const char *key)
     VSTRING_RESET(quoted_key);
     VSTRING_ADDCH(quoted_key, '"');
     for (cp = key; (ch = *(unsigned const char *) cp) != 0; cp++) {
-	if ((ISASCII(ch) && !ISPRINT(ch)) || (ch > 126 && ch < 160)) {
-	    msg_warn("map %s:%s: lookup key with non-printing character 0x%x:"
-		     " ignoring this request",
-		     dict->type, dict->name, ch);
-	    return (0);
-	} else if (ch == '"') {
-	    VSTRING_ADDCH(quoted_key, '"');
-	}
-	VSTRING_ADDCH(quoted_key, ch);
+    if ((ISASCII(ch) && !ISPRINT(ch)) || (ch > 126 && ch < 160)) {
+        msg_warn("map %s:%s: lookup key with non-printing character 0x%x:"
+             " ignoring this request",
+             dict->type, dict->name, ch);
+        return (0);
+    } else if (ch == '"') {
+        VSTRING_ADDCH(quoted_key, '"');
+    }
+    VSTRING_ADDCH(quoted_key, ch);
     }
     VSTRING_ADDCH(quoted_key, '"');
     VSTRING_TERMINATE(quoted_key);
@@ -187,29 +187,29 @@ static const char *dict_nisplus_lookup(DICT *dict, const char *key)
      * column may not exist.
      */
     if (reply->status == NIS_SUCCESS) {
-	if ((count = NIS_RES_NUMOBJ(reply)) != 1) {
-	    msg_warn("ambiguous match (%d results) for %s in NIS+ map %s:"
-		     " ignoring this request",
-		     count, key, dict_nisplus->dict.name);
-	    nis_freeresult(reply);
-	    return (0);
-	} else {
-	    last_col = NIS_RES_OBJECT(reply)->zo_data
-		.objdata_u.en_data.en_cols.en_cols_len - 1;
-	    if (dict_nisplus->column > last_col)
-		msg_fatal("requested column %d > max column %d in table %s",
-			  dict_nisplus->column, last_col,
-			  dict_nisplus->dict.name);
-	    vstring_strcpy(retval,
-			   NIS_RES_OBJECT(reply)->zo_data.objdata_u
-			   .en_data.en_cols.en_cols_val[dict_nisplus->column]
-			   .ec_value.ec_value_val);
-	    if (msg_verbose)
-		msg_info("%s: %s, column %d -> %s", myname, STR(query),
-			 dict_nisplus->column, STR(retval));
-	    nis_freeresult(reply);
-	    return (STR(retval));
-	}
+    if ((count = NIS_RES_NUMOBJ(reply)) != 1) {
+        msg_warn("ambiguous match (%d results) for %s in NIS+ map %s:"
+             " ignoring this request",
+             count, key, dict_nisplus->dict.name);
+        nis_freeresult(reply);
+        return (0);
+    } else {
+        last_col = NIS_RES_OBJECT(reply)->zo_data
+        .objdata_u.en_data.en_cols.en_cols_len - 1;
+        if (dict_nisplus->column > last_col)
+        msg_fatal("requested column %d > max column %d in table %s",
+              dict_nisplus->column, last_col,
+              dict_nisplus->dict.name);
+        vstring_strcpy(retval,
+               NIS_RES_OBJECT(reply)->zo_data.objdata_u
+               .en_data.en_cols.en_cols_val[dict_nisplus->column]
+               .ec_value.ec_value_val);
+        if (msg_verbose)
+        msg_info("%s: %s, column %d -> %s", myname, STR(query),
+             dict_nisplus->column, STR(retval));
+        nis_freeresult(reply);
+        return (STR(retval));
+    }
     }
 
     /*
@@ -218,18 +218,18 @@ static const char *dict_nisplus_lookup(DICT *dict, const char *key)
      * the problem and fix it.
      */
     else {
-	if (reply->status != NIS_NOTFOUND
-	    && reply->status != NIS_PARTIAL) {
-	    msg_warn("lookup %s, NIS+ map %s: %s",
-		     key, dict_nisplus->dict.name,
-		     nis_sperrno(reply->status));
-	    dict->error = DICT_ERR_RETRY;
-	} else {
-	    if (msg_verbose)
-		msg_info("%s: not found: query %s", myname, STR(query));
-	}
-	nis_freeresult(reply);
-	return (0);
+    if (reply->status != NIS_NOTFOUND
+        && reply->status != NIS_PARTIAL) {
+        msg_warn("lookup %s, NIS+ map %s: %s",
+             key, dict_nisplus->dict.name,
+             nis_sperrno(reply->status));
+        dict->error = DICT_ERR_RETRY;
+    } else {
+        if (msg_verbose)
+        msg_info("%s: not found: query %s", myname, STR(query));
+    }
+    nis_freeresult(reply);
+    return (0);
     }
 }
 
@@ -241,7 +241,7 @@ static void dict_nisplus_close(DICT *dict)
 
     myfree(dict_nisplus->template);
     if (dict->fold_buf)
-	vstring_free(dict->fold_buf);
+    vstring_free(dict->fold_buf);
     dict_free(dict);
 }
 
@@ -257,21 +257,21 @@ DICT   *dict_nisplus_open(const char *map, int open_flags, int dict_flags)
      * Sanity check.
      */
     if (open_flags != O_RDONLY)
-	return (dict_surrogate(DICT_TYPE_NISPLUS, map, open_flags, dict_flags,
-			       "%s:%s map requires O_RDONLY access mode",
-			       DICT_TYPE_NISPLUS, map));
+    return (dict_surrogate(DICT_TYPE_NISPLUS, map, open_flags, dict_flags,
+                   "%s:%s map requires O_RDONLY access mode",
+                   DICT_TYPE_NISPLUS, map));
 
     /*
      * Initialize. This is a read-only map with fixed strings, not with
      * regular expressions.
      */
     dict_nisplus = (DICT_NISPLUS *)
-	dict_alloc(DICT_TYPE_NISPLUS, map, sizeof(*dict_nisplus));
+    dict_alloc(DICT_TYPE_NISPLUS, map, sizeof(*dict_nisplus));
     dict_nisplus->dict.lookup = dict_nisplus_lookup;
     dict_nisplus->dict.close = dict_nisplus_close;
     dict_nisplus->dict.flags = dict_flags | DICT_FLAG_FIXED;
     if (dict_flags & DICT_FLAG_FOLD_FIX)
-	dict_nisplus->dict.fold_buf = vstring_alloc(10);
+    dict_nisplus->dict.fold_buf = vstring_alloc(10);
     dict_nisplus->dict.owner.status = DICT_OWNER_TRUSTED;
 
     /*
@@ -288,16 +288,16 @@ DICT   *dict_nisplus_open(const char *map, int open_flags, int dict_flags)
     dict_nisplus->template = mystrdup(map);
     translit(dict_nisplus->template, ";", ",");
     if ((col_field = strstr(dict_nisplus->template, ".:")) != 0) {
-	col_field[1] = 0;
-	col_field += 2;
-	if (!alldig(col_field) || (dict_nisplus->column = atoi(col_field)) < 1)
-	    msg_fatal("bad column field in NIS+ map name: %s", map);
+    col_field[1] = 0;
+    col_field += 2;
+    if (!alldig(col_field) || (dict_nisplus->column = atoi(col_field)) < 1)
+        msg_fatal("bad column field in NIS+ map name: %s", map);
     } else {
-	dict_nisplus->column = 1;
+    dict_nisplus->column = 1;
     }
     if (msg_verbose)
-	msg_info("%s: opened NIS+ table %s for column %d",
-		 myname, dict_nisplus->template, dict_nisplus->column);
+    msg_info("%s: opened NIS+ table %s for column %d",
+         myname, dict_nisplus->template, dict_nisplus->column);
     return (DICT_DEBUG (&dict_nisplus->dict));
 }
 

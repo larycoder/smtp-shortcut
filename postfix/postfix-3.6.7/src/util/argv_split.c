@@ -1,49 +1,49 @@
 /*++
 /* NAME
-/*	argv_split 3
+/*    argv_split 3
 /* SUMMARY
-/*	string array utilities
+/*    string array utilities
 /* SYNOPSIS
-/*	#include <argv.h>
+/*    #include <argv.h>
 /*
-/*	ARGV	*argv_split(string, delim)
-/*	const char *string;
-/*	const char *delim;
+/*    ARGV    *argv_split(string, delim)
+/*    const char *string;
+/*    const char *delim;
 /*
-/*	ARGV	*argv_split_count(string, delim, count)
-/*	const char *string;
-/*	const char *delim;
-/*	ssize_t	count;
+/*    ARGV    *argv_split_count(string, delim, count)
+/*    const char *string;
+/*    const char *delim;
+/*    ssize_t    count;
 /*
-/*	ARGV	*argv_split_append(argv, string, delim)
-/*	ARGV	*argv;
-/*	const char *string;
-/*	const char *delim;
+/*    ARGV    *argv_split_append(argv, string, delim)
+/*    ARGV    *argv;
+/*    const char *string;
+/*    const char *delim;
 /* DESCRIPTION
-/*	argv_split() breaks up \fIstring\fR into tokens according
-/*	to the delimiters specified in \fIdelim\fR. The result is
-/*	a null-terminated string array.
+/*    argv_split() breaks up \fIstring\fR into tokens according
+/*    to the delimiters specified in \fIdelim\fR. The result is
+/*    a null-terminated string array.
 /*
-/*	argv_split_count() is like argv_split() but stops splitting
-/*	input after at most \fIcount\fR -1 times and leaves the
-/*	remainder, if any, in the last array element. It is an error
-/*	to specify a count < 1.
+/*    argv_split_count() is like argv_split() but stops splitting
+/*    input after at most \fIcount\fR -1 times and leaves the
+/*    remainder, if any, in the last array element. It is an error
+/*    to specify a count < 1.
 /* 
-/*	argv_split_append() performs the same operation as argv_split(),
-/*	but appends the result to an existing string array.
+/*    argv_split_append() performs the same operation as argv_split(),
+/*    but appends the result to an existing string array.
 /* SEE ALSO
-/*	mystrtok(), safe string splitter.
+/*    mystrtok(), safe string splitter.
 /* DIAGNOSTICS
-/*	Fatal errors: memory allocation problem.
+/*    Fatal errors: memory allocation problem.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System libraries. */
@@ -68,7 +68,7 @@ ARGV   *argv_split(const char *string, const char *delim)
     char   *arg;
 
     while ((arg = mystrtok(&bp, delim)) != 0)
-	argv_add(argvp, arg, (char *) 0);
+    argv_add(argvp, arg, (char *) 0);
     argv_terminate(argvp);
     myfree(saved_string);
     return (argvp);
@@ -84,13 +84,13 @@ ARGV   *argv_split_count(const char *string, const char *delim, ssize_t count)
     char   *arg;
 
     if (count < 1)
-	msg_panic("argv_split_count: bad count: %ld", (long) count);
+    msg_panic("argv_split_count: bad count: %ld", (long) count);
     while (count-- > 1 && (arg = mystrtok(&bp, delim)) != 0)
-	argv_add(argvp, arg, (char *) 0);
+    argv_add(argvp, arg, (char *) 0);
     if (*bp)
-	bp += strspn(bp, delim);
+    bp += strspn(bp, delim);
     if (*bp)
-	argv_add(argvp, bp, (char *) 0);
+    argv_add(argvp, bp, (char *) 0);
     argv_terminate(argvp);
     myfree(saved_string);
     return (argvp);
@@ -105,7 +105,7 @@ ARGV   *argv_split_append(ARGV *argvp, const char *string, const char *delim)
     char   *arg;
 
     while ((arg = mystrtok(&bp, delim)) != 0)
-	argv_add(argvp, arg, (char *) 0);
+    argv_add(argvp, arg, (char *) 0);
     argv_terminate(argvp);
     myfree(saved_string);
     return (argvp);

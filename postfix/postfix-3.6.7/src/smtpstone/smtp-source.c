@@ -1,116 +1,116 @@
 /*++
 /* NAME
-/*	smtp-source 1
+/*    smtp-source 1
 /* SUMMARY
-/*	parallelized SMTP/LMTP test generator
+/*    parallelized SMTP/LMTP test generator
 /* SYNOPSIS
 /* .fi
-/*	\fBsmtp-source\fR [\fIoptions\fR] [\fBinet:\fR]\fIhost\fR[:\fIport\fR]
+/*    \fBsmtp-source\fR [\fIoptions\fR] [\fBinet:\fR]\fIhost\fR[:\fIport\fR]
 /*
-/*	\fBsmtp-source\fR [\fIoptions\fR] \fBunix:\fIpathname\fR
+/*    \fBsmtp-source\fR [\fIoptions\fR] \fBunix:\fIpathname\fR
 /* DESCRIPTION
-/*	\fBsmtp-source\fR connects to the named \fIhost\fR and TCP \fIport\fR
-/*	(default: port 25)
-/*	and sends one or more messages to it, either sequentially
-/*	or in parallel. The program speaks either SMTP (default) or
-/*	LMTP.
-/*	Connections can be made to UNIX-domain and IPv4 or IPv6 servers.
-/*	IPv4 and IPv6 are the default.
+/*    \fBsmtp-source\fR connects to the named \fIhost\fR and TCP \fIport\fR
+/*    (default: port 25)
+/*    and sends one or more messages to it, either sequentially
+/*    or in parallel. The program speaks either SMTP (default) or
+/*    LMTP.
+/*    Connections can be made to UNIX-domain and IPv4 or IPv6 servers.
+/*    IPv4 and IPv6 are the default.
 /*
-/*	Note: this is an unsupported test program. No attempt is made
-/*	to maintain compatibility between successive versions.
+/*    Note: this is an unsupported test program. No attempt is made
+/*    to maintain compatibility between successive versions.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP \fB-4\fR
-/*	Connect to the server with IPv4. This option has no effect when
-/*	Postfix is built without IPv6 support.
+/*    Connect to the server with IPv4. This option has no effect when
+/*    Postfix is built without IPv6 support.
 /* .IP \fB-6\fR
-/*	Connect to the server with IPv6. This option is not available when
-/*	Postfix is built without IPv6 support.
+/*    Connect to the server with IPv6. This option is not available when
+/*    Postfix is built without IPv6 support.
 /* .IP "\fB-A\fR"
-/*	Don't abort when the server sends something other than the
-/*	expected positive reply code.
+/*    Don't abort when the server sends something other than the
+/*    expected positive reply code.
 /* .IP \fB-c\fR
-/*	Display a running counter that is incremented each time
-/*	an SMTP DATA command completes.
+/*    Display a running counter that is incremented each time
+/*    an SMTP DATA command completes.
 /* .IP "\fB-C \fIcount\fR"
-/*	When a host sends RESET instead of SYN|ACK, try \fIcount\fR times
-/*	before giving up. The default count is 1. Specify a larger count in
-/*	order to work around a problem with TCP/IP stacks that send RESET
-/*	when the listen queue is full.
+/*    When a host sends RESET instead of SYN|ACK, try \fIcount\fR times
+/*    before giving up. The default count is 1. Specify a larger count in
+/*    order to work around a problem with TCP/IP stacks that send RESET
+/*    when the listen queue is full.
 /* .IP \fB-d\fR
-/*	Don't disconnect after sending a message; send the next
-/*	message over the same connection.
+/*    Don't disconnect after sending a message; send the next
+/*    message over the same connection.
 /* .IP "\fB-f \fIfrom\fR"
-/*	Use the specified sender address (default: <foo@myhostname>).
+/*    Use the specified sender address (default: <foo@myhostname>).
 /* .IP "\fB-F \fIfile\fR"
-/*	Send the pre-formatted message header and body in the
-/*	specified \fIfile\fR, while prepending '.' before lines that
-/*	begin with '.', and while appending CRLF after each line.
+/*    Send the pre-formatted message header and body in the
+/*    specified \fIfile\fR, while prepending '.' before lines that
+/*    begin with '.', and while appending CRLF after each line.
 /* .IP "\fB-l \fIlength\fR"
-/*	Send \fIlength\fR bytes as message payload. The length does not
-/*	include message headers.
+/*    Send \fIlength\fR bytes as message payload. The length does not
+/*    include message headers.
 /* .IP \fB-L\fR
-/*	Speak LMTP rather than SMTP.
+/*    Speak LMTP rather than SMTP.
 /* .IP "\fB-m \fImessage_count\fR"
-/*	Send the specified number of messages (default: 1).
+/*    Send the specified number of messages (default: 1).
 /* .IP "\fB-M \fImyhostname\fR"
-/*	Use the specified hostname or [address] in the HELO command
-/*	and in the default sender and recipient addresses, instead
-/*	of the machine hostname.
+/*    Use the specified hostname or [address] in the HELO command
+/*    and in the default sender and recipient addresses, instead
+/*    of the machine hostname.
 /* .IP "\fB-N\fR"
-/*	Prepend a non-repeating sequence number to each recipient
-/*	address. This avoids the artificial 100% hit rate in the
-/*	resolve and rewrite client caches and exercises the
-/*	trivial-rewrite daemon, better approximating Postfix
-/*	performance under real-life work-loads.
+/*    Prepend a non-repeating sequence number to each recipient
+/*    address. This avoids the artificial 100% hit rate in the
+/*    resolve and rewrite client caches and exercises the
+/*    trivial-rewrite daemon, better approximating Postfix
+/*    performance under real-life work-loads.
 /* .IP \fB-o\fR
-/*	Old mode: don't send HELO, and don't send message headers.
+/*    Old mode: don't send HELO, and don't send message headers.
 /* .IP "\fB-r \fIrecipient_count\fR"
-/*	Send the specified number of recipients per transaction (default: 1).
-/*	Recipient names are generated by prepending a number to the
-/*	recipient address.
+/*    Send the specified number of recipients per transaction (default: 1).
+/*    Recipient names are generated by prepending a number to the
+/*    recipient address.
 /* .IP "\fB-R \fIinterval\fR"
-/*	Wait for a random period of time 0 <= n <= interval between messages.
-/*	Suspending one thread does not affect other delivery threads.
+/*    Wait for a random period of time 0 <= n <= interval between messages.
+/*    Suspending one thread does not affect other delivery threads.
 /* .IP "\fB-s \fIsession_count\fR"
-/*	Run the specified number of SMTP sessions in parallel (default: 1).
+/*    Run the specified number of SMTP sessions in parallel (default: 1).
 /* .IP "\fB-S \fIsubject\fR"
-/*	Send mail with the named subject line (default: none).
+/*    Send mail with the named subject line (default: none).
 /* .IP "\fB-t \fIto\fR"
-/*	Use the specified recipient address (default: <foo@myhostname>).
+/*    Use the specified recipient address (default: <foo@myhostname>).
 /* .IP "\fB-T \fIwindowsize\fR"
-/*	Override the default TCP window size. To work around
-/*	broken TCP window scaling implementations, specify a
-/*	value > 0 and < 65536.
+/*    Override the default TCP window size. To work around
+/*    broken TCP window scaling implementations, specify a
+/*    value > 0 and < 65536.
 /* .IP \fB-v\fR
-/*	Make the program more verbose, for debugging purposes.
+/*    Make the program more verbose, for debugging purposes.
 /* .IP "\fB-w \fIinterval\fR"
-/*	Wait a fixed time between messages.
-/*	Suspending one thread does not affect other delivery threads.
+/*    Wait a fixed time between messages.
+/*    Suspending one thread does not affect other delivery threads.
 /* .IP [\fBinet:\fR]\fIhost\fR[:\fIport\fR]
-/*	Connect via TCP to host \fIhost\fR, port \fIport\fR. The default
-/*	port is \fBsmtp\fR.
+/*    Connect via TCP to host \fIhost\fR, port \fIport\fR. The default
+/*    port is \fBsmtp\fR.
 /* .IP \fBunix:\fIpathname\fR
-/*	Connect to the UNIX-domain socket at \fIpathname\fR.
+/*    Connect to the UNIX-domain socket at \fIpathname\fR.
 /* BUGS
-/*	No SMTP command pipelining support.
+/*    No SMTP command pipelining support.
 /* SEE ALSO
-/*	smtp-sink(1), SMTP/LMTP message dump
+/*    smtp-sink(1), SMTP/LMTP message dump
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -168,24 +168,24 @@
   * kept in a linear list.
   */
 typedef struct SESSION {
-    int     xfer_count;			/* # of xfers in session */
-    int     rcpt_done;			/* # of recipients done */
-    int     rcpt_count;			/* # of recipients to go */
-    int     rcpt_accepted;		/* # of recipients accepted */
-    VSTREAM *stream;			/* open connection */
-    int     connect_count;		/* # of connect()s to retry */
-    struct SESSION *next;		/* connect() queue linkage */
+    int     xfer_count;            /* # of xfers in session */
+    int     rcpt_done;            /* # of recipients done */
+    int     rcpt_count;            /* # of recipients to go */
+    int     rcpt_accepted;        /* # of recipients accepted */
+    VSTREAM *stream;            /* open connection */
+    int     connect_count;        /* # of connect()s to retry */
+    struct SESSION *next;        /* connect() queue linkage */
 } SESSION;
 
-static SESSION *last_session;		/* connect() queue tail */
+static SESSION *last_session;        /* connect() queue tail */
 
  /*
   * Structure with broken-up SMTP server response.
   */
-typedef struct {			/* server response */
-    int     code;			/* status */
-    char   *str;			/* text */
-    VSTRING *buf;			/* origin of text */
+typedef struct {            /* server response */
+    int     code;            /* status */
+    char   *str;            /* text */
+    VSTRING *buf;            /* origin of text */
 } RESPONSE;
 
 static VSTRING *buffer;
@@ -258,11 +258,11 @@ static void command(VSTREAM *stream, char *fmt,...)
      * what the program is trying to do.
      */
     if (msg_verbose) {
-	va_list ap2;
+    va_list ap2;
 
-	VA_COPY(ap2, ap);
-	vmsg_info(fmt, ap2);
-	va_end(ap2);
+    VA_COPY(ap2, ap);
+    vmsg_info(fmt, ap2);
+    va_end(ap2);
     }
     smtp_vprintf(stream, fmt, ap);
     va_end(ap);
@@ -283,10 +283,10 @@ static int socket_error(int sock)
     error = 0;
     error_len = sizeof(error);
     if (getsockopt(sock, SOL_SOCKET, SO_ERROR, (void *) &error, &error_len) < 0)
-	return (-1);
+    return (-1);
     if (error) {
-	errno = error;
-	return (-1);
+    errno = error;
+    return (-1);
     }
 
     /*
@@ -310,7 +310,7 @@ static RESPONSE *response(VSTREAM *stream, VSTRING *buf)
      * willing to store.
      */
     if (rdata.buf == 0)
-	rdata.buf = vstring_alloc(100);
+    rdata.buf = vstring_alloc(100);
 
     /*
      * Censor out non-printable characters in server responses. Concatenate
@@ -320,26 +320,26 @@ static RESPONSE *response(VSTREAM *stream, VSTRING *buf)
 #define BUF ((char *) vstring_str(buf))
     VSTRING_RESET(rdata.buf);
     for (;;) {
-	smtp_get(buf, stream, var_line_limit, SMTP_GET_FLAG_SKIP);
-	for (cp = BUF; *cp != 0; cp++)
-	    if (!ISPRINT(*cp) && !ISSPACE(*cp))
-		*cp = '?';
-	cp = BUF;
-	if (msg_verbose)
-	    msg_info("<<< %s", cp);
-	while (ISDIGIT(*cp))
-	    cp++;
-	rdata.code = (cp - BUF == 3 ? atoi(BUF) : 0);
-	if ((more = (*cp == '-')) != 0)
-	    cp++;
-	while (ISSPACE(*cp))
-	    cp++;
-	if (VSTRING_LEN(rdata.buf) < var_line_limit)
-	    vstring_strcat(rdata.buf, cp);
-	if (more == 0)
-	    break;
-	if (VSTRING_LEN(rdata.buf) < var_line_limit)
-	    VSTRING_ADDCH(rdata.buf, '\n');
+    smtp_get(buf, stream, var_line_limit, SMTP_GET_FLAG_SKIP);
+    for (cp = BUF; *cp != 0; cp++)
+        if (!ISPRINT(*cp) && !ISSPACE(*cp))
+        *cp = '?';
+    cp = BUF;
+    if (msg_verbose)
+        msg_info("<<< %s", cp);
+    while (ISDIGIT(*cp))
+        cp++;
+    rdata.code = (cp - BUF == 3 ? atoi(BUF) : 0);
+    if ((more = (*cp == '-')) != 0)
+        cp++;
+    while (ISSPACE(*cp))
+        cp++;
+    if (VSTRING_LEN(rdata.buf) < var_line_limit)
+        vstring_strcat(rdata.buf, cp);
+    if (more == 0)
+        break;
+    if (VSTRING_LEN(rdata.buf) < var_line_limit)
+        VSTRING_ADDCH(rdata.buf, '\n');
     }
     VSTRING_TERMINATE(rdata.buf);
     rdata.str = vstring_str(rdata.buf);
@@ -351,12 +351,12 @@ static RESPONSE *response(VSTREAM *stream, VSTRING *buf)
 static char *exception_text(int except)
 {
     switch (except) {
-	case SMTP_ERR_EOF:
-	return ("lost connection");
+    case SMTP_ERR_EOF:
+    return ("lost connection");
     case SMTP_ERR_TIME:
-	return ("timeout");
+    return ("timeout");
     default:
-	msg_panic("exception_text: unknown exception %d", except);
+    msg_panic("exception_text: unknown exception %d", except);
     }
     /* NOTREACHED */
 }
@@ -366,14 +366,14 @@ static char *exception_text(int except)
 static void startup(SESSION *session)
 {
     if (message_count-- <= 0) {
-	myfree((void *) session);
-	session_count--;
-	return;
+    myfree((void *) session);
+    session_count--;
+    return;
     }
     if (session->stream == 0) {
-	enqueue_connect(session);
+    enqueue_connect(session);
     } else {
-	send_mail(session);
+    send_mail(session);
     }
 }
 
@@ -391,12 +391,12 @@ static void start_event(int unused_event, void *context)
 static void start_another(SESSION *session)
 {
     if (random_delay > 0) {
-	event_request_timer(start_event, (void *) session,
-			    random_interval(random_delay));
+    event_request_timer(start_event, (void *) session,
+                random_interval(random_delay));
     } else if (fixed_delay > 0) {
-	event_request_timer(start_event, (void *) session, fixed_delay);
+    event_request_timer(start_event, (void *) session, fixed_delay);
     } else {
-	startup(session);
+    startup(session);
     }
 }
 
@@ -406,11 +406,11 @@ static void enqueue_connect(SESSION *session)
 {
     session->next = 0;
     if (last_session == 0) {
-	last_session = session;
-	start_connect(session);
+    last_session = session;
+    start_connect(session);
     } else {
-	last_session->next = session;
-	last_session = session;
+    last_session->next = session;
+    last_session = session;
     }
 }
 
@@ -419,13 +419,13 @@ static void enqueue_connect(SESSION *session)
 static void dequeue_connect(SESSION *session)
 {
     if (session == last_session) {
-	if (session->next != 0)
-	    msg_panic("dequeue_connect: queue ends after last");
-	last_session = 0;
+    if (session->next != 0)
+        msg_panic("dequeue_connect: queue ends after last");
+    last_session = 0;
     } else {
-	if (session->next == 0)
-	    msg_panic("dequeue_connect: queue ends before last");
-	start_connect(session->next);
+    if (session->next == 0)
+        msg_panic("dequeue_connect: queue ends before last");
+    start_connect(session->next);
     }
 }
 
@@ -434,7 +434,7 @@ static void dequeue_connect(SESSION *session)
 static void fail_connect(SESSION *session)
 {
     if (session->connect_count-- == 1)
-	msg_fatal("connect: %m");
+    msg_fatal("connect: %m");
     msg_warn("connect: %m");
     event_disable_readwrite(vstream_fileno(session->stream));
     vstream_fclose(session->stream);
@@ -461,20 +461,20 @@ static void start_connect(SESSION *session)
      * distinguish between server disconnect and connection refused.
      */
     if ((fd = socket(sa->sa_family, SOCK_STREAM, 0)) < 0)
-	msg_fatal("socket: %m");
+    msg_fatal("socket: %m");
     (void) non_blocking(fd, NON_BLOCKING);
     linger.l_onoff = 1;
     linger.l_linger = 0;
     if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (void *) &linger,
-		   sizeof(linger)) < 0)
-	msg_warn("setsockopt SO_LINGER %d: %m", linger.l_linger);
+           sizeof(linger)) < 0)
+    msg_warn("setsockopt SO_LINGER %d: %m", linger.l_linger);
     session->stream = vstream_fdopen(fd, O_RDWR);
     event_enable_write(fd, connect_done, (void *) session);
     smtp_timeout_setup(session->stream, var_timeout);
     if (inet_windowsize > 0)
-	set_inet_windowsize(fd, inet_windowsize);
+    set_inet_windowsize(fd, inet_windowsize);
     if (sane_connect(fd, sa, sa_length) < 0 && errno != EINPROGRESS)
-	fail_connect(session);
+    fail_connect(session);
 }
 
 /* connect_done - send message sender info */
@@ -489,20 +489,20 @@ static void connect_done(int unused_event, void *context)
      * run a Mickey Mouse protocol stack.
      */
     if (socket_error(fd) < 0) {
-	fail_connect(session);
+    fail_connect(session);
     } else {
-	non_blocking(fd, BLOCKING);
-	/* Disable write events. */
-	event_disable_readwrite(fd);
-	event_enable_read(fd, read_banner, (void *) session);
-	dequeue_connect(session);
-	/* Avoid poor performance when TCP MSS > VSTREAM_BUFSIZE. */
-	if (sa->sa_family == AF_INET
+    non_blocking(fd, BLOCKING);
+    /* Disable write events. */
+    event_disable_readwrite(fd);
+    event_enable_read(fd, read_banner, (void *) session);
+    dequeue_connect(session);
+    /* Avoid poor performance when TCP MSS > VSTREAM_BUFSIZE. */
+    if (sa->sa_family == AF_INET
 #ifdef AF_INET6
-	    || sa->sa_family == AF_INET6
+        || sa->sa_family == AF_INET6
 #endif
-	    )
-	    vstream_tweak_tcp(session->stream);
+        )
+        vstream_tweak_tcp(session->stream);
     }
 }
 
@@ -518,26 +518,26 @@ static void read_banner(int unused_event, void *context)
      * Prepare for disaster.
      */
     if ((except = vstream_setjmp(session->stream)) != 0)
-	msg_fatal("%s while reading server greeting", exception_text(except));
+    msg_fatal("%s while reading server greeting", exception_text(except));
 
     /*
      * Read and parse the server's SMTP greeting banner.
      */
     if (((resp = response(session->stream, buffer))->code / 100) == 2) {
-	 /* void */ ;
+     /* void */ ;
     } else if (allow_reject) {
-	msg_warn("rejected at server banner: %d %s", resp->code, resp->str);
+    msg_warn("rejected at server banner: %d %s", resp->code, resp->str);
     } else {
-	msg_fatal("rejected at server banner: %d %s", resp->code, resp->str);
+    msg_fatal("rejected at server banner: %d %s", resp->code, resp->str);
     }
 
     /*
      * Send helo or send the envelope sender address.
      */
     if (send_helo_first)
-	send_helo(session);
+    send_helo(session);
     else
-	send_mail(session);
+    send_mail(session);
 }
 
 /* send_helo - send hostname */
@@ -551,7 +551,7 @@ static void send_helo(SESSION *session)
      * Send the standard greeting with our hostname
      */
     if ((except = vstream_setjmp(session->stream)) != 0)
-	msg_fatal("%s while sending %s", exception_text(except), protocol);
+    msg_fatal("%s while sending %s", exception_text(except), protocol);
 
     command(session->stream, "%s %s", protocol, var_myhostname);
 
@@ -574,18 +574,18 @@ static void helo_done(int unused_event, void *context)
      * Get response to HELO command.
      */
     if ((except = vstream_setjmp(session->stream)) != 0)
-	msg_fatal("%s while sending %s", exception_text(except), protocol);
+    msg_fatal("%s while sending %s", exception_text(except), protocol);
 
     if ((resp = response(session->stream, buffer))->code / 100 == 2) {
-	 /* void */ ;
+     /* void */ ;
     } else if (allow_reject) {
-	msg_warn("%s rejected: %d %s", protocol, resp->code, resp->str);
-	if (resp->code == 421 || resp->code == 521) {
-	    close_session(session);
-	    return;
-	}
+    msg_warn("%s rejected: %d %s", protocol, resp->code, resp->str);
+    if (resp->code == 421 || resp->code == 521) {
+        close_session(session);
+        return;
+    }
     } else {
-	msg_fatal("%s rejected: %d %s", protocol, resp->code, resp->str);
+    msg_fatal("%s rejected: %d %s", protocol, resp->code, resp->str);
     }
 
     send_mail(session);
@@ -601,7 +601,7 @@ static void send_mail(SESSION *session)
      * Send the envelope sender address.
      */
     if ((except = vstream_setjmp(session->stream)) != 0)
-	msg_fatal("%s while sending sender", exception_text(except));
+    msg_fatal("%s while sending sender", exception_text(except));
 
     command(session->stream, "MAIL FROM:<%s>", sender);
 
@@ -623,22 +623,22 @@ static void mail_done(int unused, void *context)
      * Get response to MAIL command.
      */
     if ((except = vstream_setjmp(session->stream)) != 0)
-	msg_fatal("%s while sending sender", exception_text(except));
+    msg_fatal("%s while sending sender", exception_text(except));
 
     if ((resp = response(session->stream, buffer))->code / 100 == 2) {
-	session->rcpt_count = recipients;
-	session->rcpt_done = 0;
-	session->rcpt_accepted = 0;
-	send_rcpt(unused, context);
+    session->rcpt_count = recipients;
+    session->rcpt_done = 0;
+    session->rcpt_accepted = 0;
+    send_rcpt(unused, context);
     } else if (allow_reject) {
-	msg_warn("sender rejected: %d %s", resp->code, resp->str);
-	if (resp->code == 421 || resp->code == 521) {
-	    close_session(session);
-	    return;
-	}
-	send_rset(unused, context);
+    msg_warn("sender rejected: %d %s", resp->code, resp->str);
+    if (resp->code == 421 || resp->code == 521) {
+        close_session(session);
+        return;
+    }
+    send_rset(unused, context);
     } else {
-	msg_fatal("sender rejected: %d %s", resp->code, resp->str);
+    msg_fatal("sender rejected: %d %s", resp->code, resp->str);
     }
 }
 
@@ -653,14 +653,14 @@ static void send_rcpt(int unused_event, void *context)
      * Send envelope recipient address.
      */
     if ((except = vstream_setjmp(session->stream)) != 0)
-	msg_fatal("%s while sending recipient", exception_text(except));
+    msg_fatal("%s while sending recipient", exception_text(except));
 
     if (session->rcpt_count > 1 || number_rcpts > 0)
-	command(session->stream, "RCPT TO:<%d%s>",
-		number_rcpts ? number_rcpts++ : session->rcpt_count,
-		recipient);
+    command(session->stream, "RCPT TO:<%d%s>",
+        number_rcpts ? number_rcpts++ : session->rcpt_count,
+        recipient);
     else
-	command(session->stream, "RCPT TO:<%s>", recipient);
+    command(session->stream, "RCPT TO:<%s>", recipient);
     session->rcpt_count--;
     session->rcpt_done++;
 
@@ -682,29 +682,29 @@ static void rcpt_done(int unused, void *context)
      * Get response to RCPT command.
      */
     if ((except = vstream_setjmp(session->stream)) != 0)
-	msg_fatal("%s while sending recipient", exception_text(except));
+    msg_fatal("%s while sending recipient", exception_text(except));
 
     if ((resp = response(session->stream, buffer))->code / 100 == 2) {
-	session->rcpt_accepted++;
+    session->rcpt_accepted++;
     } else if (allow_reject) {
-	msg_warn("recipient rejected: %d %s", resp->code, resp->str);
-	if (resp->code == 421 || resp->code == 521) {
-	    close_session(session);
-	    return;
-	}
+    msg_warn("recipient rejected: %d %s", resp->code, resp->str);
+    if (resp->code == 421 || resp->code == 521) {
+        close_session(session);
+        return;
+    }
     } else {
-	msg_fatal("recipient rejected: %d %s", resp->code, resp->str);
+    msg_fatal("recipient rejected: %d %s", resp->code, resp->str);
     }
 
     /*
      * Send another RCPT command or send DATA.
      */
     if (session->rcpt_count > 0)
-	send_rcpt(unused, context);
+    send_rcpt(unused, context);
     else if (session->rcpt_accepted > 0)
-	send_data(unused, context);
+    send_data(unused, context);
     else
-	send_rset(unused, context);
+    send_rset(unused, context);
 }
 
 /* send_data - send DATA command */
@@ -718,7 +718,7 @@ static void send_data(int unused_event, void *context)
      * Request data transmission.
      */
     if ((except = vstream_setjmp(session->stream)) != 0)
-	msg_fatal("%s while sending DATA command", exception_text(except));
+    msg_fatal("%s while sending DATA command", exception_text(except));
     command(session->stream, "DATA");
 
     /*
@@ -741,56 +741,56 @@ static void data_done(int unused, void *context)
      * Get response to DATA command.
      */
     if ((except = vstream_setjmp(session->stream)) != 0)
-	msg_fatal("%s while sending DATA command", exception_text(except));
+    msg_fatal("%s while sending DATA command", exception_text(except));
     if ((resp = response(session->stream, buffer))->code == 354) {
-	 /* see below */ ;
+     /* see below */ ;
     } else if (allow_reject) {
-	msg_warn("data rejected: %d %s", resp->code, resp->str);
-	if (resp->code == 421 || resp->code == 521) {
-	    close_session(session);
-	    return;
-	}
-	send_rset(unused, context);
-	return;
+    msg_warn("data rejected: %d %s", resp->code, resp->str);
+    if (resp->code == 421 || resp->code == 521) {
+        close_session(session);
+        return;
+    }
+    send_rset(unused, context);
+    return;
     } else {
-	msg_fatal("data rejected: %d %s", resp->code, resp->str);
+    msg_fatal("data rejected: %d %s", resp->code, resp->str);
     }
 
     /*
      * Send basic header to keep mailers that bother to examine them happy.
      */
     if (send_headers) {
-	if (mydate == 0) {
-	    mydate = mail_date(time((time_t *) 0));
-	    mypid = getpid();
-	}
-	smtp_printf(session->stream, "From: <%s>", sender);
-	smtp_printf(session->stream, "To: <%s>", recipient);
-	smtp_printf(session->stream, "Date: %s", mydate);
-	smtp_printf(session->stream, "Message-Id: <%04x.%04x.%04x@%s>",
-		    mypid, vstream_fileno(session->stream), message_count, var_myhostname);
-	if (subject)
-	    smtp_printf(session->stream, "Subject: %s", subject);
-	smtp_fputs("", 0, session->stream);
+    if (mydate == 0) {
+        mydate = mail_date(time((time_t *) 0));
+        mypid = getpid();
+    }
+    smtp_printf(session->stream, "From: <%s>", sender);
+    smtp_printf(session->stream, "To: <%s>", recipient);
+    smtp_printf(session->stream, "Date: %s", mydate);
+    smtp_printf(session->stream, "Message-Id: <%04x.%04x.%04x@%s>",
+            mypid, vstream_fileno(session->stream), message_count, var_myhostname);
+    if (subject)
+        smtp_printf(session->stream, "Subject: %s", subject);
+    smtp_fputs("", 0, session->stream);
     }
 
     /*
      * Send some garbage.
      */
     if ((except = vstream_setjmp(session->stream)) != 0)
-	msg_fatal("%s while sending message", exception_text(except));
+    msg_fatal("%s while sending message", exception_text(except));
     if (message_length == 0) {
-	smtp_fputs("La de da de da 1.", 17, session->stream);
-	smtp_fputs("La de da de da 2.", 17, session->stream);
-	smtp_fputs("La de da de da 3.", 17, session->stream);
-	smtp_fputs("La de da de da 4.", 17, session->stream);
+    smtp_fputs("La de da de da 1.", 17, session->stream);
+    smtp_fputs("La de da de da 2.", 17, session->stream);
+    smtp_fputs("La de da de da 3.", 17, session->stream);
+    smtp_fputs("La de da de da 4.", 17, session->stream);
     } else {
 
-	/*
-	 * XXX This may cause the process to block with message content
-	 * larger than VSTREAM_BUFIZ bytes.
-	 */
-	smtp_fputs(message_data, message_length, session->stream);
+    /*
+     * XXX This may cause the process to block with message content
+     * larger than VSTREAM_BUFIZ bytes.
+     */
+    smtp_fputs(message_data, message_length, session->stream);
     }
 
     /*
@@ -802,9 +802,9 @@ static void data_done(int unused, void *context)
      * Update the running counter.
      */
     if (count) {
-	counter++;
-	vstream_printf("%d\r", counter);
-	vstream_fflush(VSTREAM_OUT);
+    counter++;
+    vstream_printf("%d\r", counter);
+    vstream_fflush(VSTREAM_OUT);
     }
 
     /*
@@ -825,19 +825,19 @@ static void dot_done(int unused_event, void *context)
      * Get response to "." command.
      */
     if ((except = vstream_setjmp(session->stream)) != 0)
-	msg_fatal("%s while sending message", exception_text(except));
-    do {					/* XXX this could block */
-	if ((resp = response(session->stream, buffer))->code / 100 == 2) {
-	     /* void */ ;
-	} else if (allow_reject) {
-	    msg_warn("end of data rejected: %d %s", resp->code, resp->str);
-	    if (resp->code == 421 || resp->code == 521) {
-		close_session(session);
-		return;
-	    }
-	} else {
-	    msg_fatal("end of data rejected: %d %s", resp->code, resp->str);
-	}
+    msg_fatal("%s while sending message", exception_text(except));
+    do {                    /* XXX this could block */
+    if ((resp = response(session->stream, buffer))->code / 100 == 2) {
+         /* void */ ;
+    } else if (allow_reject) {
+        msg_warn("end of data rejected: %d %s", resp->code, resp->str);
+        if (resp->code == 421 || resp->code == 521) {
+        close_session(session);
+        return;
+        }
+    } else {
+        msg_fatal("end of data rejected: %d %s", resp->code, resp->str);
+    }
     } while (talk_lmtp && --session->rcpt_done > 0);
     session->xfer_count++;
 
@@ -845,10 +845,10 @@ static void dot_done(int unused_event, void *context)
      * Say goodbye or send the next message.
      */
     if (disconnect || message_count < 1) {
-	send_quit(session);
+    send_quit(session);
     } else {
-	event_disable_readwrite(vstream_fileno(session->stream));
-	start_another(session);
+    event_disable_readwrite(vstream_fileno(session->stream));
+    start_another(session);
     }
 }
 
@@ -874,27 +874,27 @@ static void rset_done(int unused_event, void *context)
      * Get response to RSET command.
      */
     if ((except = vstream_setjmp(session->stream)) != 0)
-	msg_fatal("%s while sending message", exception_text(except));
+    msg_fatal("%s while sending message", exception_text(except));
     if ((resp = response(session->stream, buffer))->code / 100 == 2) {
-	/* void */
+    /* void */
     } else if (allow_reject) {
-	msg_warn("rset rejected: %d %s", resp->code, resp->str);
-	if (resp->code == 421 || resp->code == 521) {
-	    close_session(session);
-	    return;
-	}
+    msg_warn("rset rejected: %d %s", resp->code, resp->str);
+    if (resp->code == 421 || resp->code == 521) {
+        close_session(session);
+        return;
+    }
     } else {
-	msg_fatal("rset rejected: %d %s", resp->code, resp->str);
+    msg_fatal("rset rejected: %d %s", resp->code, resp->str);
     }
 
     /*
      * Say goodbye or send the next message.
      */
     if (disconnect || message_count < 1) {
-	send_quit(session);
+    send_quit(session);
     } else {
-	event_disable_readwrite(vstream_fileno(session->stream));
-	start_another(session);
+    event_disable_readwrite(vstream_fileno(session->stream));
+    start_another(session);
     }
 }
 
@@ -969,139 +969,139 @@ int     main(int argc, char **argv)
      * Parse JCL.
      */
     while ((ch = GETOPT(argc, argv, "46AcC:df:F:l:Lm:M:Nor:R:s:S:t:T:vw:")) > 0) {
-	switch (ch) {
-	case '4':
-	    protocols = INET_PROTO_NAME_IPV4;
-	    break;
-	case '6':
-	    protocols = INET_PROTO_NAME_IPV6;
-	    break;
-	case 'A':
-	    allow_reject = 1;
-	    break;
-	case 'c':
-	    count++;
-	    break;
-	case 'C':
-	    if ((connect_count = atoi(optarg)) <= 0)
-		msg_fatal("bad connection count: %s", optarg);
-	    break;
-	case 'd':
-	    disconnect = 0;
-	    break;
-	case 'f':
-	    sender = optarg;
-	    break;
-	case 'F':
-	    if (message_file == 0 && message_length > 0)
-		msg_fatal("-l option cannot be used with -F");
-	    message_file = optarg;
-	    break;
-	case 'l':
-	    if (message_file != 0)
-		msg_fatal("-l option cannot be used with -F");
-	    if ((message_length = atoi(optarg)) <= 0)
-		msg_fatal("bad message length: %s", optarg);
-	    break;
-	case 'L':
-	    talk_lmtp = 1;
-	    break;
-	case 'm':
-	    if ((message_count = atoi(optarg)) <= 0)
-		msg_fatal("bad message count: %s", optarg);
-	    break;
-	case 'M':
-	    if (*optarg == '[') {
-		if (!valid_mailhost_literal(optarg, DO_GRIPE))
-		    msg_fatal("bad address literal: %s", optarg);
-	    } else {
-		if (!valid_hostname(optarg, DO_GRIPE))
-		    msg_fatal("bad hostname: %s", optarg);
-	    }
-	    var_myhostname = optarg;
-	    break;
-	case 'N':
-	    number_rcpts = 1;
-	    break;
-	case 'o':
-	    send_helo_first = 0;
-	    send_headers = 0;
-	    break;
-	case 'r':
-	    if ((recipients = atoi(optarg)) <= 0)
-		msg_fatal("bad recipient count: %s", optarg);
-	    break;
-	case 'R':
-	    if (fixed_delay > 0)
-		msg_fatal("do not use -w and -R options at the same time");
-	    if ((random_delay = atoi(optarg)) <= 0)
-		msg_fatal("bad random delay: %s", optarg);
-	    break;
-	case 's':
-	    if ((sessions = atoi(optarg)) <= 0)
-		msg_fatal("bad session count: %s", optarg);
-	    break;
-	case 'S':
-	    subject = optarg;
-	    break;
-	case 't':
-	    recipient = optarg;
-	    break;
-	case 'T':
-	    if ((inet_windowsize = atoi(optarg)) <= 0)
-		msg_fatal("bad TCP window size: %s", optarg);
-	    break;
-	case 'v':
-	    msg_verbose++;
-	    break;
-	case 'w':
-	    if (random_delay > 0)
-		msg_fatal("do not use -w and -R options at the same time");
-	    if ((fixed_delay = atoi(optarg)) <= 0)
-		msg_fatal("bad fixed delay: %s", optarg);
-	    break;
-	default:
-	    usage(argv[0]);
-	}
+    switch (ch) {
+    case '4':
+        protocols = INET_PROTO_NAME_IPV4;
+        break;
+    case '6':
+        protocols = INET_PROTO_NAME_IPV6;
+        break;
+    case 'A':
+        allow_reject = 1;
+        break;
+    case 'c':
+        count++;
+        break;
+    case 'C':
+        if ((connect_count = atoi(optarg)) <= 0)
+        msg_fatal("bad connection count: %s", optarg);
+        break;
+    case 'd':
+        disconnect = 0;
+        break;
+    case 'f':
+        sender = optarg;
+        break;
+    case 'F':
+        if (message_file == 0 && message_length > 0)
+        msg_fatal("-l option cannot be used with -F");
+        message_file = optarg;
+        break;
+    case 'l':
+        if (message_file != 0)
+        msg_fatal("-l option cannot be used with -F");
+        if ((message_length = atoi(optarg)) <= 0)
+        msg_fatal("bad message length: %s", optarg);
+        break;
+    case 'L':
+        talk_lmtp = 1;
+        break;
+    case 'm':
+        if ((message_count = atoi(optarg)) <= 0)
+        msg_fatal("bad message count: %s", optarg);
+        break;
+    case 'M':
+        if (*optarg == '[') {
+        if (!valid_mailhost_literal(optarg, DO_GRIPE))
+            msg_fatal("bad address literal: %s", optarg);
+        } else {
+        if (!valid_hostname(optarg, DO_GRIPE))
+            msg_fatal("bad hostname: %s", optarg);
+        }
+        var_myhostname = optarg;
+        break;
+    case 'N':
+        number_rcpts = 1;
+        break;
+    case 'o':
+        send_helo_first = 0;
+        send_headers = 0;
+        break;
+    case 'r':
+        if ((recipients = atoi(optarg)) <= 0)
+        msg_fatal("bad recipient count: %s", optarg);
+        break;
+    case 'R':
+        if (fixed_delay > 0)
+        msg_fatal("do not use -w and -R options at the same time");
+        if ((random_delay = atoi(optarg)) <= 0)
+        msg_fatal("bad random delay: %s", optarg);
+        break;
+    case 's':
+        if ((sessions = atoi(optarg)) <= 0)
+        msg_fatal("bad session count: %s", optarg);
+        break;
+    case 'S':
+        subject = optarg;
+        break;
+    case 't':
+        recipient = optarg;
+        break;
+    case 'T':
+        if ((inet_windowsize = atoi(optarg)) <= 0)
+        msg_fatal("bad TCP window size: %s", optarg);
+        break;
+    case 'v':
+        msg_verbose++;
+        break;
+    case 'w':
+        if (random_delay > 0)
+        msg_fatal("do not use -w and -R options at the same time");
+        if ((fixed_delay = atoi(optarg)) <= 0)
+        msg_fatal("bad fixed delay: %s", optarg);
+        break;
+    default:
+        usage(argv[0]);
+    }
     }
     if (argc - optind != 1)
-	usage(argv[0]);
+    usage(argv[0]);
 
     if (random_delay > 0)
-	srand(getpid());
+    srand(getpid());
 
     /*
      * Initialize the message content, SMTP encoded. smtp_fputs() will append
      * another \r\n but we don't care.
      */
     if (message_file != 0) {
-	VSTREAM *fp;
-	VSTRING *buf = vstring_alloc(100);
-	VSTRING *msg = vstring_alloc(100);
+    VSTREAM *fp;
+    VSTRING *buf = vstring_alloc(100);
+    VSTRING *msg = vstring_alloc(100);
 
-	if ((fp = vstream_fopen(message_file, O_RDONLY, 0)) == 0)
-	    msg_fatal("open %s: %m", message_file);
-	while (vstring_get_nonl(buf, fp) != VSTREAM_EOF) {
-	    if (*vstring_str(buf) == '.')
-		VSTRING_ADDCH(msg, '.');
-	    vstring_memcat(msg, vstring_str(buf), VSTRING_LEN(buf));
-	    vstring_memcat(msg, "\r\n", 2);
-	}
-	if (vstream_ferror(fp))
-	    msg_fatal("read %s: %m", message_file);
-	vstream_fclose(fp);
-	vstring_free(buf);
-	message_length = VSTRING_LEN(msg);
-	message_data = vstring_export(msg);
-	send_headers = 0;
+    if ((fp = vstream_fopen(message_file, O_RDONLY, 0)) == 0)
+        msg_fatal("open %s: %m", message_file);
+    while (vstring_get_nonl(buf, fp) != VSTREAM_EOF) {
+        if (*vstring_str(buf) == '.')
+        VSTRING_ADDCH(msg, '.');
+        vstring_memcat(msg, vstring_str(buf), VSTRING_LEN(buf));
+        vstring_memcat(msg, "\r\n", 2);
+    }
+    if (vstream_ferror(fp))
+        msg_fatal("read %s: %m", message_file);
+    vstream_fclose(fp);
+    vstring_free(buf);
+    message_length = VSTRING_LEN(msg);
+    message_data = vstring_export(msg);
+    send_headers = 0;
     } else if (message_length > 0) {
-	message_data = mymalloc(message_length);
-	memset(message_data, 'X', message_length);
-	for (i = 80; i < message_length; i += 80) {
-	    message_data[i - 80] = "0123456789"[(i / 80) % 10];
-	    message_data[i - 2] = '\r';
-	    message_data[i - 1] = '\n';
-	}
+    message_data = mymalloc(message_length);
+    memset(message_data, 'X', message_length);
+    for (i = 80; i < message_length; i += 80) {
+        message_data[i - 80] = "0123456789"[(i / 80) % 10];
+        message_data[i - 2] = '\r';
+        message_data[i - 1] = '\n';
+    }
     }
 
     /*
@@ -1109,37 +1109,37 @@ int     main(int argc, char **argv)
      */
     (void) inet_proto_init("protocols", protocols);
     if (strncmp(argv[optind], "unix:", 5) == 0) {
-	path = argv[optind] + 5;
-	path_len = strlen(path);
-	if (path_len >= (int) sizeof(sun.sun_path))
-	    msg_fatal("unix-domain name too long: %s", path);
-	memset((void *) &sun, 0, sizeof(sun));
-	sun.sun_family = AF_UNIX;
+    path = argv[optind] + 5;
+    path_len = strlen(path);
+    if (path_len >= (int) sizeof(sun.sun_path))
+        msg_fatal("unix-domain name too long: %s", path);
+    memset((void *) &sun, 0, sizeof(sun));
+    sun.sun_family = AF_UNIX;
 #ifdef HAS_SUN_LEN
-	sun.sun_len = path_len + 1;
+    sun.sun_len = path_len + 1;
 #endif
-	memcpy(sun.sun_path, path, path_len);
-	sa = (struct sockaddr *) &sun;
-	sa_length = sizeof(sun);
+    memcpy(sun.sun_path, path, path_len);
+    sa = (struct sockaddr *) &sun;
+    sa_length = sizeof(sun);
     } else {
-	if (strncmp(argv[optind], "inet:", 5) == 0)
-	    argv[optind] += 5;
-	buf = mystrdup(argv[optind]);
-	if ((parse_err = host_port(buf, &host, (char *) 0, &port, "smtp")) != 0)
-	    msg_fatal("%s: %s", argv[optind], parse_err);
-	if ((aierr = hostname_to_sockaddr(host, port, SOCK_STREAM, &res)) != 0)
-	    msg_fatal("%s: %s", argv[optind], MAI_STRERROR(aierr));
-	myfree(buf);
-	sa = (struct sockaddr *) &ss;
-	if (res->ai_addrlen > sizeof(ss))
-	    msg_fatal("address length %d > buffer length %d",
-		      (int) res->ai_addrlen, (int) sizeof(ss));
-	memcpy((void *) sa, res->ai_addr, res->ai_addrlen);
-	sa_length = res->ai_addrlen;
+    if (strncmp(argv[optind], "inet:", 5) == 0)
+        argv[optind] += 5;
+    buf = mystrdup(argv[optind]);
+    if ((parse_err = host_port(buf, &host, (char *) 0, &port, "smtp")) != 0)
+        msg_fatal("%s: %s", argv[optind], parse_err);
+    if ((aierr = hostname_to_sockaddr(host, port, SOCK_STREAM, &res)) != 0)
+        msg_fatal("%s: %s", argv[optind], MAI_STRERROR(aierr));
+    myfree(buf);
+    sa = (struct sockaddr *) &ss;
+    if (res->ai_addrlen > sizeof(ss))
+        msg_fatal("address length %d > buffer length %d",
+              (int) res->ai_addrlen, (int) sizeof(ss));
+    memcpy((void *) sa, res->ai_addr, res->ai_addrlen);
+    sa_length = res->ai_addrlen;
 #ifdef HAS_SA_LEN
-	sa->sa_len = sa_length;
+    sa->sa_len = sa_length;
 #endif
-	freeaddrinfo(res);
+    freeaddrinfo(res);
     }
 
     /*
@@ -1147,42 +1147,42 @@ int     main(int argc, char **argv)
      * sending never-ending lines of text.
      */
     if (buffer == 0)
-	buffer = vstring_alloc(100);
+    buffer = vstring_alloc(100);
 
     /*
      * Make sure we have sender and recipient addresses.
      */
     if (var_myhostname == 0)
-	var_myhostname = get_hostname();
+    var_myhostname = get_hostname();
     if (sender == 0 || recipient == 0) {
-	vstring_sprintf(buffer, "foo@%s", var_myhostname);
-	defaddr = mystrdup(vstring_str(buffer));
-	if (sender == 0)
-	    sender = defaddr;
-	if (recipient == 0)
-	    recipient = defaddr;
+    vstring_sprintf(buffer, "foo@%s", var_myhostname);
+    defaddr = mystrdup(vstring_str(buffer));
+    if (sender == 0)
+        sender = defaddr;
+    if (recipient == 0)
+        recipient = defaddr;
     }
 
     /*
      * Start sessions.
      */
     while (sessions-- > 0) {
-	session = (SESSION *) mymalloc(sizeof(*session));
-	session->stream = 0;
-	session->xfer_count = 0;
-	session->connect_count = connect_count;
-	session->next = 0;
-	session_count++;
-	startup(session);
+    session = (SESSION *) mymalloc(sizeof(*session));
+    session->stream = 0;
+    session->xfer_count = 0;
+    session->connect_count = connect_count;
+    session->next = 0;
+    session_count++;
+    startup(session);
     }
     for (;;) {
-	event_loop(-1);
-	if (session_count <= 0 && message_count <= 0) {
-	    if (count) {
-		VSTREAM_PUTC('\n', VSTREAM_OUT);
-		vstream_fflush(VSTREAM_OUT);
-	    }
-	    exit(0);
-	}
+    event_loop(-1);
+    if (session_count <= 0 && message_count <= 0) {
+        if (count) {
+        VSTREAM_PUTC('\n', VSTREAM_OUT);
+        vstream_fflush(VSTREAM_OUT);
+        }
+        exit(0);
+    }
     }
 }

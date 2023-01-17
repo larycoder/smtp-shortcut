@@ -1,90 +1,90 @@
 /*++
 /* NAME
-/*	mail_conf_long 3
+/*    mail_conf_long 3
 /* SUMMARY
-/*	long integer-valued configuration parameter support
+/*    long integer-valued configuration parameter support
 /* SYNOPSIS
-/*	#include <mail_conf.h>
+/*    #include <mail_conf.h>
 /*
-/*	int	get_mail_conf_long(name, defval, min, max);
-/*	const char *name;
-/*	long	defval;
-/*	long	min;
-/*	long	max;
+/*    int    get_mail_conf_long(name, defval, min, max);
+/*    const char *name;
+/*    long    defval;
+/*    long    min;
+/*    long    max;
 /*
-/*	int	get_mail_conf_long_fn(name, defval, min, max);
-/*	const char *name;
-/*	long	(*defval)(void);
-/*	long	min;
-/*	long	max;
+/*    int    get_mail_conf_long_fn(name, defval, min, max);
+/*    const char *name;
+/*    long    (*defval)(void);
+/*    long    min;
+/*    long    max;
 /*
-/*	void	set_mail_conf_long(name, value)
-/*	const char *name;
-/*	long	value;
+/*    void    set_mail_conf_long(name, value)
+/*    const char *name;
+/*    long    value;
 /*
-/*	void	get_mail_conf_long_table(table)
-/*	const CONFIG_LONG_TABLE *table;
+/*    void    get_mail_conf_long_table(table)
+/*    const CONFIG_LONG_TABLE *table;
 /*
-/*	void	get_mail_conf_long_fn_table(table)
-/*	const CONFIG_LONG_TABLE *table;
+/*    void    get_mail_conf_long_fn_table(table)
+/*    const CONFIG_LONG_TABLE *table;
 /* AUXILIARY FUNCTIONS
-/*	int	get_mail_conf_long2(name1, name2, defval, min, max);
-/*	const char *name1;
-/*	const char *name2;
-/*	long	defval;
-/*	long	min;
-/*	long	max;
+/*    int    get_mail_conf_long2(name1, name2, defval, min, max);
+/*    const char *name1;
+/*    const char *name2;
+/*    long    defval;
+/*    long    min;
+/*    long    max;
 /* DESCRIPTION
-/*	This module implements configuration parameter support
-/*	for long integer values.
+/*    This module implements configuration parameter support
+/*    for long integer values.
 /*
-/*	get_mail_conf_long() looks up the named entry in the global
-/*	configuration dictionary. The default value is returned
-/*	when no value was found.
-/*	\fImin\fR is zero or specifies a lower limit on the long
-/*	integer value; \fImax\fR is zero or specifies an upper limit
-/*	on the long integer value.
+/*    get_mail_conf_long() looks up the named entry in the global
+/*    configuration dictionary. The default value is returned
+/*    when no value was found.
+/*    \fImin\fR is zero or specifies a lower limit on the long
+/*    integer value; \fImax\fR is zero or specifies an upper limit
+/*    on the long integer value.
 /*
-/*	get_mail_conf_long_fn() is similar but specifies a function that
-/*	provides the default value. The function is called only
-/*	when the default value is needed.
+/*    get_mail_conf_long_fn() is similar but specifies a function that
+/*    provides the default value. The function is called only
+/*    when the default value is needed.
 /*
-/*	set_mail_conf_long() updates the named entry in the global
-/*	configuration dictionary. This has no effect on values that
-/*	have been looked up earlier via the get_mail_conf_XXX() routines.
+/*    set_mail_conf_long() updates the named entry in the global
+/*    configuration dictionary. This has no effect on values that
+/*    have been looked up earlier via the get_mail_conf_XXX() routines.
 /*
-/*	get_mail_conf_long_table() and get_mail_conf_long_fn_table() initialize
-/*	lists of variables, as directed by their table arguments. A table
-/*	must be terminated by a null entry.
+/*    get_mail_conf_long_table() and get_mail_conf_long_fn_table() initialize
+/*    lists of variables, as directed by their table arguments. A table
+/*    must be terminated by a null entry.
 /*
-/*	get_mail_conf_long2() concatenates the two names and is otherwise
-/*	identical to get_mail_conf_long().
+/*    get_mail_conf_long2() concatenates the two names and is otherwise
+/*    identical to get_mail_conf_long().
 /* DIAGNOSTICS
-/*	Fatal errors: malformed numerical value.
+/*    Fatal errors: malformed numerical value.
 /* SEE ALSO
-/*	config(3) general configuration
-/*	mail_conf_str(3) string-valued configuration parameters
+/*    config(3) general configuration
+/*    mail_conf_str(3) string-valued configuration parameters
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
 
 #include <sys_defs.h>
 #include <stdlib.h>
-#include <stdio.h>			/* BUFSIZ */
+#include <stdio.h>            /* BUFSIZ */
 #include <errno.h>
 
 /* Utility library. */
@@ -106,11 +106,11 @@ static int convert_mail_conf_long(const char *name, long *longval)
     char   *end;
 
     if ((strval = mail_conf_lookup_eval(name)) != 0) {
-	errno = 0;
-	*longval = strtol(strval, &end, 10);
-	if (*strval == 0 || *end != 0 || errno == ERANGE)
-	    msg_fatal("bad numerical configuration: %s = %s", name, strval);
-	return (1);
+    errno = 0;
+    *longval = strtol(strval, &end, 10);
+    if (*strval == 0 || *end != 0 || errno == ERANGE)
+        msg_fatal("bad numerical configuration: %s = %s", name, strval);
+    return (1);
     }
     return (0);
 }
@@ -120,9 +120,9 @@ static int convert_mail_conf_long(const char *name, long *longval)
 static void check_mail_conf_long(const char *name, long longval, long min, long max)
 {
     if (min && longval < min)
-	msg_fatal("invalid %s parameter value %ld < %ld", name, longval, min);
+    msg_fatal("invalid %s parameter value %ld < %ld", name, longval, min);
     if (max && longval > max)
-	msg_fatal("invalid %s parameter value %ld > %ld", name, longval, max);
+    msg_fatal("invalid %s parameter value %ld > %ld", name, longval, max);
 }
 
 /* get_mail_conf_long - evaluate integer-valued configuration variable */
@@ -132,7 +132,7 @@ long    get_mail_conf_long(const char *name, long defval, long min, long max)
     long    longval;
 
     if (convert_mail_conf_long(name, &longval) == 0)
-	set_mail_conf_long(name, longval = defval);
+    set_mail_conf_long(name, longval = defval);
     check_mail_conf_long(name, longval, min, max);
     return (longval);
 }
@@ -140,14 +140,14 @@ long    get_mail_conf_long(const char *name, long defval, long min, long max)
 /* get_mail_conf_long2 - evaluate integer-valued configuration variable */
 
 long    get_mail_conf_long2(const char *name1, const char *name2, long defval,
-			            long min, long max)
+                        long min, long max)
 {
     long    longval;
     char   *name;
 
     name = concatenate(name1, name2, (char *) 0);
     if (convert_mail_conf_long(name, &longval) == 0)
-	set_mail_conf_long(name, longval = defval);
+    set_mail_conf_long(name, longval = defval);
     check_mail_conf_long(name, longval, min, max);
     myfree(name);
     return (longval);
@@ -158,12 +158,12 @@ long    get_mail_conf_long2(const char *name1, const char *name2, long defval,
 typedef long (*stupid_indent_long) (void);
 
 long    get_mail_conf_long_fn(const char *name, stupid_indent_long defval,
-			              long min, long max)
+                          long min, long max)
 {
     long    longval;
 
     if (convert_mail_conf_long(name, &longval) == 0)
-	set_mail_conf_long(name, longval = defval());
+    set_mail_conf_long(name, longval = defval());
     check_mail_conf_long(name, longval, min, max);
     return (longval);
 }
@@ -173,19 +173,19 @@ long    get_mail_conf_long_fn(const char *name, stupid_indent_long defval,
 void    set_mail_conf_long(const char *name, long value)
 {
     const char myname[] = "set_mail_conf_long";
-    char    buf[BUFSIZ];		/* yeah! crappy code! */
+    char    buf[BUFSIZ];        /* yeah! crappy code! */
 
 #ifndef NO_SNPRINTF
     ssize_t ret;
 
     ret = snprintf(buf, sizeof(buf), "%ld", value);
     if (ret < 0)
-	msg_panic("%s: output error for %%ld", myname);
+    msg_panic("%s: output error for %%ld", myname);
     if (ret >= sizeof(buf))
-	msg_panic("%s: output for %%ld exceeds space %ld",
-		  myname, (long) sizeof(buf));
+    msg_panic("%s: output for %%ld exceeds space %ld",
+          myname, (long) sizeof(buf));
 #else
-    sprintf(buf, "%ld", value);			/* yeah! more crappy code! */
+    sprintf(buf, "%ld", value);            /* yeah! more crappy code! */
 #endif
     mail_conf_update(name, buf);
 }
@@ -195,9 +195,9 @@ void    set_mail_conf_long(const char *name, long value)
 void    get_mail_conf_long_table(const CONFIG_LONG_TABLE *table)
 {
     while (table->name) {
-	table->target[0] = get_mail_conf_long(table->name, table->defval,
-					      table->min, table->max);
-	table++;
+    table->target[0] = get_mail_conf_long(table->name, table->defval,
+                          table->min, table->max);
+    table++;
     }
 }
 
@@ -206,8 +206,8 @@ void    get_mail_conf_long_table(const CONFIG_LONG_TABLE *table)
 void    get_mail_conf_long_fn_table(const CONFIG_LONG_FN_TABLE *table)
 {
     while (table->name) {
-	table->target[0] = get_mail_conf_long_fn(table->name, table->defval,
-						 table->min, table->max);
-	table++;
+    table->target[0] = get_mail_conf_long_fn(table->name, table->defval,
+                         table->min, table->max);
+    table++;
     }
 }

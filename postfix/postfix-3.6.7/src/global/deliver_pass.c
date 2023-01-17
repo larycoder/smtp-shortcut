@@ -1,59 +1,59 @@
 /*++
 /* NAME
-/*	deliver_pass 3
+/*    deliver_pass 3
 /* SUMMARY
-/*	deliver request pass_through
+/*    deliver request pass_through
 /* SYNOPSIS
-/*	#include <deliver_request.h>
+/*    #include <deliver_request.h>
 /*
-/*	int	deliver_pass(class, service, request, recipient)
-/*	const char *class;
-/*	const char *service;
-/*	DELIVER_REQUEST *request;
-/*	RECIPIENT *recipient;
+/*    int    deliver_pass(class, service, request, recipient)
+/*    const char *class;
+/*    const char *service;
+/*    DELIVER_REQUEST *request;
+/*    RECIPIENT *recipient;
 /*
-/*	int	deliver_pass_all(class, service, request)
-/*	const char *class;
-/*	const char *service;
-/*	DELIVER_REQUEST *request;
+/*    int    deliver_pass_all(class, service, request)
+/*    const char *class;
+/*    const char *service;
+/*    DELIVER_REQUEST *request;
 /* DESCRIPTION
-/*	This module implements the client side of the `queue manager
-/*	to delivery agent' protocol, passing one recipient on from
-/*	one delivery agent to another.
+/*    This module implements the client side of the `queue manager
+/*    to delivery agent' protocol, passing one recipient on from
+/*    one delivery agent to another.
 /*
-/*	deliver_pass() delegates delivery of the named recipient.
+/*    deliver_pass() delegates delivery of the named recipient.
 /*
-/*	deliver_pass_all() delegates an entire delivery request.
+/*    deliver_pass_all() delegates an entire delivery request.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP class
-/*	Destination delivery agent service class
+/*    Destination delivery agent service class
 /* .IP service
-/*	String of the form \fItransport\fR:\fInexthop\fR. Either transport
-/*	or nexthop are optional. For details see the transport map manual page.
+/*    String of the form \fItransport\fR:\fInexthop\fR. Either transport
+/*    or nexthop are optional. For details see the transport map manual page.
 /* .IP request
-/*	Delivery request with queue file information.
+/*    Delivery request with queue file information.
 /* .IP recipient
-/*	Recipient information. See recipient_list(3).
+/*    Recipient information. See recipient_list(3).
 /* DIAGNOSTICS
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* BUGS
-/*	One recipient at a time; this is OK for mailbox deliveries.
+/*    One recipient at a time; this is OK for mailbox deliveries.
 /*
-/*	Hop status information cannot be passed back.
+/*    Hop status information cannot be passed back.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -77,18 +77,18 @@
 #include <rcpt_print.h>
 #include <info_log_addr_form.h>
 
-#define DELIVER_PASS_DEFER	1
-#define DELIVER_PASS_UNKNOWN	2
+#define DELIVER_PASS_DEFER    1
+#define DELIVER_PASS_UNKNOWN    2
 
 /* deliver_pass_initial_reply - retrieve initial delivery process response */
 
 static int deliver_pass_initial_reply(VSTREAM *stream)
 {
     if (attr_scan(stream, ATTR_FLAG_STRICT,
-		  RECV_ATTR_STREQ(MAIL_ATTR_PROTO, MAIL_ATTR_PROTO_DELIVER),
-		  ATTR_TYPE_END) != 0) {
-	msg_warn("%s: malformed response", VSTREAM_PATH(stream));
-	return (-1);
+          RECV_ATTR_STREQ(MAIL_ATTR_PROTO, MAIL_ATTR_PROTO_DELIVER),
+          ATTR_TYPE_END) != 0) {
+    msg_warn("%s: malformed response", VSTREAM_PATH(stream));
+    return (-1);
     }
     return (0);
 }
@@ -96,48 +96,48 @@ static int deliver_pass_initial_reply(VSTREAM *stream)
 /* deliver_pass_send_request - send delivery request to delivery process */
 
 static int deliver_pass_send_request(VSTREAM *stream, DELIVER_REQUEST *request,
-				             const char *nexthop,
-				             RECIPIENT *rcpt)
+                             const char *nexthop,
+                             RECIPIENT *rcpt)
 {
     int     stat;
 
     attr_print(stream, ATTR_FLAG_NONE,
-	       SEND_ATTR_INT(MAIL_ATTR_FLAGS, request->flags),
-	       SEND_ATTR_STR(MAIL_ATTR_QUEUE, request->queue_name),
-	       SEND_ATTR_STR(MAIL_ATTR_QUEUEID, request->queue_id),
-	       SEND_ATTR_LONG(MAIL_ATTR_OFFSET, request->data_offset),
-	       SEND_ATTR_LONG(MAIL_ATTR_SIZE, request->data_size),
-	       SEND_ATTR_STR(MAIL_ATTR_NEXTHOP, nexthop),
-	       SEND_ATTR_STR(MAIL_ATTR_ENCODING, request->encoding),
-	       SEND_ATTR_INT(MAIL_ATTR_SMTPUTF8, request->smtputf8),
-	       SEND_ATTR_STR(MAIL_ATTR_SENDER, request->sender),
-	       SEND_ATTR_STR(MAIL_ATTR_DSN_ENVID, request->dsn_envid),
-	       SEND_ATTR_INT(MAIL_ATTR_DSN_RET, request->dsn_ret),
-	       SEND_ATTR_FUNC(msg_stats_print, (void *) &request->msg_stats),
+           SEND_ATTR_INT(MAIL_ATTR_FLAGS, request->flags),
+           SEND_ATTR_STR(MAIL_ATTR_QUEUE, request->queue_name),
+           SEND_ATTR_STR(MAIL_ATTR_QUEUEID, request->queue_id),
+           SEND_ATTR_LONG(MAIL_ATTR_OFFSET, request->data_offset),
+           SEND_ATTR_LONG(MAIL_ATTR_SIZE, request->data_size),
+           SEND_ATTR_STR(MAIL_ATTR_NEXTHOP, nexthop),
+           SEND_ATTR_STR(MAIL_ATTR_ENCODING, request->encoding),
+           SEND_ATTR_INT(MAIL_ATTR_SMTPUTF8, request->smtputf8),
+           SEND_ATTR_STR(MAIL_ATTR_SENDER, request->sender),
+           SEND_ATTR_STR(MAIL_ATTR_DSN_ENVID, request->dsn_envid),
+           SEND_ATTR_INT(MAIL_ATTR_DSN_RET, request->dsn_ret),
+           SEND_ATTR_FUNC(msg_stats_print, (void *) &request->msg_stats),
     /* XXX Should be encapsulated with ATTR_TYPE_FUNC. */
-	     SEND_ATTR_STR(MAIL_ATTR_LOG_CLIENT_NAME, request->client_name),
-	     SEND_ATTR_STR(MAIL_ATTR_LOG_CLIENT_ADDR, request->client_addr),
-	     SEND_ATTR_STR(MAIL_ATTR_LOG_CLIENT_PORT, request->client_port),
-	     SEND_ATTR_STR(MAIL_ATTR_LOG_PROTO_NAME, request->client_proto),
-	       SEND_ATTR_STR(MAIL_ATTR_LOG_HELO_NAME, request->client_helo),
+         SEND_ATTR_STR(MAIL_ATTR_LOG_CLIENT_NAME, request->client_name),
+         SEND_ATTR_STR(MAIL_ATTR_LOG_CLIENT_ADDR, request->client_addr),
+         SEND_ATTR_STR(MAIL_ATTR_LOG_CLIENT_PORT, request->client_port),
+         SEND_ATTR_STR(MAIL_ATTR_LOG_PROTO_NAME, request->client_proto),
+           SEND_ATTR_STR(MAIL_ATTR_LOG_HELO_NAME, request->client_helo),
     /* XXX Should be encapsulated with ATTR_TYPE_FUNC. */
-	       SEND_ATTR_STR(MAIL_ATTR_SASL_METHOD, request->sasl_method),
-	     SEND_ATTR_STR(MAIL_ATTR_SASL_USERNAME, request->sasl_username),
-	       SEND_ATTR_STR(MAIL_ATTR_SASL_SENDER, request->sasl_sender),
+           SEND_ATTR_STR(MAIL_ATTR_SASL_METHOD, request->sasl_method),
+         SEND_ATTR_STR(MAIL_ATTR_SASL_USERNAME, request->sasl_username),
+           SEND_ATTR_STR(MAIL_ATTR_SASL_SENDER, request->sasl_sender),
     /* XXX Ditto if we want to pass TLS certificate info. */
-	       SEND_ATTR_STR(MAIL_ATTR_LOG_IDENT, request->log_ident),
-	     SEND_ATTR_STR(MAIL_ATTR_RWR_CONTEXT, request->rewrite_context),
-	       SEND_ATTR_INT(MAIL_ATTR_RCPT_COUNT, 1),
-	       ATTR_TYPE_END);
+           SEND_ATTR_STR(MAIL_ATTR_LOG_IDENT, request->log_ident),
+         SEND_ATTR_STR(MAIL_ATTR_RWR_CONTEXT, request->rewrite_context),
+           SEND_ATTR_INT(MAIL_ATTR_RCPT_COUNT, 1),
+           ATTR_TYPE_END);
     attr_print(stream, ATTR_FLAG_NONE,
-	       SEND_ATTR_FUNC(rcpt_print, (void *) rcpt),
-	       ATTR_TYPE_END);
+           SEND_ATTR_FUNC(rcpt_print, (void *) rcpt),
+           ATTR_TYPE_END);
 
     if (vstream_fflush(stream)) {
-	msg_warn("%s: bad write: %m", VSTREAM_PATH(stream));
-	stat = -1;
+    msg_warn("%s: bad write: %m", VSTREAM_PATH(stream));
+    stat = -1;
     } else {
-	stat = 0;
+    stat = 0;
     }
     return (stat);
 }
@@ -149,21 +149,21 @@ static int deliver_pass_final_reply(VSTREAM *stream, DSN_BUF *dsb)
     int     stat;
 
     if (attr_scan(stream, ATTR_FLAG_STRICT,
-		  RECV_ATTR_FUNC(dsb_scan, (void *) dsb),
-		  RECV_ATTR_INT(MAIL_ATTR_STATUS, &stat),
-		  ATTR_TYPE_END) != 2) {
-	msg_warn("%s: malformed response", VSTREAM_PATH(stream));
-	return (DELIVER_PASS_UNKNOWN);
+          RECV_ATTR_FUNC(dsb_scan, (void *) dsb),
+          RECV_ATTR_INT(MAIL_ATTR_STATUS, &stat),
+          ATTR_TYPE_END) != 2) {
+    msg_warn("%s: malformed response", VSTREAM_PATH(stream));
+    return (DELIVER_PASS_UNKNOWN);
     } else {
-	return (stat ? DELIVER_PASS_DEFER : 0);
+    return (stat ? DELIVER_PASS_DEFER : 0);
     }
 }
 
 /* deliver_pass - deliver one per-site queue entry */
 
 int     deliver_pass(const char *class, const char *service,
-		             DELIVER_REQUEST *request,
-		             RECIPIENT *rcpt)
+                     DELIVER_REQUEST *request,
+                     RECIPIENT *rcpt)
 {
     VSTREAM *stream;
     DSN_BUF *dsb;
@@ -179,16 +179,16 @@ int     deliver_pass(const char *class, const char *service,
      */
     transport = saved_service = mystrdup(service);
     if ((nexthop = split_at(saved_service, ':')) == 0 || *nexthop == 0)
-	nexthop = request->nexthop;
+    nexthop = request->nexthop;
     if (*transport == 0)
-	msg_fatal("missing transport name in \"%s\"", service);
+    msg_fatal("missing transport name in \"%s\"", service);
 
     /*
      * Initialize.
      */
     msg_info("%s: passing <%s> to transport=%s",
-	     request->queue_id, info_log_addr_form_recipient(rcpt->address),
-	     transport);
+         request->queue_id, info_log_addr_form_recipient(rcpt->address),
+         transport);
     stream = mail_connect_wait(class, transport);
     dsb = dsb_create();
 
@@ -203,17 +203,17 @@ int     deliver_pass(const char *class, const char *service,
      * different transport.
      */
     if (deliver_pass_initial_reply(stream) != 0
-	|| deliver_pass_send_request(stream, request, nexthop, rcpt) != 0) {
-	(void) DSN_SIMPLE(&dsn, "4.3.0", "mail transport unavailable");
-	status = defer_append(DEL_REQ_TRACE_FLAGS(request->flags),
-			      request->queue_id, &request->msg_stats,
-			      rcpt, "none", &dsn);
+    || deliver_pass_send_request(stream, request, nexthop, rcpt) != 0) {
+    (void) DSN_SIMPLE(&dsn, "4.3.0", "mail transport unavailable");
+    status = defer_append(DEL_REQ_TRACE_FLAGS(request->flags),
+                  request->queue_id, &request->msg_stats,
+                  rcpt, "none", &dsn);
     } else if ((status = deliver_pass_final_reply(stream, dsb))
-	       == DELIVER_PASS_UNKNOWN) {
-	(void) DSN_SIMPLE(&dsn, "4.3.0", "unknown mail transport error");
-	status = defer_append(DEL_REQ_TRACE_FLAGS(request->flags),
-			      request->queue_id, &request->msg_stats,
-			      rcpt, "none", &dsn);
+           == DELIVER_PASS_UNKNOWN) {
+    (void) DSN_SIMPLE(&dsn, "4.3.0", "unknown mail transport error");
+    status = defer_append(DEL_REQ_TRACE_FLAGS(request->flags),
+                  request->queue_id, &request->msg_stats,
+                  rcpt, "none", &dsn);
     }
 
     /*
@@ -229,7 +229,7 @@ int     deliver_pass(const char *class, const char *service,
 /* deliver_pass_all - pass entire delivery request */
 
 int     deliver_pass_all(const char *class, const char *service,
-			         DELIVER_REQUEST *request)
+                     DELIVER_REQUEST *request)
 {
     RECIPIENT_LIST *list;
     RECIPIENT *rcpt;
@@ -242,6 +242,6 @@ int     deliver_pass_all(const char *class, const char *service,
      */
     list = &request->rcpt_list;
     for (rcpt = list->info; rcpt < list->info + list->len; rcpt++)
-	status |= deliver_pass(class, service, request, rcpt);
+    status |= deliver_pass(class, service, request, rcpt);
     return (status);
 }

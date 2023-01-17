@@ -1,24 +1,24 @@
 /*++
 /* NAME
-/*	rec2stream 1
+/*    rec2stream 1
 /* SUMMARY
-/*	convert record stream to stream-lf format
+/*    convert record stream to stream-lf format
 /* SYNOPSIS
-/*	rec2stream
+/*    rec2stream
 /* DESCRIPTION
-/*	rec2stream reads a record stream from standard input and
-/*	writes the content to standard output in stream-lf format.
+/*    rec2stream reads a record stream from standard input and
+/*    writes the content to standard output in stream-lf format.
 /* DIAGNOSTICS
-/*	Problems are reported to the standard error stream.
+/*    Problems are reported to the standard error stream.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -41,7 +41,7 @@ int     main(void)
     int     type;
 
     while ((type = rec_get(VSTREAM_IN, buf, 0)) > 0)
-	REC_STREAMLF_PUT_BUF(VSTREAM_OUT, type, buf);
+    REC_STREAMLF_PUT_BUF(VSTREAM_OUT, type, buf);
     vstream_fflush(VSTREAM_OUT);
     return (0);
 }

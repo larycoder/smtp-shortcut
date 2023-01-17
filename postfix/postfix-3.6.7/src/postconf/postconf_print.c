@@ -1,42 +1,42 @@
 /*++
 /* NAME
-/*	postconf_print 3
+/*    postconf_print 3
 /* SUMMARY
-/*	basic line printing support
+/*    basic line printing support
 /* SYNOPSIS
-/*	#include <postconf.h>
+/*    #include <postconf.h>
 /*
-/*	void	pcf_print_line(fp, mode, const char *fmt, ...)
-/*	VSTREAM	*fp;
-/*	int	mode;
-/*	const char *fmt;
+/*    void    pcf_print_line(fp, mode, const char *fmt, ...)
+/*    VSTREAM    *fp;
+/*    int    mode;
+/*    const char *fmt;
 /* DESCRIPTION
-/*	pcf_print_line() formats text, normalized whitespace, and
-/*	optionally folds long lines.
+/*    pcf_print_line() formats text, normalized whitespace, and
+/*    optionally folds long lines.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP fp
-/*	Output stream.
+/*    Output stream.
 /* .IP mode
-/*	Bit-wise OR of zero or more of the following (other flags
-/*	are ignored):
+/*    Bit-wise OR of zero or more of the following (other flags
+/*    are ignored):
 /* .RS
 /* .IP PCF_FOLD_LINE
-/*	Fold long lines.
+/*    Fold long lines.
 /* .RE
 /* .IP fmt
-/*	Format string.
+/*    Format string.
 /* DIAGNOSTICS
-/*	Problems are reported to the standard error stream.
+/*    Problems are reported to the standard error stream.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -57,7 +57,7 @@
 
 /* SLMs. */
 
-#define STR(x)	vstring_str(x)
+#define STR(x)    vstring_str(x)
 
 /* pcf_print_line - show line possibly folded, and with normalized whitespace */
 
@@ -74,7 +74,7 @@ void    pcf_print_line(VSTREAM *fp, int mode, const char *fmt,...)
      * One-off initialization.
      */
     if (buf == 0)
-	buf = vstring_alloc(100);
+    buf = vstring_alloc(100);
 
     /*
      * Format the text.
@@ -94,21 +94,21 @@ void    pcf_print_line(VSTREAM *fp, int mode, const char *fmt,...)
      * that follows a newline.
      */
     for (start = STR(buf); *(start += strspn(start, PCF_SEPARATORS)) != 0; start = next) {
-	word_len = strcspn(start, PCF_SEPARATORS);
-	if (*(next = start + word_len) != 0)
-	    *next++ = 0;
-	if (word_len > 0 && line_len > 0) {
-	    if ((mode & PCF_FOLD_LINE) == 0
-		|| line_len + word_len < PCF_LINE_LIMIT) {
-		vstream_fputs(" ", fp);
-		line_len += 1;
-	    } else {
-		vstream_fputs("\n" PCF_INDENT_TEXT, fp);
-		line_len = PCF_INDENT_LEN;
-	    }
-	}
-	vstream_fputs(start, fp);
-	line_len += word_len;
+    word_len = strcspn(start, PCF_SEPARATORS);
+    if (*(next = start + word_len) != 0)
+        *next++ = 0;
+    if (word_len > 0 && line_len > 0) {
+        if ((mode & PCF_FOLD_LINE) == 0
+        || line_len + word_len < PCF_LINE_LIMIT) {
+        vstream_fputs(" ", fp);
+        line_len += 1;
+        } else {
+        vstream_fputs("\n" PCF_INDENT_TEXT, fp);
+        line_len = PCF_INDENT_LEN;
+        }
+    }
+    vstream_fputs(start, fp);
+    line_len += word_len;
     }
     vstream_fputs("\n", fp);
 }

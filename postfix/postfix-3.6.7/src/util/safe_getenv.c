@@ -1,27 +1,27 @@
 /*++
 /* NAME
-/*	safe_getenv 3
+/*    safe_getenv 3
 /* SUMMARY
-/*	guarded getenv()
+/*    guarded getenv()
 /* SYNOPSIS
-/*	#include <safe.h>
+/*    #include <safe.h>
 /*
-/*	char	*safe_getenv(const name)
-/*	char	*name;
+/*    char    *safe_getenv(const name)
+/*    char    *name;
 /* DESCRIPTION
-/*	The \fBsafe_getenv\fR() routine reads the named variable from the
-/*	environment, provided that the unsafe() routine agrees.
+/*    The \fBsafe_getenv\fR() routine reads the named variable from the
+/*    environment, provided that the unsafe() routine agrees.
 /* SEE ALSO
-/*	unsafe(3), detect non-user privileges
+/*    unsafe(3), detect non-user privileges
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */

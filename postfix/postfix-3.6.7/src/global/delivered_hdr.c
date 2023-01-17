@@ -1,77 +1,77 @@
 /*++
 /* NAME
-/*	delivered_hdr 3
+/*    delivered_hdr 3
 /* SUMMARY
-/*	process Delivered-To: headers
+/*    process Delivered-To: headers
 /* SYNOPSIS
-/*	#include <delivered_hdr.h>
+/*    #include <delivered_hdr.h>
 /*
-/*	DELIVERED_HDR_INFO *delivered_hdr_init(stream, offset, flags)
-/*	VSTREAM	*stream;
-/*	off_t	offset;
-/*	int	flags;
+/*    DELIVERED_HDR_INFO *delivered_hdr_init(stream, offset, flags)
+/*    VSTREAM    *stream;
+/*    off_t    offset;
+/*    int    flags;
 /*
-/*	int	delivered_hdr_find(info, address)
-/*	DELIVERED_HDR_INFO *info;
-/*	const char *address;
+/*    int    delivered_hdr_find(info, address)
+/*    DELIVERED_HDR_INFO *info;
+/*    const char *address;
 /*
-/*	void	delivered_hdr_free(info)
-/*	DELIVERED_HDR_INFO *info;
+/*    void    delivered_hdr_free(info)
+/*    DELIVERED_HDR_INFO *info;
 /* DESCRIPTION
-/*	This module processes addresses in Delivered-To: headers.
-/*	These headers are added by some mail delivery systems, for the
-/*	purpose of breaking mail forwarding loops. N.B. This solves
-/*	a different problem than the Received: hop count limit. Hop
-/*	counts are used to limit the impact of mail routing problems.
+/*    This module processes addresses in Delivered-To: headers.
+/*    These headers are added by some mail delivery systems, for the
+/*    purpose of breaking mail forwarding loops. N.B. This solves
+/*    a different problem than the Received: hop count limit. Hop
+/*    counts are used to limit the impact of mail routing problems.
 /*
-/*	delivered_hdr_init() extracts Delivered-To: header addresses
-/*	from the specified message, and returns a table with the
-/*	result. The file seek pointer is changed.
+/*    delivered_hdr_init() extracts Delivered-To: header addresses
+/*    from the specified message, and returns a table with the
+/*    result. The file seek pointer is changed.
 /*
-/*	delivered_hdr_find() looks up the address in the lookup table,
-/*	and returns non-zero when the address was found. The
-/*	address argument must be in internalized form.
+/*    delivered_hdr_find() looks up the address in the lookup table,
+/*    and returns non-zero when the address was found. The
+/*    address argument must be in internalized form.
 /*
-/*	delivered_hdr_free() releases storage that was allocated by
-/*	delivered_hdr_init().
+/*    delivered_hdr_free() releases storage that was allocated by
+/*    delivered_hdr_init().
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP stream
-/*	The open queue file.
+/*    The open queue file.
 /* .IP offset
-/*	Offset of the first message content record.
+/*    Offset of the first message content record.
 /* .IP flags
-/*	Zero, or the bit-wise OR ot:
+/*    Zero, or the bit-wise OR ot:
 /* .RS
 /* .IP FOLD_ADDR_USER
-/*	Case fold the address local part.
+/*    Case fold the address local part.
 /* .IP FOLD_ADDR_HOST
-/*	Case fold the address domain part.
+/*    Case fold the address domain part.
 /* .IP FOLD_ADDR_ALL
-/*	Alias for (FOLD_ADDR_USER | FOLD_ADDR_HOST).
+/*    Alias for (FOLD_ADDR_USER | FOLD_ADDR_HOST).
 /* .RE
 /* .IP info
-/*	Extracted Delivered-To: addresses information.
+/*    Extracted Delivered-To: addresses information.
 /* .IP address
-/*	A recipient address, internal form.
+/*    A recipient address, internal form.
 /* DIAGNOSTICS
-/*	Fatal errors: out of memory.
+/*    Fatal errors: out of memory.
 /* SEE ALSO
-/*	mail_copy(3), producer of Delivered-To: and other headers.
+/*    mail_copy(3), producer of Delivered-To: and other headers.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -133,7 +133,7 @@ DELIVERED_HDR_INFO *delivered_hdr_init(VSTREAM *fp, off_t offset, int flags)
     info->table = htable_create(0);
 
     if (vstream_fseek(fp, offset, SEEK_SET) < 0)
-	msg_fatal("seek queue file %s: %m", VSTREAM_PATH(fp));
+    msg_fatal("seek queue file %s: %m", VSTREAM_PATH(fp));
 
     /*
      * XXX Assume that mail_copy() produces delivered-to headers that fit in
@@ -142,31 +142,31 @@ DELIVERED_HDR_INFO *delivered_hdr_init(VSTREAM *fp, off_t offset, int flags)
      * 
      * XXX Don't get bogged down by gazillions of delivered-to headers.
      */
-#define DELIVERED_HDR_LIMIT	1000
+#define DELIVERED_HDR_LIMIT    1000
 
     for (prev_type = REC_TYPE_NORM;
-	 info->table->used < DELIVERED_HDR_LIMIT
-	 && ((curr_type = rec_get(fp, info->buf, 0)) == REC_TYPE_NORM
-	     || curr_type == REC_TYPE_CONT);
-	 prev_type = curr_type) {
-	if (prev_type == REC_TYPE_CONT)
-	    continue;
-	if (is_header(STR(info->buf))) {
-	    if ((hdr = header_opts_find(STR(info->buf))) != 0
-		&& hdr->type == HDR_DELIVERED_TO) {
-		cp = STR(info->buf) + strlen(hdr->name) + 1;
-		while (ISSPACE(*cp))
-		    cp++;
-		cp = fold_addr(info->fold, cp, info->flags);
-		if (msg_verbose)
-		    msg_info("delivered_hdr_init: %s", cp);
-		htable_enter(info->table, cp, (void *) 0);
-	    }
-	} else if (ISSPACE(STR(info->buf)[0])) {
-	    continue;
-	} else {
-	    break;
-	}
+     info->table->used < DELIVERED_HDR_LIMIT
+     && ((curr_type = rec_get(fp, info->buf, 0)) == REC_TYPE_NORM
+         || curr_type == REC_TYPE_CONT);
+     prev_type = curr_type) {
+    if (prev_type == REC_TYPE_CONT)
+        continue;
+    if (is_header(STR(info->buf))) {
+        if ((hdr = header_opts_find(STR(info->buf))) != 0
+        && hdr->type == HDR_DELIVERED_TO) {
+        cp = STR(info->buf) + strlen(hdr->name) + 1;
+        while (ISSPACE(*cp))
+            cp++;
+        cp = fold_addr(info->fold, cp, info->flags);
+        if (msg_verbose)
+            msg_info("delivered_hdr_init: %s", cp);
+        htable_enter(info->table, cp, (void *) 0);
+        }
+    } else if (ISSPACE(STR(info->buf)[0])) {
+        continue;
+    } else {
+        break;
+    }
     }
     return (info);
 }
@@ -216,15 +216,15 @@ int     main(int arc, char **argv)
     VSTREAM *mem_fp;
     DELIVERED_HDR_INFO *dp;
     struct test_case {
-	int     rec_type;
-	const char *content;
-	int     expect_find;
+    int     rec_type;
+    const char *content;
+    int     expect_find;
     };
     const struct test_case test_cases[] = {
-	REC_TYPE_CONT, "Delivered-To: one", 1,
-	REC_TYPE_NORM, "Delivered-To: two", 0,
-	REC_TYPE_NORM, "Delivered-To: three", 1,
-	0,
+    REC_TYPE_CONT, "Delivered-To: one", 1,
+    REC_TYPE_NORM, "Delivered-To: two", 0,
+    REC_TYPE_NORM, "Delivered-To: three", 1,
+    0,
     };
     const struct test_case *tp;
     int     actual_find;
@@ -236,29 +236,29 @@ int     main(int arc, char **argv)
 
     mem_bp = vstring_alloc(VSTREAM_BUFSIZE);
     if ((mem_fp = vstream_memopen(mem_bp, O_WRONLY)) == 0)
-	msg_panic("vstream_memopen O_WRONLY failed: %m");
+    msg_panic("vstream_memopen O_WRONLY failed: %m");
 
 #define REC_PUT_LIT(fp, type, lit) rec_put((fp), (type), (lit), strlen(lit))
 
     for (tp = test_cases; tp->content != 0; tp++)
-	REC_PUT_LIT(mem_fp, tp->rec_type, tp->content);
+    REC_PUT_LIT(mem_fp, tp->rec_type, tp->content);
 
     if (vstream_fclose(mem_fp))
-	msg_panic("vstream_fclose fail: %m");
+    msg_panic("vstream_fclose fail: %m");
 
     if ((mem_fp = vstream_memopen(mem_bp, O_RDONLY)) == 0)
-	msg_panic("vstream_memopen O_RDONLY failed: %m");
+    msg_panic("vstream_memopen O_RDONLY failed: %m");
 
     dp = delivered_hdr_init(mem_fp, 0, FOLD_ADDR_ALL);
 
     for (errors = 0, tp = test_cases; tp->content != 0; tp++) {
-	actual_find =
-	    delivered_hdr_find(dp, tp->content + sizeof("Delivered-To:"));
-	msg_info("test case: %c >%s<: %s (expected: %s)",
-		 tp->rec_type, tp->content,
-		 actual_find == tp->expect_find ? "PASS" : "FAIL",
-		 tp->expect_find ? "MATCH" : "NO MATCH");
-	errors += (actual_find != tp->expect_find);;
+    actual_find =
+        delivered_hdr_find(dp, tp->content + sizeof("Delivered-To:"));
+    msg_info("test case: %c >%s<: %s (expected: %s)",
+         tp->rec_type, tp->content,
+         actual_find == tp->expect_find ? "PASS" : "FAIL",
+         tp->expect_find ? "MATCH" : "NO MATCH");
+    errors += (actual_find != tp->expect_find);;
     }
     exit(errors);
 }

@@ -1,57 +1,57 @@
 /*++
 /* NAME
-/*	dsn_mask 3
+/*    dsn_mask 3
 /* SUMMARY
-/*	DSN embedding in SMTP
+/*    DSN embedding in SMTP
 /* SYNOPSIS
-/*	#include <dsn_mask.h>
+/*    #include <dsn_mask.h>
 /*
-/*	int	dsn_notify_mask(str)
-/*	const char *str;
+/*    int    dsn_notify_mask(str)
+/*    const char *str;
 /*
-/*	const char *dsn_notify_str(mask)
-/*	int	mask;
+/*    const char *dsn_notify_str(mask)
+/*    int    mask;
 /*
-/*	int	dsn_ret_code(str)
-/*	const char *str;
+/*    int    dsn_ret_code(str)
+/*    const char *str;
 /*
-/*	const char *dsn_ret_str(code)
-/*	int	mask;
+/*    const char *dsn_ret_str(code)
+/*    int    mask;
 /* DESCRIPTION
-/*	dsn_ret_code() converts the parameters of a MAIL FROM ..
-/*	RET option to internal form.
+/*    dsn_ret_code() converts the parameters of a MAIL FROM ..
+/*    RET option to internal form.
 /*
-/*	dsn_ret_str() converts internal form to the representation
-/*	used in the MAIL FROM .. RET command. The result is in
-/*	stable and static memory.
+/*    dsn_ret_str() converts internal form to the representation
+/*    used in the MAIL FROM .. RET command. The result is in
+/*    stable and static memory.
 /*
-/*	dsn_notify_mask() converts the parameters of a RCPT TO ..
-/*	NOTIFY option to internal form.
+/*    dsn_notify_mask() converts the parameters of a RCPT TO ..
+/*    NOTIFY option to internal form.
 /*
-/*	dsn_notify_str() converts internal form to the representation
-/*	used in the RCPT TO .. NOTIFY command. The result is in
-/*	volatile memory and is clobbered whenever str_name_mask()
-/*	is called.
+/*    dsn_notify_str() converts internal form to the representation
+/*    used in the RCPT TO .. NOTIFY command. The result is in
+/*    volatile memory and is clobbered whenever str_name_mask()
+/*    is called.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP str
-/*	Information received with the MAIL FROM or RCPT TO command.
+/*    Information received with the MAIL FROM or RCPT TO command.
 /* .IP mask
-/*	Internal representation.
+/*    Internal representation.
 /* DIAGNOSTICS
-/*	dsn_ret_code() and dsn_notify_mask() return 0 when the string
-/*	specifies an invalid request.
+/*    dsn_ret_code() and dsn_notify_mask() return 0 when the string
+/*    specifies an invalid request.
 /*
-/*	dsn_ret_str() and dsn_notify_str() abort on failure.
+/*    dsn_ret_str() and dsn_notify_str() abort on failure.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 
@@ -99,7 +99,7 @@ const char *dsn_ret_str(int code)
     const char *cp;
 
     if ((cp = str_name_code(dsn_ret_table, code)) == 0)
-	msg_panic("dsn_ret_str: unknown code %d", code);
+    msg_panic("dsn_ret_str: unknown code %d", code);
     return (cp);
 }
 
@@ -108,7 +108,7 @@ const char *dsn_ret_str(int code)
 int     dsn_notify_mask(const char *str)
 {
     int     mask = name_mask_opt("DSN NOTIFY command", dsn_notify_table,
-				 str, NAME_MASK_ANY_CASE | NAME_MASK_RETURN);
+                 str, NAME_MASK_ANY_CASE | NAME_MASK_RETURN);
 
     return (DSN_NOTIFY_OK(mask) ? mask : 0);
 }
@@ -118,6 +118,6 @@ int     dsn_notify_mask(const char *str)
 const char *dsn_notify_str(int mask)
 {
     return (str_name_mask_opt((VSTRING *) 0, "DSN NOTIFY command",
-			      dsn_notify_table, mask,
-			      NAME_MASK_FATAL | NAME_MASK_COMMA));
+                  dsn_notify_table, mask,
+                  NAME_MASK_FATAL | NAME_MASK_COMMA));
 }

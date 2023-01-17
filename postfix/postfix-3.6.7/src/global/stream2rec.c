@@ -1,24 +1,24 @@
 /*++
 /* NAME
-/*	stream2rec 1
+/*    stream2rec 1
 /* SUMMARY
-/*	convert stream-lf data to record format
+/*    convert stream-lf data to record format
 /* SYNOPSIS
-/*	stream2rec
+/*    stream2rec
 /* DESCRIPTION
-/*	stream2rec reads lines from standard input and writes
-/*	them to standard output in record form.
+/*    stream2rec reads lines from standard input and writes
+/*    them to standard output in record form.
 /* DIAGNOSTICS
-/*	Problems are reported to the standard error stream.
+/*    Problems are reported to the standard error stream.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -41,7 +41,7 @@ int     main(void)
     int     type;
 
     while ((type = rec_streamlf_get(VSTREAM_IN, buf, 150)) > 0)
-	REC_PUT_BUF(VSTREAM_OUT, type, buf);
+    REC_PUT_BUF(VSTREAM_OUT, type, buf);
     vstream_fflush(VSTREAM_OUT);
     return (0);
 }

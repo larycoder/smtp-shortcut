@@ -1,94 +1,94 @@
 /*++
 /* NAME
-/*	tls_proxy_client_scan 3
+/*    tls_proxy_client_scan 3
 /* SUMMARY
-/*	read TLS_CLIENT_XXX structures from stream
+/*    read TLS_CLIENT_XXX structures from stream
 /* SYNOPSIS
-/*	#include <tls_proxy.h>
+/*    #include <tls_proxy.h>
 /*
-/*	int	tls_proxy_client_param_scan(scan_fn, stream, flags, ptr)
-/*	ATTR_SCAN_COMMON_FN scan_fn;
-/*	VSTREAM	*stream;
-/*	int	flags;
-/*	void	*ptr;
+/*    int    tls_proxy_client_param_scan(scan_fn, stream, flags, ptr)
+/*    ATTR_SCAN_COMMON_FN scan_fn;
+/*    VSTREAM    *stream;
+/*    int    flags;
+/*    void    *ptr;
 /*
-/*	void	tls_proxy_client_param_free(params)
-/*	TLS_CLIENT_PARAMS *params;
+/*    void    tls_proxy_client_param_free(params)
+/*    TLS_CLIENT_PARAMS *params;
 /*
-/*	int	tls_proxy_client_init_scan(scan_fn, stream, flags, ptr)
-/*	ATTR_SCAN_COMMON_FN scan_fn;
-/*	VSTREAM	*stream;
-/*	int	flags;
-/*	void	*ptr;
+/*    int    tls_proxy_client_init_scan(scan_fn, stream, flags, ptr)
+/*    ATTR_SCAN_COMMON_FN scan_fn;
+/*    VSTREAM    *stream;
+/*    int    flags;
+/*    void    *ptr;
 /*
-/*	void	tls_proxy_client_init_free(init_props)
-/*	TLS_CLIENT_INIT_PROPS *init_props;
+/*    void    tls_proxy_client_init_free(init_props)
+/*    TLS_CLIENT_INIT_PROPS *init_props;
 /*
-/*	int	tls_proxy_client_start_scan(scan_fn, stream, flags, ptr)
-/*	ATTR_SCAN_COMMON_FN scan_fn;
-/*	VSTREAM	*stream;
-/*	int	flags;
-/*	void	*ptr;
+/*    int    tls_proxy_client_start_scan(scan_fn, stream, flags, ptr)
+/*    ATTR_SCAN_COMMON_FN scan_fn;
+/*    VSTREAM    *stream;
+/*    int    flags;
+/*    void    *ptr;
 /*
-/*	void	tls_proxy_client_start_free(start_props)
-/*	TLS_CLIENT_START_PROPS *start_props;
+/*    void    tls_proxy_client_start_free(start_props)
+/*    TLS_CLIENT_START_PROPS *start_props;
 /* DESCRIPTION
-/*	tls_proxy_client_param_scan() reads a TLS_CLIENT_PARAMS structure from
-/*	the named stream using the specified attribute scan routine.
-/*	tls_proxy_client_param_scan() is meant to be passed as a call-back
-/*	function to attr_scan(), as shown below.
+/*    tls_proxy_client_param_scan() reads a TLS_CLIENT_PARAMS structure from
+/*    the named stream using the specified attribute scan routine.
+/*    tls_proxy_client_param_scan() is meant to be passed as a call-back
+/*    function to attr_scan(), as shown below.
 /*
-/*	tls_proxy_client_param_free() destroys a TLS_CLIENT_PARAMS structure
-/*	that was created by tls_proxy_client_param_scan().
+/*    tls_proxy_client_param_free() destroys a TLS_CLIENT_PARAMS structure
+/*    that was created by tls_proxy_client_param_scan().
 /*
-/*	TLS_CLIENT_PARAMS *param = 0;
-/*	...
-/*	... RECV_ATTR_FUNC(tls_proxy_client_param_scan, (void *) &param)
-/*	...
-/*	if (param != 0)
-/*	    tls_proxy_client_param_free(param);
+/*    TLS_CLIENT_PARAMS *param = 0;
+/*    ...
+/*    ... RECV_ATTR_FUNC(tls_proxy_client_param_scan, (void *) &param)
+/*    ...
+/*    if (param != 0)
+/*        tls_proxy_client_param_free(param);
 /*
-/*	tls_proxy_client_init_scan() reads a full TLS_CLIENT_INIT_PROPS
-/*	structure from the named stream using the specified attribute
-/*	scan routine. tls_proxy_client_init_scan() is meant to be passed
-/*	as a call-back function to attr_scan(), as shown below.
+/*    tls_proxy_client_init_scan() reads a full TLS_CLIENT_INIT_PROPS
+/*    structure from the named stream using the specified attribute
+/*    scan routine. tls_proxy_client_init_scan() is meant to be passed
+/*    as a call-back function to attr_scan(), as shown below.
 /*
-/*	tls_proxy_client_init_free() destroys a TLS_CLIENT_INIT_PROPS
-/*	structure that was created by tls_proxy_client_init_scan().
+/*    tls_proxy_client_init_free() destroys a TLS_CLIENT_INIT_PROPS
+/*    structure that was created by tls_proxy_client_init_scan().
 /*
-/*	TLS_CLIENT_INIT_PROPS *init_props = 0;
-/*	...
-/*	... RECV_ATTR_FUNC(tls_proxy_client_init_scan, (void *) &init_props)
-/*	...
-/*	if (init_props != 0)
-/*	    tls_proxy_client_init_free(init_props);
+/*    TLS_CLIENT_INIT_PROPS *init_props = 0;
+/*    ...
+/*    ... RECV_ATTR_FUNC(tls_proxy_client_init_scan, (void *) &init_props)
+/*    ...
+/*    if (init_props != 0)
+/*        tls_proxy_client_init_free(init_props);
 /*
-/*	tls_proxy_client_start_scan() reads a TLS_CLIENT_START_PROPS
-/*	structure, without the stream of file descriptor members,
-/*	from the named stream using the specified attribute scan
-/*	routine. tls_proxy_client_start_scan() is meant to be passed
-/*	as a call-back function to attr_scan(), as shown below.
+/*    tls_proxy_client_start_scan() reads a TLS_CLIENT_START_PROPS
+/*    structure, without the stream of file descriptor members,
+/*    from the named stream using the specified attribute scan
+/*    routine. tls_proxy_client_start_scan() is meant to be passed
+/*    as a call-back function to attr_scan(), as shown below.
 /*
-/*	tls_proxy_client_start_free() destroys a TLS_CLIENT_START_PROPS
-/*	structure that was created by tls_proxy_client_start_scan().
+/*    tls_proxy_client_start_free() destroys a TLS_CLIENT_START_PROPS
+/*    structure that was created by tls_proxy_client_start_scan().
 /*
-/*	TLS_CLIENT_START_PROPS *start_props = 0;
-/*	...
-/*	... RECV_ATTR_FUNC(tls_proxy_client_start_scan, (void *) &start_props)
-/*	...
-/*	if (start_props != 0)
-/*	    tls_proxy_client_start_free(start_props);
+/*    TLS_CLIENT_START_PROPS *start_props = 0;
+/*    ...
+/*    ... RECV_ATTR_FUNC(tls_proxy_client_start_scan, (void *) &start_props)
+/*    ...
+/*    if (start_props != 0)
+/*        tls_proxy_client_start_free(start_props);
 /* DIAGNOSTICS
-/*	Fatal: out of memory.
+/*    Fatal: out of memory.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 #ifdef USE_TLS
@@ -140,7 +140,7 @@ void    tls_proxy_client_param_free(TLS_CLIENT_PARAMS *params)
 /* tls_proxy_client_param_scan - receive TLS_CLIENT_PARAMS from stream */
 
 int     tls_proxy_client_param_scan(ATTR_SCAN_COMMON_FN scan_fn, VSTREAM *fp,
-				            int flags, void *ptr)
+                            int flags, void *ptr)
 {
     TLS_CLIENT_PARAMS *params
     = (TLS_CLIENT_PARAMS *) mymalloc(sizeof(*params));
@@ -160,37 +160,37 @@ int     tls_proxy_client_param_scan(ATTR_SCAN_COMMON_FN scan_fn, VSTREAM *fp,
     VSTRING *tls_tkt_cipher = vstring_alloc(25);
 
     if (msg_verbose)
-	msg_info("begin tls_proxy_client_param_scan");
+    msg_info("begin tls_proxy_client_param_scan");
 
     /*
      * Note: memset() is not a portable way to initialize non-integer types.
      */
     memset(params, 0, sizeof(*params));
     ret = scan_fn(fp, flags | ATTR_FLAG_MORE,
-		  RECV_ATTR_STR(VAR_TLS_HIGH_CLIST, tls_high_clist),
-		  RECV_ATTR_STR(VAR_TLS_MEDIUM_CLIST, tls_medium_clist),
-		  RECV_ATTR_STR(VAR_TLS_LOW_CLIST, tls_low_clist),
-		  RECV_ATTR_STR(VAR_TLS_EXPORT_CLIST, tls_export_clist),
-		  RECV_ATTR_STR(VAR_TLS_NULL_CLIST, tls_null_clist),
-		  RECV_ATTR_STR(VAR_TLS_EECDH_AUTO, tls_eecdh_auto),
-		  RECV_ATTR_STR(VAR_TLS_EECDH_STRONG, tls_eecdh_strong),
-		  RECV_ATTR_STR(VAR_TLS_EECDH_ULTRA, tls_eecdh_ultra),
-		  RECV_ATTR_STR(VAR_TLS_BUG_TWEAKS, tls_bug_tweaks),
-		  RECV_ATTR_STR(VAR_TLS_SSL_OPTIONS, tls_ssl_options),
-		  RECV_ATTR_STR(VAR_TLS_DANE_DIGESTS, tls_dane_digests),
-		  RECV_ATTR_STR(VAR_TLS_MGR_SERVICE, tls_mgr_service),
-		  RECV_ATTR_STR(VAR_TLS_TKT_CIPHER, tls_tkt_cipher),
-		  RECV_ATTR_INT(VAR_TLS_DAEMON_RAND_BYTES,
-				&params->tls_daemon_rand_bytes),
-		  RECV_ATTR_INT(VAR_TLS_APPEND_DEF_CA,
-				&params->tls_append_def_CA),
-		  RECV_ATTR_INT(VAR_TLS_BC_PKEY_FPRINT,
-				&params->tls_bc_pkey_fprint),
-		  RECV_ATTR_INT(VAR_TLS_PREEMPT_CLIST,
-				&params->tls_preempt_clist),
-		  RECV_ATTR_INT(VAR_TLS_MULTI_WILDCARD,
-				&params->tls_multi_wildcard),
-		  ATTR_TYPE_END);
+          RECV_ATTR_STR(VAR_TLS_HIGH_CLIST, tls_high_clist),
+          RECV_ATTR_STR(VAR_TLS_MEDIUM_CLIST, tls_medium_clist),
+          RECV_ATTR_STR(VAR_TLS_LOW_CLIST, tls_low_clist),
+          RECV_ATTR_STR(VAR_TLS_EXPORT_CLIST, tls_export_clist),
+          RECV_ATTR_STR(VAR_TLS_NULL_CLIST, tls_null_clist),
+          RECV_ATTR_STR(VAR_TLS_EECDH_AUTO, tls_eecdh_auto),
+          RECV_ATTR_STR(VAR_TLS_EECDH_STRONG, tls_eecdh_strong),
+          RECV_ATTR_STR(VAR_TLS_EECDH_ULTRA, tls_eecdh_ultra),
+          RECV_ATTR_STR(VAR_TLS_BUG_TWEAKS, tls_bug_tweaks),
+          RECV_ATTR_STR(VAR_TLS_SSL_OPTIONS, tls_ssl_options),
+          RECV_ATTR_STR(VAR_TLS_DANE_DIGESTS, tls_dane_digests),
+          RECV_ATTR_STR(VAR_TLS_MGR_SERVICE, tls_mgr_service),
+          RECV_ATTR_STR(VAR_TLS_TKT_CIPHER, tls_tkt_cipher),
+          RECV_ATTR_INT(VAR_TLS_DAEMON_RAND_BYTES,
+                &params->tls_daemon_rand_bytes),
+          RECV_ATTR_INT(VAR_TLS_APPEND_DEF_CA,
+                &params->tls_append_def_CA),
+          RECV_ATTR_INT(VAR_TLS_BC_PKEY_FPRINT,
+                &params->tls_bc_pkey_fprint),
+          RECV_ATTR_INT(VAR_TLS_PREEMPT_CLIST,
+                &params->tls_preempt_clist),
+          RECV_ATTR_INT(VAR_TLS_MULTI_WILDCARD,
+                &params->tls_multi_wildcard),
+          ATTR_TYPE_END);
     /* Always construct a well-formed structure. */
     params->tls_high_clist = vstring_export(tls_high_clist);
     params->tls_medium_clist = vstring_export(tls_medium_clist);
@@ -208,12 +208,12 @@ int     tls_proxy_client_param_scan(ATTR_SCAN_COMMON_FN scan_fn, VSTREAM *fp,
 
     ret = (ret == 18 ? 1 : -1);
     if (ret != 1) {
-	tls_proxy_client_param_free(params);
-	params = 0;
+    tls_proxy_client_param_free(params);
+    params = 0;
     }
     *(TLS_CLIENT_PARAMS **) ptr = params;
     if (msg_verbose)
-	msg_info("tls_proxy_client_param_scan ret=%d", ret);
+    msg_info("tls_proxy_client_param_scan ret=%d", ret);
     return (ret);
 }
 
@@ -240,7 +240,7 @@ void    tls_proxy_client_init_free(TLS_CLIENT_INIT_PROPS *props)
 /* tls_proxy_client_init_scan - receive TLS_CLIENT_INIT_PROPS from stream */
 
 int     tls_proxy_client_init_scan(ATTR_SCAN_COMMON_FN scan_fn, VSTREAM *fp,
-				           int flags, void *ptr)
+                           int flags, void *ptr)
 {
     TLS_CLIENT_INIT_PROPS *props
     = (TLS_CLIENT_INIT_PROPS *) mymalloc(sizeof(*props));
@@ -260,28 +260,28 @@ int     tls_proxy_client_init_scan(ATTR_SCAN_COMMON_FN scan_fn, VSTREAM *fp,
     VSTRING *mdalg = vstring_alloc(25);
 
     if (msg_verbose)
-	msg_info("begin tls_proxy_client_init_scan");
+    msg_info("begin tls_proxy_client_init_scan");
 
     /*
      * Note: memset() is not a portable way to initialize non-integer types.
      */
     memset(props, 0, sizeof(*props));
     ret = scan_fn(fp, flags | ATTR_FLAG_MORE,
-		  RECV_ATTR_STR(TLS_ATTR_LOG_PARAM, log_param),
-		  RECV_ATTR_STR(TLS_ATTR_LOG_LEVEL, log_level),
-		  RECV_ATTR_INT(TLS_ATTR_VERIFYDEPTH, &props->verifydepth),
-		  RECV_ATTR_STR(TLS_ATTR_CACHE_TYPE, cache_type),
-		  RECV_ATTR_STR(TLS_ATTR_CHAIN_FILES, chain_files),
-		  RECV_ATTR_STR(TLS_ATTR_CERT_FILE, cert_file),
-		  RECV_ATTR_STR(TLS_ATTR_KEY_FILE, key_file),
-		  RECV_ATTR_STR(TLS_ATTR_DCERT_FILE, dcert_file),
-		  RECV_ATTR_STR(TLS_ATTR_DKEY_FILE, dkey_file),
-		  RECV_ATTR_STR(TLS_ATTR_ECCERT_FILE, eccert_file),
-		  RECV_ATTR_STR(TLS_ATTR_ECKEY_FILE, eckey_file),
-		  RECV_ATTR_STR(TLS_ATTR_CAFILE, CAfile),
-		  RECV_ATTR_STR(TLS_ATTR_CAPATH, CApath),
-		  RECV_ATTR_STR(TLS_ATTR_MDALG, mdalg),
-		  ATTR_TYPE_END);
+          RECV_ATTR_STR(TLS_ATTR_LOG_PARAM, log_param),
+          RECV_ATTR_STR(TLS_ATTR_LOG_LEVEL, log_level),
+          RECV_ATTR_INT(TLS_ATTR_VERIFYDEPTH, &props->verifydepth),
+          RECV_ATTR_STR(TLS_ATTR_CACHE_TYPE, cache_type),
+          RECV_ATTR_STR(TLS_ATTR_CHAIN_FILES, chain_files),
+          RECV_ATTR_STR(TLS_ATTR_CERT_FILE, cert_file),
+          RECV_ATTR_STR(TLS_ATTR_KEY_FILE, key_file),
+          RECV_ATTR_STR(TLS_ATTR_DCERT_FILE, dcert_file),
+          RECV_ATTR_STR(TLS_ATTR_DKEY_FILE, dkey_file),
+          RECV_ATTR_STR(TLS_ATTR_ECCERT_FILE, eccert_file),
+          RECV_ATTR_STR(TLS_ATTR_ECKEY_FILE, eckey_file),
+          RECV_ATTR_STR(TLS_ATTR_CAFILE, CAfile),
+          RECV_ATTR_STR(TLS_ATTR_CAPATH, CApath),
+          RECV_ATTR_STR(TLS_ATTR_MDALG, mdalg),
+          ATTR_TYPE_END);
     /* Always construct a well-formed structure. */
     props->log_param = vstring_export(log_param);
     props->log_level = vstring_export(log_level);
@@ -298,12 +298,12 @@ int     tls_proxy_client_init_scan(ATTR_SCAN_COMMON_FN scan_fn, VSTREAM *fp,
     props->mdalg = vstring_export(mdalg);
     ret = (ret == 14 ? 1 : -1);
     if (ret != 1) {
-	tls_proxy_client_init_free(props);
-	props = 0;
+    tls_proxy_client_init_free(props);
+    props = 0;
     }
     *(TLS_CLIENT_INIT_PROPS **) ptr = props;
     if (msg_verbose)
-	msg_info("tls_proxy_client_init_scan ret=%d", ret);
+    msg_info("tls_proxy_client_init_scan ret=%d", ret);
     return (ret);
 }
 
@@ -321,17 +321,17 @@ void    tls_proxy_client_start_free(TLS_CLIENT_START_PROPS *props)
     myfree((void *) props->cipher_grade);
     myfree((void *) props->cipher_exclusions);
     if (props->matchargv)
-	argv_free((ARGV *) props->matchargv);
+    argv_free((ARGV *) props->matchargv);
     myfree((void *) props->mdalg);
     if (props->dane)
-	tls_dane_free((TLS_DANE *) props->dane);
+    tls_dane_free((TLS_DANE *) props->dane);
     myfree((void *) props);
 }
 
 /* tls_proxy_client_tlsa_scan - receive TLS_TLSA from stream */
 
 static int tls_proxy_client_tlsa_scan(ATTR_SCAN_COMMON_FN scan_fn,
-				          VSTREAM *fp, int flags, void *ptr)
+                          VSTREAM *fp, int flags, void *ptr)
 {
     static VSTRING *data;
     TLS_TLSA *head;
@@ -339,86 +339,86 @@ static int tls_proxy_client_tlsa_scan(ATTR_SCAN_COMMON_FN scan_fn,
     int     ret;
 
     if (data == 0)
-	data = vstring_alloc(64);
+    data = vstring_alloc(64);
 
     ret = scan_fn(fp, flags | ATTR_FLAG_MORE,
-		  RECV_ATTR_INT(TLS_ATTR_COUNT, &count),
-		  ATTR_TYPE_END);
+          RECV_ATTR_INT(TLS_ATTR_COUNT, &count),
+          ATTR_TYPE_END);
     if (ret == 1 && msg_verbose)
-	msg_info("tls_proxy_client_tlsa_scan count=%d", count);
+    msg_info("tls_proxy_client_tlsa_scan count=%d", count);
 
     for (head = 0; ret == 1 && count > 0; --count) {
-	int     u, s, m;
+    int     u, s, m;
 
-	ret = scan_fn(fp, flags | ATTR_FLAG_MORE,
-		      RECV_ATTR_INT(TLS_ATTR_USAGE, &u),
-		      RECV_ATTR_INT(TLS_ATTR_SELECTOR, &s),
-		      RECV_ATTR_INT(TLS_ATTR_MTYPE, &m),
-		      RECV_ATTR_DATA(TLS_ATTR_DATA, data),
-		      ATTR_TYPE_END);
-	if (ret == 4) {
-	    ret = 1;
-	    /* This makes a copy of the static vstring content */
-	    head = tlsa_prepend(head, u, s, m, (unsigned char *) STR(data),
-				LEN(data));
-	} else
-	    ret = -1;
+    ret = scan_fn(fp, flags | ATTR_FLAG_MORE,
+              RECV_ATTR_INT(TLS_ATTR_USAGE, &u),
+              RECV_ATTR_INT(TLS_ATTR_SELECTOR, &s),
+              RECV_ATTR_INT(TLS_ATTR_MTYPE, &m),
+              RECV_ATTR_DATA(TLS_ATTR_DATA, data),
+              ATTR_TYPE_END);
+    if (ret == 4) {
+        ret = 1;
+        /* This makes a copy of the static vstring content */
+        head = tlsa_prepend(head, u, s, m, (unsigned char *) STR(data),
+                LEN(data));
+    } else
+        ret = -1;
     }
 
     if (ret != 1) {
-	tls_tlsa_free(head);
-	head = 0;
+    tls_tlsa_free(head);
+    head = 0;
     }
     *(TLS_TLSA **) ptr = head;
     if (msg_verbose)
-	msg_info("tls_proxy_client_tlsa_scan ret=%d", ret);
+    msg_info("tls_proxy_client_tlsa_scan ret=%d", ret);
     return (ret);
 }
 
 /* tls_proxy_client_dane_scan - receive TLS_DANE from stream */
 
 static int tls_proxy_client_dane_scan(ATTR_SCAN_COMMON_FN scan_fn,
-				          VSTREAM *fp, int flags, void *ptr)
+                          VSTREAM *fp, int flags, void *ptr)
 {
     TLS_DANE *dane = 0;
     int     ret;
     int     have_dane = 0;
 
     ret = scan_fn(fp, flags | ATTR_FLAG_MORE,
-		  RECV_ATTR_INT(TLS_ATTR_DANE, &have_dane),
-		  ATTR_TYPE_END);
+          RECV_ATTR_INT(TLS_ATTR_DANE, &have_dane),
+          ATTR_TYPE_END);
     if (msg_verbose)
-	msg_info("tls_proxy_client_dane_scan have_dane=%d", have_dane);
+    msg_info("tls_proxy_client_dane_scan have_dane=%d", have_dane);
 
     if (ret == 1 && have_dane) {
-	VSTRING *base_domain = vstring_alloc(25);
+    VSTRING *base_domain = vstring_alloc(25);
 
-	dane = tls_dane_alloc();
-	/* We only need the base domain and TLSA RRs */
-	ret = scan_fn(fp, flags | ATTR_FLAG_MORE,
-		      RECV_ATTR_STR(TLS_ATTR_DOMAIN, base_domain),
-		      RECV_ATTR_FUNC(tls_proxy_client_tlsa_scan,
-				     &dane->tlsa),
-		      ATTR_TYPE_END);
+    dane = tls_dane_alloc();
+    /* We only need the base domain and TLSA RRs */
+    ret = scan_fn(fp, flags | ATTR_FLAG_MORE,
+              RECV_ATTR_STR(TLS_ATTR_DOMAIN, base_domain),
+              RECV_ATTR_FUNC(tls_proxy_client_tlsa_scan,
+                     &dane->tlsa),
+              ATTR_TYPE_END);
 
-	/* Always construct a well-formed structure. */
-	dane->base_domain = vstring_export(base_domain);
-	ret = (ret == 2 ? 1 : -1);
-	if (ret != 1) {
-	    tls_dane_free(dane);
-	    dane = 0;
-	}
+    /* Always construct a well-formed structure. */
+    dane->base_domain = vstring_export(base_domain);
+    ret = (ret == 2 ? 1 : -1);
+    if (ret != 1) {
+        tls_dane_free(dane);
+        dane = 0;
+    }
     }
     *(TLS_DANE **) ptr = dane;
     if (msg_verbose)
-	msg_info("tls_proxy_client_dane_scan ret=%d", ret);
+    msg_info("tls_proxy_client_dane_scan ret=%d", ret);
     return (ret);
 }
 
 /* tls_proxy_client_start_scan - receive TLS_CLIENT_START_PROPS from stream */
 
 int     tls_proxy_client_start_scan(ATTR_SCAN_COMMON_FN scan_fn, VSTREAM *fp,
-				            int flags, void *ptr)
+                            int flags, void *ptr)
 {
     TLS_CLIENT_START_PROPS *props
     = (TLS_CLIENT_START_PROPS *) mymalloc(sizeof(*props));
@@ -435,7 +435,7 @@ int     tls_proxy_client_start_scan(ATTR_SCAN_COMMON_FN scan_fn, VSTREAM *fp,
     VSTRING *mdalg = vstring_alloc(25);
 
     if (msg_verbose)
-	msg_info("begin tls_proxy_client_start_scan");
+    msg_info("begin tls_proxy_client_start_scan");
 
     /*
      * Note: memset() is not a portable way to initialize non-integer types.
@@ -444,25 +444,25 @@ int     tls_proxy_client_start_scan(ATTR_SCAN_COMMON_FN scan_fn, VSTREAM *fp,
     props->ctx = 0;
     props->stream = 0;
     props->fd = -1;
-    props->dane = 0;				/* scan_fn may return early */
+    props->dane = 0;                /* scan_fn may return early */
     ret = scan_fn(fp, flags | ATTR_FLAG_MORE,
-		  RECV_ATTR_INT(TLS_ATTR_TIMEOUT, &props->timeout),
-		  RECV_ATTR_INT(TLS_ATTR_TLS_LEVEL, &props->tls_level),
-		  RECV_ATTR_STR(TLS_ATTR_NEXTHOP, nexthop),
-		  RECV_ATTR_STR(TLS_ATTR_HOST, host),
-		  RECV_ATTR_STR(TLS_ATTR_NAMADDR, namaddr),
-		  RECV_ATTR_STR(TLS_ATTR_SNI, sni),
-		  RECV_ATTR_STR(TLS_ATTR_SERVERID, serverid),
-		  RECV_ATTR_STR(TLS_ATTR_HELO, helo),
-		  RECV_ATTR_STR(TLS_ATTR_PROTOCOLS, protocols),
-		  RECV_ATTR_STR(TLS_ATTR_CIPHER_GRADE, cipher_grade),
-		  RECV_ATTR_STR(TLS_ATTR_CIPHER_EXCLUSIONS,
-				cipher_exclusions),
-		  RECV_ATTR_FUNC(argv_attr_scan, &props->matchargv),
-		  RECV_ATTR_STR(TLS_ATTR_MDALG, mdalg),
-		  RECV_ATTR_FUNC(tls_proxy_client_dane_scan,
-				 &props->dane),
-		  ATTR_TYPE_END);
+          RECV_ATTR_INT(TLS_ATTR_TIMEOUT, &props->timeout),
+          RECV_ATTR_INT(TLS_ATTR_TLS_LEVEL, &props->tls_level),
+          RECV_ATTR_STR(TLS_ATTR_NEXTHOP, nexthop),
+          RECV_ATTR_STR(TLS_ATTR_HOST, host),
+          RECV_ATTR_STR(TLS_ATTR_NAMADDR, namaddr),
+          RECV_ATTR_STR(TLS_ATTR_SNI, sni),
+          RECV_ATTR_STR(TLS_ATTR_SERVERID, serverid),
+          RECV_ATTR_STR(TLS_ATTR_HELO, helo),
+          RECV_ATTR_STR(TLS_ATTR_PROTOCOLS, protocols),
+          RECV_ATTR_STR(TLS_ATTR_CIPHER_GRADE, cipher_grade),
+          RECV_ATTR_STR(TLS_ATTR_CIPHER_EXCLUSIONS,
+                cipher_exclusions),
+          RECV_ATTR_FUNC(argv_attr_scan, &props->matchargv),
+          RECV_ATTR_STR(TLS_ATTR_MDALG, mdalg),
+          RECV_ATTR_FUNC(tls_proxy_client_dane_scan,
+                 &props->dane),
+          ATTR_TYPE_END);
     /* Always construct a well-formed structure. */
     props->nexthop = vstring_export(nexthop);
     props->host = vstring_export(host);
@@ -476,12 +476,12 @@ int     tls_proxy_client_start_scan(ATTR_SCAN_COMMON_FN scan_fn, VSTREAM *fp,
     props->mdalg = vstring_export(mdalg);
     ret = (ret == 14 ? 1 : -1);
     if (ret != 1) {
-	tls_proxy_client_start_free(props);
-	props = 0;
+    tls_proxy_client_start_free(props);
+    props = 0;
     }
     *(TLS_CLIENT_START_PROPS **) ptr = props;
     if (msg_verbose)
-	msg_info("tls_proxy_client_start_scan ret=%d", ret);
+    msg_info("tls_proxy_client_start_scan ret=%d", ret);
     return (ret);
 }
 

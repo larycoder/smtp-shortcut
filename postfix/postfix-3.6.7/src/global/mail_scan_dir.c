@@ -1,28 +1,28 @@
 /*++
 /* NAME
-/*	mail_scan_dir 3
+/*    mail_scan_dir 3
 /* SUMMARY
-/*	mail queue directory scanning support
+/*    mail queue directory scanning support
 /* SYNOPSIS
-/*	#include <mail_scan_dir.h>
+/*    #include <mail_scan_dir.h>
 /*
-/*	char	*mail_scan_dir_next(scan)
-/*	SCAN_DIR *scan;
+/*    char    *mail_scan_dir_next(scan)
+/*    SCAN_DIR *scan;
 /* DESCRIPTION
-/*	The \fBmail_scan_dir_next\fR() routine is a wrapper around
-/*	scan_dir_next() that understands the structure of a Postfix
-/*	mail queue.  The result is a queue ID or a null pointer.
+/*    The \fBmail_scan_dir_next\fR() routine is a wrapper around
+/*    scan_dir_next() that understands the structure of a Postfix
+/*    mail queue.  The result is a queue ID or a null pointer.
 /* SEE ALSO
-/*	scan_dir(3) directory scanner
+/*    scan_dir(3) directory scanner
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -50,13 +50,13 @@ char   *mail_scan_dir_next(SCAN_DIR *scan)
      * many dirent implementations do not return file type information.
      */
     for (;;) {
-	if ((name = scan_dir_next(scan)) == 0) {
-	    if (scan_dir_pop(scan) == 0)
-		return (0);
-	} else if (strlen(name) == 1) {
-	    scan_dir_push(scan, name);
-	} else {
-	    return (name);
-	}
+    if ((name = scan_dir_next(scan)) == 0) {
+        if (scan_dir_pop(scan) == 0)
+        return (0);
+    } else if (strlen(name) == 1) {
+        scan_dir_push(scan, name);
+    } else {
+        return (name);
+    }
     }
 }

@@ -1,58 +1,58 @@
 /*++
 /* NAME
-/*	tls_prng_dev 3
+/*    tls_prng_dev 3
 /* SUMMARY
-/*	seed OpenSSL PRNG from entropy device
+/*    seed OpenSSL PRNG from entropy device
 /* SYNOPSIS
-/*	#include <tls_prng_src.h>
+/*    #include <tls_prng_src.h>
 /*
-/*	TLS_PRNG_SRC *tls_prng_dev_open(name, timeout)
-/*	const char *name;
-/*	int	timeout;
+/*    TLS_PRNG_SRC *tls_prng_dev_open(name, timeout)
+/*    const char *name;
+/*    int    timeout;
 /*
-/*	ssize_t tls_prng_dev_read(dev, length)
-/*	TLS_PRNG_SRC *dev;
-/*	size_t length;
+/*    ssize_t tls_prng_dev_read(dev, length)
+/*    TLS_PRNG_SRC *dev;
+/*    size_t length;
 /*
-/*	int	tls_prng_dev_close(dev)
-/*	TLS_PRNG_SRC *dev;
+/*    int    tls_prng_dev_close(dev)
+/*    TLS_PRNG_SRC *dev;
 /* DESCRIPTION
-/*	tls_prng_dev_open() opens the specified entropy device
-/*	and returns a handle that should be used with all subsequent
-/*	access.
+/*    tls_prng_dev_open() opens the specified entropy device
+/*    and returns a handle that should be used with all subsequent
+/*    access.
 /*
-/*	tls_prng_dev_read() reads the requested number of bytes from
-/*	the entropy device and updates the OpenSSL PRNG.
+/*    tls_prng_dev_read() reads the requested number of bytes from
+/*    the entropy device and updates the OpenSSL PRNG.
 /*
-/*	tls_prng_dev_close() closes the specified entropy device
-/*	and releases memory that was allocated for the handle.
+/*    tls_prng_dev_close() closes the specified entropy device
+/*    and releases memory that was allocated for the handle.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP name
-/*	The pathname of the entropy device.
+/*    The pathname of the entropy device.
 /* .IP length
-/*	The number of bytes to read from the entropy device.
-/*	Request lengths will be truncated at 255 bytes.
+/*    The number of bytes to read from the entropy device.
+/*    Request lengths will be truncated at 255 bytes.
 /* .IP timeout
-/*	Time limit on individual I/O operations.
+/*    Time limit on individual I/O operations.
 /* DIAGNOSTICS
-/*	tls_prng_dev_open() returns a null pointer on error.
+/*    tls_prng_dev_open() returns a null pointer on error.
 /*
-/*	tls_prng_dev_read() returns -1 on error, the number
-/*	of bytes received on success.
+/*    tls_prng_dev_read() returns -1 on error, the number
+/*    of bytes received on success.
 /*
-/*	tls_prng_dev_close() returns -1 on error, 0 on success.
+/*    tls_prng_dev_close() returns -1 on error, 0 on success.
 /*
-/*	In all cases the errno variable indicates the type of error.
+/*    In all cases the errno variable indicates the type of error.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -70,7 +70,7 @@
 /* OpenSSL library. */
 
 #ifdef USE_TLS
-#include <openssl/rand.h>		/* For the PRNG */
+#include <openssl/rand.h>        /* For the PRNG */
 
 /* Utility library. */
 
@@ -92,17 +92,17 @@ TLS_PRNG_SRC *tls_prng_dev_open(const char *name, int timeout)
     int     fd;
 
     if ((fd = open(name, O_RDONLY, 0)) < 0) {
-	if (msg_verbose)
-	    msg_info("%s: cannot open entropy device %s: %m", myname, name);
-	return (0);
+    if (msg_verbose)
+        msg_info("%s: cannot open entropy device %s: %m", myname, name);
+    return (0);
     } else {
-	dev = (TLS_PRNG_SRC *) mymalloc(sizeof(*dev));
-	dev->fd = fd;
-	dev->name = mystrdup(name);
-	dev->timeout = timeout;
-	if (msg_verbose)
-	    msg_info("%s: opened entropy device %s", myname, name);
-	return (dev);
+    dev = (TLS_PRNG_SRC *) mymalloc(sizeof(*dev));
+    dev->fd = fd;
+    dev->name = mystrdup(name);
+    dev->timeout = timeout;
+    if (msg_verbose)
+        msg_info("%s: opened entropy device %s", myname, name);
+    return (dev);
     }
 }
 
@@ -116,23 +116,23 @@ ssize_t tls_prng_dev_read(TLS_PRNG_SRC *dev, size_t len)
     size_t  rand_bytes;
 
     if (len <= 0)
-	msg_panic("%s: bad read length: %ld", myname, (long) len);
+    msg_panic("%s: bad read length: %ld", myname, (long) len);
 
     if (len > sizeof(buffer))
-	rand_bytes = sizeof(buffer);
+    rand_bytes = sizeof(buffer);
     else
-	rand_bytes = len;
+    rand_bytes = len;
     errno = 0;
     count = timed_read(dev->fd, buffer, rand_bytes, dev->timeout, (void *) 0);
     if (count > 0) {
-	if (msg_verbose)
-	    msg_info("%s: read %ld bytes from entropy device %s",
-		     myname, (long) count, dev->name);
-	RAND_seed(buffer, count);
+    if (msg_verbose)
+        msg_info("%s: read %ld bytes from entropy device %s",
+             myname, (long) count, dev->name);
+    RAND_seed(buffer, count);
     } else {
-	if (msg_verbose)
-	    msg_info("%s: cannot read %ld bytes from entropy device %s: %m",
-		     myname, (long) rand_bytes, dev->name);
+    if (msg_verbose)
+        msg_info("%s: cannot read %ld bytes from entropy device %s: %m",
+             myname, (long) rand_bytes, dev->name);
     }
     return (count);
 }
@@ -145,7 +145,7 @@ int     tls_prng_dev_close(TLS_PRNG_SRC *dev)
     int     err;
 
     if (msg_verbose)
-	msg_info("%s: close entropy device %s", myname, dev->name);
+    msg_info("%s: close entropy device %s", myname, dev->name);
     err = close(dev->fd);
     myfree(dev->name);
     myfree((void *) dev);

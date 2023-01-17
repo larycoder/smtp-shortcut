@@ -1,44 +1,44 @@
 /*++
 /* NAME
-/*	dummy_write 3
+/*    dummy_write 3
 /* SUMMARY
-/*	dummy write operation
+/*    dummy write operation
 /* SYNOPSIS
-/*	#include <iostuff.h>
+/*    #include <iostuff.h>
 /*
-/*	ssize_t	dummy_write(fd, buf, buf_len, timeout, context)
-/*	int	fd;
-/*	void	*buf;
-/*	size_t	len;
-/*	int	timeout;
-/*	void	*context;
+/*    ssize_t    dummy_write(fd, buf, buf_len, timeout, context)
+/*    int    fd;
+/*    void    *buf;
+/*    size_t    len;
+/*    int    timeout;
+/*    void    *context;
 /* DESCRIPTION
-/*	dummy_write() implements a data sink without side effects.
+/*    dummy_write() implements a data sink without side effects.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP fd
-/*	File descriptor whose value is logged when verbose logging
-/*	is turned on.
+/*    File descriptor whose value is logged when verbose logging
+/*    is turned on.
 /* .IP buf
-/*	Write buffer pointer. Not used.
+/*    Write buffer pointer. Not used.
 /* .IP buf_len
-/*	Write buffer size. Its value is logged when verbose logging is
-/*	turned on.
+/*    Write buffer size. Its value is logged when verbose logging is
+/*    turned on.
 /* .IP timeout
-/*	The deadline in seconds. Not used.
+/*    The deadline in seconds. Not used.
 /* .IP context
-/*	Application context. Not used.
+/*    Application context. Not used.
 /* DIAGNOSTICS
-/*	None.
+/*    None.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -53,9 +53,9 @@
 /* dummy_write - dummy write operation */
 
 ssize_t dummy_write(int fd, void *unused_buf, size_t len,
-		            int unused_timeout, void *unused_context)
+                    int unused_timeout, void *unused_context)
 {
     if (msg_verbose)
-	msg_info("dummy_write: fd %d, len %lu", fd, (unsigned long) len);
+    msg_info("dummy_write: fd %d, len %lu", fd, (unsigned long) len);
     return (len);
 }

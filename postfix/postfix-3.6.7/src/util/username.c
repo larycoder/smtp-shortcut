@@ -1,26 +1,26 @@
 /*++
 /* NAME
-/*	username 3
+/*    username 3
 /* SUMMARY
-/*	lookup name of real user
+/*    lookup name of real user
 /* SYNOPSIS
-/*	#include <username.h>
+/*    #include <username.h>
 /*
-/*	const char *username()
+/*    const char *username()
 /* DESCRIPTION
-/*	username() jumps whatever system-specific hoops it takes to
-/*	get the name of the user who started the process. The result
-/*	is volatile. Make a copy if it is to be used for an appreciable
-/*	amount of time.
+/*    username() jumps whatever system-specific hoops it takes to
+/*    get the name of the user who started the process. The result
+/*    is volatile. Make a copy if it is to be used for an appreciable
+/*    amount of time.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -42,6 +42,6 @@ const char *username(void)
 
     uid = getuid();
     if ((pwd = getpwuid(uid)) == 0)
-	return (0);
+    return (0);
     return (pwd->pw_name);
 }

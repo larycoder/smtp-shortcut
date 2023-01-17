@@ -1,35 +1,35 @@
 /*++
 /* NAME
-/*	unix_dgram_listen 3
+/*    unix_dgram_listen 3
 /* SUMMARY
-/*	listen to UNIX-domain datagram server
+/*    listen to UNIX-domain datagram server
 /* SYNOPSIS
-/*	#include <listen.h>
+/*    #include <listen.h>
 /*
-/*	int	unix_dgram_listen(
-/*	const char *path,
-/*	int	block_mode)
+/*    int    unix_dgram_listen(
+/*    const char *path,
+/*    int    block_mode)
 /* DESCRIPTION
-/*	unix_dgram_listen() binds to the specified UNIX-domain
-/*	datagram endpoint, and returns the resulting file descriptor.
+/*    unix_dgram_listen() binds to the specified UNIX-domain
+/*    datagram endpoint, and returns the resulting file descriptor.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP path
-/*	Null-terminated string with connection destination.
+/*    Null-terminated string with connection destination.
 /* .IP backlog
-/*	Either NON_BLOCKING for a non-blocking socket, or BLOCKING for
-/*	blocking mode.
+/*    Either NON_BLOCKING for a non-blocking socket, or BLOCKING for
+/*    blocking mode.
 /* DIAGNOSIICS
-/*	Fatal errors: path too large, can't create socket.
+/*    Fatal errors: path too large, can't create socket.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
  /*
@@ -64,7 +64,7 @@ int     unix_dgram_listen(const char *path, int block_mode)
      * Translate address information to internal form.
      */
     if ((path_len = strlen(path)) >= sizeof(sun.sun_path))
-	msg_fatal("%s: unix-domain name too long: %s", myname, path);
+    msg_fatal("%s: unix-domain name too long: %s", myname, path);
     memset((void *) &sun, 0, sizeof(sun));
     sun.sun_family = AF_UNIX;
 #ifdef HAS_SUN_LEN
@@ -76,7 +76,7 @@ int     unix_dgram_listen(const char *path, int block_mode)
      * Create a 'server' socket.
      */
     if ((sock = socket(AF_UNIX, SOCK_DGRAM, 0)) < 0)
-	msg_fatal("%s: socket: %m", myname);
+    msg_fatal("%s: socket: %m", myname);
     if (unlink(path) < 0 && errno != ENOENT) 
         msg_fatal( "remove %s: %m", path);
     if (bind(sock, (struct sockaddr *) & sun, sizeof(sun)) < 0) 

@@ -1,34 +1,34 @@
 /*++
 /* NAME
-/*	rand_sleep 3
+/*    rand_sleep 3
 /* SUMMARY
-/*	sleep for randomized interval
+/*    sleep for randomized interval
 /* SYNOPSIS
-/*	#include <iostuff.h>
+/*    #include <iostuff.h>
 /*
-/*	void	rand_sleep(delay, variation)
-/*	unsigned delay;
-/*	unsigned variation;
+/*    void    rand_sleep(delay, variation)
+/*    unsigned delay;
+/*    unsigned variation;
 /* DESCRIPTION
-/*	rand_sleep() blocks the current process for an amount of time
-/*	pseudo-randomly chosen from the interval (delay +- variation/2).
+/*    rand_sleep() blocks the current process for an amount of time
+/*    pseudo-randomly chosen from the interval (delay +- variation/2).
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP delay
-/*	Time to sleep in microseconds.
+/*    Time to sleep in microseconds.
 /* .IP variation
-/*	Variation in microseconds; must not be larger than delay.
+/*    Variation in microseconds; must not be larger than delay.
 /* DIAGNOSTICS
-/*	Panic: interface violation. All system call errors are fatal.
+/*    Panic: interface violation. All system call errors are fatal.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -55,9 +55,9 @@ void    rand_sleep(unsigned delay, unsigned variation)
      * Sanity checks.
      */
     if (delay == 0)
-	msg_panic("%s: bad delay %d", myname, delay);
+    msg_panic("%s: bad delay %d", myname, delay);
     if (variation > delay)
-	msg_panic("%s: bad variation %d", myname, variation);
+    msg_panic("%s: bad variation %d", myname, variation);
 
     /*
      * Use the semi-crappy random number generator.
@@ -77,11 +77,11 @@ int     main(int argc, char **argv)
 
     msg_vstream_init(argv[0], VSTREAM_ERR);
     if (argc != 3)
-	msg_fatal("usage: %s delay variation", argv[0]);
+    msg_fatal("usage: %s delay variation", argv[0]);
     if ((delay = atoi(argv[1])) <= 0)
-	msg_fatal("bad delay: %s", argv[1]);
+    msg_fatal("bad delay: %s", argv[1]);
     if ((variation = atoi(argv[2])) < 0)
-	msg_fatal("bad variation: %s", argv[2]);
+    msg_fatal("bad variation: %s", argv[2]);
     rand_sleep(delay * 1000000, variation * 1000000);
     exit(0);
 }

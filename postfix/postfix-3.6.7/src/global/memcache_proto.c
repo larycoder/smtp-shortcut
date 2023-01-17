@@ -1,49 +1,49 @@
 /*++
 /* NAME
-/*	memcache_proto 3
+/*    memcache_proto 3
 /* SUMMARY
-/*	memcache low-level protocol
+/*    memcache low-level protocol
 /* SYNOPSIS
-/*	#include <memcache_proto.h>
+/*    #include <memcache_proto.h>
 /*
-/*	int	memcache_get(fp, buf, len)
-/*	VSTREAM	*fp;
-/*	VSTRING	*buf;
-/*	ssize_t	len;
+/*    int    memcache_get(fp, buf, len)
+/*    VSTREAM    *fp;
+/*    VSTRING    *buf;
+/*    ssize_t    len;
 /*
-/*	int	memcache_printf(fp, format, ...)
-/*	VSTREAM	*fp;
-/*	const char *format;
+/*    int    memcache_printf(fp, format, ...)
+/*    VSTREAM    *fp;
+/*    const char *format;
 /*
-/*	int	memcache_vprintf(fp, format, ap)
-/*	VSTREAM	*fp;
-/*	const char *format;
-/*	va_list	ap;
+/*    int    memcache_vprintf(fp, format, ap)
+/*    VSTREAM    *fp;
+/*    const char *format;
+/*    va_list    ap;
 /*
-/*	int	memcache_fread(fp, buf, len)
-/*	VSTREAM	*fp;
-/*	VSTRING	*buf;
-/*	ssize_t	len;
+/*    int    memcache_fread(fp, buf, len)
+/*    VSTREAM    *fp;
+/*    VSTRING    *buf;
+/*    ssize_t    len;
 /*
-/*	int	memcache_fwrite(fp, buf, len)
-/*	VSTREAM	*fp;
-/*	const char *buf;
-/*	ssize_t	len;
+/*    int    memcache_fwrite(fp, buf, len)
+/*    VSTREAM    *fp;
+/*    const char *buf;
+/*    ssize_t    len;
 /* DESCRIPTION
-/*	This module implements the low-level memcache protocol.
-/*	All functions return -1 on error and 0 on succcess.
+/*    This module implements the low-level memcache protocol.
+/*    All functions return -1 on error and 0 on succcess.
 /* SEE ALSO
-/*	smtp_proto(3) SMTP low-level protocol.
+/*    smtp_proto(3) SMTP low-level protocol.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 #include <sys_defs.h>
@@ -71,43 +71,43 @@ int     memcache_get(VSTREAM *stream, VSTRING *vp, ssize_t bound)
     int     next_char;
 
     last_char = (bound == 0 ? vstring_get(vp, stream) :
-		 vstring_get_bound(vp, stream, bound));
+         vstring_get_bound(vp, stream, bound));
 
     switch (last_char) {
 
-	/*
-	 * Do some repair in the rare case that we stopped reading in the
-	 * middle of the CRLF record terminator.
-	 */
+    /*
+     * Do some repair in the rare case that we stopped reading in the
+     * middle of the CRLF record terminator.
+     */
     case '\r':
-	if ((next_char = VSTREAM_GETC(stream)) == '\n') {
-	    VSTRING_ADDCH(vp, '\n');
-	    /* FALLTRHOUGH */
-	} else {
-	    if (next_char != VSTREAM_EOF)
-		vstream_ungetc(stream, next_char);
+    if ((next_char = VSTREAM_GETC(stream)) == '\n') {
+        VSTRING_ADDCH(vp, '\n');
+        /* FALLTRHOUGH */
+    } else {
+        if (next_char != VSTREAM_EOF)
+        vstream_ungetc(stream, next_char);
 
-	    /*
-	     * Input too long, or EOF
-	     */
+        /*
+         * Input too long, or EOF
+         */
     default:
-	    if (msg_verbose)
-		msg_info("%s got %s", VSTREAM_PATH(stream),
-			 LEN(vp) < bound ? "EOF" : "input too long");
-	    return (-1);
-	}
+        if (msg_verbose)
+        msg_info("%s got %s", VSTREAM_PATH(stream),
+             LEN(vp) < bound ? "EOF" : "input too long");
+        return (-1);
+    }
 
-	/*
-	 * Strip off the record terminator: either CRLF or just bare LF.
-	 */
+    /*
+     * Strip off the record terminator: either CRLF or just bare LF.
+     */
     case '\n':
-	vstring_truncate(vp, VSTRING_LEN(vp) - 1);
-	if (VSTRING_LEN(vp) > 0 && vstring_end(vp)[-1] == '\r')
-	    vstring_truncate(vp, VSTRING_LEN(vp) - 1);
-	VSTRING_TERMINATE(vp);
-	if (msg_verbose)
-	    msg_info("%s got: %s", VSTREAM_PATH(stream), STR(vp));
-	return (0);
+    vstring_truncate(vp, VSTRING_LEN(vp) - 1);
+    if (VSTRING_LEN(vp) > 0 && vstring_end(vp)[-1] == '\r')
+        vstring_truncate(vp, VSTRING_LEN(vp) - 1);
+    VSTRING_TERMINATE(vp);
+    if (msg_verbose)
+        msg_info("%s got: %s", VSTREAM_PATH(stream), STR(vp));
+    return (0);
     }
 }
 
@@ -120,18 +120,18 @@ int     memcache_fwrite(VSTREAM *stream, const char *cp, ssize_t todo)
      * Sanity check.
      */
     if (todo < 0)
-	msg_panic("memcache_fwrite: negative todo %ld", (long) todo);
+    msg_panic("memcache_fwrite: negative todo %ld", (long) todo);
 
     /*
      * Do the I/O.
      */
     if (msg_verbose)
-	msg_info("%s write: %.*s", VSTREAM_PATH(stream), (int) todo, cp);
+    msg_info("%s write: %.*s", VSTREAM_PATH(stream), (int) todo, cp);
     if (vstream_fwrite(stream, cp, todo) != todo
-	|| vstream_fputs("\r\n", stream) == VSTREAM_EOF)
-	return (-1);
+    || vstream_fputs("\r\n", stream) == VSTREAM_EOF)
+    return (-1);
     else
-	return (0);
+    return (0);
 }
 
 /* memcache_fread - read one blob from peer */
@@ -143,22 +143,22 @@ int     memcache_fread(VSTREAM *stream, VSTRING *buf, ssize_t todo)
      * Sanity check.
      */
     if (todo < 0)
-	msg_panic("memcache_fread: negative todo %ld", (long) todo);
+    msg_panic("memcache_fread: negative todo %ld", (long) todo);
 
     /*
      * Do the I/O.
      */
     if (vstream_fread_buf(stream, buf, todo) != todo
-	|| VSTREAM_GETC(stream) != '\r'
-	|| VSTREAM_GETC(stream) != '\n') {
-	if (msg_verbose)
-	    msg_info("%s read: error", VSTREAM_PATH(stream));
-	return (-1);
+    || VSTREAM_GETC(stream) != '\r'
+    || VSTREAM_GETC(stream) != '\n') {
+    if (msg_verbose)
+        msg_info("%s read: error", VSTREAM_PATH(stream));
+    return (-1);
     } else {
-	VSTRING_TERMINATE(buf);
-	if (msg_verbose)
-	    msg_info("%s read: %s", VSTREAM_PATH(stream), STR(buf));
-	return (0);
+    VSTRING_TERMINATE(buf);
+    if (msg_verbose)
+        msg_info("%s read: %s", VSTREAM_PATH(stream), STR(buf));
+    return (0);
     }
 }
 
@@ -173,9 +173,9 @@ int     memcache_vprintf(VSTREAM *stream, const char *fmt, va_list ap)
     vstream_vfprintf(stream, fmt, ap);
     vstream_fputs("\r\n", stream);
     if (vstream_ferror(stream))
-	return (-1);
+    return (-1);
     else
-	return (0);
+    return (0);
 }
 
 /* memcache_printf - write one line to peer */
@@ -188,14 +188,14 @@ int     memcache_printf(VSTREAM *stream, const char *fmt,...)
     va_start(ap, fmt);
 
     if (msg_verbose) {
-	VSTRING *buf = vstring_alloc(100);
-	va_list ap2;
+    VSTRING *buf = vstring_alloc(100);
+    va_list ap2;
 
-	VA_COPY(ap2, ap);
-	vstring_vsprintf(buf, fmt, ap2);
-	va_end(ap2);
-	msg_info("%s write: %s", VSTREAM_PATH(stream), STR(buf));
-	vstring_free(buf);
+    VA_COPY(ap2, ap);
+    vstring_vsprintf(buf, fmt, ap2);
+    va_end(ap2);
+    msg_info("%s write: %s", VSTREAM_PATH(stream), STR(buf));
+    vstring_free(buf);
     }
 
     /*

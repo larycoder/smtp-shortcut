@@ -1,33 +1,33 @@
 /*++
 /* NAME
-/*	mkmap_sdbm 3
+/*    mkmap_sdbm 3
 /* SUMMARY
-/*	create or open database, SDBM style
+/*    create or open database, SDBM style
 /* SYNOPSIS
-/*	#include <mkmap.h>
+/*    #include <mkmap.h>
 /*
-/*	MKMAP	*mkmap_sdbm_open(path)
-/*	const char *path;
+/*    MKMAP    *mkmap_sdbm_open(path)
+/*    const char *path;
 /* DESCRIPTION
-/*	This module implements support for creating SDBM databases.
+/*    This module implements support for creating SDBM databases.
 /*
-/*	mkmap_sdbm_open() takes a file name, appends the ".dir" and ".pag"
-/*	suffixes, and creates or opens the named SDBM database.
-/*	This routine is a SDBM-specific helper for the more general
-/*	mkmap_open() routine.
+/*    mkmap_sdbm_open() takes a file name, appends the ".dir" and ".pag"
+/*    suffixes, and creates or opens the named SDBM database.
+/*    This routine is a SDBM-specific helper for the more general
+/*    mkmap_open() routine.
 /*
-/*	All errors are fatal.
+/*    All errors are fatal.
 /* SEE ALSO
-/*	dict_sdbm(3), SDBM dictionary interface.
+/*    dict_sdbm(3), SDBM dictionary interface.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -53,9 +53,9 @@
 #include <sdbm.h>
 
 typedef struct MKMAP_SDBM {
-    MKMAP   mkmap;			/* parent class */
-    char   *lock_file;			/* path name */
-    int     lock_fd;			/* -1 or open locked file */
+    MKMAP   mkmap;            /* parent class */
+    char   *lock_file;            /* path name */
+    int     lock_fd;            /* -1 or open locked file */
 } MKMAP_SDBM;
 
 /* mkmap_sdbm_after_close - clean up after closing database */
@@ -65,7 +65,7 @@ static void mkmap_sdbm_after_close(MKMAP *mp)
     MKMAP_SDBM *mkmap = (MKMAP_SDBM *) mp;
 
     if (mkmap->lock_fd >= 0 && close(mkmap->lock_fd) < 0)
-	msg_warn("close %s: %m", mkmap->lock_file);
+    msg_warn("close %s: %m", mkmap->lock_file);
     myfree(mkmap->lock_file);
 }
 
@@ -91,13 +91,13 @@ MKMAP  *mkmap_sdbm_open(const char *path)
      * locking.
      */
     if ((mkmap->lock_fd = open(mkmap->lock_file, O_CREAT | O_RDWR, 0644)) < 0)
-	msg_fatal("open %s: %m", mkmap->lock_file);
+    msg_fatal("open %s: %m", mkmap->lock_file);
 
     pag_file = concatenate(path, ".pag", (char *) 0);
     if ((pag_fd = open(pag_file, O_CREAT | O_RDWR, 0644)) < 0)
-	msg_fatal("open %s: %m", pag_file);
+    msg_fatal("open %s: %m", pag_file);
     if (close(pag_fd))
-	msg_warn("close %s: %m", pag_file);
+    msg_warn("close %s: %m", pag_file);
     myfree(pag_file);
 
     /*
@@ -105,7 +105,7 @@ MKMAP  *mkmap_sdbm_open(const char *path)
      * have any spectators.
      */
     if (myflock(mkmap->lock_fd, INTERNAL_LOCK, MYFLOCK_OP_EXCLUSIVE) < 0)
-	msg_fatal("lock %s: %m", mkmap->lock_file);
+    msg_fatal("lock %s: %m", mkmap->lock_file);
 
     return (&mkmap->mkmap);
 }

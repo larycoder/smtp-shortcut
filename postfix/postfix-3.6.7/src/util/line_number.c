@@ -1,37 +1,37 @@
 /*++
 /* NAME
-/*	line_number 3
+/*    line_number 3
 /* SUMMARY
-/*	line number utilities
+/*    line number utilities
 /* SYNOPSIS
-/*	#include <line_number.h>
+/*    #include <line_number.h>
 /*
-/*	char	*format_line_number(result, first, last)
-/*	VSTRING	*buffer;
-/*	ssize_t	first;
-/*	ssize_t	lastl
+/*    char    *format_line_number(result, first, last)
+/*    VSTRING    *buffer;
+/*    ssize_t    first;
+/*    ssize_t    lastl
 /* DESCRIPTION
-/*	format_line_number() formats a line number or number range.
-/*	The output is <first-number>-<last-number> when the numbers
-/*	differ, <first-number> when the numbers are identical.
+/*    format_line_number() formats a line number or number range.
+/*    The output is <first-number>-<last-number> when the numbers
+/*    differ, <first-number> when the numbers are identical.
 /* .IP result
-/*	Result buffer, or null-pointer. In the latter case the
-/*	result is stored in a static buffer that is overwritten
-/*	with subsequent calls. The function result value is a
-/*	pointer into the result buffer.
+/*    Result buffer, or null-pointer. In the latter case the
+/*    result is stored in a static buffer that is overwritten
+/*    with subsequent calls. The function result value is a
+/*    pointer into the result buffer.
 /* .IP first
-/*	First line number.
+/*    First line number.
 /* .IP last
-/*	Last line number.
+/*    Last line number.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
  /*
@@ -55,9 +55,9 @@ char   *format_line_number(VSTRING *result, ssize_t first, ssize_t last)
      * Your buffer or mine?
      */
     if (result == 0) {
-	if (buf == 0)
-	    buf = vstring_alloc(10);
-	result = buf;
+    if (buf == 0)
+        buf = vstring_alloc(10);
+    result = buf;
     }
 
     /*
@@ -65,7 +65,7 @@ char   *format_line_number(VSTRING *result, ssize_t first, ssize_t last)
      */
     vstring_sprintf(result, "%ld", (long) first);
     if (first != last)
-	vstring_sprintf_append(result, "-%ld", (long) last);
+    vstring_sprintf_append(result, "-%ld", (long) last);
 
     return (vstring_str(result));
 }

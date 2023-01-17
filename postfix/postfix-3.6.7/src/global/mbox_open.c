@@ -1,76 +1,76 @@
 /*++
 /* NAME
-/*	mbox_open 3
+/*    mbox_open 3
 /* SUMMARY
-/*	mailbox access
+/*    mailbox access
 /* SYNOPSIS
-/*	#include <mbox_open.h>
+/*    #include <mbox_open.h>
 /*
-/*	typedef struct {
+/*    typedef struct {
 /* .in +4
-/*		/* public members... */
-/*		VSTREAM	*fp;
+/*        /* public members... */
+/*        VSTREAM    *fp;
 /* .in -4
-/*	} MBOX;
+/*    } MBOX;
 /*
-/*	MBOX	*mbox_open(path, flags, mode, st, user, group, lock_style,
-/*				def_dsn, why)
-/*	const char *path;
-/*	int	flags;
-/*	mode_t	mode;
-/*	struct stat *st;
-/*	uid_t	user;
-/*	gid_t	group;
-/*	int	lock_style;
-/*	const char *def_dsn;
-/*	DSN_BUF	*why;
+/*    MBOX    *mbox_open(path, flags, mode, st, user, group, lock_style,
+/*                def_dsn, why)
+/*    const char *path;
+/*    int    flags;
+/*    mode_t    mode;
+/*    struct stat *st;
+/*    uid_t    user;
+/*    gid_t    group;
+/*    int    lock_style;
+/*    const char *def_dsn;
+/*    DSN_BUF    *why;
 /*
-/*	void	mbox_release(mbox)
-/*	MBOX	*mbox;
+/*    void    mbox_release(mbox)
+/*    MBOX    *mbox;
 /*
-/*	const char *mbox_dsn(err, def_dsn)
-/*	int	err;
-/*	const char *def_dsn;
+/*    const char *mbox_dsn(err, def_dsn)
+/*    int    err;
+/*    const char *def_dsn;
 /* DESCRIPTION
-/*	This module manages access to UNIX mailbox-style files.
+/*    This module manages access to UNIX mailbox-style files.
 /*
-/*	mbox_open() acquires exclusive access to the named file.
-/*	The \fBpath, flags, mode, st, user, group, why\fR arguments
-/*	are passed to the \fBsafe_open\fR() routine. Attempts to change
-/*	file ownership will succeed only if the process runs with
-/*	adequate effective privileges.
-/*	The \fBlock_style\fR argument specifies a lock style from
-/*	mbox_lock_mask(). Locks are applied to regular files only.
-/*	The result is a handle that must be destroyed by mbox_release().
-/*	The \fBdef_dsn\fR argument is given to mbox_dsn().
+/*    mbox_open() acquires exclusive access to the named file.
+/*    The \fBpath, flags, mode, st, user, group, why\fR arguments
+/*    are passed to the \fBsafe_open\fR() routine. Attempts to change
+/*    file ownership will succeed only if the process runs with
+/*    adequate effective privileges.
+/*    The \fBlock_style\fR argument specifies a lock style from
+/*    mbox_lock_mask(). Locks are applied to regular files only.
+/*    The result is a handle that must be destroyed by mbox_release().
+/*    The \fBdef_dsn\fR argument is given to mbox_dsn().
 /*
-/*	mbox_release() releases the named mailbox. It is up to the
-/*	application to close the stream.
+/*    mbox_release() releases the named mailbox. It is up to the
+/*    application to close the stream.
 /*
-/*	mbox_dsn() translates an errno value to a mailbox related
-/*	enhanced status code.
+/*    mbox_dsn() translates an errno value to a mailbox related
+/*    enhanced status code.
 /* .IP "EAGAIN, ESTALE"
-/*	These result in a 4.2.0 soft error (mailbox problem).
+/*    These result in a 4.2.0 soft error (mailbox problem).
 /* .IP ENOSPC
-/*	This results in a 4.3.0 soft error (mail system full).
+/*    This results in a 4.3.0 soft error (mail system full).
 /* .IP "EDQUOT, EFBIG"
-/*	These result in a 5.2.2 hard error (mailbox full).
+/*    These result in a 5.2.2 hard error (mailbox full).
 /* .PP
-/*	All other errors are assigned the specified default error
-/*	code. Typically, one would specify 4.2.0 or 5.2.0.
+/*    All other errors are assigned the specified default error
+/*    code. Typically, one would specify 4.2.0 or 5.2.0.
 /* DIAGNOSTICS
-/*	mbox_open() returns a null pointer in case of problems, and
-/*	sets errno to EAGAIN if someone else has exclusive access.
-/*	Other errors are likely to have a more permanent nature.
+/*    mbox_open() returns a null pointer in case of problems, and
+/*    sets errno to EAGAIN if someone else has exclusive access.
+/*    Other errors are likely to have a more permanent nature.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -103,9 +103,9 @@
 /* mbox_open - open mailbox-style file for exclusive access */
 
 MBOX   *mbox_open(const char *path, int flags, mode_t mode, struct stat * st,
-		          uid_t chown_uid, gid_t chown_gid,
-		          int lock_style, const char *def_dsn,
-		          DSN_BUF *why)
+                  uid_t chown_uid, gid_t chown_gid,
+                  int lock_style, const char *def_dsn,
+                  DSN_BUF *why)
 {
     struct stat local_statbuf;
     MBOX   *mp;
@@ -113,7 +113,7 @@ MBOX   *mbox_open(const char *path, int flags, mode_t mode, struct stat * st,
     VSTREAM *fp;
 
     if (st == 0)
-	st = &local_statbuf;
+    st = &local_statbuf;
 
     /*
      * If this is a regular file, create a dotlock file. This locking method
@@ -137,18 +137,18 @@ MBOX   *mbox_open(const char *path, int flags, mode_t mode, struct stat * st,
      * files for /dev/null or other non-file objects.
      */
     if ((lock_style & MBOX_DOT_LOCK)
-	&& (stat(path, st) < 0 || S_ISREG(st->st_mode))) {
-	if (dot_lockfile(path, why->reason) == 0) {
-	    locked |= MBOX_DOT_LOCK;
-	} else if (errno == EEXIST) {
-	    dsb_status(why, mbox_dsn(EAGAIN, def_dsn));
-	    return (0);
-	} else if (lock_style & MBOX_DOT_LOCK_MAY_FAIL) {
-	    msg_warn("%s", vstring_str(why->reason));
-	} else {
-	    dsb_status(why, mbox_dsn(errno, def_dsn));
-	    return (0);
-	}
+    && (stat(path, st) < 0 || S_ISREG(st->st_mode))) {
+    if (dot_lockfile(path, why->reason) == 0) {
+        locked |= MBOX_DOT_LOCK;
+    } else if (errno == EEXIST) {
+        dsb_status(why, mbox_dsn(EAGAIN, def_dsn));
+        return (0);
+    } else if (lock_style & MBOX_DOT_LOCK_MAY_FAIL) {
+        msg_warn("%s", vstring_str(why->reason));
+    } else {
+        dsb_status(why, mbox_dsn(errno, def_dsn));
+        return (0);
+    }
     }
 
     /*
@@ -161,11 +161,11 @@ MBOX   *mbox_open(const char *path, int flags, mode_t mode, struct stat * st,
      * involving non-file targets.
      */
     if ((fp = safe_open(path, flags | O_NONBLOCK, mode, st,
-			chown_uid, chown_gid, why->reason)) == 0) {
-	dsb_status(why, mbox_dsn(errno, def_dsn));
-	if (locked & MBOX_DOT_LOCK)
-	    dot_unlockfile(path);
-	return (0);
+            chown_uid, chown_gid, why->reason)) == 0) {
+    dsb_status(why, mbox_dsn(errno, def_dsn));
+    if (locked & MBOX_DOT_LOCK)
+        dot_unlockfile(path);
+    return (0);
     }
     close_on_exec(vstream_fileno(fp), CLOSE_ON_EXEC);
 
@@ -179,16 +179,16 @@ MBOX   *mbox_open(const char *path, int flags, mode_t mode, struct stat * st,
          || deliver_flock(vstream_fileno(fp), (myflock_style), why->reason) == 0)
 
     if (S_ISREG(st->st_mode)) {
-	if (HUNKY_DORY(MBOX_FLOCK_LOCK, MYFLOCK_STYLE_FLOCK)
-	    && HUNKY_DORY(MBOX_FCNTL_LOCK, MYFLOCK_STYLE_FCNTL)) {
-	    locked |= lock_style;
-	} else {
-	    dsb_status(why, mbox_dsn(errno, def_dsn));
-	    if (locked & MBOX_DOT_LOCK)
-		dot_unlockfile(path);
-	    vstream_fclose(fp);
-	    return (0);
-	}
+    if (HUNKY_DORY(MBOX_FLOCK_LOCK, MYFLOCK_STYLE_FLOCK)
+        && HUNKY_DORY(MBOX_FCNTL_LOCK, MYFLOCK_STYLE_FCNTL)) {
+        locked |= lock_style;
+    } else {
+        dsb_status(why, mbox_dsn(errno, def_dsn));
+        if (locked & MBOX_DOT_LOCK)
+        dot_unlockfile(path);
+        vstream_fclose(fp);
+        return (0);
+    }
     }
 
     /*
@@ -203,14 +203,14 @@ MBOX   *mbox_open(const char *path, int flags, mode_t mode, struct stat * st,
      * count of 1, so any change in this count is a sign of trouble.
      */
     if (S_ISREG(st->st_mode)
-	&& (fstat(vstream_fileno(fp), st) < 0 || st->st_nlink != 1)) {
-	vstring_sprintf(why->reason, "target file status changed unexpectedly");
-	dsb_status(why, mbox_dsn(EAGAIN, def_dsn));
-	msg_warn("%s: file status changed unexpectedly", path);
-	if (locked & MBOX_DOT_LOCK)
-	    dot_unlockfile(path);
-	vstream_fclose(fp);
-	return (0);
+    && (fstat(vstream_fileno(fp), st) < 0 || st->st_nlink != 1)) {
+    vstring_sprintf(why->reason, "target file status changed unexpectedly");
+    dsb_status(why, mbox_dsn(EAGAIN, def_dsn));
+    msg_warn("%s: file status changed unexpectedly", path);
+    if (locked & MBOX_DOT_LOCK)
+        dot_unlockfile(path);
+    vstream_fclose(fp);
+    return (0);
     }
     mp = (MBOX *) mymalloc(sizeof(*mp));
     mp->path = mystrdup(path);
@@ -233,7 +233,7 @@ void    mbox_release(MBOX *mp)
      * manipulate a message stream.
      */
     if (mp->locked & MBOX_DOT_LOCK)
-	dot_unlockfile(mp->path);
+    dot_unlockfile(mp->path);
     myfree(mp->path);
     myfree((void *) mp);
 }
@@ -243,14 +243,14 @@ void    mbox_release(MBOX *mp)
 const char *mbox_dsn(int err, const char *def_dsn)
 {
 #define TRY_AGAIN_ERROR(e) \
-	(e == EAGAIN || e == ESTALE)
+    (e == EAGAIN || e == ESTALE)
 #define SYSTEM_FULL_ERROR(e) \
-	(e == ENOSPC)
+    (e == ENOSPC)
 #define MBOX_FULL_ERROR(e) \
-	(e == EDQUOT || e == EFBIG)
+    (e == EDQUOT || e == EFBIG)
 
     return (TRY_AGAIN_ERROR(err) ? "4.2.0" :
-	    SYSTEM_FULL_ERROR(err) ? "4.3.0" :
-	    MBOX_FULL_ERROR(err) ? "5.2.2" :
-	    def_dsn);
+        SYSTEM_FULL_ERROR(err) ? "4.3.0" :
+        MBOX_FULL_ERROR(err) ? "5.2.2" :
+        def_dsn);
 }

@@ -1,31 +1,31 @@
 /*++
 /* NAME
-/*	translit 3
+/*    translit 3
 /* SUMMARY
-/*	transliterate characters
+/*    transliterate characters
 /* SYNOPSIS
-/*	#include <stringops.h>
+/*    #include <stringops.h>
 /*
-/*	char	*translit(buf, original, replacement)
-/*	char	*buf;
-/*	char	*original;
-/*	char	*replacement;
+/*    char    *translit(buf, original, replacement)
+/*    char    *buf;
+/*    char    *original;
+/*    char    *replacement;
 /* DESCRIPTION
-/*	translit() takes a null-terminated string, and replaces characters
-/*	given in its \fIoriginal\fR argument by the corresponding characters
-/*	in the \fIreplacement\fR string. The result value is the \fIbuf\fR
-/*	argument.
+/*    translit() takes a null-terminated string, and replaces characters
+/*    given in its \fIoriginal\fR argument by the corresponding characters
+/*    in the \fIreplacement\fR string. The result value is the \fIbuf\fR
+/*    argument.
 /* BUGS
-/*	Cannot replace null characters.
+/*    Cannot replace null characters.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -46,12 +46,12 @@ char   *translit(char *string, const char *original, const char *replacement)
      * For large inputs, should use a lookup table.
      */
     for (cp = string; *cp != 0; cp++) {
-	for (op = original; *op != 0; op++) {
-	    if (*cp == *op) {
-		*cp = replacement[op - original];
-		break;
-	    }
-	}
+    for (op = original; *op != 0; op++) {
+        if (*cp == *op) {
+        *cp = replacement[op - original];
+        break;
+        }
+    }
     }
     return (string);
 }
@@ -68,16 +68,16 @@ char   *translit(char *string, const char *original, const char *replacement)
 #include <vstream.h>
 #include <vstring_vstream.h>
 
-#define STR	vstring_str
+#define STR    vstring_str
 
 int     main(int argc, char **argv)
 {
     VSTRING *buf = vstring_alloc(100);
 
     if (argc != 3)
-	msg_fatal("usage: %s string1 string2", argv[0]);
+    msg_fatal("usage: %s string1 string2", argv[0]);
     while (vstring_fgets(buf, VSTREAM_IN))
-	vstream_fputs(translit(STR(buf), argv[1], argv[2]), VSTREAM_OUT);
+    vstream_fputs(translit(STR(buf), argv[1], argv[2]), VSTREAM_OUT);
     vstream_fflush(VSTREAM_OUT);
     vstring_free(buf);
     return (0);

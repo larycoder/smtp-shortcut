@@ -1,48 +1,48 @@
 /*++
 /* NAME
-/*	cleanup_strerror 3
+/*    cleanup_strerror 3
 /* SUMMARY
-/*	cleanup status code to string
+/*    cleanup status code to string
 /* SYNOPSIS
-/*	#include <cleanup_user.h>
+/*    #include <cleanup_user.h>
 /*
-/*	typedef struct {
+/*    typedef struct {
 /* .in +4
-/*	    const unsigned status;	/* cleanup status */
-/*	    const int smtp;	/* RFC 821 */
-/*	    const char *dsn;	/* RFC 3463 */
-/*	    const char *text;	/* free text */
+/*        const unsigned status;    /* cleanup status */
+/*        const int smtp;    /* RFC 821 */
+/*        const char *dsn;    /* RFC 3463 */
+/*        const char *text;    /* free text */
 /* .in -4
-/*	} CLEANUP_STAT_DETAIL;
+/*    } CLEANUP_STAT_DETAIL;
 /*
-/*	const char *cleanup_strerror(code)
-/*	int	code;
+/*    const char *cleanup_strerror(code)
+/*    int    code;
 /*
-/*	const CLEANUP_STAT_DETAIL *cleanup_stat_detail(code)
-/*	int	code;
+/*    const CLEANUP_STAT_DETAIL *cleanup_stat_detail(code)
+/*    int    code;
 /* DESCRIPTION
-/*	cleanup_strerror() maps a status code returned by the \fIcleanup\fR
-/*	service to printable string.
-/*	The result is for read purposes only.
+/*    cleanup_strerror() maps a status code returned by the \fIcleanup\fR
+/*    service to printable string.
+/*    The result is for read purposes only.
 /*
-/*	cleanup_stat_detail() returns a pointer to structure with
-/*	assorted information.
+/*    cleanup_stat_detail() returns a pointer to structure with
+/*    assorted information.
 /* DIAGNOSTICS:
-/*	Panic: unknown status.
+/*    Panic: unknown status.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -86,11 +86,11 @@ const char *cleanup_strerror(unsigned status)
     unsigned i;
 
     if (status == CLEANUP_STAT_OK)
-	return ("Success");
+    return ("Success");
 
     for (i = 0; i < sizeof(cleanup_stat_map) / sizeof(cleanup_stat_map[0]); i++)
-	if (cleanup_stat_map[i].status & status)
-	    return (cleanup_stat_map[i].text);
+    if (cleanup_stat_map[i].status & status)
+        return (cleanup_stat_map[i].text);
 
     msg_panic("cleanup_strerror: unknown status %u", status);
 }
@@ -102,11 +102,11 @@ const CLEANUP_STAT_DETAIL *cleanup_stat_detail(unsigned status)
     unsigned i;
 
     if (status == CLEANUP_STAT_OK)
-	return (&cleanup_stat_success);
+    return (&cleanup_stat_success);
 
     for (i = 0; i < sizeof(cleanup_stat_map) / sizeof(cleanup_stat_map[0]); i++)
-	if (cleanup_stat_map[i].status & status)
-	    return (cleanup_stat_map + i);
+    if (cleanup_stat_map[i].status & status)
+        return (cleanup_stat_map + i);
 
     msg_panic("cleanup_stat_detail: unknown status %u", status);
 }

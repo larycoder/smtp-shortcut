@@ -1,81 +1,81 @@
 /*++
 /* NAME
-/*	cleanup_out 3
+/*    cleanup_out 3
 /* SUMMARY
-/*	record output support
+/*    record output support
 /* SYNOPSIS
-/*	#include "cleanup.h"
+/*    #include "cleanup.h"
 /*
-/*	int	CLEANUP_OUT_OK(state)
-/*	CLEANUP_STATE *state;
+/*    int    CLEANUP_OUT_OK(state)
+/*    CLEANUP_STATE *state;
 /*
-/*	void	cleanup_out(state, type, data, len)
-/*	CLEANUP_STATE *state;
-/*	int	type;
-/*	const char *data;
-/*	ssize_t	len;
+/*    void    cleanup_out(state, type, data, len)
+/*    CLEANUP_STATE *state;
+/*    int    type;
+/*    const char *data;
+/*    ssize_t    len;
 /*
-/*	void	cleanup_out_string(state, type, str)
-/*	CLEANUP_STATE *state;
-/*	int	type;
-/*	const char *str;
+/*    void    cleanup_out_string(state, type, str)
+/*    CLEANUP_STATE *state;
+/*    int    type;
+/*    const char *str;
 /*
-/*	void	CLEANUP_OUT_BUF(state, type, buf)
-/*	CLEANUP_STATE *state;
-/*	int	type;
-/*	VSTRING	*buf;
+/*    void    CLEANUP_OUT_BUF(state, type, buf)
+/*    CLEANUP_STATE *state;
+/*    int    type;
+/*    VSTRING    *buf;
 /*
-/*	void	cleanup_out_format(state, type, format, ...)
-/*	CLEANUP_STATE *state;
-/*	int	type;
-/*	const char *format;
+/*    void    cleanup_out_format(state, type, format, ...)
+/*    CLEANUP_STATE *state;
+/*    int    type;
+/*    const char *format;
 /*
-/*	void	cleanup_out_header(state, buf)
-/*	CLEANUP_STATE *state;
-/*	VSTRING	*buf;
+/*    void    cleanup_out_header(state, buf)
+/*    CLEANUP_STATE *state;
+/*    VSTRING    *buf;
 /* DESCRIPTION
-/*	This module writes records to the output stream.
+/*    This module writes records to the output stream.
 /*
-/*	CLEANUP_OUT_OK() is a macro that evaluates to non-zero
-/*	as long as it makes sense to produce output. All output
-/*	routines below check for this condition.
+/*    CLEANUP_OUT_OK() is a macro that evaluates to non-zero
+/*    as long as it makes sense to produce output. All output
+/*    routines below check for this condition.
 /*
-/*	cleanup_out() is the main record output routine. It writes
-/*	one record of the specified type, with the specified data
-/*	and length to the output stream.
+/*    cleanup_out() is the main record output routine. It writes
+/*    one record of the specified type, with the specified data
+/*    and length to the output stream.
 /*
-/*	cleanup_out_string() outputs one string as a record.
+/*    cleanup_out_string() outputs one string as a record.
 /*
-/*	CLEANUP_OUT_BUF() is an unsafe macro that outputs
-/*	one string buffer as a record.
+/*    CLEANUP_OUT_BUF() is an unsafe macro that outputs
+/*    one string buffer as a record.
 /*
-/*	cleanup_out_format() formats its arguments and writes
-/*	the result as a record.
+/*    cleanup_out_format() formats its arguments and writes
+/*    the result as a record.
 /*
-/*	cleanup_out_header() outputs a multi-line header as records
-/*	of the specified type. The input is expected to be newline
-/*	separated (not newline terminated), and is modified.
+/*    cleanup_out_header() outputs a multi-line header as records
+/*    of the specified type. The input is expected to be newline
+/*    separated (not newline terminated), and is modified.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
 
 #include <sys_defs.h>
 #include <errno.h>
-#include <stdlib.h>			/* 44BSD stdarg.h uses abort() */
+#include <stdlib.h>            /* 44BSD stdarg.h uses abort() */
 #include <stdarg.h>
 #include <string.h>
 
@@ -100,7 +100,7 @@
 
 #include "cleanup.h"
 
-#define STR	vstring_str
+#define STR    vstring_str
 
 /* cleanup_out - output one single record */
 
@@ -119,35 +119,35 @@ void    cleanup_out(CLEANUP_STATE *state, int type, const char *string, ssize_t 
      * records.
      */
     if (CLEANUP_OUT_OK(state) == 0)
-	return;
+    return;
 
-#define TEXT_RECORD(t)	((t) == REC_TYPE_NORM || (t) == REC_TYPE_CONT)
+#define TEXT_RECORD(t)    ((t) == REC_TYPE_NORM || (t) == REC_TYPE_CONT)
 
     if (msg_verbose && !TEXT_RECORD(type))
-	msg_info("cleanup_out: %c %.*s", type, (int) len, string);
+    msg_info("cleanup_out: %c %.*s", type, (int) len, string);
 
     if (var_line_limit <= 0)
-	msg_panic("cleanup_out: bad line length limit: %d", var_line_limit);
+    msg_panic("cleanup_out: bad line length limit: %d", var_line_limit);
     do {
-	if (len > var_line_limit && TEXT_RECORD(type)) {
-	    err = rec_put(state->dst, REC_TYPE_CONT, string, var_line_limit);
-	    string += var_line_limit;
-	    len -= var_line_limit;
-	} else {
-	    err = rec_put(state->dst, type, string, len);
-	    break;
-	}
+    if (len > var_line_limit && TEXT_RECORD(type)) {
+        err = rec_put(state->dst, REC_TYPE_CONT, string, var_line_limit);
+        string += var_line_limit;
+        len -= var_line_limit;
+    } else {
+        err = rec_put(state->dst, type, string, len);
+        break;
+    }
     } while (len > 0 && err >= 0);
 
     if (err < 0) {
-	if (errno == EFBIG) {
-	    msg_warn("%s: queue file size limit exceeded",
-		     state->queue_id);
-	    state->errs |= CLEANUP_STAT_SIZE;
-	} else {
-	    msg_warn("%s: write queue file: %m", state->queue_id);
-	    state->errs |= CLEANUP_STAT_WRITE;
-	}
+    if (errno == EFBIG) {
+        msg_warn("%s: queue file size limit exceeded",
+             state->queue_id);
+        state->errs |= CLEANUP_STAT_SIZE;
+    } else {
+        msg_warn("%s: write queue file: %m", state->queue_id);
+        state->errs |= CLEANUP_STAT_WRITE;
+    }
     }
 }
 
@@ -166,7 +166,7 @@ void    cleanup_out_format(CLEANUP_STATE *state, int type, const char *fmt,...)
     va_list ap;
 
     if (vp == 0)
-	vp = vstring_alloc(100);
+    vp = vstring_alloc(100);
     va_start(ap, fmt);
     vstring_vsprintf(vp, fmt, ap);
     va_end(ap);
@@ -186,10 +186,10 @@ void    cleanup_out_header(CLEANUP_STATE *state, VSTRING *header_buf)
      * Fix 20140711: Auto-detect the presence of a non-ASCII header.
      */
     if (var_smtputf8_enable && *STR(header_buf) && !allascii(STR(header_buf))) {
-	state->smtputf8 |= SMTPUTF8_FLAG_HEADER;
-	/* Fix 20140713: request SMTPUTF8 support selectively. */
-	if (state->flags & CLEANUP_FLAG_AUTOUTF8)
-	    state->smtputf8 |= SMTPUTF8_FLAG_REQUESTED;
+    state->smtputf8 |= SMTPUTF8_FLAG_HEADER;
+    /* Fix 20140713: request SMTPUTF8 support selectively. */
+    if (state->flags & CLEANUP_FLAG_AUTOUTF8)
+        state->smtputf8 |= SMTPUTF8_FLAG_REQUESTED;
     }
 
     /*
@@ -210,24 +210,24 @@ void    cleanup_out_header(CLEANUP_STATE *state, VSTRING *header_buf)
      * This simplifies header modification enormously.
      */
     for (line = start; line; line = next_line) {
-	next_line = split_at(line, '\n');
-	line_len = next_line ? next_line - 1 - line : strlen(line);
-	if (line + line_len > start + var_header_limit) {
-	    if (line - start > 0.9 * var_header_limit)	/* nice cut */
-		break;
-	    start[var_header_limit] = 0;	/* unkind cut */
-	    next_line = 0;
-	}
-	if (line == start) {
-	    cleanup_out_string(state, REC_TYPE_NORM, line);
-	    if ((state->milters || cleanup_milters)
-		&& line_len < REC_TYPE_PTR_PAYL_SIZE)
-		rec_pad(state->dst, REC_TYPE_DTXT,
-			REC_TYPE_PTR_PAYL_SIZE - line_len);
-	} else if (IS_SPACE_TAB(*line)) {
-	    cleanup_out_string(state, REC_TYPE_NORM, line);
-	} else {
-	    cleanup_out_format(state, REC_TYPE_NORM, "\t%s", line);
-	}
+    next_line = split_at(line, '\n');
+    line_len = next_line ? next_line - 1 - line : strlen(line);
+    if (line + line_len > start + var_header_limit) {
+        if (line - start > 0.9 * var_header_limit)    /* nice cut */
+        break;
+        start[var_header_limit] = 0;    /* unkind cut */
+        next_line = 0;
+    }
+    if (line == start) {
+        cleanup_out_string(state, REC_TYPE_NORM, line);
+        if ((state->milters || cleanup_milters)
+        && line_len < REC_TYPE_PTR_PAYL_SIZE)
+        rec_pad(state->dst, REC_TYPE_DTXT,
+            REC_TYPE_PTR_PAYL_SIZE - line_len);
+    } else if (IS_SPACE_TAB(*line)) {
+        cleanup_out_string(state, REC_TYPE_NORM, line);
+    } else {
+        cleanup_out_format(state, REC_TYPE_NORM, "\t%s", line);
+    }
     }
 }

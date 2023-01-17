@@ -1,63 +1,63 @@
 /*++
 /* NAME
-/*	cleanup_out_recipient 3
+/*    cleanup_out_recipient 3
 /* SUMMARY
-/*	envelope recipient output filter
+/*    envelope recipient output filter
 /* SYNOPSIS
-/*	#include "cleanup.h"
+/*    #include "cleanup.h"
 /*
-/*	void	cleanup_out_recipient(state, dsn_orig_recipient,
-/*					dsn_notify, orig_recipient,
-/*					recipient)
-/*	CLEANUP_STATE *state;
-/*	const char *dsn_orig_recipient;
-/*	const char *dsn_notify;
-/*	const char *orig_recipient;
-/*	const char *recipient;
+/*    void    cleanup_out_recipient(state, dsn_orig_recipient,
+/*                    dsn_notify, orig_recipient,
+/*                    recipient)
+/*    CLEANUP_STATE *state;
+/*    const char *dsn_orig_recipient;
+/*    const char *dsn_notify;
+/*    const char *orig_recipient;
+/*    const char *recipient;
 /* DESCRIPTION
-/*	This module implements an envelope recipient output filter.
+/*    This module implements an envelope recipient output filter.
 /*
-/*	cleanup_out_recipient() performs virtual table expansion
-/*	and recipient duplicate filtering, and appends the
-/*	resulting recipients to the output stream. It also
-/*	generates DSN SUCCESS notifications.
+/*    cleanup_out_recipient() performs virtual table expansion
+/*    and recipient duplicate filtering, and appends the
+/*    resulting recipients to the output stream. It also
+/*    generates DSN SUCCESS notifications.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP state
-/*	Cleanup server state.
+/*    Cleanup server state.
 /* .IP dsn_orig_recipient
-/*	DSN original recipient information.
+/*    DSN original recipient information.
 /* .IP dsn_notify
-/*	DSN notify flags.
+/*    DSN notify flags.
 /* .IP orig_recipient
-/*	Envelope recipient as received by Postfix.
+/*    Envelope recipient as received by Postfix.
 /* .IP recipient
-/*	Envelope recipient as rewritten by Postfix.
+/*    Envelope recipient as rewritten by Postfix.
 /* CONFIGURATION
 /* .ad
 /* .fi
 /* .IP enable_original_recipient
-/*	Enable orig_recipient support.
+/*    Enable orig_recipient support.
 /* .IP local_duplicate_filter_limit
-/*	Upper bound to the size of the recipient duplicate filter.
-/*	Zero means no limit; this may cause the mail system to
-/*	become stuck.
+/*    Upper bound to the size of the recipient duplicate filter.
+/*    Zero means no limit; this may cause the mail system to
+/*    become stuck.
 /* .IP virtual_alias_maps
-/*	list of virtual address lookup tables.
+/*    list of virtual address lookup tables.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -82,7 +82,7 @@
 #include <dsn.h>
 #include <trace.h>
 #include <verify.h>
-#include <mail_queue.h>			/* cleanup_trace_path */
+#include <mail_queue.h>            /* cleanup_trace_path */
 #include <mail_proto.h>
 #include <msg_stats.h>
 
@@ -93,44 +93,44 @@
 /* cleanup_trace_append - update trace logfile */
 
 static void cleanup_trace_append(CLEANUP_STATE *state, RECIPIENT *rcpt,
-				         DSN *dsn)
+                         DSN *dsn)
 {
     MSG_STATS stats;
 
     if (cleanup_trace_path == 0) {
-	cleanup_trace_path = vstring_alloc(10);
-	mail_queue_path(cleanup_trace_path, MAIL_QUEUE_TRACE,
-			state->queue_id);
+    cleanup_trace_path = vstring_alloc(10);
+    mail_queue_path(cleanup_trace_path, MAIL_QUEUE_TRACE,
+            state->queue_id);
     }
     if (trace_append(BOUNCE_FLAG_CLEAN, state->queue_id,
-		     CLEANUP_MSG_STATS(&stats, state),
-		     rcpt, "none", dsn) != 0) {
-	msg_warn("%s: trace logfile update error", state->queue_id);
-	state->errs |= CLEANUP_STAT_WRITE;
+             CLEANUP_MSG_STATS(&stats, state),
+             rcpt, "none", dsn) != 0) {
+    msg_warn("%s: trace logfile update error", state->queue_id);
+    state->errs |= CLEANUP_STAT_WRITE;
     }
 }
 
 /* cleanup_verify_append - update verify daemon */
 
 static void cleanup_verify_append(CLEANUP_STATE *state, RECIPIENT *rcpt,
-				          DSN *dsn, int verify_status)
+                          DSN *dsn, int verify_status)
 {
     MSG_STATS stats;
 
     if (verify_append(state->queue_id, CLEANUP_MSG_STATS(&stats, state),
-		      rcpt, "none", dsn, verify_status) != 0) {
-	msg_warn("%s: verify service update error", state->queue_id);
-	state->errs |= CLEANUP_STAT_WRITE;
+              rcpt, "none", dsn, verify_status) != 0) {
+    msg_warn("%s: verify service update error", state->queue_id);
+    state->errs |= CLEANUP_STAT_WRITE;
     }
 }
 
 /* cleanup_out_recipient - envelope recipient output filter */
 
 void    cleanup_out_recipient(CLEANUP_STATE *state,
-			              const char *dsn_orcpt,
-			              int dsn_notify,
-			              const char *orcpt,
-			              const char *recip)
+                          const char *dsn_orcpt,
+                          int dsn_notify,
+                          const char *orcpt,
+                          const char *recip)
 {
     ARGV   *argv;
     char  **cpp;
@@ -139,7 +139,7 @@ void    cleanup_out_recipient(CLEANUP_STATE *state,
      * XXX Not elegant, but eliminates complexity in the record reading loop.
      */
     if (dsn_orcpt == 0)
-	dsn_orcpt = "";
+    dsn_orcpt = "";
 
     /*
      * Distinguish between different original recipient addresses that map
@@ -154,22 +154,22 @@ void    cleanup_out_recipient(CLEANUP_STATE *state,
 #define STREQ(x, y) (strcmp((x), (y)) == 0)
 
     if ((state->flags & CLEANUP_FLAG_MAP_OK) == 0
-	|| cleanup_virt_alias_maps == 0) {
-	/* Matches been_here_drop{,_fixed}() calls cleanup_del_rcpt(). */
-	if ((var_enable_orcpt ?
-	     been_here(state->dups, "%s\n%d\n%s\n%s",
-		       dsn_orcpt, dsn_notify, orcpt, recip) :
-	     been_here_fixed(state->dups, recip)) == 0) {
-	    if (dsn_notify)
-		cleanup_out_format(state, REC_TYPE_ATTR, "%s=%d",
-				   MAIL_ATTR_DSN_NOTIFY, dsn_notify);
-	    if (*dsn_orcpt)
-		cleanup_out_format(state, REC_TYPE_ATTR, "%s=%s",
-				   MAIL_ATTR_DSN_ORCPT, dsn_orcpt);
-	    cleanup_out_string(state, REC_TYPE_ORCP, orcpt);
-	    cleanup_out_string(state, REC_TYPE_RCPT, recip);
-	    state->rcpt_count++;
-	}
+    || cleanup_virt_alias_maps == 0) {
+    /* Matches been_here_drop{,_fixed}() calls cleanup_del_rcpt(). */
+    if ((var_enable_orcpt ?
+         been_here(state->dups, "%s\n%d\n%s\n%s",
+               dsn_orcpt, dsn_notify, orcpt, recip) :
+         been_here_fixed(state->dups, recip)) == 0) {
+        if (dsn_notify)
+        cleanup_out_format(state, REC_TYPE_ATTR, "%s=%d",
+                   MAIL_ATTR_DSN_NOTIFY, dsn_notify);
+        if (*dsn_orcpt)
+        cleanup_out_format(state, REC_TYPE_ATTR, "%s=%s",
+                   MAIL_ATTR_DSN_ORCPT, dsn_orcpt);
+        cleanup_out_string(state, REC_TYPE_ORCP, orcpt);
+        cleanup_out_string(state, REC_TYPE_RCPT, recip);
+        state->rcpt_count++;
+    }
     }
 
     /*
@@ -223,44 +223,44 @@ void    cleanup_out_recipient(CLEANUP_STATE *state,
      * then the whole alias is flagged as undeliverable.
      */
     else {
-	RECIPIENT rcpt;
-	DSN     dsn;
+    RECIPIENT rcpt;
+    DSN     dsn;
 
-	argv = cleanup_map1n_internal(state, recip, cleanup_virt_alias_maps,
-				  cleanup_ext_prop_mask & EXT_PROP_VIRTUAL);
-	if (argv->argc > 1 && (state->tflags & DEL_REQ_FLAG_MTA_VRFY)) {
-	    (void) DSN_SIMPLE(&dsn, "2.0.0", "aliased to multiple recipients");
-	    dsn.action = "deliverable";
-	    RECIPIENT_ASSIGN(&rcpt, 0, dsn_orcpt, dsn_notify, orcpt, recip);
-	    cleanup_verify_append(state, &rcpt, &dsn, DEL_RCPT_STAT_OK);
-	    argv_free(argv);
-	    return;
-	}
-	if ((dsn_notify & DSN_NOTIFY_SUCCESS)
-	    && (argv->argc > 1 || strcmp(recip, argv->argv[0]) != 0)) {
-	    (void) DSN_SIMPLE(&dsn, "2.0.0", "alias expanded");
-	    dsn.action = "expanded";
-	    RECIPIENT_ASSIGN(&rcpt, 0, dsn_orcpt, dsn_notify, orcpt, recip);
-	    cleanup_trace_append(state, &rcpt, &dsn);
-	    dsn_notify = (dsn_notify == DSN_NOTIFY_SUCCESS ? DSN_NOTIFY_NEVER :
-			  dsn_notify & ~DSN_NOTIFY_SUCCESS);
-	}
-	for (cpp = argv->argv; *cpp; cpp++) {
-	    if ((var_enable_orcpt ?
-		 been_here(state->dups, "%s\n%d\n%s\n%s",
-			   dsn_orcpt, dsn_notify, orcpt, *cpp) :
-		 been_here_fixed(state->dups, *cpp)) == 0) {
-		if (dsn_notify)
-		    cleanup_out_format(state, REC_TYPE_ATTR, "%s=%d",
-				       MAIL_ATTR_DSN_NOTIFY, dsn_notify);
-		if (*dsn_orcpt)
-		    cleanup_out_format(state, REC_TYPE_ATTR, "%s=%s",
-				       MAIL_ATTR_DSN_ORCPT, dsn_orcpt);
-		cleanup_out_string(state, REC_TYPE_ORCP, orcpt);
-		cleanup_out_string(state, REC_TYPE_RCPT, *cpp);
-		state->rcpt_count++;
-	    }
-	}
-	argv_free(argv);
+    argv = cleanup_map1n_internal(state, recip, cleanup_virt_alias_maps,
+                  cleanup_ext_prop_mask & EXT_PROP_VIRTUAL);
+    if (argv->argc > 1 && (state->tflags & DEL_REQ_FLAG_MTA_VRFY)) {
+        (void) DSN_SIMPLE(&dsn, "2.0.0", "aliased to multiple recipients");
+        dsn.action = "deliverable";
+        RECIPIENT_ASSIGN(&rcpt, 0, dsn_orcpt, dsn_notify, orcpt, recip);
+        cleanup_verify_append(state, &rcpt, &dsn, DEL_RCPT_STAT_OK);
+        argv_free(argv);
+        return;
+    }
+    if ((dsn_notify & DSN_NOTIFY_SUCCESS)
+        && (argv->argc > 1 || strcmp(recip, argv->argv[0]) != 0)) {
+        (void) DSN_SIMPLE(&dsn, "2.0.0", "alias expanded");
+        dsn.action = "expanded";
+        RECIPIENT_ASSIGN(&rcpt, 0, dsn_orcpt, dsn_notify, orcpt, recip);
+        cleanup_trace_append(state, &rcpt, &dsn);
+        dsn_notify = (dsn_notify == DSN_NOTIFY_SUCCESS ? DSN_NOTIFY_NEVER :
+              dsn_notify & ~DSN_NOTIFY_SUCCESS);
+    }
+    for (cpp = argv->argv; *cpp; cpp++) {
+        if ((var_enable_orcpt ?
+         been_here(state->dups, "%s\n%d\n%s\n%s",
+               dsn_orcpt, dsn_notify, orcpt, *cpp) :
+         been_here_fixed(state->dups, *cpp)) == 0) {
+        if (dsn_notify)
+            cleanup_out_format(state, REC_TYPE_ATTR, "%s=%d",
+                       MAIL_ATTR_DSN_NOTIFY, dsn_notify);
+        if (*dsn_orcpt)
+            cleanup_out_format(state, REC_TYPE_ATTR, "%s=%s",
+                       MAIL_ATTR_DSN_ORCPT, dsn_orcpt);
+        cleanup_out_string(state, REC_TYPE_ORCP, orcpt);
+        cleanup_out_string(state, REC_TYPE_RCPT, *cpp);
+        state->rcpt_count++;
+        }
+    }
+    argv_free(argv);
     }
 }

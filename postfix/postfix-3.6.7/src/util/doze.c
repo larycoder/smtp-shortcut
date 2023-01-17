@@ -1,27 +1,27 @@
 /*++
 /* NAME
-/*	doze 3
+/*    doze 3
 /* SUMMARY
-/*	take a nap
+/*    take a nap
 /* SYNOPSIS
-/*	#include <iostuff.h>
+/*    #include <iostuff.h>
 /*
-/*	void	doze(microseconds)
-/*	unsigned microseconds;
+/*    void    doze(microseconds)
+/*    unsigned microseconds;
 /* DESCRIPTION
-/*	doze() sleeps for the specified number of microseconds. It is
-/*	a simple alternative for systems that lack usleep().
+/*    doze() sleeps for the specified number of microseconds. It is
+/*    a simple alternative for systems that lack usleep().
 /* DIAGNOSTICS
-/*	All errors are fatal.
+/*    All errors are fatal.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -45,13 +45,13 @@ void    doze(unsigned delay)
 {
     struct timeval tv;
 
-#define MILLION	1000000
+#define MILLION    1000000
 
     tv.tv_sec = delay / MILLION;
     tv.tv_usec = delay % MILLION;
     while (select(0, (fd_set *) 0, (fd_set *) 0, (fd_set *) 0, &tv) < 0)
-	if (errno != EINTR)
-	    msg_fatal("doze: select: %m");
+    if (errno != EINTR)
+        msg_fatal("doze: select: %m");
 }
 
 #ifdef TEST
@@ -63,7 +63,7 @@ int     main(int argc, char **argv)
     unsigned delay;
 
     if (argc != 2 || (delay = atol(argv[1])) == 0)
-	msg_fatal("usage: %s microseconds", argv[0]);
+    msg_fatal("usage: %s microseconds", argv[0]);
     doze(delay);
     exit(0);
 }

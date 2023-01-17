@@ -1,46 +1,46 @@
 /*++
 /* NAME
-/*	quote_flags 3
+/*    quote_flags 3
 /* SUMMARY
-/*	quote rfc 821/822 local part
+/*    quote rfc 821/822 local part
 /* SYNOPSIS
-/*	#include <quote_flags.h>
+/*    #include <quote_flags.h>
 /*
-/*	int	quote_flags_from_string(const char *string)
+/*    int    quote_flags_from_string(const char *string)
 /*
-/*	const char *quote_flags_to_string(VSTRING *res_buf, int mask)
+/*    const char *quote_flags_to_string(VSTRING *res_buf, int mask)
 /* DESCRIPTION
-/*	quote_flags_from_string() converts symbolic flag names into
-/*	the corresponding internal bitmask. This logs a warning and
-/*	returns zero if an unknown symbolic name is specified.
+/*    quote_flags_from_string() converts symbolic flag names into
+/*    the corresponding internal bitmask. This logs a warning and
+/*    returns zero if an unknown symbolic name is specified.
 /*
-/*	quote_flags_to_string() converts from internal bitmask to
-/*	the corresponding symbolic names. This logs a warning and
-/*	returns a null pointer if an unknown bitmask is specified.
+/*    quote_flags_to_string() converts from internal bitmask to
+/*    the corresponding symbolic names. This logs a warning and
+/*    returns a null pointer if an unknown bitmask is specified.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP string
-/*	Symbolic representation of a quote_flags bitmask, for
-/*	example: \fB8bitclean | bare_localpart\fR. The conversion
-/*	is case-insensitive.
+/*    Symbolic representation of a quote_flags bitmask, for
+/*    example: \fB8bitclean | bare_localpart\fR. The conversion
+/*    is case-insensitive.
 /* .IP res_buf
-/*	Storage for the quote_flags_to_string() result, which has
-/*	the same form as the string argument. If a null pointer is
-/*	specified, quote_flags_to_string() uses storage that is
-/*	overwritten with each call.
+/*    Storage for the quote_flags_to_string() result, which has
+/*    the same form as the string argument. If a null pointer is
+/*    specified, quote_flags_to_string() uses storage that is
+/*    overwritten with each call.
 /* .IP mask
-/*	Binary representation of quote_flags.
+/*    Binary representation of quote_flags.
 /* DIAGNOSTICS
-/*	Fatal error: out of memory; or unknown bitmask name or value.
+/*    Fatal error: out of memory; or unknown bitmask name or value.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
  /*
@@ -71,8 +71,8 @@ static const NAME_MASK quote_flags_table[] = {
 int     quote_flags_from_string(const char *quote_flags_string)
 {
     return (name_mask_delim_opt("quote_flags_from_string", quote_flags_table,
-				quote_flags_string, "|",
-				NAME_MASK_WARN | NAME_MASK_ANY_CASE));
+                quote_flags_string, "|",
+                NAME_MASK_WARN | NAME_MASK_ANY_CASE));
 }
 
 /* quote_flags_to_string - internal form to symbolic quote flags */
@@ -82,8 +82,8 @@ const char *quote_flags_to_string(VSTRING *res_buf, int quote_flags_mask)
     static VSTRING *my_buf;
 
     if (res_buf == 0 && (res_buf = my_buf) == 0)
-	res_buf = my_buf = vstring_alloc(20);
+    res_buf = my_buf = vstring_alloc(20);
     return (str_name_mask_opt(res_buf, "quote_flags_to_string",
-			      quote_flags_table, quote_flags_mask,
-			      NAME_MASK_WARN | NAME_MASK_PIPE));
+                  quote_flags_table, quote_flags_mask,
+                  NAME_MASK_WARN | NAME_MASK_PIPE));
 }

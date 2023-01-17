@@ -1,62 +1,62 @@
 /*++
 /* NAME
-/*	qmgr_peer 3
+/*    qmgr_peer 3
 /* SUMMARY
-/*	per-job peers
+/*    per-job peers
 /* SYNOPSIS
-/*	#include "qmgr.h"
+/*    #include "qmgr.h"
 /*
-/*	QMGR_PEER *qmgr_peer_create(job, queue)
-/*	QMGR_JOB *job;
-/*	QMGR_QUEUE *queue;
+/*    QMGR_PEER *qmgr_peer_create(job, queue)
+/*    QMGR_JOB *job;
+/*    QMGR_QUEUE *queue;
 /*
-/*	QMGR_PEER *qmgr_peer_find(job, queue)
-/*	QMGR_JOB *job;
-/*	QMGR_QUEUE *queue;
+/*    QMGR_PEER *qmgr_peer_find(job, queue)
+/*    QMGR_JOB *job;
+/*    QMGR_QUEUE *queue;
 /*
-/*	QMGR_PEER *qmgr_peer_obtain(job, queue)
-/*	QMGR_JOB *job;
-/*	QMGR_QUEUE *queue;
+/*    QMGR_PEER *qmgr_peer_obtain(job, queue)
+/*    QMGR_JOB *job;
+/*    QMGR_QUEUE *queue;
 /*
-/*	void qmgr_peer_free(peer)
-/*	QMGR_PEER *peer;
+/*    void qmgr_peer_free(peer)
+/*    QMGR_PEER *peer;
 /*
-/*	QMGR_PEER *qmgr_peer_select(job)
-/*	QMGR_JOB *job;
+/*    QMGR_PEER *qmgr_peer_select(job)
+/*    QMGR_JOB *job;
 /*
 /* DESCRIPTION
-/*	These routines add/delete/manipulate per-job peers.
-/*	Each peer corresponds to a specific job and destination.
-/*	It is similar to per-transport queue structure, but groups
-/*	only the entries of the given job.
+/*    These routines add/delete/manipulate per-job peers.
+/*    Each peer corresponds to a specific job and destination.
+/*    It is similar to per-transport queue structure, but groups
+/*    only the entries of the given job.
 /*
-/*	qmgr_peer_create() creates an empty peer structure for the named
-/*	job and destination. It is an error to call this function
-/*	if a peer for given combination already exists.
+/*    qmgr_peer_create() creates an empty peer structure for the named
+/*    job and destination. It is an error to call this function
+/*    if a peer for given combination already exists.
 /*
-/*	qmgr_peer_find() looks up the peer for the named destination
-/*	for the named job. A null result means that the peer
-/*	was not found.
+/*    qmgr_peer_find() looks up the peer for the named destination
+/*    for the named job. A null result means that the peer
+/*    was not found.
 /*
-/*	qmgr_peer_obtain() looks up the peer for the named destination
-/*	for the named job. If it doesn't exist yet, it creates it.
+/*    qmgr_peer_obtain() looks up the peer for the named destination
+/*    for the named job. If it doesn't exist yet, it creates it.
 /*
-/*	qmgr_peer_free() disposes of a per-job peer after all
-/*	its entries have been taken care of. It is an error to dispose
-/*	of a peer still in use.
+/*    qmgr_peer_free() disposes of a per-job peer after all
+/*    its entries have been taken care of. It is an error to dispose
+/*    of a peer still in use.
 /*
-/*	qmgr_peer_select() attempts to find a peer of named job that
-/*	has messages pending delivery.  This routine implements
-/*	round-robin search among job's peers.
+/*    qmgr_peer_select() attempts to find a peer of named job that
+/*    has messages pending delivery.  This routine implements
+/*    round-robin search among job's peers.
 /* DIAGNOSTICS
-/*	Panic: consistency check failure.
+/*    Panic: consistency check failure.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Patrik Rak
-/*	patrik@raxoft.cz
+/*    Patrik Rak
+/*    patrik@raxoft.cz
 /*--*/
 
 /* System library. */
@@ -101,9 +101,9 @@ void    qmgr_peer_free(QMGR_PEER *peer)
      * Sanity checks. It is an error to delete a referenced peer structure.
      */
     if (peer->refcount != 0)
-	msg_panic("%s: refcount: %d", myname, peer->refcount);
+    msg_panic("%s: refcount: %d", myname, peer->refcount);
     if (peer->entry_list.next != 0)
-	msg_panic("%s: entry list not empty: %s", myname, queue->name);
+    msg_panic("%s: entry list not empty: %s", myname, queue->name);
 
     QMGR_LIST_UNLINK(job->peer_list, QMGR_PEER *, peer, peers);
     htable_delete(job->peer_byname, queue->name, (void (*) (void *)) 0);
@@ -124,7 +124,7 @@ QMGR_PEER *qmgr_peer_obtain(QMGR_JOB *job, QMGR_QUEUE *queue)
     QMGR_PEER *peer;
 
     if ((peer = qmgr_peer_find(job, queue)) == 0)
-	peer = qmgr_peer_create(job, queue);
+    peer = qmgr_peer_create(job, queue);
     return (peer);
 }
 
@@ -140,15 +140,15 @@ QMGR_PEER *qmgr_peer_select(QMGR_JOB *job)
      * selection. See similar selection code in qmgr_transport_select().
      */
     for (peer = job->peer_list.next; peer; peer = peer->peers.next) {
-	queue = peer->queue;
-	if (queue->window > queue->busy_refcount && peer->entry_list.next != 0) {
-	    QMGR_LIST_ROTATE(job->peer_list, peer, peers);
-	    if (msg_verbose)
-		msg_info("qmgr_peer_select: %s %s %s (%d of %d)",
-		job->message->queue_id, queue->transport->name, queue->name,
-			 queue->busy_refcount + 1, queue->window);
-	    return (peer);
-	}
+    queue = peer->queue;
+    if (queue->window > queue->busy_refcount && peer->entry_list.next != 0) {
+        QMGR_LIST_ROTATE(job->peer_list, peer, peers);
+        if (msg_verbose)
+        msg_info("qmgr_peer_select: %s %s %s (%d of %d)",
+        job->message->queue_id, queue->transport->name, queue->name,
+             queue->busy_refcount + 1, queue->window);
+        return (peer);
+    }
     }
     return (0);
 }

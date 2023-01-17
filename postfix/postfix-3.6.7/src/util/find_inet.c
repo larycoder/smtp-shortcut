@@ -1,40 +1,40 @@
 /*++
 /* NAME
-/*	find_inet 3
+/*    find_inet 3
 /* SUMMARY
-/*	inet-domain name services
+/*    inet-domain name services
 /* SYNOPSIS
-/*	#include <find_inet.h>
+/*    #include <find_inet.h>
 /*
-/*	unsigned find_inet_addr(host)
-/*	const char *host;
+/*    unsigned find_inet_addr(host)
+/*    const char *host;
 /*
-/*	int	find_inet_port(port, proto)
-/*	const char *port;
-/*	const char *proto;
+/*    int    find_inet_port(port, proto)
+/*    const char *port;
+/*    const char *proto;
 /* DESCRIPTION
-/*	These functions translate network address information from
-/*	between printable form to the internal the form used by the
-/*	BSD TCP/IP network software.
+/*    These functions translate network address information from
+/*    between printable form to the internal the form used by the
+/*    BSD TCP/IP network software.
 /*
-/*	find_inet_addr() translates a symbolic or numerical hostname.
-/*	This function is deprecated. Use hostname_to_hostaddr() instead.
+/*    find_inet_addr() translates a symbolic or numerical hostname.
+/*    This function is deprecated. Use hostname_to_hostaddr() instead.
 /*
-/*	find_inet_port() translates a symbolic or numerical port name.
+/*    find_inet_port() translates a symbolic or numerical port name.
 /* BUGS
-/*	find_inet_addr() ignores all but the first address listed for
-/*	a symbolic hostname.
+/*    find_inet_addr() ignores all but the first address listed for
+/*    a symbolic hostname.
 /* DIAGNOSTICS
-/*	Lookup and conversion errors are fatal.
+/*    Lookup and conversion errors are fatal.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System libraries. */
@@ -67,13 +67,13 @@ unsigned find_inet_addr(const char *host)
 
     addr.s_addr = inet_addr(host);
     if ((addr.s_addr == INADDR_NONE) || (addr.s_addr == 0)) {
-	if ((hp = gethostbyname(host)) == 0)
-	    msg_fatal("host not found: %s", host);
-	if (hp->h_addrtype != AF_INET)
-	    msg_fatal("unexpected address family: %d", hp->h_addrtype);
-	if (hp->h_length != sizeof(addr))
-	    msg_fatal("unexpected address length %d", hp->h_length);
-	memcpy((void *) &addr, hp->h_addr, hp->h_length);
+    if ((hp = gethostbyname(host)) == 0)
+        msg_fatal("host not found: %s", host);
+    if (hp->h_addrtype != AF_INET)
+        msg_fatal("unexpected address family: %d", hp->h_addrtype);
+    if (hp->h_length != sizeof(addr))
+        msg_fatal("unexpected address length %d", hp->h_length);
+    memcpy((void *) &addr, hp->h_addr, hp->h_length);
     }
     return (addr.s_addr);
 }
@@ -87,12 +87,12 @@ int     find_inet_port(const char *service, const char *protocol)
 
     service = filter_known_tcp_port(service);
     if (alldig(service) && (port = atoi(service)) != 0) {
-	if (port < 0 || port > 65535)
-	    msg_fatal("bad port number: %s", service);
-	return (htons(port));
+    if (port < 0 || port > 65535)
+        msg_fatal("bad port number: %s", service);
+    return (htons(port));
     } else {
-	if ((sp = getservbyname(service, protocol)) == 0)
-	    msg_fatal("unknown service: %s/%s", service, protocol);
-	return (sp->s_port);
+    if ((sp = getservbyname(service, protocol)) == 0)
+        msg_fatal("unknown service: %s/%s", service, protocol);
+    return (sp->s_port);
     }
 }

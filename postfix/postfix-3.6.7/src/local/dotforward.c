@@ -1,48 +1,48 @@
 /*++
 /* NAME
-/*	dotforward 3
+/*    dotforward 3
 /* SUMMARY
-/*	$HOME/.forward file expansion
+/*    $HOME/.forward file expansion
 /* SYNOPSIS
-/*	#include "local.h"
+/*    #include "local.h"
 /*
-/*	int	deliver_dotforward(state, usr_attr, statusp)
-/*	LOCAL_STATE state;
-/*	USER_ATTR usr_attr;
-/*	int	*statusp;
+/*    int    deliver_dotforward(state, usr_attr, statusp)
+/*    LOCAL_STATE state;
+/*    USER_ATTR usr_attr;
+/*    int    *statusp;
 /* DESCRIPTION
-/*	deliver_dotforward() delivers a message to the destinations
-/*	listed in a recipient's .forward file(s) as specified through
-/*	the forward_path configuration parameter.  The result is
-/*	zero when no acceptable .forward file was found, or when
-/*	a recipient is listed in her own .forward file. Expansions
-/*	are scrutinized with the forward_expansion_filter parameter.
+/*    deliver_dotforward() delivers a message to the destinations
+/*    listed in a recipient's .forward file(s) as specified through
+/*    the forward_path configuration parameter.  The result is
+/*    zero when no acceptable .forward file was found, or when
+/*    a recipient is listed in her own .forward file. Expansions
+/*    are scrutinized with the forward_expansion_filter parameter.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP state
-/*	Message delivery attributes (sender, recipient etc.).
-/*	Attributes describing alias, include or forward expansion.
-/*	A table with the results from expanding aliases or lists.
-/*	A table with delivered-to: addresses taken from the message.
+/*    Message delivery attributes (sender, recipient etc.).
+/*    Attributes describing alias, include or forward expansion.
+/*    A table with the results from expanding aliases or lists.
+/*    A table with delivered-to: addresses taken from the message.
 /* .IP usr_attr
-/*	Attributes describing user rights and environment.
+/*    Attributes describing user rights and environment.
 /* .IP statusp
-/*	Message delivery status. See below.
+/*    Message delivery status. See below.
 /* DIAGNOSTICS
-/*	Fatal errors: out of memory. Warnings: bad $HOME/.forward
-/*	file type, permissions or ownership.  The message delivery
-/*	status is non-zero when delivery should be tried again.
+/*    Fatal errors: out of memory. Warnings: bad $HOME/.forward
+/*    file type, permissions or ownership.  The message delivery
+/*    status is non-zero when delivery should be tried again.
 /* SEE ALSO
-/*	include(3) include file processor.
+/*    include(3) include file processor.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -87,8 +87,8 @@
 
 #include "local.h"
 
-#define NO	0
-#define YES	1
+#define NO    0
+#define YES    1
 
 /* deliver_dotforward - expand contents of .forward file */
 
@@ -115,28 +115,28 @@ int     deliver_dotforward(LOCAL_STATE state, USER_ATTR usr_attr, int *statusp)
      */
     state.level++;
     if (msg_verbose)
-	MSG_LOG_STATE(myname, state);
+    MSG_LOG_STATE(myname, state);
 
     /*
      * Skip this module if per-user forwarding is disabled.
      */
     if (*var_forward_path == 0)
-	return (NO);
+    return (NO);
 
     /*
      * Skip non-existing users. The mailbox delivery routine will catch the
      * error.
      */
     if ((errno = mypwnam_err(state.msg_attr.user, &mypwd)) != 0) {
-	msg_warn("error looking up passwd info for %s: %m",
-		 state.msg_attr.user);
-	dsb_simple(state.msg_attr.why, "4.0.0", "user lookup error");
-	*statusp = defer_append(BOUNCE_FLAGS(state.request),
-				BOUNCE_ATTR(state.msg_attr));
-	return (YES);
+    msg_warn("error looking up passwd info for %s: %m",
+         state.msg_attr.user);
+    dsb_simple(state.msg_attr.why, "4.0.0", "user lookup error");
+    *statusp = defer_append(BOUNCE_FLAGS(state.request),
+                BOUNCE_ATTR(state.msg_attr));
+    return (YES);
     }
     if (mypwd == 0)
-	return (NO);
+    return (NO);
 
     /*
      * From here on no early returns or we have a memory leak.
@@ -149,7 +149,7 @@ int     deliver_dotforward(LOCAL_STATE state, USER_ATTR usr_attr, int *statusp)
      * message will list the correct forwarding address.
      */
     if (var_frozen_delivered == 0)
-	state.msg_attr.delivered = state.msg_attr.rcpt.address;
+    state.msg_attr.delivered = state.msg_attr.rcpt.address;
 
     /*
      * DELIVERY RIGHTS
@@ -195,21 +195,21 @@ int     deliver_dotforward(LOCAL_STATE state, USER_ATTR usr_attr, int *statusp)
     lookup_status = -1;
 
     while ((lhs = mystrtok(&next, CHARS_COMMA_SP)) != 0) {
-	expand_status = local_expand(path, lhs, &state, &usr_attr,
-				     var_fwd_exp_filter);
-	if ((expand_status & (MAC_PARSE_ERROR | MAC_PARSE_UNDEF)) == 0) {
-	    lookup_status =
-		lstat_as(STR(path), &st, usr_attr.uid, usr_attr.gid);
-	    if (msg_verbose)
-		msg_info("%s: path %s expand_status %d look_status %d", myname,
-			 STR(path), expand_status, lookup_status);
-	    if (lookup_status >= 0) {
-		if ((expand_status & LOCAL_EXP_EXTENSION_MATCHED) != 0
-		    || (local_ext_prop_mask & EXT_PROP_FORWARD) == 0)
-		    state.msg_attr.unmatched = 0;
-		break;
-	    }
-	}
+    expand_status = local_expand(path, lhs, &state, &usr_attr,
+                     var_fwd_exp_filter);
+    if ((expand_status & (MAC_PARSE_ERROR | MAC_PARSE_UNDEF)) == 0) {
+        lookup_status =
+        lstat_as(STR(path), &st, usr_attr.uid, usr_attr.gid);
+        if (msg_verbose)
+        msg_info("%s: path %s expand_status %d look_status %d", myname,
+             STR(path), expand_status, lookup_status);
+        if (lookup_status >= 0) {
+        if ((expand_status & LOCAL_EXP_EXTENSION_MATCHED) != 0
+            || (local_ext_prop_mask & EXT_PROP_FORWARD) == 0)
+            state.msg_attr.unmatched = 0;
+        break;
+        }
+    }
     }
 
     /*
@@ -227,69 +227,69 @@ int     deliver_dotforward(LOCAL_STATE state, USER_ATTR usr_attr, int *statusp)
      */
     if (lookup_status >= 0) {
 
-	/*
-	 * Don't expand a verify-only request.
-	 */
-	if (state.request->flags & DEL_REQ_FLAG_MTA_VRFY) {
-	    dsb_simple(state.msg_attr.why, "2.0.0",
-		       "forward via file: %s", STR(path));
-	    *statusp = sent(BOUNCE_FLAGS(state.request),
-			    SENT_ATTR(state.msg_attr));
-	    forward_found = YES;
-	} else if (been_here(state.dup_filter, "forward %s", STR(path)) == 0) {
-	    state.msg_attr.exp_from = state.msg_attr.local;
-	    if (S_ISREG(st.st_mode) == 0) {
-		msg_warn("file %s is not a regular file", STR(path));
-	    } else if (st.st_uid != 0 && st.st_uid != usr_attr.uid) {
-		msg_warn("file %s has bad owner uid %ld",
-			 STR(path), (long) st.st_uid);
-	    } else if (st.st_mode & 002) {
-		msg_warn("file %s is world writable", STR(path));
-	    } else if ((fd = open_as(STR(path), O_RDONLY, 0, usr_attr.uid, usr_attr.gid)) < 0) {
-		msg_warn("cannot open file %s: %m", STR(path));
-	    } else {
+    /*
+     * Don't expand a verify-only request.
+     */
+    if (state.request->flags & DEL_REQ_FLAG_MTA_VRFY) {
+        dsb_simple(state.msg_attr.why, "2.0.0",
+               "forward via file: %s", STR(path));
+        *statusp = sent(BOUNCE_FLAGS(state.request),
+                SENT_ATTR(state.msg_attr));
+        forward_found = YES;
+    } else if (been_here(state.dup_filter, "forward %s", STR(path)) == 0) {
+        state.msg_attr.exp_from = state.msg_attr.local;
+        if (S_ISREG(st.st_mode) == 0) {
+        msg_warn("file %s is not a regular file", STR(path));
+        } else if (st.st_uid != 0 && st.st_uid != usr_attr.uid) {
+        msg_warn("file %s has bad owner uid %ld",
+             STR(path), (long) st.st_uid);
+        } else if (st.st_mode & 002) {
+        msg_warn("file %s is world writable", STR(path));
+        } else if ((fd = open_as(STR(path), O_RDONLY, 0, usr_attr.uid, usr_attr.gid)) < 0) {
+        msg_warn("cannot open file %s: %m", STR(path));
+        } else {
 
-		/*
-		 * XXX DSN. When delivering to an alias (i.e. the envelope
-		 * sender address is not replaced) any ENVID, RET, or ORCPT
-		 * parameters are propagated to all forwarding addresses
-		 * associated with that alias.  The NOTIFY parameter is
-		 * propagated to the forwarding addresses, except that any
-		 * SUCCESS keyword is removed.
-		 */
-		close_on_exec(fd, CLOSE_ON_EXEC);
-		addr_count = 0;
-		fp = vstream_fdopen(fd, O_RDONLY);
-		saved_notify = state.msg_attr.rcpt.dsn_notify;
-		state.msg_attr.rcpt.dsn_notify =
-		    (saved_notify == DSN_NOTIFY_SUCCESS ?
-		     DSN_NOTIFY_NEVER : saved_notify & ~DSN_NOTIFY_SUCCESS);
-		status = deliver_token_stream(state, usr_attr, fp, &addr_count);
-		if (vstream_fclose(fp))
-		    msg_warn("close file %s: %m", STR(path));
-		if (addr_count > 0) {
-		    forward_found = YES;
-		    been_here(state.dup_filter, "forward-done %s", STR(path));
+        /*
+         * XXX DSN. When delivering to an alias (i.e. the envelope
+         * sender address is not replaced) any ENVID, RET, or ORCPT
+         * parameters are propagated to all forwarding addresses
+         * associated with that alias.  The NOTIFY parameter is
+         * propagated to the forwarding addresses, except that any
+         * SUCCESS keyword is removed.
+         */
+        close_on_exec(fd, CLOSE_ON_EXEC);
+        addr_count = 0;
+        fp = vstream_fdopen(fd, O_RDONLY);
+        saved_notify = state.msg_attr.rcpt.dsn_notify;
+        state.msg_attr.rcpt.dsn_notify =
+            (saved_notify == DSN_NOTIFY_SUCCESS ?
+             DSN_NOTIFY_NEVER : saved_notify & ~DSN_NOTIFY_SUCCESS);
+        status = deliver_token_stream(state, usr_attr, fp, &addr_count);
+        if (vstream_fclose(fp))
+            msg_warn("close file %s: %m", STR(path));
+        if (addr_count > 0) {
+            forward_found = YES;
+            been_here(state.dup_filter, "forward-done %s", STR(path));
 
-		    /*
-		     * XXX DSN. When delivering to an alias (i.e. the
-		     * envelope sender address is not replaced) and the
-		     * original NOTIFY parameter for the alias contained the
-		     * SUCCESS keyword, an "expanded" DSN is issued for the
-		     * alias.
-		     */
-		    if (status == 0 && (saved_notify & DSN_NOTIFY_SUCCESS)) {
-			state.msg_attr.rcpt.dsn_notify = saved_notify;
-			dsb_update(state.msg_attr.why, "2.0.0", "expanded",
-				   DSB_SKIP_RMTA, DSB_SKIP_REPLY,
-				   "alias expanded");
-			(void) trace_append(BOUNCE_FLAG_NONE,
-					    SENT_ATTR(state.msg_attr));
-		    }
-		}
-	    }
-	} else if (been_here_check(state.dup_filter, "forward-done %s", STR(path)) != 0)
-	    forward_found = YES;		/* else we're recursive */
+            /*
+             * XXX DSN. When delivering to an alias (i.e. the
+             * envelope sender address is not replaced) and the
+             * original NOTIFY parameter for the alias contained the
+             * SUCCESS keyword, an "expanded" DSN is issued for the
+             * alias.
+             */
+            if (status == 0 && (saved_notify & DSN_NOTIFY_SUCCESS)) {
+            state.msg_attr.rcpt.dsn_notify = saved_notify;
+            dsb_update(state.msg_attr.why, "2.0.0", "expanded",
+                   DSB_SKIP_RMTA, DSB_SKIP_REPLY,
+                   "alias expanded");
+            (void) trace_append(BOUNCE_FLAG_NONE,
+                        SENT_ATTR(state.msg_attr));
+            }
+        }
+        }
+    } else if (been_here_check(state.dup_filter, "forward-done %s", STR(path)) != 0)
+        forward_found = YES;        /* else we're recursive */
     }
 
     /*

@@ -1,31 +1,31 @@
 /*++
 /* NAME
-/*	mkmap_lmdb 3
+/*    mkmap_lmdb 3
 /* SUMMARY
-/*	create or open database, LMDB style
+/*    create or open database, LMDB style
 /* SYNOPSIS
-/*	#include <mkmap.h>
+/*    #include <mkmap.h>
 /*
-/*	MKMAP	*mkmap_lmdb_open(path)
-/*	const char *path;
+/*    MKMAP    *mkmap_lmdb_open(path)
+/*    const char *path;
 /*
 /* DESCRIPTION
-/*	This module implements support for creating LMDB databases.
+/*    This module implements support for creating LMDB databases.
 /*
-/*	mkmap_lmdb_open() takes a file name, appends the ".lmdb"
-/*	suffix, and does whatever initialization is required
-/*	before the OpenLDAP LMDB open routine is called.
+/*    mkmap_lmdb_open() takes a file name, appends the ".lmdb"
+/*    suffix, and does whatever initialization is required
+/*    before the OpenLDAP LMDB open routine is called.
 /*
-/*	All errors are fatal.
+/*    All errors are fatal.
 /* SEE ALSO
-/*	dict_lmdb(3), LMDB dictionary interface.
+/*    dict_lmdb(3), LMDB dictionary interface.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Howard Chu
-/*	Symas Corporation
+/*    Howard Chu
+/*    Symas Corporation
 /*--*/
 
 /* System library. */

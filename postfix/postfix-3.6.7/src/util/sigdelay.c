@@ -1,35 +1,35 @@
 /*++
 /* NAME
-/*	sigdelay 3
+/*    sigdelay 3
 /* SUMMARY
-/*	delay/resume signal delivery
+/*    delay/resume signal delivery
 /* SYNOPSIS
-/*	#include <sigdelay.h>
+/*    #include <sigdelay.h>
 /*
-/*	void	sigdelay()
+/*    void    sigdelay()
 /*
-/*	void	sigresume()
+/*    void    sigresume()
 /* DESCRIPTION
-/*	sigdelay() delays delivery of signals. Signals that
-/*	arrive in the mean time will be queued.
+/*    sigdelay() delays delivery of signals. Signals that
+/*    arrive in the mean time will be queued.
 /*
-/*	sigresume() resumes delivery of signals. Signals that have
-/*	arrived in the mean time will be delivered.
+/*    sigresume() resumes delivery of signals. Signals that have
+/*    arrived in the mean time will be delivered.
 /* DIAGNOSTICS
-/*	All errors are fatal.
+/*    All errors are fatal.
 /* BUGS
-/*	The signal queue may be really short (as in: one per signal type).
+/*    The signal queue may be really short (as in: one per signal type).
 /*
-/*	Some signals such as SIGKILL cannot be blocked.
+/*    Some signals such as SIGKILL cannot be blocked.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -59,7 +59,7 @@ static void siginit(void)
     siginit_done = 1;
     sigemptyset(&block_sigmask);
     for (sig = 1; sig < NSIG; sig++)
-	sigaddset(&block_sigmask, sig);
+    sigaddset(&block_sigmask, sig);
 }
 
 /* sigresume - deliver delayed signals and disable signal delay */
@@ -67,9 +67,9 @@ static void siginit(void)
 void    sigresume(void)
 {
     if (suspending != 0) {
-	suspending = 0;
-	if (sigprocmask(SIG_SETMASK, &saved_sigmask, (sigset_t *) 0) < 0)
-	    msg_fatal("sigresume: sigprocmask: %m");
+    suspending = 0;
+    if (sigprocmask(SIG_SETMASK, &saved_sigmask, (sigset_t *) 0) < 0)
+        msg_fatal("sigresume: sigprocmask: %m");
     }
 }
 
@@ -78,11 +78,11 @@ void    sigresume(void)
 void    sigdelay(void)
 {
     if (siginit_done == 0)
-	siginit();
+    siginit();
     if (suspending == 0) {
-	suspending = 1;
-	if (sigprocmask(SIG_BLOCK, &block_sigmask, &saved_sigmask) < 0)
-	    msg_fatal("sigdelay: sigprocmask: %m");
+    suspending = 1;
+    if (sigprocmask(SIG_BLOCK, &block_sigmask, &saved_sigmask) < 0)
+        msg_fatal("sigdelay: sigprocmask: %m");
     }
 }
 

@@ -1,29 +1,29 @@
 /*++
 /* NAME
-/*	dict_fail 3
+/*    dict_fail 3
 /* SUMMARY
-/*	dictionary manager interface to 'always fail' table
+/*    dictionary manager interface to 'always fail' table
 /* SYNOPSIS
-/*	#include <dict_fail.h>
+/*    #include <dict_fail.h>
 /*
-/*	DICT	*dict_fail_open(name, open_flags, dict_flags)
-/*	const char *name;
-/*	int	open_flags;
-/*	int	dict_flags;
+/*    DICT    *dict_fail_open(name, open_flags, dict_flags)
+/*    const char *name;
+/*    int    open_flags;
+/*    int    dict_flags;
 /* DESCRIPTION
-/*	dict_fail_open() implements a dummy dictionary that fails
-/*	all operations. The name can be used for logging.
+/*    dict_fail_open() implements a dummy dictionary that fails
+/*    all operations. The name can be used for logging.
 /* SEE ALSO
-/*	dict(3) generic dictionary manager
+/*    dict(3) generic dictionary manager
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -40,14 +40,14 @@
 /* Application-specific. */
 
 typedef struct {
-    DICT    dict;			/* generic members */
-    int     dict_errno;			/* fixed error result */
+    DICT    dict;            /* generic members */
+    int     dict_errno;            /* fixed error result */
 } DICT_FAIL;
 
 /* dict_fail_sequence - fail lookup */
 
 static int dict_fail_sequence(DICT *dict, int unused_func,
-			              const char **key, const char **value)
+                          const char **key, const char **value)
 {
     DICT_FAIL *dp = (DICT_FAIL *) dict;
 
@@ -57,7 +57,7 @@ static int dict_fail_sequence(DICT *dict, int unused_func,
 /* dict_fail_update - fail lookup */
 
 static int dict_fail_update(DICT *dict, const char *unused_name,
-			            const char *unused_value)
+                        const char *unused_value)
 {
     DICT_FAIL *dp = (DICT_FAIL *) dict;
 
@@ -98,8 +98,8 @@ DICT   *dict_fail_open(const char *name, int open_flags, int dict_flags)
     dp = (DICT_FAIL *) dict_alloc(DICT_TYPE_FAIL, name, sizeof(*dp));
     dp->dict.lookup = dict_fail_lookup;
     if (open_flags & O_RDWR) {
-	dp->dict.update = dict_fail_update;
-	dp->dict.delete = dict_fail_delete;
+    dp->dict.update = dict_fail_update;
+    dp->dict.delete = dict_fail_delete;
     }
     dp->dict.sequence = dict_fail_sequence;
     dp->dict.close = dict_fail_close;

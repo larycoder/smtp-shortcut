@@ -1,46 +1,46 @@
 /*++
 /* NAME
-/*	dict_union 3
+/*    dict_union 3
 /* SUMMARY
-/*	dictionary manager interface for union of tables
+/*    dictionary manager interface for union of tables
 /* SYNOPSIS
-/*	#include <dict_union.h>
+/*    #include <dict_union.h>
 /*
-/*	DICT	*dict_union_open(name, open_flags, dict_flags)
-/*	const char *name;
-/*	int	open_flags;
-/*	int	dict_flags;
+/*    DICT    *dict_union_open(name, open_flags, dict_flags)
+/*    const char *name;
+/*    int    open_flags;
+/*    int    dict_flags;
 /* DESCRIPTION
-/*	dict_union_open() opens a sequence of one or more tables.
-/*	Example: "\fBunionmap:{\fItype_1:name_1, ..., type_n:name_n\fR}".
+/*    dict_union_open() opens a sequence of one or more tables.
+/*    Example: "\fBunionmap:{\fItype_1:name_1, ..., type_n:name_n\fR}".
 /*
-/*	Each "unionmap:" query is given to each table in the specified
-/*	order. All found results are concatenated, separated by
-/*	comma.  The unionmap table produces no result when all
-/*	lookup tables return no result.
+/*    Each "unionmap:" query is given to each table in the specified
+/*    order. All found results are concatenated, separated by
+/*    comma.  The unionmap table produces no result when all
+/*    lookup tables return no result.
 /*
-/*	The first and last characters of a "unionmap:" table name
-/*	must be '{' and '}'. Within these, individual maps are
-/*	separated with comma or whitespace.
+/*    The first and last characters of a "unionmap:" table name
+/*    must be '{' and '}'. Within these, individual maps are
+/*    separated with comma or whitespace.
 /*
-/*	The open_flags and dict_flags arguments are passed on to
-/*	the underlying dictionaries.
+/*    The open_flags and dict_flags arguments are passed on to
+/*    the underlying dictionaries.
 /* SEE ALSO
-/*	dict(3) generic dictionary manager
+/*    dict(3) generic dictionary manager
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -61,9 +61,9 @@
 /* Application-specific. */
 
 typedef struct {
-    DICT    dict;			/* generic members */
-    ARGV   *map_union;			/* pipelined tables */
-    VSTRING *re_buf;			/* reply buffer */
+    DICT    dict;            /* generic members */
+    ARGV   *map_union;            /* pipelined tables */
+    VSTRING *re_buf;            /* reply buffer */
 } DICT_UNION;
 
 #define STR(x) vstring_str(x)
@@ -84,19 +84,19 @@ static const char *dict_union_lookup(DICT *dict, const char *query)
      */
     VSTRING_RESET(dict_union->re_buf);
     for (cpp = dict_union->map_union->argv; (dict_type_name = *cpp) != 0; cpp++) {
-	if ((map = dict_handle(dict_type_name)) == 0)
-	    msg_panic("%s: dictionary \"%s\" not found", myname, dict_type_name);
-	if ((result = dict_get(map, query)) != 0) {
-	    if (VSTRING_LEN(dict_union->re_buf) > 0)
-		VSTRING_ADDCH(dict_union->re_buf, ',');
-	    vstring_strcat(dict_union->re_buf, result);
-	} else if (map->error != 0) {
-	    DICT_ERR_VAL_RETURN(dict, map->error, 0);
-	}
+    if ((map = dict_handle(dict_type_name)) == 0)
+        msg_panic("%s: dictionary \"%s\" not found", myname, dict_type_name);
+    if ((result = dict_get(map, query)) != 0) {
+        if (VSTRING_LEN(dict_union->re_buf) > 0)
+        VSTRING_ADDCH(dict_union->re_buf, ',');
+        vstring_strcat(dict_union->re_buf, result);
+    } else if (map->error != 0) {
+        DICT_ERR_VAL_RETURN(dict, map->error, 0);
+    }
     }
     DICT_ERR_VAL_RETURN(dict, DICT_ERR_NONE,
-			VSTRING_LEN(dict_union->re_buf) > 0 ?
-			STR(dict_union->re_buf) : 0);
+            VSTRING_LEN(dict_union->re_buf) > 0 ?
+            STR(dict_union->re_buf) : 0);
 }
 
 /* dict_union_close - disassociate from a bunch of tables */
@@ -108,7 +108,7 @@ static void dict_union_close(DICT *dict)
     char   *dict_type_name;
 
     for (cpp = dict_union->map_union->argv; (dict_type_name = *cpp) != 0; cpp++)
-	dict_unregister(dict_type_name);
+    dict_unregister(dict_type_name);
     argv_free(dict_union->map_union);
     vstring_free(dict_union->re_buf);
     dict_free(dict);
@@ -133,35 +133,35 @@ DICT   *dict_union_open(const char *name, int open_flags, int dict_flags)
      * Clarity first. Let the optimizer worry about redundant code.
      */
 #define DICT_UNION_RETURN(x) do { \
-	      if (saved_name != 0) \
-	          myfree(saved_name); \
-	      if (argv != 0) \
-	          argv_free(argv); \
-	      return (x); \
-	  } while (0)
+          if (saved_name != 0) \
+              myfree(saved_name); \
+          if (argv != 0) \
+              argv_free(argv); \
+          return (x); \
+      } while (0)
 
     /*
      * Sanity checks.
      */
     if (open_flags != O_RDONLY)
-	DICT_UNION_RETURN(dict_surrogate(DICT_TYPE_UNION, name,
-					 open_flags, dict_flags,
-				  "%s:%s map requires O_RDONLY access mode",
-					 DICT_TYPE_UNION, name));
+    DICT_UNION_RETURN(dict_surrogate(DICT_TYPE_UNION, name,
+                     open_flags, dict_flags,
+                  "%s:%s map requires O_RDONLY access mode",
+                     DICT_TYPE_UNION, name));
 
     /*
      * Split the table name into its constituent parts.
      */
     if ((len = balpar(name, CHARS_BRACE)) == 0 || name[len] != 0
-	|| *(saved_name = mystrndup(name + 1, len - 2)) == 0
-	|| ((argv = argv_splitq(saved_name, CHARS_COMMA_SP, CHARS_BRACE)),
-	    (argv->argc == 0)))
-	DICT_UNION_RETURN(dict_surrogate(DICT_TYPE_UNION, name,
-					 open_flags, dict_flags,
-					 "bad syntax: \"%s:%s\"; "
-					 "need \"%s:{type:name...}\"",
-					 DICT_TYPE_UNION, name,
-					 DICT_TYPE_UNION));
+    || *(saved_name = mystrndup(name + 1, len - 2)) == 0
+    || ((argv = argv_splitq(saved_name, CHARS_COMMA_SP, CHARS_BRACE)),
+        (argv->argc == 0)))
+    DICT_UNION_RETURN(dict_surrogate(DICT_TYPE_UNION, name,
+                     open_flags, dict_flags,
+                     "bad syntax: \"%s:%s\"; "
+                     "need \"%s:{type:name...}\"",
+                     DICT_TYPE_UNION, name,
+                     DICT_TYPE_UNION));
 
     /*
      * The least-trusted table in the set determines the over-all trust
@@ -169,28 +169,28 @@ DICT   *dict_union_open(const char *name, int open_flags, int dict_flags)
      */
     DICT_OWNER_AGGREGATE_INIT(aggr_owner);
     for (cpp = argv->argv; (dict_type_name = *cpp) != 0; cpp++) {
-	if (msg_verbose)
-	    msg_info("%s: %s", myname, dict_type_name);
-	if (strchr(dict_type_name, ':') == 0)
-	    DICT_UNION_RETURN(dict_surrogate(DICT_TYPE_UNION, name,
-					     open_flags, dict_flags,
-					     "bad syntax: \"%s:%s\"; "
-					     "need \"%s:{type:name...}\"",
-					     DICT_TYPE_UNION, name,
-					     DICT_TYPE_UNION));
-	if ((dict = dict_handle(dict_type_name)) == 0)
-	    dict = dict_open(dict_type_name, open_flags, dict_flags);
-	dict_register(dict_type_name, dict);
-	DICT_OWNER_AGGREGATE_UPDATE(aggr_owner, dict->owner);
-	if (cpp == argv->argv)
-	    match_flags = dict->flags & (DICT_FLAG_FIXED | DICT_FLAG_PATTERN);
+    if (msg_verbose)
+        msg_info("%s: %s", myname, dict_type_name);
+    if (strchr(dict_type_name, ':') == 0)
+        DICT_UNION_RETURN(dict_surrogate(DICT_TYPE_UNION, name,
+                         open_flags, dict_flags,
+                         "bad syntax: \"%s:%s\"; "
+                         "need \"%s:{type:name...}\"",
+                         DICT_TYPE_UNION, name,
+                         DICT_TYPE_UNION));
+    if ((dict = dict_handle(dict_type_name)) == 0)
+        dict = dict_open(dict_type_name, open_flags, dict_flags);
+    dict_register(dict_type_name, dict);
+    DICT_OWNER_AGGREGATE_UPDATE(aggr_owner, dict->owner);
+    if (cpp == argv->argv)
+        match_flags = dict->flags & (DICT_FLAG_FIXED | DICT_FLAG_PATTERN);
     }
 
     /*
      * Bundle up the result.
      */
     dict_union =
-	(DICT_UNION *) dict_alloc(DICT_TYPE_UNION, name, sizeof(*dict_union));
+    (DICT_UNION *) dict_alloc(DICT_TYPE_UNION, name, sizeof(*dict_union));
     dict_union->dict.lookup = dict_union_lookup;
     dict_union->dict.close = dict_union_close;
     dict_union->dict.flags = dict_flags | match_flags;

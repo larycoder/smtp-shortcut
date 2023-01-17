@@ -1,61 +1,61 @@
 /*++
 /* NAME
-/*	rewrite 3
+/*    rewrite 3
 /* SUMMARY
-/*	mail address rewriter
+/*    mail address rewriter
 /* SYNOPSIS
-/*	#include "trivial-rewrite.h"
+/*    #include "trivial-rewrite.h"
 /*
-/*	void	rewrite_init(void)
+/*    void    rewrite_init(void)
 /*
-/*	void	rewrite_proto(stream)
-/*	VSTREAM	*stream;
+/*    void    rewrite_proto(stream)
+/*    VSTREAM    *stream;
 /*
-/*	void	rewrite_addr(context, addr, result)
-/*	RWR_CONTEXT *context;
-/*	char	*addr;
-/*	VSTRING *result;
+/*    void    rewrite_addr(context, addr, result)
+/*    RWR_CONTEXT *context;
+/*    char    *addr;
+/*    VSTRING *result;
 /*
-/*	void	rewrite_tree(context, tree)
-/*	RWR_CONTEXT *context;
-/*	TOK822	*tree;
+/*    void    rewrite_tree(context, tree)
+/*    RWR_CONTEXT *context;
+/*    TOK822    *tree;
 /*
-/*	RWR_CONTEXT local_context;
-/*	RWR_CONTEXT remote_context;
+/*    RWR_CONTEXT local_context;
+/*    RWR_CONTEXT remote_context;
 /* DESCRIPTION
-/*	This module implements the trivial address rewriting engine.
+/*    This module implements the trivial address rewriting engine.
 /*
-/*	rewrite_init() initializes data structures that are private
-/*	to this module. It should be called once before using the
-/*	actual rewriting routines.
+/*    rewrite_init() initializes data structures that are private
+/*    to this module. It should be called once before using the
+/*    actual rewriting routines.
 /*
-/*	rewrite_proto() implements the client-server protocol: read
-/*	one rule set name and one address in external (quoted) form,
-/*	reply with the rewritten address in external form.
+/*    rewrite_proto() implements the client-server protocol: read
+/*    one rule set name and one address in external (quoted) form,
+/*    reply with the rewritten address in external form.
 /*
-/*	rewrite_addr() rewrites an address string to another string.
-/*	Both input and output are in external (quoted) form.
+/*    rewrite_addr() rewrites an address string to another string.
+/*    Both input and output are in external (quoted) form.
 /*
-/*	rewrite_tree() rewrites a parse tree with a single address to
-/*	another tree.  A tree is a dummy node on top of a token list.
+/*    rewrite_tree() rewrites a parse tree with a single address to
+/*    another tree.  A tree is a dummy node on top of a token list.
 /*
-/*	local_context and remote_context provide domain names for
-/*	completing incomplete address forms.
+/*    local_context and remote_context provide domain names for
+/*    completing incomplete address forms.
 /* STANDARDS
 /* DIAGNOSTICS
-/*	Problems and transactions are logged to \fBsyslogd\fR(8)
-/*	or \fBpostlogd\fR(8).
+/*    Problems and transactions are logged to \fBsyslogd\fR(8)
+/*    or \fBpostlogd\fR(8).
 /* BUGS
 /* SEE ALSO
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -122,70 +122,70 @@ void    rewrite_tree(RWR_CONTEXT *context, TOK822 *tree)
      * Sanity check.
      */
     if (tree->head == 0)
-	msg_panic("rewrite_tree: empty tree");
+    msg_panic("rewrite_tree: empty tree");
 
     /*
      * An empty address is a special case.
      */
     if (tree->head == tree->tail
-	&& tree->tail->type == TOK822_QSTRING
-	&& VSTRING_LEN(tree->tail->vstr) == 0)
-	return;
+    && tree->tail->type == TOK822_QSTRING
+    && VSTRING_LEN(tree->tail->vstr) == 0)
+    return;
 
     /*
      * Treat a lone @ as if it were an empty address.
      */
     if (tree->head == tree->tail
-	&& tree->tail->type == '@') {
-	tok822_free_tree(tok822_sub_keep_before(tree, tree->tail));
-	tok822_sub_append(tree, tok822_alloc(TOK822_QSTRING, ""));
-	return;
+    && tree->tail->type == '@') {
+    tok822_free_tree(tok822_sub_keep_before(tree, tree->tail));
+    tok822_sub_append(tree, tok822_alloc(TOK822_QSTRING, ""));
+    return;
     }
 
     /*
      * Strip source route.
      */
     if (tree->head->type == '@'
-	&& (colon = tok822_find_type(tree->head, ':')) != 0
-	&& colon != tree->tail)
-	tok822_free_tree(tok822_sub_keep_after(tree, colon));
+    && (colon = tok822_find_type(tree->head, ':')) != 0
+    && colon != tree->tail)
+    tok822_free_tree(tok822_sub_keep_after(tree, colon));
 
     /*
      * Optionally, transform address forms without @.
      */
     if ((domain = tok822_rfind_type(tree->tail, '@')) == 0) {
 
-	/*
-	 * Swap domain!user to user@domain.
-	 */
-	if (var_swap_bangpath != 0
-	    && (bang = tok822_find_type(tree->head, '!')) != 0) {
-	    tok822_sub_keep_before(tree, bang);
-	    local = tok822_cut_after(bang);
-	    tok822_free(bang);
-	    tok822_sub_prepend(tree, tok822_alloc('@', (char *) 0));
-	    if (local)
-		tok822_sub_prepend(tree, local);
-	}
+    /*
+     * Swap domain!user to user@domain.
+     */
+    if (var_swap_bangpath != 0
+        && (bang = tok822_find_type(tree->head, '!')) != 0) {
+        tok822_sub_keep_before(tree, bang);
+        local = tok822_cut_after(bang);
+        tok822_free(bang);
+        tok822_sub_prepend(tree, tok822_alloc('@', (char *) 0));
+        if (local)
+        tok822_sub_prepend(tree, local);
+    }
 
-	/*
-	 * Promote user%domain to user@domain.
-	 */
-	else if (var_percent_hack != 0
-		 && (domain = tok822_rfind_type(tree->tail, '%')) != 0) {
-	    domain->type = '@';
-	}
+    /*
+     * Promote user%domain to user@domain.
+     */
+    else if (var_percent_hack != 0
+         && (domain = tok822_rfind_type(tree->tail, '%')) != 0) {
+        domain->type = '@';
+    }
 
-	/*
-	 * Append missing @origin
-	 */
-	else if (var_append_at_myorigin != 0
-		 && REW_PARAM_VALUE(context->origin) != 0
-		 && REW_PARAM_VALUE(context->origin)[0] != 0) {
-	    domain = tok822_sub_append(tree, tok822_alloc('@', (char *) 0));
-	    tok822_sub_append(tree, tok822_scan(REW_PARAM_VALUE(context->origin),
-						(TOK822 **) 0));
-	}
+    /*
+     * Append missing @origin
+     */
+    else if (var_append_at_myorigin != 0
+         && REW_PARAM_VALUE(context->origin) != 0
+         && REW_PARAM_VALUE(context->origin)[0] != 0) {
+        domain = tok822_sub_append(tree, tok822_alloc('@', (char *) 0));
+        tok822_sub_append(tree, tok822_scan(REW_PARAM_VALUE(context->origin),
+                        (TOK822 **) 0));
+    }
     }
 
     /*
@@ -198,31 +198,31 @@ void    rewrite_tree(RWR_CONTEXT *context, TOK822 *tree)
      * explicit domain list.
      */
     if (var_append_dot_mydomain != 0
-	&& REW_PARAM_VALUE(context->domain) != 0
-	&& REW_PARAM_VALUE(context->domain)[0] != 0
-	&& (domain = tok822_rfind_type(tree->tail, '@')) != 0
-	&& domain != tree->tail
-	&& tok822_find_type(domain, TOK822_DOMLIT) == 0
-	&& tok822_find_type(domain, '.') == 0) {
-	if (warn_compat_break_app_dot_mydomain
-	    && (vstringval = domain->next->vstr) != 0) {
-	    if (strcasecmp(vstring_str(vstringval), "localhost") != 0) {
-		msg_info("using backwards-compatible default setting "
-			 VAR_APP_DOT_MYDOMAIN "=yes to rewrite \"%s\" to "
-			 "\"%s.%s\"", vstring_str(vstringval),
-			 vstring_str(vstringval), var_mydomain);
-	    } else if (resolve_class("localhost") == RESOLVE_CLASS_DEFAULT) {
-		msg_info("using backwards-compatible default setting "
-			 VAR_APP_DOT_MYDOMAIN "=yes to rewrite \"%s\" to "
-			 "\"%s.%s\"; please add \"localhost\" to "
-			 "mydestination or other address class",
-			 vstring_str(vstringval), vstring_str(vstringval),
-			 var_mydomain);
-	    }
-	}
-	tok822_sub_append(tree, tok822_alloc('.', (char *) 0));
-	tok822_sub_append(tree, tok822_scan(REW_PARAM_VALUE(context->domain),
-					    (TOK822 **) 0));
+    && REW_PARAM_VALUE(context->domain) != 0
+    && REW_PARAM_VALUE(context->domain)[0] != 0
+    && (domain = tok822_rfind_type(tree->tail, '@')) != 0
+    && domain != tree->tail
+    && tok822_find_type(domain, TOK822_DOMLIT) == 0
+    && tok822_find_type(domain, '.') == 0) {
+    if (warn_compat_break_app_dot_mydomain
+        && (vstringval = domain->next->vstr) != 0) {
+        if (strcasecmp(vstring_str(vstringval), "localhost") != 0) {
+        msg_info("using backwards-compatible default setting "
+             VAR_APP_DOT_MYDOMAIN "=yes to rewrite \"%s\" to "
+             "\"%s.%s\"", vstring_str(vstringval),
+             vstring_str(vstringval), var_mydomain);
+        } else if (resolve_class("localhost") == RESOLVE_CLASS_DEFAULT) {
+        msg_info("using backwards-compatible default setting "
+             VAR_APP_DOT_MYDOMAIN "=yes to rewrite \"%s\" to "
+             "\"%s.%s\"; please add \"localhost\" to "
+             "mydestination or other address class",
+             vstring_str(vstringval), vstring_str(vstringval),
+             var_mydomain);
+        }
+    }
+    tok822_sub_append(tree, tok822_alloc('.', (char *) 0));
+    tok822_sub_append(tree, tok822_scan(REW_PARAM_VALUE(context->domain),
+                        (TOK822 **) 0));
     }
 
     /*
@@ -231,10 +231,10 @@ void    rewrite_tree(RWR_CONTEXT *context, TOK822 *tree)
      * alone.
      */
     if (tree->tail->type == '.'
-	&& tree->tail->prev
-	&& tree->tail->prev->type != '.'
-	&& tree->tail->prev->type != '@')
-	tok822_free_tree(tok822_sub_keep_before(tree, tree->tail));
+    && tree->tail->prev
+    && tree->tail->prev->type != '.'
+    && tree->tail->prev->type != '@')
+    tok822_free_tree(tok822_sub_keep_before(tree, tree->tail));
 }
 
 /* rewrite_proto - read request and send reply */
@@ -245,26 +245,26 @@ int     rewrite_proto(VSTREAM *stream)
     TOK822 *tree;
 
     if (attr_scan(stream, ATTR_FLAG_STRICT,
-		  RECV_ATTR_STR(MAIL_ATTR_RULE, ruleset),
-		  RECV_ATTR_STR(MAIL_ATTR_ADDR, address),
-		  ATTR_TYPE_END) != 2)
-	return (-1);
+          RECV_ATTR_STR(MAIL_ATTR_RULE, ruleset),
+          RECV_ATTR_STR(MAIL_ATTR_ADDR, address),
+          ATTR_TYPE_END) != 2)
+    return (-1);
 
     if (strcmp(vstring_str(ruleset), MAIL_ATTR_RWR_LOCAL) == 0)
-	context = &local_context;
+    context = &local_context;
     else if (strcmp(vstring_str(ruleset), MAIL_ATTR_RWR_REMOTE) == 0)
-	context = &remote_context;
+    context = &remote_context;
     else {
-	msg_warn("unknown context: %s", vstring_str(ruleset));
-	return (-1);
+    msg_warn("unknown context: %s", vstring_str(ruleset));
+    return (-1);
     }
 
     /*
      * Sanity check. An address is supposed to be in externalized form.
      */
     if (*vstring_str(address) == 0) {
-	msg_warn("rewrite_addr: null address");
-	vstring_strcpy(result, vstring_str(address));
+    msg_warn("rewrite_addr: null address");
+    vstring_strcpy(result, vstring_str(address));
     }
 
     /*
@@ -272,23 +272,23 @@ int     rewrite_proto(VSTREAM *stream)
      * rewrite it, and convert back.
      */
     else {
-	tree = tok822_scan_addr(vstring_str(address));
-	rewrite_tree(context, tree);
-	tok822_externalize(result, tree, TOK822_STR_DEFL);
-	tok822_free_tree(tree);
+    tree = tok822_scan_addr(vstring_str(address));
+    rewrite_tree(context, tree);
+    tok822_externalize(result, tree, TOK822_STR_DEFL);
+    tok822_free_tree(tree);
     }
     if (msg_verbose)
-	msg_info("`%s' `%s' -> `%s'", vstring_str(ruleset),
-		 vstring_str(address), vstring_str(result));
+    msg_info("`%s' `%s' -> `%s'", vstring_str(ruleset),
+         vstring_str(address), vstring_str(result));
 
     attr_print(stream, ATTR_FLAG_NONE,
-	       SEND_ATTR_INT(MAIL_ATTR_FLAGS, server_flags),
-	       SEND_ATTR_STR(MAIL_ATTR_ADDR, vstring_str(result)),
-	       ATTR_TYPE_END);
+           SEND_ATTR_INT(MAIL_ATTR_FLAGS, server_flags),
+           SEND_ATTR_STR(MAIL_ATTR_ADDR, vstring_str(result)),
+           ATTR_TYPE_END);
 
     if (vstream_fflush(stream) != 0) {
-	msg_warn("write rewrite reply: %m");
-	return (-1);
+    msg_warn("write rewrite reply: %m");
+    return (-1);
     }
     return (0);
 }

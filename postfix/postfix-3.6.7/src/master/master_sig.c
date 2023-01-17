@@ -1,43 +1,43 @@
 /*++
 /* NAME
-/*	master_sig 3
+/*    master_sig 3
 /* SUMMARY
-/*	Postfix master - signal processing
+/*    Postfix master - signal processing
 /* SYNOPSIS
-/*	#include "master.h"
+/*    #include "master.h"
 /*
-/*	int	master_gotsighup;
-/*	int	master_gotsigchld;
+/*    int    master_gotsighup;
+/*    int    master_gotsigchld;
 /*
-/*	int	master_sigsetup()
+/*    int    master_sigsetup()
 /* DESCRIPTION
-/*	This module implements the master process signal handling interface.
+/*    This module implements the master process signal handling interface.
 /*
-/*	master_gotsighup (master_gotsigchld) is set to SIGHUP (SIGCHLD)
-/*	when the process receives a hangup (child death) signal.
+/*    master_gotsighup (master_gotsigchld) is set to SIGHUP (SIGCHLD)
+/*    when the process receives a hangup (child death) signal.
 /*
-/*	master_sigsetup() enables processing of hangup and child death signals.
-/*	Receipt of SIGINT, SIGQUIT, SIGSEGV, SIGILL, or SIGTERM
-/*	is interpreted as a request for termination.  Child processes are
-/*	notified of the master\'s demise by sending them a SIGTERM signal.
+/*    master_sigsetup() enables processing of hangup and child death signals.
+/*    Receipt of SIGINT, SIGQUIT, SIGSEGV, SIGILL, or SIGTERM
+/*    is interpreted as a request for termination.  Child processes are
+/*    notified of the master\'s demise by sending them a SIGTERM signal.
 /* DIAGNOSTICS
 /* BUGS
-/*	Need a way to register cleanup actions.
+/*    Need a way to register cleanup actions.
 /* SEE ALSO
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System libraries. */
@@ -110,10 +110,10 @@ static void master_sigchld(int sig, int code, struct sigcontext * scp)
      */
     master_gotsigchld = sig;
     if (scp != NULL && scp->sc_syscall == SYS_select) {
-	scp->sc_syscall_action = SIG_RETURN;
+    scp->sc_syscall_action = SIG_RETURN;
 #ifndef SA_RESTART
     } else if (scp != NULL) {
-	scp->sc_syscall_action = SIG_RESTART;
+    scp->sc_syscall_action = SIG_RESTART;
 #endif
     }
 }
@@ -136,7 +136,7 @@ static void master_sighup(int sig)
      */
     master_gotsighup = sig;
     if (write(SIG_PIPE_WRITE_FD, "", 1) != 1)
-	msg_warn("write to SIG_PIPE_WRITE_FD failed: %m");
+    msg_warn("write to SIG_PIPE_WRITE_FD failed: %m");
     errno = saved_errno;
 }
 
@@ -156,7 +156,7 @@ static void master_sigchld(int unused_sig)
      */
     master_gotsigchld = 1;
     if (write(SIG_PIPE_WRITE_FD, "", 1) != 1)
-	msg_warn("write to SIG_PIPE_WRITE_FD failed: %m");
+    msg_warn("write to SIG_PIPE_WRITE_FD failed: %m");
     errno = saved_errno;
 }
 
@@ -167,7 +167,7 @@ static void master_sig_event(int unused_event, void *unused_context)
     char    c[1];
 
     while (read(SIG_PIPE_READ_FD, c, 1) > 0)
-	 /* void */ ;
+     /* void */ ;
 }
 
 #endif
@@ -192,9 +192,9 @@ static void master_sigdeath(int sig)
     action.sa_flags = 0;
     action.sa_handler = SIG_IGN;
     if (sigaction(SIGTERM, &action, (struct sigaction *) 0) < 0)
-	msg_fatal("%s: sigaction: %m", myname);
+    msg_fatal("%s: sigaction: %m", myname);
     if (kill(-pid, SIGTERM) < 0)
-	msg_fatal("%s: kill process group: %m", myname);
+    msg_fatal("%s: kill process group: %m", myname);
 
     /*
      * XXX We're running from a signal handler, and should not call complex
@@ -210,8 +210,8 @@ static void master_sigdeath(int sig)
      * as SIG_IGN).
      */
     if (init_mode)
-	/* Don't call exit() from a signal handler. */
-	_exit(0);
+    /* Don't call exit() from a signal handler. */
+    _exit(0);
 
     /*
      * Deliver the signal to ourselves and clean up. XXX We're running as a
@@ -221,9 +221,9 @@ static void master_sigdeath(int sig)
     action.sa_flags = 0;
     action.sa_handler = SIG_DFL;
     if (sigaction(sig, &action, (struct sigaction *) 0) < 0)
-	msg_fatal("%s: sigaction: %m", myname);
+    msg_fatal("%s: sigaction: %m", myname);
     if (kill(pid, sig) < 0)
-	msg_fatal("%s: kill myself: %m", myname);
+    msg_fatal("%s: kill myself: %m", myname);
 }
 
 /* master_sigsetup - set up signal handlers */
@@ -233,7 +233,7 @@ void    master_sigsetup(void)
     const char *myname = "master_sigsetup";
     struct sigaction action;
     static int sigs[] = {
-	SIGINT, SIGQUIT, SIGILL, SIGBUS, SIGSEGV, SIGTERM,
+    SIGINT, SIGQUIT, SIGILL, SIGBUS, SIGSEGV, SIGTERM,
     };
     unsigned i;
 
@@ -245,12 +245,12 @@ void    master_sigsetup(void)
      */
     action.sa_handler = master_sigdeath;
     for (i = 0; i < sizeof(sigs) / sizeof(sigs[0]); i++)
-	if (sigaction(sigs[i], &action, (struct sigaction *) 0) < 0)
-	    msg_fatal("%s: sigaction(%d): %m", myname, sigs[i]);
+    if (sigaction(sigs[i], &action, (struct sigaction *) 0) < 0)
+        msg_fatal("%s: sigaction(%d): %m", myname, sigs[i]);
 
 #ifdef USE_SIG_PIPE
     if (pipe(master_sig_pipe))
-	msg_fatal("pipe: %m");
+    msg_fatal("pipe: %m");
     non_blocking(SIG_PIPE_WRITE_FD, NON_BLOCKING);
     non_blocking(SIG_PIPE_READ_FD, NON_BLOCKING);
     close_on_exec(SIG_PIPE_WRITE_FD, CLOSE_ON_EXEC);
@@ -266,10 +266,10 @@ void    master_sigsetup(void)
 #endif
     action.sa_handler = master_sighup;
     if (sigaction(SIGHUP, &action, (struct sigaction *) 0) < 0)
-	msg_fatal("%s: sigaction(%d): %m", myname, SIGHUP);
+    msg_fatal("%s: sigaction(%d): %m", myname, SIGHUP);
 
     action.sa_flags |= SA_NOCLDSTOP;
     action.sa_handler = master_sigchld;
     if (sigaction(SIGCHLD, &action, (struct sigaction *) 0) < 0)
-	msg_fatal("%s: sigaction(%d): %m", myname, SIGCHLD);
+    msg_fatal("%s: sigaction(%d): %m", myname, SIGCHLD);
 }

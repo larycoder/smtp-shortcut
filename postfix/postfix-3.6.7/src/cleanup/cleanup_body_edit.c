@@ -1,68 +1,68 @@
 /*++
 /* NAME
-/*	cleanup_body_edit 3
+/*    cleanup_body_edit 3
 /* SUMMARY
-/*	edit body content
+/*    edit body content
 /* SYNOPSIS
-/*	#include "cleanup.h"
+/*    #include "cleanup.h"
 /*
-/*	int	cleanup_body_edit_start(state)
-/*	CLEANUP_STATE *state;
+/*    int    cleanup_body_edit_start(state)
+/*    CLEANUP_STATE *state;
 /*
-/*	int	cleanup_body_edit_write(state, type, buf)
-/*	CLEANUP_STATE *state;
-/*	int	type;
-/*	VSTRING	*buf;
+/*    int    cleanup_body_edit_write(state, type, buf)
+/*    CLEANUP_STATE *state;
+/*    int    type;
+/*    VSTRING    *buf;
 /*
-/*	int	cleanup_body_edit_finish(state)
-/*	CLEANUP_STATE *state;
+/*    int    cleanup_body_edit_finish(state)
+/*    CLEANUP_STATE *state;
 /*
-/*	void	cleanup_body_edit_free(state)
-/*	CLEANUP_STATE *state;
+/*    void    cleanup_body_edit_free(state)
+/*    CLEANUP_STATE *state;
 /* DESCRIPTION
-/*	This module maintains queue file regions with body content.
-/*	Regions are created on the fly, and can be reused multiple
-/*	times. This module must not be called until the queue file
-/*	is complete, and there must be no other read/write access
-/*	to the queue file between the cleanup_body_edit_start() and
-/*	cleanup_body_edit_finish() calls.
+/*    This module maintains queue file regions with body content.
+/*    Regions are created on the fly, and can be reused multiple
+/*    times. This module must not be called until the queue file
+/*    is complete, and there must be no other read/write access
+/*    to the queue file between the cleanup_body_edit_start() and
+/*    cleanup_body_edit_finish() calls.
 /*
-/*	cleanup_body_edit_start() performs initialization and sets
-/*	the queue file write pointer to the start of the first body
-/*	region.
+/*    cleanup_body_edit_start() performs initialization and sets
+/*    the queue file write pointer to the start of the first body
+/*    region.
 /*
-/*	cleanup_body_edit_write() adds a queue file record to the
-/*	queue file. When the current body region fills up, some
-/*	unused region is reused, or a new region is created.
+/*    cleanup_body_edit_write() adds a queue file record to the
+/*    queue file. When the current body region fills up, some
+/*    unused region is reused, or a new region is created.
 /*
-/*	cleanup_body_edit_finish() makes some final adjustments
-/*	after the last body content record is written.
+/*    cleanup_body_edit_finish() makes some final adjustments
+/*    after the last body content record is written.
 /*
-/*	cleanup_body_edit_free() frees up memory that was allocated
-/*	by cleanup_body_edit_start() and cleanup_body_edit_write().
+/*    cleanup_body_edit_free() frees up memory that was allocated
+/*    by cleanup_body_edit_start() and cleanup_body_edit_write().
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP state
-/*	Queue file and message processing state. This state is updated
-/*	as records are processed and as errors happen.
+/*    Queue file and message processing state. This state is updated
+/*    as records are processed and as errors happen.
 /* .IP type
-/*	Record type.
+/*    Record type.
 /* .IP buf
-/*	Record content.
+/*    Record content.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -105,8 +105,8 @@ int     cleanup_body_edit_start(CLEANUP_STATE *state)
      * One-time initialization.
      */
     if (state->body_regions == 0) {
-	REC_SPACE_NEED(REC_TYPE_PTR_PAYL_SIZE, cleanup_body_edit_ptr_rec_len);
-	cleanup_region_init(state);
+    REC_SPACE_NEED(REC_TYPE_PTR_PAYL_SIZE, cleanup_body_edit_ptr_rec_len);
+    cleanup_region_init(state);
     }
 
     /*
@@ -124,26 +124,26 @@ int     cleanup_body_edit_start(CLEANUP_STATE *state)
      * waste it.
      */
     curr_rp = state->curr_body_region = state->body_regions =
-	cleanup_region_open(state, cleanup_body_edit_ptr_rec_len);
+    cleanup_region_open(state, cleanup_body_edit_ptr_rec_len);
 
     /*
      * Link the first body region to the last message header.
      */
     if (vstream_fseek(state->dst, state->append_hdr_pt_offset, SEEK_SET) < 0) {
-	msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-	return (-1);
+    msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+    return (-1);
     }
     state->append_hdr_pt_target = curr_rp->start;
     rec_fprintf(state->dst, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
-		(long) state->append_hdr_pt_target);
+        (long) state->append_hdr_pt_target);
 
     /*
      * Move the file write pointer to the start of the current region.
      */
     if (vstream_ftell(state->dst) != curr_rp->start
-	&& vstream_fseek(state->dst, curr_rp->start, SEEK_SET) < 0) {
-	msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-	return (-1);
+    && vstream_fseek(state->dst, curr_rp->start, SEEK_SET) < 0) {
+    msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+    return (-1);
     }
     return (0);
 }
@@ -151,7 +151,7 @@ int     cleanup_body_edit_start(CLEANUP_STATE *state)
 /* cleanup_body_edit_write - add record to body region pool */
 
 int     cleanup_body_edit_write(CLEANUP_STATE *state, int rec_type,
-				        VSTRING *buf)
+                        VSTRING *buf)
 {
     const char *myname = "cleanup_body_edit_write";
     CLEANUP_REGION *curr_rp = state->curr_body_region;
@@ -161,9 +161,9 @@ int     cleanup_body_edit_write(CLEANUP_STATE *state, int rec_type,
     ssize_t rec_len;
 
     if (msg_verbose)
-	msg_info("%s: where %ld, buflen %ld region start %ld len %ld",
-		 myname, (long) curr_rp->write_offs, (long) LEN(buf),
-		 (long) curr_rp->start, (long) curr_rp->len);
+    msg_info("%s: where %ld, buflen %ld region start %ld len %ld",
+         myname, (long) curr_rp->write_offs, (long) LEN(buf),
+         (long) curr_rp->start, (long) curr_rp->len);
 
     /*
      * Switch to the next body region if we filled up the current one (we
@@ -173,35 +173,35 @@ int     cleanup_body_edit_write(CLEANUP_STATE *state, int rec_type,
      * terminator record.
      */
     if (curr_rp->len > 0) {
-	space_used = curr_rp->write_offs - curr_rp->start;
-	REC_SPACE_NEED(LEN(buf), rec_len);
-	space_needed = rec_len + cleanup_body_edit_ptr_rec_len;
-	if (space_needed > curr_rp->len - space_used) {
+    space_used = curr_rp->write_offs - curr_rp->start;
+    REC_SPACE_NEED(LEN(buf), rec_len);
+    space_needed = rec_len + cleanup_body_edit_ptr_rec_len;
+    if (space_needed > curr_rp->len - space_used) {
 
-	    /*
-	     * Update the payload size. Connect the filled up body region to
-	     * its successor.
-	     */
-	    state->cont_length += space_used;
-	    next_rp = cleanup_region_open(state, space_needed);
-	    if (msg_verbose)
-		msg_info("%s: link %ld -> %ld", myname,
-			 (long) curr_rp->write_offs, (long) next_rp->start);
-	    rec_fprintf(state->dst, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
-			(long) next_rp->start);
-	    curr_rp->write_offs = vstream_ftell(state->dst);
-	    cleanup_region_close(state, curr_rp);
-	    curr_rp->next = next_rp;
+        /*
+         * Update the payload size. Connect the filled up body region to
+         * its successor.
+         */
+        state->cont_length += space_used;
+        next_rp = cleanup_region_open(state, space_needed);
+        if (msg_verbose)
+        msg_info("%s: link %ld -> %ld", myname,
+             (long) curr_rp->write_offs, (long) next_rp->start);
+        rec_fprintf(state->dst, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
+            (long) next_rp->start);
+        curr_rp->write_offs = vstream_ftell(state->dst);
+        cleanup_region_close(state, curr_rp);
+        curr_rp->next = next_rp;
 
-	    /*
-	     * Select the new body region.
-	     */
-	    state->curr_body_region = curr_rp = next_rp;
-	    if (vstream_fseek(state->dst, curr_rp->start, SEEK_SET) < 0) {
-		msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-		return (-1);
-	    }
-	}
+        /*
+         * Select the new body region.
+         */
+        state->curr_body_region = curr_rp = next_rp;
+        if (vstream_fseek(state->dst, curr_rp->start, SEEK_SET) < 0) {
+        msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+        return (-1);
+        }
+    }
     }
 
     /*
@@ -228,7 +228,7 @@ int     cleanup_body_edit_finish(CLEANUP_STATE *state)
      * Link the last body region to the content terminator record.
      */
     rec_fprintf(state->dst, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
-		(long) state->xtra_offset);
+        (long) state->xtra_offset);
     curr_rp->write_offs = vstream_ftell(state->dst);
     cleanup_region_close(state, curr_rp);
 

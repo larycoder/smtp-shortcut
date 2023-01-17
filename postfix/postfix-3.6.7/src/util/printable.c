@@ -1,50 +1,50 @@
 /*++
 /* NAME
-/*	printable 3
+/*    printable 3
 /* SUMMARY
-/*	mask non-printable characters
+/*    mask non-printable characters
 /* SYNOPSIS
-/*	#include <stringops.h>
+/*    #include <stringops.h>
 /*
-/*	int	util_utf8_enable;
+/*    int    util_utf8_enable;
 /*
-/*	char	*printable(buffer, replacement)
-/*	char	*buffer;
-/*	int	replacement;
+/*    char    *printable(buffer, replacement)
+/*    char    *buffer;
+/*    int    replacement;
 /*
-/*	char	*printable_except(buffer, replacement, except)
-/*	char	*buffer;
-/*	int	replacement;
-/*	const char *except;
+/*    char    *printable_except(buffer, replacement, except)
+/*    char    *buffer;
+/*    int    replacement;
+/*    const char *except;
 /* DESCRIPTION
-/*	printable() replaces non-printable characters
-/*	in its input with the given replacement.
+/*    printable() replaces non-printable characters
+/*    in its input with the given replacement.
 /*
-/*	util_utf8_enable controls whether UTF8 is considered printable.
-/*	With util_utf8_enable equal to zero, non-ASCII text is replaced.
+/*    util_utf8_enable controls whether UTF8 is considered printable.
+/*    With util_utf8_enable equal to zero, non-ASCII text is replaced.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP buffer
-/*	The null-terminated input string.
+/*    The null-terminated input string.
 /* .IP replacement
-/*	Replacement value for characters in \fIbuffer\fR that do not
-/*	pass the ASCII isprint(3) test or that are not valid UTF8.
+/*    Replacement value for characters in \fIbuffer\fR that do not
+/*    pass the ASCII isprint(3) test or that are not valid UTF8.
 /* .IP except
-/*	Null-terminated sequence of non-replaced ASCII characters.
+/*    Null-terminated sequence of non-replaced ASCII characters.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -83,18 +83,18 @@ char   *printable_except(char *string, int replacement, const char *except)
      */
     cp = (unsigned char *) string;
     while ((ch = *cp) != 0) {
-	if (ISASCII(ch) && (ISPRINT(ch) || (except && strchr(except, ch)))) {
-	    /* ok */
-	} else if (util_utf8_enable && ch >= 194 && ch <= 254
-		   && cp[1] >= 128 && cp[1] < 192) {
-	    /* UTF8; skip the rest of the bytes in the character. */
-	    while (cp[1] >= 128 && cp[1] < 192)
-		cp++;
-	} else {
-	    /* Not ASCII and not UTF8. */
-	    *cp = replacement;
-	}
-	cp++;
+    if (ISASCII(ch) && (ISPRINT(ch) || (except && strchr(except, ch)))) {
+        /* ok */
+    } else if (util_utf8_enable && ch >= 194 && ch <= 254
+           && cp[1] >= 128 && cp[1] < 192) {
+        /* UTF8; skip the rest of the bytes in the character. */
+        while (cp[1] >= 128 && cp[1] < 192)
+        cp++;
+    } else {
+        /* Not ASCII and not UTF8. */
+        *cp = replacement;
+    }
+    cp++;
     }
     return (string);
 }

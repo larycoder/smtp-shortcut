@@ -1,161 +1,161 @@
 /*++
 /* NAME
-/*	netstring 3
+/*    netstring 3
 /* SUMMARY
-/*	netstring stream I/O support
+/*    netstring stream I/O support
 /* SYNOPSIS
-/*	#include <netstring.h>
+/*    #include <netstring.h>
 /*
-/*	void	netstring_setup(stream, timeout)
-/*	VSTREAM *stream;
-/*	int	timeout;
+/*    void    netstring_setup(stream, timeout)
+/*    VSTREAM *stream;
+/*    int    timeout;
 /*
-/*	void	netstring_except(stream, exception)
-/*	VSTREAM	*stream;
-/*	int	exception;
+/*    void    netstring_except(stream, exception)
+/*    VSTREAM    *stream;
+/*    int    exception;
 /*
-/*	const char *netstring_strerror(err)
-/*	int	err;
+/*    const char *netstring_strerror(err)
+/*    int    err;
 /*
-/*	VSTRING	*netstring_get(stream, buf, limit)
-/*	VSTREAM	*stream;
-/*	VSTRING	*buf;
-/*	ssize_t	limit;
+/*    VSTRING    *netstring_get(stream, buf, limit)
+/*    VSTREAM    *stream;
+/*    VSTRING    *buf;
+/*    ssize_t    limit;
 /*
-/*	void	netstring_put(stream, data, len)
-/*	VSTREAM *stream;
-/*	const char *data;
-/*	ssize_t	len;
+/*    void    netstring_put(stream, data, len)
+/*    VSTREAM *stream;
+/*    const char *data;
+/*    ssize_t    len;
 /*
-/*	void	netstring_put_multi(stream, data, len, data, len, ..., 0)
-/*	VSTREAM *stream;
-/*	const char *data;
-/*	ssize_t	len;
+/*    void    netstring_put_multi(stream, data, len, data, len, ..., 0)
+/*    VSTREAM *stream;
+/*    const char *data;
+/*    ssize_t    len;
 /*
-/*	void	NETSTRING_PUT_BUF(stream, buf)
-/*	VSTREAM *stream;
-/*	VSTRING	*buf;
+/*    void    NETSTRING_PUT_BUF(stream, buf)
+/*    VSTREAM *stream;
+/*    VSTRING    *buf;
 /*
-/*	void	netstring_fflush(stream)
-/*	VSTREAM *stream;
+/*    void    netstring_fflush(stream)
+/*    VSTREAM *stream;
 /*
-/*	VSTRING	*netstring_memcpy(buf, data, len)
-/*	VSTRING	*buf;
-/*	const char *data;
-/*	ssize_t	len;
+/*    VSTRING    *netstring_memcpy(buf, data, len)
+/*    VSTRING    *buf;
+/*    const char *data;
+/*    ssize_t    len;
 /*
-/*	VSTRING	*netstring_memcat(buf, data, len)
-/*	VSTRING	*buf;
-/*	const char *src;
-/*	ssize_t len;
+/*    VSTRING    *netstring_memcat(buf, data, len)
+/*    VSTRING    *buf;
+/*    const char *src;
+/*    ssize_t len;
 /* AUXILIARY ROUTINES
-/*	ssize_t	netstring_get_length(stream)
-/*	VSTREAM *stream;
+/*    ssize_t    netstring_get_length(stream)
+/*    VSTREAM *stream;
 /*
-/*	VSTRING	*netstring_get_data(stream, buf, len)
-/*	VSTREAM *stream;
-/*	VSTRING	*buf;
-/*	ssize_t	len;
+/*    VSTRING    *netstring_get_data(stream, buf, len)
+/*    VSTREAM *stream;
+/*    VSTRING    *buf;
+/*    ssize_t    len;
 /*
-/*	void	netstring_get_terminator(stream)
-/*	VSTREAM *stream;
+/*    void    netstring_get_terminator(stream)
+/*    VSTREAM *stream;
 /* DESCRIPTION
-/*	This module reads and writes netstrings with error detection:
-/*	timeouts, unexpected end-of-file, or format errors. Netstring
-/*	is a data format designed by Daniel Bernstein.
+/*    This module reads and writes netstrings with error detection:
+/*    timeouts, unexpected end-of-file, or format errors. Netstring
+/*    is a data format designed by Daniel Bernstein.
 /*
-/*	netstring_setup() arranges for a time limit on the netstring
-/*	read and write operations described below.
-/*	This routine alters the behavior of streams as follows:
+/*    netstring_setup() arranges for a time limit on the netstring
+/*    read and write operations described below.
+/*    This routine alters the behavior of streams as follows:
 /* .IP \(bu
-/*	The read/write timeout is set to the specified value.
+/*    The read/write timeout is set to the specified value.
 /* .IP \(bu
-/*	The stream is configured to enable exception handling.
+/*    The stream is configured to enable exception handling.
 /* .PP
-/*	netstring_except() raises the specified exception on the
-/*	named stream. See the DIAGNOSTICS section below.
+/*    netstring_except() raises the specified exception on the
+/*    named stream. See the DIAGNOSTICS section below.
 /*
-/*	netstring_strerror() converts an exception number to string.
+/*    netstring_strerror() converts an exception number to string.
 /*
-/*	netstring_get() reads a netstring from the specified stream
-/*	and extracts its content. The limit specifies a maximal size.
-/*	Specify zero to disable the size limit. The result is not null
-/*	terminated.  The result value is the buf argument.
+/*    netstring_get() reads a netstring from the specified stream
+/*    and extracts its content. The limit specifies a maximal size.
+/*    Specify zero to disable the size limit. The result is not null
+/*    terminated.  The result value is the buf argument.
 /*
-/*	netstring_put() encapsulates the specified string as a netstring
-/*	and sends the result to the specified stream.
-/*	The stream output buffer is not flushed.
+/*    netstring_put() encapsulates the specified string as a netstring
+/*    and sends the result to the specified stream.
+/*    The stream output buffer is not flushed.
 /*
-/*	netstring_put_multi() encapsulates the content of multiple strings
-/*	as one netstring and sends the result to the specified stream. The
-/*	argument list must be terminated with a null data pointer.
-/*	The stream output buffer is not flushed.
+/*    netstring_put_multi() encapsulates the content of multiple strings
+/*    as one netstring and sends the result to the specified stream. The
+/*    argument list must be terminated with a null data pointer.
+/*    The stream output buffer is not flushed.
 /*
-/*	NETSTRING_PUT_BUF() is a macro that provides a VSTRING-based
-/*	wrapper for the netstring_put() routine.
+/*    NETSTRING_PUT_BUF() is a macro that provides a VSTRING-based
+/*    wrapper for the netstring_put() routine.
 /*
-/*	netstring_fflush() flushes the output buffer of the specified
-/*	stream and handles any errors.
+/*    netstring_fflush() flushes the output buffer of the specified
+/*    stream and handles any errors.
 /*
-/*	netstring_memcpy() encapsulates the specified data as a netstring
-/*	and copies the result over the specified buffer. The result
-/*	value is the buffer.
+/*    netstring_memcpy() encapsulates the specified data as a netstring
+/*    and copies the result over the specified buffer. The result
+/*    value is the buffer.
 /*
-/*	netstring_memcat() encapsulates the specified data as a netstring
-/*	and appends the result to the specified buffer. The result
-/*	value is the buffer.
+/*    netstring_memcat() encapsulates the specified data as a netstring
+/*    and appends the result to the specified buffer. The result
+/*    value is the buffer.
 /*
-/*	The following routines provide low-level access to a netstring
-/*	stream.
+/*    The following routines provide low-level access to a netstring
+/*    stream.
 /*
-/*	netstring_get_length() reads a length field from the specified
-/*	stream, and absorbs the netstring length field terminator.
+/*    netstring_get_length() reads a length field from the specified
+/*    stream, and absorbs the netstring length field terminator.
 /*
-/*	netstring_get_data() reads the specified number of bytes from the
-/*	specified stream into the specified buffer, and absorbs the
-/*	netstring terminator.  The result value is the buf argument.
+/*    netstring_get_data() reads the specified number of bytes from the
+/*    specified stream into the specified buffer, and absorbs the
+/*    netstring terminator.  The result value is the buf argument.
 /*
-/*	netstring_get_terminator() reads the netstring terminator from
-/*	the specified stream.
+/*    netstring_get_terminator() reads the netstring terminator from
+/*    the specified stream.
 /* DIAGNOSTICS
 /* .fi
 /* .ad
-/*	In case of error, a vstream_longjmp() call is performed to the
-/*	caller-provided context specified with vstream_setjmp().
-/*	Error codes passed along with vstream_longjmp() are:
+/*    In case of error, a vstream_longjmp() call is performed to the
+/*    caller-provided context specified with vstream_setjmp().
+/*    Error codes passed along with vstream_longjmp() are:
 /* .IP NETSTRING_ERR_EOF
-/*	An I/O error happened, or the peer has disconnected unexpectedly.
+/*    An I/O error happened, or the peer has disconnected unexpectedly.
 /* .IP NETSTRING_ERR_TIME
-/*	The time limit specified to netstring_setup() was exceeded.
+/*    The time limit specified to netstring_setup() was exceeded.
 /* .IP NETSTRING_ERR_FORMAT
-/*	The input contains an unexpected character value.
+/*    The input contains an unexpected character value.
 /* .IP NETSTRING_ERR_SIZE
-/*	The input is larger than acceptable.
+/*    The input is larger than acceptable.
 /* BUGS
-/*	The timeout deadline affects all I/O on the named stream, not
-/*	just the I/O done on behalf of this module.
+/*    The timeout deadline affects all I/O on the named stream, not
+/*    just the I/O done on behalf of this module.
 /*
-/*	The timeout deadline overwrites any previously set up state on
-/*	the named stream.
+/*    The timeout deadline overwrites any previously set up state on
+/*    the named stream.
 /*
-/*	netstrings are not null terminated, which makes printing them
-/*	a bit awkward.
+/*    netstrings are not null terminated, which makes printing them
+/*    a bit awkward.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* SEE ALSO
-/*	http://cr.yp.to/proto/netstrings.txt, netstring definition
+/*    http://cr.yp.to/proto/netstrings.txt, netstring definition
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -174,17 +174,17 @@
 
 /* Application-specific. */
 
-#define STR(x)	vstring_str(x)
-#define LEN(x)	VSTRING_LEN(x)
+#define STR(x)    vstring_str(x)
+#define LEN(x)    VSTRING_LEN(x)
 
 /* netstring_setup - initialize netstring stream */
 
 void    netstring_setup(VSTREAM *stream, int timeout)
 {
     vstream_control(stream,
-		    CA_VSTREAM_CTL_TIMEOUT(timeout),
-		    CA_VSTREAM_CTL_EXCEPT,
-		    CA_VSTREAM_CTL_END);
+            CA_VSTREAM_CTL_TIMEOUT(timeout),
+            CA_VSTREAM_CTL_EXCEPT,
+            CA_VSTREAM_CTL_END);
 }
 
 /* netstring_except - process netstring stream exception */
@@ -204,24 +204,24 @@ ssize_t netstring_get_length(VSTREAM *stream)
     int     digit;
 
     for (;;) {
-	switch (ch = VSTREAM_GETC(stream)) {
-	case VSTREAM_EOF:
-	    netstring_except(stream, vstream_ftimeout(stream) ?
-			     NETSTRING_ERR_TIME : NETSTRING_ERR_EOF);
-	case ':':
-	    if (msg_verbose > 1)
-		msg_info("%s: read netstring length %ld", myname, (long) len);
-	    return (len);
-	default:
-	    if (!ISDIGIT(ch))
-		netstring_except(stream, NETSTRING_ERR_FORMAT);
-	    digit = ch - '0';
-	    if (len > SSIZE_T_MAX / 10
-		|| (len *= 10) > SSIZE_T_MAX - digit)
-		netstring_except(stream, NETSTRING_ERR_SIZE);
-	    len += digit;
-	    break;
-	}
+    switch (ch = VSTREAM_GETC(stream)) {
+    case VSTREAM_EOF:
+        netstring_except(stream, vstream_ftimeout(stream) ?
+                 NETSTRING_ERR_TIME : NETSTRING_ERR_EOF);
+    case ':':
+        if (msg_verbose > 1)
+        msg_info("%s: read netstring length %ld", myname, (long) len);
+        return (len);
+    default:
+        if (!ISDIGIT(ch))
+        netstring_except(stream, NETSTRING_ERR_FORMAT);
+        digit = ch - '0';
+        if (len > SSIZE_T_MAX / 10
+        || (len *= 10) > SSIZE_T_MAX - digit)
+        netstring_except(stream, NETSTRING_ERR_SIZE);
+        len += digit;
+        break;
+    }
     }
 }
 
@@ -235,11 +235,11 @@ VSTRING *netstring_get_data(VSTREAM *stream, VSTRING *buf, ssize_t len)
      * Read the payload and absorb the terminator.
      */
     if (vstream_fread_buf(stream, buf, len) != len)
-	netstring_except(stream, vstream_ftimeout(stream) ?
-			 NETSTRING_ERR_TIME : NETSTRING_ERR_EOF);
+    netstring_except(stream, vstream_ftimeout(stream) ?
+             NETSTRING_ERR_TIME : NETSTRING_ERR_EOF);
     if (msg_verbose > 1)
-	msg_info("%s: read netstring data %.*s",
-		 myname, (int) (len < 30 ? len : 30), STR(buf));
+    msg_info("%s: read netstring data %.*s",
+         myname, (int) (len < 30 ? len : 30), STR(buf));
     netstring_get_terminator(stream);
 
     /*
@@ -253,7 +253,7 @@ VSTRING *netstring_get_data(VSTREAM *stream, VSTRING *buf, ssize_t len)
 void    netstring_get_terminator(VSTREAM *stream)
 {
     if (VSTREAM_GETC(stream) != ',')
-	netstring_except(stream, NETSTRING_ERR_FORMAT);
+    netstring_except(stream, NETSTRING_ERR_FORMAT);
 }
 
 /* netstring_get - read string from netstring stream */
@@ -264,7 +264,7 @@ VSTRING *netstring_get(VSTREAM *stream, VSTRING *buf, ssize_t limit)
 
     len = netstring_get_length(stream);
     if (ENFORCING_SIZE_LIMIT(limit) && len > limit)
-	netstring_except(stream, NETSTRING_ERR_SIZE);
+    netstring_except(stream, NETSTRING_ERR_SIZE);
     netstring_get_data(stream, buf, len);
     return (buf);
 }
@@ -276,8 +276,8 @@ void    netstring_put(VSTREAM *stream, const char *data, ssize_t len)
     const char *myname = "netstring_put";
 
     if (msg_verbose > 1)
-	msg_info("%s: write netstring len %ld data %.*s",
-		 myname, (long) len, (int) (len < 30 ? len : 30), data);
+    msg_info("%s: write netstring len %ld data %.*s",
+         myname, (long) len, (int) (len < 30 ? len : 30), data);
     vstream_fprintf(stream, "%ld:", (long) len);
     vstream_fwrite(stream, data, len);
     VSTREAM_PUTC(',', stream);
@@ -304,27 +304,27 @@ void    netstring_put_multi(VSTREAM *stream,...)
      * Figure out the total result size.
      */
     for (total = 0; (data = va_arg(ap, char *)) != 0; total += data_len)
-	if ((data_len = va_arg(ap, ssize_t)) < 0)
-	    msg_panic("%s: bad data length %ld", myname, (long) data_len);
+    if ((data_len = va_arg(ap, ssize_t)) < 0)
+        msg_panic("%s: bad data length %ld", myname, (long) data_len);
     va_end(ap);
     if (total < 0)
-	msg_panic("%s: bad total length %ld", myname, (long) total);
+    msg_panic("%s: bad total length %ld", myname, (long) total);
     if (msg_verbose > 1)
-	msg_info("%s: write total length %ld", myname, (long) total);
+    msg_info("%s: write total length %ld", myname, (long) total);
 
     /*
      * Send the length, content and terminator.
      */
     vstream_fprintf(stream, "%ld:", (long) total);
     while ((data = va_arg(ap2, char *)) != 0) {
-	data_len = va_arg(ap2, ssize_t);
-	if (msg_verbose > 1)
-	    msg_info("%s: write netstring len %ld data %.*s",
-		     myname, (long) data_len,
-		     (int) (data_len < 30 ? data_len : 30), data);
-	if (vstream_fwrite(stream, data, data_len) != data_len)
-	    netstring_except(stream, vstream_ftimeout(stream) ?
-			     NETSTRING_ERR_TIME : NETSTRING_ERR_EOF);
+    data_len = va_arg(ap2, ssize_t);
+    if (msg_verbose > 1)
+        msg_info("%s: write netstring len %ld data %.*s",
+             myname, (long) data_len,
+             (int) (data_len < 30 ? data_len : 30), data);
+    if (vstream_fwrite(stream, data, data_len) != data_len)
+        netstring_except(stream, vstream_ftimeout(stream) ?
+                 NETSTRING_ERR_TIME : NETSTRING_ERR_EOF);
     }
     va_end(ap2);
     vstream_fwrite(stream, ",", 1);
@@ -335,8 +335,8 @@ void    netstring_put_multi(VSTREAM *stream,...)
 void    netstring_fflush(VSTREAM *stream)
 {
     if (vstream_fflush(stream) == VSTREAM_EOF)
-	netstring_except(stream, vstream_ftimeout(stream) ?
-			 NETSTRING_ERR_TIME : NETSTRING_ERR_EOF);
+    netstring_except(stream, vstream_ftimeout(stream) ?
+             NETSTRING_ERR_TIME : NETSTRING_ERR_EOF);
 }
 
 /* netstring_memcpy - copy data as in-memory netstring */
@@ -364,16 +364,16 @@ VSTRING *netstring_memcat(VSTRING *buf, const char *src, ssize_t len)
 const char *netstring_strerror(int err)
 {
     switch (err) {
-	case NETSTRING_ERR_EOF:
-	return ("unexpected disconnect");
+    case NETSTRING_ERR_EOF:
+    return ("unexpected disconnect");
     case NETSTRING_ERR_TIME:
-	return ("time limit exceeded");
+    return ("time limit exceeded");
     case NETSTRING_ERR_FORMAT:
-	return ("input format error");
+    return ("input format error");
     case NETSTRING_ERR_SIZE:
-	return ("input exceeds size limit");
+    return ("input exceeds size limit");
     default:
-	return ("unknown netstring error");
+    return ("unknown netstring error");
     }
 }
 
@@ -392,9 +392,9 @@ const char *netstring_strerror(int err)
 #include <stdlib.h>
 #include <events.h>
 
-static VSTRING *stdin_read_buf;		/* stdin line buffer */
-static VSTRING *child_read_buf;		/* child read buffer */
-static VSTREAM *child_stream;		/* child stream (full-duplex) */
+static VSTRING *stdin_read_buf;        /* stdin line buffer */
+static VSTRING *child_read_buf;        /* child read buffer */
+static VSTREAM *child_stream;        /* child stream (full-duplex) */
 
 /* stdin_read_event - line-oriented event handler */
 
@@ -411,21 +411,21 @@ static void stdin_read_event(int event, void *context)
      * next read(2) event.
      */
     do {
-	ch = VSTREAM_GETCHAR();
-	switch (ch) {
-	default:
-	    VSTRING_ADDCH(stdin_read_buf, ch);
-	    break;
-	case '\n':
-	    NETSTRING_PUT_BUF(child_stream, stdin_read_buf);
-	    vstream_fflush(child_stream);
-	    VSTRING_RESET(stdin_read_buf);
-	    break;
-	case VSTREAM_EOF:
-	    /* Better: wait for child to terminate. */
-	    sleep(1);
-	    exit(0);
-	}
+    ch = VSTREAM_GETCHAR();
+    switch (ch) {
+    default:
+        VSTRING_ADDCH(stdin_read_buf, ch);
+        break;
+    case '\n':
+        NETSTRING_PUT_BUF(child_stream, stdin_read_buf);
+        vstream_fflush(child_stream);
+        VSTRING_RESET(stdin_read_buf);
+        break;
+    case VSTREAM_EOF:
+        /* Better: wait for child to terminate. */
+        sleep(1);
+        exit(0);
+    }
     } while (vstream_peek(VSTREAM_IN) > 0);
 }
 
@@ -445,10 +445,10 @@ static void child_read_event(int event, void *context)
      * read(2) event.
      */
     do {
-	netstring_get(child_stream, child_read_buf, 10000);
-	vstream_fwrite(VSTREAM_OUT, STR(child_read_buf), LEN(child_read_buf));
-	VSTREAM_PUTC('\n', VSTREAM_OUT);
-	vstream_fflush(VSTREAM_OUT);
+    netstring_get(child_stream, child_read_buf, 10000);
+    vstream_fwrite(VSTREAM_OUT, STR(child_read_buf), LEN(child_read_buf));
+    VSTREAM_PUTC('\n', VSTREAM_OUT);
+    vstream_fflush(VSTREAM_OUT);
     } while (vstream_peek(child_stream) > 0);
 }
 
@@ -460,14 +460,14 @@ int     main(int argc, char **argv)
      * Sanity check.
      */
     if (argv[1] == 0)
-	msg_fatal("usage: %s command...", argv[0]);
+    msg_fatal("usage: %s command...", argv[0]);
 
     /*
      * Run the specified command as a child process with stdin and stdout
      * connected to us.
      */
     child_stream = vstream_popen(O_RDWR, CA_VSTREAM_POPEN_ARGV(argv + 1),
-				 CA_VSTREAM_POPEN_END);
+                 CA_VSTREAM_POPEN_END);
     vstream_control(child_stream, CA_VSTREAM_CTL_DOUBLE, CA_VSTREAM_CTL_END);
     netstring_setup(child_stream, 10);
 
@@ -485,13 +485,13 @@ int     main(int argc, char **argv)
      */
     event_enable_read(vstream_fileno(VSTREAM_IN), stdin_read_event, (void *) 0);
     event_enable_read(vstream_fileno(child_stream), child_read_event,
-		      (void *) 0);
+              (void *) 0);
 
     if ((err = vstream_setjmp(child_stream)) == 0) {
-	for (;;)
-	    event_loop(-1);
+    for (;;)
+        event_loop(-1);
     } else {
-	msg_fatal("%s: %s", argv[1], netstring_strerror(err));
+    msg_fatal("%s: %s", argv[1], netstring_strerror(err));
     }
 }
 

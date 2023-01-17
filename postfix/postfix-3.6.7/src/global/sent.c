@@ -1,74 +1,74 @@
 /*++
 /* NAME
-/*	sent 3
+/*    sent 3
 /* SUMMARY
-/*	log that a message was or could be sent
+/*    log that a message was or could be sent
 /* SYNOPSIS
-/*	#include <sent.h>
+/*    #include <sent.h>
 /*
-/*	int	sent(flags, queue_id, stats, recipient, relay, dsn)
-/*	int	flags;
-/*	const char *queue_id;
-/*	MSG_STATS *stats;
-/*	RECIPIENT *recipient;
-/*	const char *relay;
-/*	DSN *dsn;
+/*    int    sent(flags, queue_id, stats, recipient, relay, dsn)
+/*    int    flags;
+/*    const char *queue_id;
+/*    MSG_STATS *stats;
+/*    RECIPIENT *recipient;
+/*    const char *relay;
+/*    DSN *dsn;
 /* DESCRIPTION
-/*	sent() logs that a message was successfully delivered,
-/*	updates the address verification service, or updates a
-/*	sender-requested message delivery record. The
-/*	flags argument determines the action.
+/*    sent() logs that a message was successfully delivered,
+/*    updates the address verification service, or updates a
+/*    sender-requested message delivery record. The
+/*    flags argument determines the action.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP flags
-/*	Zero or more of the following:
+/*    Zero or more of the following:
 /* .RS
 /* .IP SENT_FLAG_NONE
-/*	The message is a normal delivery request.
+/*    The message is a normal delivery request.
 /* .IP DEL_REQ_FLAG_MTA_VRFY
-/*	The message is an MTA-requested address verification probe.
-/*	Update the address verification database.
+/*    The message is an MTA-requested address verification probe.
+/*    Update the address verification database.
 /* .IP DEL_REQ_FLAG_USR_VRFY
-/*	The message is a user-requested address expansion probe.
-/*	Update the message delivery record.
+/*    The message is a user-requested address expansion probe.
+/*    Update the message delivery record.
 /* .IP DEL_REQ_FLAG_RECORD
-/*	This is a normal message with logged delivery. Update the
-/*	the message delivery record.
+/*    This is a normal message with logged delivery. Update the
+/*    the message delivery record.
 /* .RE
 /* .IP queue_id
-/*	The message queue id.
+/*    The message queue id.
 /* .IP stats
-/*	Time stamps from different message delivery stages
-/*	and session reuse count.
+/*    Time stamps from different message delivery stages
+/*    and session reuse count.
 /* .IP recipient
-/*	Recipient information. See recipient_list(3).
+/*    Recipient information. See recipient_list(3).
 /* .IP relay
-/*	Name of the host we're talking to.
+/*    Name of the host we're talking to.
 /* .IP dsn
-/*	Delivery status. See dsn(3). The action is ignored in case
-/*	of a probe message. Otherwise, "delivered" is assumed when
-/*	no action is specified.
+/*    Delivery status. See dsn(3). The action is ignored in case
+/*    of a probe message. Otherwise, "delivered" is assumed when
+/*    no action is specified.
 /* DIAGNOSTICS
-/*	A non-zero result means the operation failed.
+/*    A non-zero result means the operation failed.
 /*
-/*	Fatal: out of memory.
+/*    Fatal: out of memory.
 /* BUGS
-/*	Should be replaced by routines with an attribute-value based
-/*	interface instead of an interface that uses a rigid argument list.
+/*    Should be replaced by routines with an attribute-value based
+/*    interface instead of an interface that uses a rigid argument list.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -98,8 +98,8 @@
 /* sent - log that a message was or could be sent */
 
 int     sent(int flags, const char *id, MSG_STATS *stats,
-	             RECIPIENT *recipient, const char *relay,
-	             DSN *dsn)
+                 RECIPIENT *recipient, const char *relay,
+                 DSN *dsn)
 {
     DSN     my_dsn = *dsn;
     DSN    *dsn_res;
@@ -109,8 +109,8 @@ int     sent(int flags, const char *id, MSG_STATS *stats,
      * Sanity check.
      */
     if (my_dsn.status[0] != '2' || !dsn_valid(my_dsn.status)) {
-	msg_warn("sent: ignoring dsn code \"%s\"", my_dsn.status);
-	my_dsn.status = "2.0.0";
+    msg_warn("sent: ignoring dsn code \"%s\"", my_dsn.status);
+    my_dsn.status = "2.0.0";
     }
 
     /*
@@ -118,17 +118,17 @@ int     sent(int flags, const char *id, MSG_STATS *stats,
      */
     if (delivery_status_filter != 0
      && (dsn_res = dsn_filter_lookup(delivery_status_filter, &my_dsn)) != 0)
-	my_dsn = *dsn_res;
+    my_dsn = *dsn_res;
 
     /*
      * MTA-requested address verification information is stored in the verify
      * service database.
      */
     if (flags & DEL_REQ_FLAG_MTA_VRFY) {
-	my_dsn.action = "deliverable";
-	status = verify_append(id, stats, recipient, relay, &my_dsn,
-			       DEL_RCPT_STAT_OK);
-	return (status);
+    my_dsn.action = "deliverable";
+    status = verify_append(id, stats, recipient, relay, &my_dsn,
+                   DEL_RCPT_STAT_OK);
+    return (status);
     }
 
     /*
@@ -136,9 +136,9 @@ int     sent(int flags, const char *id, MSG_STATS *stats,
      * to the requesting user.
      */
     if (flags & DEL_REQ_FLAG_USR_VRFY) {
-	my_dsn.action = "deliverable";
-	status = trace_append(flags, id, stats, recipient, relay, &my_dsn);
-	return (status);
+    my_dsn.action = "deliverable";
+    status = trace_append(flags, id, stats, recipient, relay, &my_dsn);
+    return (status);
     }
 
     /*
@@ -146,31 +146,31 @@ int     sent(int flags, const char *id, MSG_STATS *stats,
      */
     else {
 
-	/* Readability macros: record all deliveries, or the delayed ones. */
+    /* Readability macros: record all deliveries, or the delayed ones. */
 #define REC_ALL_SENT(flags) (flags & DEL_REQ_FLAG_RECORD)
 #define REC_DLY_SENT(flags, rcpt) \
-	((flags & DEL_REQ_FLAG_REC_DLY_SENT) \
-	&& (rcpt->dsn_notify == 0 || (rcpt->dsn_notify & DSN_NOTIFY_DELAY)))
+    ((flags & DEL_REQ_FLAG_REC_DLY_SENT) \
+    && (rcpt->dsn_notify == 0 || (rcpt->dsn_notify & DSN_NOTIFY_DELAY)))
 
-	if (my_dsn.action == 0 || my_dsn.action[0] == 0)
-	    my_dsn.action = "delivered";
+    if (my_dsn.action == 0 || my_dsn.action[0] == 0)
+        my_dsn.action = "delivered";
 
-	if (((REC_ALL_SENT(flags) == 0 && REC_DLY_SENT(flags, recipient) == 0)
-	  || trace_append(flags, id, stats, recipient, relay, &my_dsn) == 0)
-	    && ((recipient->dsn_notify & DSN_NOTIFY_SUCCESS) == 0
-	|| trace_append(flags, id, stats, recipient, relay, &my_dsn) == 0)) {
-	    log_adhoc(id, stats, recipient, relay, &my_dsn, "sent");
-	    status = 0;
-	} else {
-	    VSTRING *junk = vstring_alloc(100);
+    if (((REC_ALL_SENT(flags) == 0 && REC_DLY_SENT(flags, recipient) == 0)
+      || trace_append(flags, id, stats, recipient, relay, &my_dsn) == 0)
+        && ((recipient->dsn_notify & DSN_NOTIFY_SUCCESS) == 0
+    || trace_append(flags, id, stats, recipient, relay, &my_dsn) == 0)) {
+        log_adhoc(id, stats, recipient, relay, &my_dsn, "sent");
+        status = 0;
+    } else {
+        VSTRING *junk = vstring_alloc(100);
 
-	    vstring_sprintf(junk, "%s: %s service failed",
-			    id, var_trace_service);
-	    my_dsn.reason = vstring_str(junk);
-	    my_dsn.status = "4.3.0";
-	    status = defer_append(flags, id, stats, recipient, relay, &my_dsn);
-	    vstring_free(junk);
-	}
-	return (status);
+        vstring_sprintf(junk, "%s: %s service failed",
+                id, var_trace_service);
+        my_dsn.reason = vstring_str(junk);
+        my_dsn.status = "4.3.0";
+        status = defer_append(flags, id, stats, recipient, relay, &my_dsn);
+        vstring_free(junk);
+    }
+    return (status);
     }
 }

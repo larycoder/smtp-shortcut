@@ -1,39 +1,39 @@
 /*++
 /* NAME
-/*	unix_send_fd 3
+/*    unix_send_fd 3
 /* SUMMARY
-/*	send file descriptor
+/*    send file descriptor
 /* SYNOPSIS
-/*	#include <iostuff.h>
+/*    #include <iostuff.h>
 /*
-/*	int	unix_send_fd(fd, sendfd)
-/*	int	fd;
-/*	int	sendfd;
+/*    int    unix_send_fd(fd, sendfd)
+/*    int    fd;
+/*    int    sendfd;
 /* DESCRIPTION
-/*	unix_send_fd() sends a file descriptor over the specified
-/*	UNIX-domain socket.
+/*    unix_send_fd() sends a file descriptor over the specified
+/*    UNIX-domain socket.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP fd
-/*	File descriptor that connects the sending and receiving processes.
+/*    File descriptor that connects the sending and receiving processes.
 /* .IP sendfd
-/*	The file descriptor to be sent.
+/*    The file descriptor to be sent.
 /* DIAGNOSTICS
-/*	unix_send_fd() returns -1 upon failure.
+/*    unix_send_fd() returns -1 upon failure.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
 
-#include <sys_defs.h>			/* includes <sys/types.h> */
+#include <sys_defs.h>            /* includes <sys/types.h> */
 #include <sys/socket.h>
 #include <sys/uio.h>
 #include <string.h>
@@ -56,7 +56,7 @@ int     unix_send_fd(int fd, int sendfd)
     const char *myname = "unix_send_fd";
 
     msg_warn("%s: your system has no support for file descriptor passing",
-	     myname);
+         myname);
     return (-1);
 #else
     struct msghdr msg;
@@ -69,17 +69,17 @@ int     unix_send_fd(int fd, int sendfd)
      */
 #if defined(CMSG_SPACE) && !defined(NO_MSGHDR_MSG_CONTROL)
     union {
-	struct cmsghdr just_for_alignment;
-	char    control[CMSG_SPACE(sizeof(sendfd))];
+    struct cmsghdr just_for_alignment;
+    char    control[CMSG_SPACE(sizeof(sendfd))];
     }       control_un;
     struct cmsghdr *cmptr;
 
-    memset((void *) &msg, 0, sizeof(msg));	/* Fix 200512 */
+    memset((void *) &msg, 0, sizeof(msg));    /* Fix 200512 */
     msg.msg_control = control_un.control;
     if (unix_pass_fd_fix & UNIX_PASS_FD_FIX_CMSG_LEN) {
-	msg.msg_controllen = CMSG_LEN(sizeof(sendfd));	/* Fix 200506 */
+    msg.msg_controllen = CMSG_LEN(sizeof(sendfd));    /* Fix 200506 */
     } else {
-	msg.msg_controllen = sizeof(control_un.control);	/* normal */
+    msg.msg_controllen = sizeof(control_un.control);    /* normal */
     }
     cmptr = CMSG_FIRSTHDR(&msg);
     cmptr->cmsg_len = CMSG_LEN(sizeof(sendfd));
@@ -129,14 +129,14 @@ int     unix_send_fd(int fd, int sendfd)
      * example of how to add run-time configurable workarounds to Postfix.
      */
     if (sendmsg(fd, &msg, 0) >= 0)
-	return (0);
+    return (0);
     if (unix_pass_fd_fix == 0) {
-	if (msg_verbose)
-	    msg_info("sendmsg error (%m). Trying CMSG_LEN workaround.");
-	unix_pass_fd_fix = UNIX_PASS_FD_FIX_CMSG_LEN;
-	return (unix_send_fd(fd, sendfd));
+    if (msg_verbose)
+        msg_info("sendmsg error (%m). Trying CMSG_LEN workaround.");
+    unix_pass_fd_fix = UNIX_PASS_FD_FIX_CMSG_LEN;
+    return (unix_send_fd(fd, sendfd));
     } else {
-	return (-1);
+    return (-1);
     }
 #endif
 }
@@ -165,27 +165,27 @@ int     main(int argc, char **argv)
     msg_verbose = 1;
 
     if (argc < 3
-	|| (endpoint = split_at(transport = argv[1], ':')) == 0
-	|| *endpoint == 0 || *transport == 0)
-	msg_fatal("usage: %s transport:endpoint file...", argv[0]);
+    || (endpoint = split_at(transport = argv[1], ':')) == 0
+    || *endpoint == 0 || *transport == 0)
+    msg_fatal("usage: %s transport:endpoint file...", argv[0]);
 
     if (strcmp(transport, "unix") == 0) {
-	server_sock = unix_connect(endpoint, BLOCKING, 0);
+    server_sock = unix_connect(endpoint, BLOCKING, 0);
     } else {
-	msg_fatal("invalid transport name: %s", transport);
+    msg_fatal("invalid transport name: %s", transport);
     }
     if (server_sock < 0)
-	msg_fatal("connect %s:%s: %m", transport, endpoint);
+    msg_fatal("connect %s:%s: %m", transport, endpoint);
 
     argv += 2;
     while ((path = *argv++) != 0) {
-	if ((client_fd = open(path, O_RDONLY, 0)) < 0)
-	    msg_fatal("open %s: %m", path);
-	msg_info("path=%s fd=%d", path, client_fd);
-	if (unix_send_fd(server_sock, client_fd) < 0)
-	    msg_fatal("send file descriptor: %m");
-	if (close(client_fd) != 0)
-	    msg_fatal("close(%d): %m", client_fd);
+    if ((client_fd = open(path, O_RDONLY, 0)) < 0)
+        msg_fatal("open %s: %m", path);
+    msg_info("path=%s fd=%d", path, client_fd);
+    if (unix_send_fd(server_sock, client_fd) < 0)
+        msg_fatal("send file descriptor: %m");
+    if (close(client_fd) != 0)
+        msg_fatal("close(%d): %m", client_fd);
     }
     exit(0);
 }

@@ -1,32 +1,32 @@
 /*++
 /* NAME
-/*	timecmp 3
+/*    timecmp 3
 /* SUMMARY
-/*	compare two time_t values
+/*    compare two time_t values
 /* SYNOPSIS
-/*	#include <timecmp.h>
+/*    #include <timecmp.h>
 /*
-/*	int	timecmp(t1, t2)
-/*	time_t	t1;
-/*	time_t	t2;
+/*    int    timecmp(t1, t2)
+/*    time_t    t1;
+/*    time_t    t2;
 /* DESCRIPTION
-/*	The timecmp() function return an integer greater than, equal to, or
-/*	less than 0, according as the time t1 is greater than, equal to, or
-/*	less than the time t2.  The comparison is made in a manner that is
-/*	insensitive to clock wrap-around, provided the underlying times are
-/*	within half of the time interval between the smallest and largest
-/*	representable time values.
+/*    The timecmp() function return an integer greater than, equal to, or
+/*    less than 0, according as the time t1 is greater than, equal to, or
+/*    less than the time t2.  The comparison is made in a manner that is
+/*    insensitive to clock wrap-around, provided the underlying times are
+/*    within half of the time interval between the smallest and largest
+/*    representable time values.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Viktor Dukhovni
+/*    Viktor Dukhovni
 /*--*/
 
 #include "timecmp.h"
@@ -38,7 +38,7 @@ int     timecmp(time_t t1, time_t t2)
     time_t  delta = t1 - t2;
 
     if (delta == 0)
-	return 0;
+    return 0;
 
 #define UNSIGNED(type) ( ((type)-1) > ((type)0) )
 
@@ -48,9 +48,9 @@ int     timecmp(time_t t1, time_t t2)
      */
     switch (UNSIGNED(time_t) ? 0 : 1) {
     case 0:
-	return ((2 * delta > delta) ? 1 : -1);
+    return ((2 * delta > delta) ? 1 : -1);
     case 1:
-	return ((delta > (time_t) 0) ? 1 : -1);
+    return ((delta > (time_t) 0) ? 1 : -1);
     }
 }
 
@@ -79,9 +79,9 @@ int     main(void)
 
     /* Test that it works at a boundary time */
     if (UNSIGNED(time_t))
-	now = (time_t) -1;
+    now = (time_t) -1;
     else
-	now = __MAXINT__(time_t);
+    now = __MAXINT__(time_t);
 
     assert(timecmp(now + 10, now) > 0);
     assert(timecmp(now, now) == 0);

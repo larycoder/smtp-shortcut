@@ -1,74 +1,74 @@
 /*++
 /* NAME
-/*	hex_code 3
+/*    hex_code 3
 /* SUMMARY
-/*	encode/decode data, hexadecimal style
+/*    encode/decode data, hexadecimal style
 /* SYNOPSIS
-/*	#include <hex_code.h>
+/*    #include <hex_code.h>
 /*
-/*	VSTRING	*hex_encode(result, in, len)
-/*	VSTRING	*result;
-/*	const char *in;
-/*	ssize_t	len;
+/*    VSTRING    *hex_encode(result, in, len)
+/*    VSTRING    *result;
+/*    const char *in;
+/*    ssize_t    len;
 /*
-/*	VSTRING	*hex_decode(result, in, len)
-/*	VSTRING	*result;
-/*	const char *in;
-/*	ssize_t	len;
+/*    VSTRING    *hex_decode(result, in, len)
+/*    VSTRING    *result;
+/*    const char *in;
+/*    ssize_t    len;
 /*
-/*	VSTRING	*hex_encode_opt(result, in, len, flags)
-/*	VSTRING	*result;
-/*	const char *in;
-/*	ssize_t	len;
-/*	int	flags;
+/*    VSTRING    *hex_encode_opt(result, in, len, flags)
+/*    VSTRING    *result;
+/*    const char *in;
+/*    ssize_t    len;
+/*    int    flags;
 /*
-/*	VSTRING	*hex_decode_opt(result, in, len, flags)
-/*	VSTRING	*result;
-/*	const char *in;
-/*	ssize_t	len;
-/*	int	flags;
+/*    VSTRING    *hex_decode_opt(result, in, len, flags)
+/*    VSTRING    *result;
+/*    const char *in;
+/*    ssize_t    len;
+/*    int    flags;
 /* DESCRIPTION
-/*	hex_encode() takes a block of len bytes and encodes it as one
-/*	upper-case null-terminated string.  The result value is
-/*	the result argument.
+/*    hex_encode() takes a block of len bytes and encodes it as one
+/*    upper-case null-terminated string.  The result value is
+/*    the result argument.
 /*
-/*	hex_decode() performs the opposite transformation on
-/*	lower-case, upper-case or mixed-case input. The result
-/*	value is the result argument. The result is null terminated,
-/*	whether or not that makes sense.
+/*    hex_decode() performs the opposite transformation on
+/*    lower-case, upper-case or mixed-case input. The result
+/*    value is the result argument. The result is null terminated,
+/*    whether or not that makes sense.
 /*
-/*	hex_encode_opt() enables extended functionality as controlled
-/*	with \fIflags\fR.
+/*    hex_encode_opt() enables extended functionality as controlled
+/*    with \fIflags\fR.
 /* .IP HEX_ENCODE_FLAG_NONE
-/*	The default: a self-documenting flag that enables no
-/*	functionality.
+/*    The default: a self-documenting flag that enables no
+/*    functionality.
 /* .IP HEX_ENCODE_FLAG_USE_COLON
-/*	Inserts one ":" between bytes.
+/*    Inserts one ":" between bytes.
 /* .PP
-/*	hex_decode_opt() enables extended functionality as controlled
-/*	with \fIflags\fR.
+/*    hex_decode_opt() enables extended functionality as controlled
+/*    with \fIflags\fR.
 /* .IP HEX_DECODE_FLAG_NONE
-/*	The default: a self-documenting flag that enables no
-/*	functionality.
+/*    The default: a self-documenting flag that enables no
+/*    functionality.
 /* .IP HEX_DECODE_FLAG_ALLOW_COLON
-/*	Allows, but does not require, one ":" between bytes.
+/*    Allows, but does not require, one ":" between bytes.
 /* DIAGNOSTICS
-/*	hex_decode() returns a null pointer when the input contains
-/*	characters not in the hexadecimal alphabet.
+/*    hex_decode() returns a null pointer when the input contains
+/*    characters not in the hexadecimal alphabet.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -109,11 +109,11 @@ VSTRING *hex_encode_opt(VSTRING *result, const char *in, ssize_t len, int flags)
 
     VSTRING_RESET(result);
     for (cp = UCHAR_PTR(in), count = len; count > 0; count--, cp++) {
-	ch = *cp;
-	VSTRING_ADDCH(result, hex_chars[(ch >> 4) & 0xf]);
-	VSTRING_ADDCH(result, hex_chars[ch & 0xf]);
-	if ((flags & HEX_ENCODE_FLAG_USE_COLON) && count > 1)
-	    VSTRING_ADDCH(result, ':');
+    ch = *cp;
+    VSTRING_ADDCH(result, hex_chars[(ch >> 4) & 0xf]);
+    VSTRING_ADDCH(result, hex_chars[ch & 0xf]);
+    if ((flags & HEX_ENCODE_FLAG_USE_COLON) && count > 1)
+        VSTRING_ADDCH(result, ':');
     }
     VSTRING_TERMINATE(result);
     return (result);
@@ -139,38 +139,38 @@ VSTRING *hex_decode_opt(VSTRING *result, const char *in, ssize_t len, int flags)
 
     VSTRING_RESET(result);
     for (cp = UCHAR_PTR(in), count = len; count > 0; cp += 2, count -= 2) {
-	if (count < 2)
-	    return (0);
-	hex = cp[0];
-	if (hex >= '0' && hex <= '9')
-	    bin = (hex - '0') << 4;
-	else if (hex >= 'A' && hex <= 'F')
-	    bin = (hex - 'A' + 10) << 4;
-	else if (hex >= 'a' && hex <= 'f')
-	    bin = (hex - 'a' + 10) << 4;
-	else
-	    return (0);
-	hex = cp[1];
-	if (hex >= '0' && hex <= '9')
-	    bin |= (hex - '0');
-	else if (hex >= 'A' && hex <= 'F')
-	    bin |= (hex - 'A' + 10);
-	else if (hex >= 'a' && hex <= 'f')
-	    bin |= (hex - 'a' + 10);
-	else
-	    return (0);
-	VSTRING_ADDCH(result, bin);
+    if (count < 2)
+        return (0);
+    hex = cp[0];
+    if (hex >= '0' && hex <= '9')
+        bin = (hex - '0') << 4;
+    else if (hex >= 'A' && hex <= 'F')
+        bin = (hex - 'A' + 10) << 4;
+    else if (hex >= 'a' && hex <= 'f')
+        bin = (hex - 'a' + 10) << 4;
+    else
+        return (0);
+    hex = cp[1];
+    if (hex >= '0' && hex <= '9')
+        bin |= (hex - '0');
+    else if (hex >= 'A' && hex <= 'F')
+        bin |= (hex - 'A' + 10);
+    else if (hex >= 'a' && hex <= 'f')
+        bin |= (hex - 'a' + 10);
+    else
+        return (0);
+    VSTRING_ADDCH(result, bin);
 
-	/*
-	 * Support *colon-separated* input (no leading or trailing colons).
-	 * After decoding "xx", skip a possible ':' preceding "yy" in
-	 * "xx:yy".
-	 */
-	if ((flags & HEX_DECODE_FLAG_ALLOW_COLON)
-	    && count > 4 && cp[2] == ':') {
-	    ++cp;
-	    --count;
-	}
+    /*
+     * Support *colon-separated* input (no leading or trailing colons).
+     * After decoding "xx", skip a possible ':' preceding "yy" in
+     * "xx:yy".
+     */
+    if ((flags & HEX_DECODE_FLAG_ALLOW_COLON)
+        && count > 4 && cp[2] == ':') {
+        ++cp;
+        --count;
+    }
     }
     VSTRING_TERMINATE(result);
     return (result);
@@ -183,8 +183,8 @@ VSTRING *hex_decode_opt(VSTRING *result, const char *in, ssize_t len, int flags)
   * Proof-of-concept test program: convert to hexadecimal and back.
   */
 
-#define STR(x)	vstring_str(x)
-#define LEN(x)	VSTRING_LEN(x)
+#define STR(x)    vstring_str(x)
+#define LEN(x)    VSTRING_LEN(x)
 
 int     main(int unused_argc, char **unused_argv)
 {
@@ -194,12 +194,12 @@ int     main(int unused_argc, char **unused_argv)
     ARGV   *argv;
 
 #define DECODE(b,x,l) { \
-	if (hex_decode((b),(x),(l)) == 0) \
-	    msg_panic("bad hex: %s", (x)); \
+    if (hex_decode((b),(x),(l)) == 0) \
+        msg_panic("bad hex: %s", (x)); \
     }
 #define VERIFY(b,t) { \
-	if (strcmp((b), (t)) != 0) \
-	    msg_panic("bad test: %s", (b)); \
+    if (strcmp((b), (t)) != 0) \
+        msg_panic("bad test: %s", (b)); \
     }
 
     hex_encode(b1, test, strlen(test));
@@ -229,9 +229,9 @@ int     main(int unused_argc, char **unused_argv)
     hex_encode_opt(b1, test, strlen(test), HEX_ENCODE_FLAG_USE_COLON);
     argv = argv_split(STR(b1), ":");
     if (argv->argc != strlen(test))
-	msg_panic("HEX_ENCODE_FLAG_USE_COLON");
+    msg_panic("HEX_ENCODE_FLAG_USE_COLON");
     if (hex_decode_opt(b2, STR(b1), LEN(b1), HEX_DECODE_FLAG_ALLOW_COLON) == 0)
-	msg_panic("HEX_DECODE_FLAG_ALLOW_COLON");
+    msg_panic("HEX_DECODE_FLAG_ALLOW_COLON");
     VERIFY(STR(b2), test);
     argv_free(argv);
 

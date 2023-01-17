@@ -1,38 +1,38 @@
 /*++
 /* NAME
-/*	peekfd 3
+/*    peekfd 3
 /* SUMMARY
-/*	determine amount of data ready to read
+/*    determine amount of data ready to read
 /* SYNOPSIS
-/*	#include <iostuff.h>
+/*    #include <iostuff.h>
 /*
-/*	ssize_t	peekfd(fd)
-/*	int	fd;
+/*    ssize_t    peekfd(fd)
+/*    int    fd;
 /* DESCRIPTION
-/*	peekfd() attempts to find out how many bytes are available to
-/*	be read from the named file descriptor. The result value is
-/*	the number of available bytes.
+/*    peekfd() attempts to find out how many bytes are available to
+/*    be read from the named file descriptor. The result value is
+/*    the number of available bytes.
 /* DIAGNOSTICS
-/*	peekfd() returns -1 in case of trouble. The global \fIerrno\fR
-/*	variable reflects the nature of the problem.
+/*    peekfd() returns -1 in case of trouble. The global \fIerrno\fR
+/*    variable reflects the nature of the problem.
 /* BUGS
-/*	On some systems, non-blocking read() may fail even after a
-/*	positive return from peekfd(). The smtp-sink program works
-/*	around this by using the readable() function instead.
+/*    On some systems, non-blocking read() may fail even after a
+/*    positive return from peekfd(). The smtp-sink program works
+/*    around this by using the readable() function instead.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -75,14 +75,14 @@ ssize_t peekfd(int fd)
      * immediately.
      */
     if (ioctl(fd, FIONREAD, (char *) &count) < 0) {
-	(void) shutdown(fd, SHUT_RDWR);
-	return (-1);
+    (void) shutdown(fd, SHUT_RDWR);
+    return (-1);
     } else {
-	return (count);
+    return (count);
     }
-#else						/* SUNOS5 */
+#else                        /* SUNOS5 */
     return (ioctl(fd, FIONREAD, (char *) &count) < 0 ? -1 : count);
-#endif						/* SUNOS5 */
+#endif                        /* SUNOS5 */
 #else
 #error "don't know how to look ahead"
 #endif

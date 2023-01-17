@@ -1,59 +1,59 @@
 /*++
 /* NAME
-/*	auto_clnt 3
+/*    auto_clnt 3
 /* SUMMARY
-/*	client endpoint maintenance
+/*    client endpoint maintenance
 /* SYNOPSIS
-/*	#include <auto_clnt.h>
+/*    #include <auto_clnt.h>
 /*
-/*	typedef void (*AUTO_CLNT_HANDSHAKE_FN)(VSTREAM *);
+/*    typedef void (*AUTO_CLNT_HANDSHAKE_FN)(VSTREAM *);
 /*
-/*	AUTO_CLNT *auto_clnt_create(service, timeout, max_idle, max_ttl)
-/*	const char *service;
-/*	int	timeout;
-/*	int	max_idle;
-/*	int	max_ttl;
+/*    AUTO_CLNT *auto_clnt_create(service, timeout, max_idle, max_ttl)
+/*    const char *service;
+/*    int    timeout;
+/*    int    max_idle;
+/*    int    max_ttl;
 /*
-/*	VSTREAM	*auto_clnt_access(auto_clnt)
-/*	AUTO_CLNT *auto_clnt;
+/*    VSTREAM    *auto_clnt_access(auto_clnt)
+/*    AUTO_CLNT *auto_clnt;
 /*
-/*	void	auto_clnt_recover(auto_clnt)
-/*	AUTO_CLNT *auto_clnt;
+/*    void    auto_clnt_recover(auto_clnt)
+/*    AUTO_CLNT *auto_clnt;
 /*
-/*	const char *auto_clnt_name(auto_clnt)
-/*	AUTO_CLNT *auto_clnt;
+/*    const char *auto_clnt_name(auto_clnt)
+/*    AUTO_CLNT *auto_clnt;
 /*
-/*	void	auto_clnt_free(auto_clnt)
-/*	AUTO_CLNT *auto_clnt;
+/*    void    auto_clnt_free(auto_clnt)
+/*    AUTO_CLNT *auto_clnt;
 /*
-/*	void	auto_clnt_control(auto_clnt, name, value, ... AUTO_CLNT_CTL_END)
-/*	AUTO_CLNT *auto_clnt;
-/*	int	name;
+/*    void    auto_clnt_control(auto_clnt, name, value, ... AUTO_CLNT_CTL_END)
+/*    AUTO_CLNT *auto_clnt;
+/*    int    name;
 /* DESCRIPTION
-/*	This module maintains IPC client endpoints that automatically
-/*	disconnect after a being idle for a configurable amount of time,
-/*	that disconnect after a configurable time to live,
-/*	and that transparently handle most server-initiated disconnects.
+/*    This module maintains IPC client endpoints that automatically
+/*    disconnect after a being idle for a configurable amount of time,
+/*    that disconnect after a configurable time to live,
+/*    and that transparently handle most server-initiated disconnects.
 /*
-/*	This module tries each operation only a limited number of
-/*	times and then reports an error.  This is unlike the
-/*	clnt_stream(3) module which will retry forever, so that
-/*	the application never experiences an error.
+/*    This module tries each operation only a limited number of
+/*    times and then reports an error.  This is unlike the
+/*    clnt_stream(3) module which will retry forever, so that
+/*    the application never experiences an error.
 /*
-/*	auto_clnt_create() instantiates a client endpoint.
+/*    auto_clnt_create() instantiates a client endpoint.
 /*
-/*	auto_clnt_access() returns an open stream to the service specified
-/*	to auto_clnt_create(). The stream instance may change between calls.
-/*	The result is a null pointer in case of failure.
+/*    auto_clnt_access() returns an open stream to the service specified
+/*    to auto_clnt_create(). The stream instance may change between calls.
+/*    The result is a null pointer in case of failure.
 /*
-/*	auto_clnt_recover() recovers from a server-initiated disconnect
-/*	that happened in the middle of an I/O operation.
+/*    auto_clnt_recover() recovers from a server-initiated disconnect
+/*    that happened in the middle of an I/O operation.
 /*
-/*	auto_clnt_name() returns the name of the specified client endpoint.
+/*    auto_clnt_name() returns the name of the specified client endpoint.
 /*
-/*	auto_clnt_free() destroys of the specified client endpoint.
+/*    auto_clnt_free() destroys of the specified client endpoint.
 /*
-/*	auto_clnt_control() allows the user to fine tune the behavior of
+/*    auto_clnt_control() allows the user to fine tune the behavior of
 /*      the specified client. The arguments are a list of (name, value)
 /*      terminated with AUTO_CLNT_CTL_END.
 /*      The following lists the names and the types of the corresponding
@@ -62,58 +62,58 @@
 /*      A pointer to function that will be called at the start of a
 /*      new connection, and that returns 0 in case of success.
 /* .PP
-/*	Arguments:
+/*    Arguments:
 /* .IP service
-/*	The service argument specifies "transport:servername" where
-/*	transport is currently limited to one of the following:
+/*    The service argument specifies "transport:servername" where
+/*    transport is currently limited to one of the following:
 /* .RS
 /* .IP inet
-/*	servername has the form "inet:host:port".
+/*    servername has the form "inet:host:port".
 /* .IP local
-/*	servername has the form "local:private/servicename" or
-/*	"local:public/servicename". This is the preferred way to
-/*	specify Postfix daemons that are configured as "unix" in
-/*	master.cf.
+/*    servername has the form "local:private/servicename" or
+/*    "local:public/servicename". This is the preferred way to
+/*    specify Postfix daemons that are configured as "unix" in
+/*    master.cf.
 /* .IP unix
-/*	servername has the form "unix:private/servicename" or
-/*	"unix:public/servicename". This does not work on Solaris,
-/*	where Postfix uses STREAMS instead of UNIX-domain sockets.
+/*    servername has the form "unix:private/servicename" or
+/*    "unix:public/servicename". This does not work on Solaris,
+/*    where Postfix uses STREAMS instead of UNIX-domain sockets.
 /* .RE
 /* .IP timeout
-/*	The time limit for sending, receiving, or for connecting
-/*	to a server. Specify a value <=0 to disable the time limit.
+/*    The time limit for sending, receiving, or for connecting
+/*    to a server. Specify a value <=0 to disable the time limit.
 /* .IP max_idle
-/*	Idle time after which the client disconnects. Specify 0 to
-/*	disable the limit.
+/*    Idle time after which the client disconnects. Specify 0 to
+/*    disable the limit.
 /* .IP max_ttl
-/*	Upper bound on the time that a connection is allowed to persist.
-/*	Specify 0 to disable the limit.
+/*    Upper bound on the time that a connection is allowed to persist.
+/*    Specify 0 to disable the limit.
 /* .IP open_action
-/*	Application call-back routine that opens a stream or returns a
-/*	null pointer upon failure. In case of success, the call-back routine
-/*	is expected to set the stream pathname to the server endpoint name.
+/*    Application call-back routine that opens a stream or returns a
+/*    null pointer upon failure. In case of success, the call-back routine
+/*    is expected to set the stream pathname to the server endpoint name.
 /* .IP context
-/*	Application context that is passed to the open_action routine.
+/*    Application context that is passed to the open_action routine.
 /* .IP handshake
-/*	A null pointer, or a pointer to function that will be called
-/*	at the start of a new connection and that returns 0 in case
-/*	of success.
+/*    A null pointer, or a pointer to function that will be called
+/*    at the start of a new connection and that returns 0 in case
+/*    of success.
 /* DIAGNOSTICS
-/*	Warnings: communication failure. Fatal error: out of memory.
+/*    Warnings: communication failure. Fatal error: out of memory.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -139,13 +139,13 @@
   * be implemented as a macro, and access is not performance critical anyway.
   */
 struct AUTO_CLNT {
-    VSTREAM *vstream;			/* buffered I/O */
-    char   *endpoint;			/* host:port or pathname */
-    int     timeout;			/* I/O time limit */
-    int     max_idle;			/* time before client disconnect */
-    int     max_ttl;			/* time before client disconnect */
-    AUTO_CLNT_HANDSHAKE_FN handshake;	/* new connection only */
-    int     (*connect) (const char *, int, int);	/* unix, local, inet */
+    VSTREAM *vstream;            /* buffered I/O */
+    char   *endpoint;            /* host:port or pathname */
+    int     timeout;            /* I/O time limit */
+    int     max_idle;            /* time before client disconnect */
+    int     max_ttl;            /* time before client disconnect */
+    AUTO_CLNT_HANDSHAKE_FN handshake;    /* new connection only */
+    int     (*connect) (const char *, int, int);    /* unix, local, inet */
 };
 
 static void auto_clnt_close(AUTO_CLNT *);
@@ -161,7 +161,7 @@ static void auto_clnt_event(int unused_event, void *context)
      * cannot be called when the stream is already closed.
      */
     if (auto_clnt->vstream == 0)
-	msg_panic("auto_clnt_event: stream is closed");
+    msg_panic("auto_clnt_event: stream is closed");
 
     auto_clnt_close(auto_clnt);
 }
@@ -197,7 +197,7 @@ static void auto_clnt_open(AUTO_CLNT *auto_clnt)
      * Sanity check.
      */
     if (auto_clnt->vstream)
-	msg_panic("auto_clnt_open: stream is open");
+    msg_panic("auto_clnt_open: stream is open");
 
     /*
      * Schedule a read event so that we can clean up when the remote side
@@ -210,27 +210,27 @@ static void auto_clnt_open(AUTO_CLNT *auto_clnt)
      */
     fd = auto_clnt->connect(auto_clnt->endpoint, BLOCKING, auto_clnt->timeout);
     if (fd < 0) {
-	msg_warn("connect to %s: %m", auto_clnt->endpoint);
+    msg_warn("connect to %s: %m", auto_clnt->endpoint);
     } else {
-	if (msg_verbose)
-	    msg_info("%s: connected to %s", myname, auto_clnt->endpoint);
-	auto_clnt->vstream = vstream_fdopen(fd, O_RDWR);
-	vstream_control(auto_clnt->vstream,
-			CA_VSTREAM_CTL_PATH(auto_clnt->endpoint),
-			CA_VSTREAM_CTL_TIMEOUT(auto_clnt->timeout),
-			CA_VSTREAM_CTL_END);
+    if (msg_verbose)
+        msg_info("%s: connected to %s", myname, auto_clnt->endpoint);
+    auto_clnt->vstream = vstream_fdopen(fd, O_RDWR);
+    vstream_control(auto_clnt->vstream,
+            CA_VSTREAM_CTL_PATH(auto_clnt->endpoint),
+            CA_VSTREAM_CTL_TIMEOUT(auto_clnt->timeout),
+            CA_VSTREAM_CTL_END);
     }
 
     if (auto_clnt->vstream != 0) {
-	close_on_exec(vstream_fileno(auto_clnt->vstream), CLOSE_ON_EXEC);
-	event_enable_read(vstream_fileno(auto_clnt->vstream), auto_clnt_event,
-			  (void *) auto_clnt);
-	if (auto_clnt->max_idle > 0)
-	    event_request_timer(auto_clnt_event, (void *) auto_clnt,
-				auto_clnt->max_idle);
-	if (auto_clnt->max_ttl > 0)
-	    event_request_timer(auto_clnt_ttl_event, (void *) auto_clnt,
-				auto_clnt->max_ttl);
+    close_on_exec(vstream_fileno(auto_clnt->vstream), CLOSE_ON_EXEC);
+    event_enable_read(vstream_fileno(auto_clnt->vstream), auto_clnt_event,
+              (void *) auto_clnt);
+    if (auto_clnt->max_idle > 0)
+        event_request_timer(auto_clnt_event, (void *) auto_clnt,
+                auto_clnt->max_idle);
+    if (auto_clnt->max_ttl > 0)
+        event_request_timer(auto_clnt_ttl_event, (void *) auto_clnt,
+                auto_clnt->max_ttl);
     }
 }
 
@@ -244,14 +244,14 @@ static void auto_clnt_close(AUTO_CLNT *auto_clnt)
      * Sanity check.
      */
     if (auto_clnt->vstream == 0)
-	msg_panic("%s: stream is closed", myname);
+    msg_panic("%s: stream is closed", myname);
 
     /*
      * Be sure to disable read and timer events.
      */
     if (msg_verbose)
-	msg_info("%s: disconnect %s stream",
-		 myname, VSTREAM_PATH(auto_clnt->vstream));
+    msg_info("%s: disconnect %s stream",
+         myname, VSTREAM_PATH(auto_clnt->vstream));
     event_disable_readwrite(vstream_fileno(auto_clnt->vstream));
     event_cancel_timer(auto_clnt_event, (void *) auto_clnt);
     event_cancel_timer(auto_clnt_ttl_event, (void *) auto_clnt);
@@ -268,7 +268,7 @@ void    auto_clnt_recover(AUTO_CLNT *auto_clnt)
      * Clean up. Don't re-connect until the caller needs it.
      */
     if (auto_clnt->vstream)
-	auto_clnt_close(auto_clnt);
+    auto_clnt_close(auto_clnt);
 }
 
 /* auto_clnt_access - access a client stream */
@@ -283,23 +283,23 @@ VSTREAM *auto_clnt_access(AUTO_CLNT *auto_clnt)
      * Important! Do not restart the TTL timer!
      */
     if (auto_clnt->vstream == 0) {
-	auto_clnt_open(auto_clnt);
-	handshake = (auto_clnt->vstream ? auto_clnt->handshake : 0);
+    auto_clnt_open(auto_clnt);
+    handshake = (auto_clnt->vstream ? auto_clnt->handshake : 0);
     } else {
-	if (auto_clnt->max_idle > 0)
-	    event_request_timer(auto_clnt_event, (void *) auto_clnt,
-				auto_clnt->max_idle);
-	handshake = 0;
+    if (auto_clnt->max_idle > 0)
+        event_request_timer(auto_clnt_event, (void *) auto_clnt,
+                auto_clnt->max_idle);
+    handshake = 0;
     }
     if (handshake != 0 && handshake(auto_clnt->vstream) != 0)
-	return (0);
+    return (0);
     return (auto_clnt->vstream);
 }
 
 /* auto_clnt_create - create client stream object */
 
 AUTO_CLNT *auto_clnt_create(const char *service, int timeout,
-			            int max_idle, int max_ttl)
+                        int max_idle, int max_ttl)
 {
     const char *myname = "auto_clnt_create";
     char   *transport = mystrdup(service);
@@ -310,10 +310,10 @@ AUTO_CLNT *auto_clnt_create(const char *service, int timeout,
      * Don't open the stream until the caller needs it.
      */
     if ((endpoint = split_at(transport, ':')) == 0
-	|| *endpoint == 0 || *transport == 0)
-	msg_fatal("need service transport:endpoint instead of \"%s\"", service);
+    || *endpoint == 0 || *transport == 0)
+    msg_fatal("need service transport:endpoint instead of \"%s\"", service);
     if (msg_verbose)
-	msg_info("%s: transport=%s endpoint=%s", myname, transport, endpoint);
+    msg_info("%s: transport=%s endpoint=%s", myname, transport, endpoint);
     auto_clnt = (AUTO_CLNT *) mymalloc(sizeof(*auto_clnt));
     auto_clnt->vstream = 0;
     auto_clnt->endpoint = mystrdup(endpoint);
@@ -322,14 +322,14 @@ AUTO_CLNT *auto_clnt_create(const char *service, int timeout,
     auto_clnt->max_ttl = max_ttl;
     auto_clnt->handshake = 0;
     if (strcmp(transport, "inet") == 0) {
-	auto_clnt->connect = inet_connect;
+    auto_clnt->connect = inet_connect;
     } else if (strcmp(transport, "local") == 0) {
-	auto_clnt->connect = LOCAL_CONNECT;
+    auto_clnt->connect = LOCAL_CONNECT;
     } else if (strcmp(transport, "unix") == 0) {
-	auto_clnt->connect = unix_connect;
+    auto_clnt->connect = unix_connect;
     } else {
-	msg_fatal("invalid transport name: %s in service: %s",
-		  transport, service);
+    msg_fatal("invalid transport name: %s in service: %s",
+          transport, service);
     }
     myfree(transport);
     return (auto_clnt);
@@ -347,7 +347,7 @@ const char *auto_clnt_name(AUTO_CLNT *auto_clnt)
 void    auto_clnt_free(AUTO_CLNT *auto_clnt)
 {
     if (auto_clnt->vstream)
-	auto_clnt_close(auto_clnt);
+    auto_clnt_close(auto_clnt);
     myfree(auto_clnt->endpoint);
     myfree((void *) auto_clnt);
 }
@@ -360,13 +360,13 @@ void    auto_clnt_control(AUTO_CLNT *client, int name,...)
     va_list ap;
 
     for (va_start(ap, name); name != AUTO_CLNT_CTL_END; name = va_arg(ap, int)) {
-	switch (name) {
-	case AUTO_CLNT_CTL_HANDSHAKE:
-	    client->handshake = va_arg(ap, AUTO_CLNT_HANDSHAKE_FN);
-	    break;
-	default:
-	    msg_panic("%s: bad name %d", myname, name);
-	}
+    switch (name) {
+    case AUTO_CLNT_CTL_HANDSHAKE:
+        client->handshake = va_arg(ap, AUTO_CLNT_HANDSHAKE_FN);
+        break;
+    default:
+        msg_panic("%s: bad name %d", myname, name);
+    }
     }
     va_end(ap);
 }

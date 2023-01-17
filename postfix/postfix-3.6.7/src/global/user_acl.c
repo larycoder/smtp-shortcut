@@ -1,44 +1,44 @@
 /*++
 /* NAME
-/*	user_acl 3
+/*    user_acl 3
 /* SUMMARY
-/*	user name based access control
+/*    user name based access control
 /* SYNOPSIS
-/*	#include <user_acl.h>
+/*    #include <user_acl.h>
 /*
-/*	const char *check_user_acl_byuid(pname, acl, uid)
-/*	const char *pname;
-/*	const char *acl;
-/*	uid_t	uid;
+/*    const char *check_user_acl_byuid(pname, acl, uid)
+/*    const char *pname;
+/*    const char *acl;
+/*    uid_t    uid;
 /* DESCRIPTION
-/*	check_user_acl_byuid() converts the given uid into a user
-/*	name, and checks the result against a user name matchlist.
-/*	If the uid cannot be resolved to a user name, "unknown"
-/*	is used as the lookup key instead.
-/*	The result is NULL on success, the username upon failure.
-/*	The error result lives in static storage and must be saved
-/*	if it is to be used to across multiple check_user_acl_byuid()
-/*	calls.
+/*    check_user_acl_byuid() converts the given uid into a user
+/*    name, and checks the result against a user name matchlist.
+/*    If the uid cannot be resolved to a user name, "unknown"
+/*    is used as the lookup key instead.
+/*    The result is NULL on success, the username upon failure.
+/*    The error result lives in static storage and must be saved
+/*    if it is to be used to across multiple check_user_acl_byuid()
+/*    calls.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP pname
-/*	The parameter name of the acl.
+/*    The parameter name of the acl.
 /* .IP acl
-/*	Authorized user name list suitable for input to string_list_init(3).
+/*    Authorized user name list suitable for input to string_list_init(3).
 /* .IP uid
-/*	The uid to be checked against the access list.
+/*    The uid to be checked against the access list.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Victor Duchovni
-/*	Morgan Stanley
+/*    Victor Duchovni
+/*    Morgan Stanley
 /*--*/
 
 /* System library. */
@@ -76,7 +76,7 @@ const char *check_user_acl_byuid(const char *pname, const char *acl, uid_t uid)
      * only need to match the "static:" substring, not the result value.
      */
     if (strncmp(acl, DICT_TYPE_STATIC ":", sizeof(DICT_TYPE_STATIC)) == 0)
-	return (0);
+    return (0);
 
     /*
      * XXX: Substitute "unknown" for UIDs without username, so that
@@ -99,20 +99,20 @@ const char *check_user_acl_byuid(const char *pname, const char *acl, uid_t uid)
      * propagate the error to the caller, or treat lookup errors as fatal.
      */
     if ((mypwd = mypwuid(uid)) == 0) {
-	name = "unknown";
+    name = "unknown";
     } else {
-	name = mypwd->pw_name;
+    name = mypwd->pw_name;
     }
 
     list = string_list_init(pname, MATCH_FLAG_NONE, acl);
     if ((matched = string_list_match(list, name)) == 0) {
-	if (!who)
-	    who = vstring_alloc(10);
-	vstring_strcpy(who, name);
+    if (!who)
+        who = vstring_alloc(10);
+    vstring_strcpy(who, name);
     }
     string_list_free(list);
     if (mypwd)
-	mypwfree(mypwd);
+    mypwfree(mypwd);
 
     return (matched ? 0 : vstring_str(who));
 }

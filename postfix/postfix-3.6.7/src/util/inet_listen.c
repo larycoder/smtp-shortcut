@@ -1,59 +1,59 @@
 /*++
 /* NAME
-/*	inet_listen 3
+/*    inet_listen 3
 /* SUMMARY
-/*	start TCP listener
+/*    start TCP listener
 /* SYNOPSIS
-/*	#include <listen.h>
+/*    #include <listen.h>
 /*
-/*	int	inet_windowsize;
+/*    int    inet_windowsize;
 /*
-/*	int	inet_listen(addr, backlog, block_mode)
-/*	const char *addr;
-/*	int	backlog;
-/*	int	block_mode;
+/*    int    inet_listen(addr, backlog, block_mode)
+/*    const char *addr;
+/*    int    backlog;
+/*    int    block_mode;
 /*
-/*	int	inet_accept(fd)
-/*	int	fd;
+/*    int    inet_accept(fd)
+/*    int    fd;
 /* DESCRIPTION
-/*	The \fBinet_listen\fR routine starts a TCP listener
-/*	on the specified address, with the specified backlog, and returns
-/*	the resulting file descriptor.
+/*    The \fBinet_listen\fR routine starts a TCP listener
+/*    on the specified address, with the specified backlog, and returns
+/*    the resulting file descriptor.
 /*
-/*	inet_accept() accepts a connection and sanitizes error results.
+/*    inet_accept() accepts a connection and sanitizes error results.
 /*
-/*	Specify an inet_windowsize value > 0 to override the TCP
-/*	window size that the server advertises to the client.
+/*    Specify an inet_windowsize value > 0 to override the TCP
+/*    window size that the server advertises to the client.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP addr
-/*	The communication endpoint to listen on. The syntax is "host:port".
-/*	Host and port may be specified in symbolic form or numerically.
-/*	A null host field means listen on all network interfaces.
+/*    The communication endpoint to listen on. The syntax is "host:port".
+/*    Host and port may be specified in symbolic form or numerically.
+/*    A null host field means listen on all network interfaces.
 /* .IP backlog
-/*	This argument is passed on to the \fIlisten(2)\fR routine.
+/*    This argument is passed on to the \fIlisten(2)\fR routine.
 /* .IP block_mode
-/*	Either NON_BLOCKING for a non-blocking socket, or BLOCKING for
-/*	blocking mode.
+/*    Either NON_BLOCKING for a non-blocking socket, or BLOCKING for
+/*    blocking mode.
 /* .IP fd
-/*	File descriptor returned by inet_listen().
+/*    File descriptor returned by inet_listen().
 /* DIAGNOSTICS
-/*	Fatal errors: inet_listen() aborts upon any system call failure.
-/*	inet_accept() leaves all error handling up to the caller.
+/*    Fatal errors: inet_listen() aborts upon any system call failure.
+/*    inet_accept() leaves all error handling up to the caller.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System libraries. */
@@ -104,77 +104,77 @@ int     inet_listen(const char *addr, int backlog, int block_mode)
      */
     buf = mystrdup(addr);
     if ((parse_err = host_port(buf, &host, "", &port, (char *) 0)) != 0)
-	msg_fatal("%s: %s", addr, parse_err);
+    msg_fatal("%s: %s", addr, parse_err);
     if (*host == 0)
-	host = 0;
+    host = 0;
     if ((aierr = hostname_to_sockaddr(host, port, SOCK_STREAM, &res0)) != 0)
-	msg_fatal("%s: %s", addr, MAI_STRERROR(aierr));
+    msg_fatal("%s: %s", addr, MAI_STRERROR(aierr));
     myfree(buf);
     /* No early returns or res0 leaks. */
 
     proto_info = inet_proto_info();
     for (res = res0; /* see below */ ; res = res->ai_next) {
 
-	/*
-	 * No usable address found.
-	 */
-	if (res == 0)
-	    msg_fatal("%s: host found but no usable address", addr);
+    /*
+     * No usable address found.
+     */
+    if (res == 0)
+        msg_fatal("%s: host found but no usable address", addr);
 
-	/*
-	 * Safety net.
-	 */
-	if (strchr((char *) proto_info->sa_family_list, res->ai_family) != 0)
-	    break;
+    /*
+     * Safety net.
+     */
+    if (strchr((char *) proto_info->sa_family_list, res->ai_family) != 0)
+        break;
 
-	msg_info("skipping address family %d for %s", res->ai_family, addr);
+    msg_info("skipping address family %d for %s", res->ai_family, addr);
     }
 
     /*
      * Show what address we're trying.
      */
     if (msg_verbose) {
-	SOCKADDR_TO_HOSTADDR(res->ai_addr, res->ai_addrlen,
-			     &hostaddr, &portnum, 0);
-	msg_info("trying... [%s]:%s", hostaddr.buf, portnum.buf);
+    SOCKADDR_TO_HOSTADDR(res->ai_addr, res->ai_addrlen,
+                 &hostaddr, &portnum, 0);
+    msg_info("trying... [%s]:%s", hostaddr.buf, portnum.buf);
     }
 
     /*
      * Create a listener socket.
      */
     if ((sock = socket(res->ai_family, res->ai_socktype, 0)) < 0)
-	msg_fatal("socket: %m");
+    msg_fatal("socket: %m");
 #ifdef HAS_IPV6
 #if defined(IPV6_V6ONLY) && !defined(BROKEN_AI_PASSIVE_NULL_HOST)
     if (res->ai_family == AF_INET6
-	&& setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY,
-		      (void *) &on, sizeof(on)) < 0)
-	msg_fatal("setsockopt(IPV6_V6ONLY): %m");
+    && setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY,
+              (void *) &on, sizeof(on)) < 0)
+    msg_fatal("setsockopt(IPV6_V6ONLY): %m");
 #endif
 #endif
     if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR,
-		   (void *) &on, sizeof(on)) < 0)
-	msg_fatal("setsockopt(SO_REUSEADDR): %m");
+           (void *) &on, sizeof(on)) < 0)
+    msg_fatal("setsockopt(SO_REUSEADDR): %m");
 #if defined(SO_REUSEPORT_LB)
     if (setsockopt(sock, SOL_SOCKET, SO_REUSEPORT_LB,
-		   (void *) &on, sizeof(on)) < 0)
-	msg_fatal("setsockopt(SO_REUSEPORT_LB): %m");
+           (void *) &on, sizeof(on)) < 0)
+    msg_fatal("setsockopt(SO_REUSEPORT_LB): %m");
 #elif defined(SO_REUSEPORT)
     if (setsockopt(sock, SOL_SOCKET, SO_REUSEPORT,
-		   (void *) &on, sizeof(on)) < 0)
-	msg_fatal("setsockopt(SO_REUSEPORT): %m");
+           (void *) &on, sizeof(on)) < 0)
+    msg_fatal("setsockopt(SO_REUSEPORT): %m");
 #endif
     if (bind(sock, res->ai_addr, res->ai_addrlen) < 0) {
-	SOCKADDR_TO_HOSTADDR(res->ai_addr, res->ai_addrlen,
-			     &hostaddr, &portnum, 0);
-	msg_fatal("bind %s port %s: %m", hostaddr.buf, portnum.buf);
+    SOCKADDR_TO_HOSTADDR(res->ai_addr, res->ai_addrlen,
+                 &hostaddr, &portnum, 0);
+    msg_fatal("bind %s port %s: %m", hostaddr.buf, portnum.buf);
     }
     freeaddrinfo(res0);
     non_blocking(sock, block_mode);
     if (inet_windowsize > 0)
-	set_inet_windowsize(sock, inet_windowsize);
+    set_inet_windowsize(sock, inet_windowsize);
     if (listen(sock, backlog) < 0)
-	msg_fatal("listen: %m");
+    msg_fatal("listen: %m");
     return (sock);
 }
 

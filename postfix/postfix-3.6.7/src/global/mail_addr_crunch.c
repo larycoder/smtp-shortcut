@@ -1,64 +1,64 @@
 /*++
 /* NAME
-/*	mail_addr_crunch 3
+/*    mail_addr_crunch 3
 /* SUMMARY
-/*	parse and canonicalize addresses, apply address extension
+/*    parse and canonicalize addresses, apply address extension
 /* SYNOPSIS
-/*	#include <mail_addr_crunch.h>
+/*    #include <mail_addr_crunch.h>
 /*
-/*	ARGV	*mail_addr_crunch_ext_to_int(string, extension)
-/*	const char *string;
-/*	const char *extension;
+/*    ARGV    *mail_addr_crunch_ext_to_int(string, extension)
+/*    const char *string;
+/*    const char *extension;
 /*
-/*	ARGV	*mail_addr_crunch_opt(string, extension, in_form, out_form)
-/*	const char *string;
-/*	const char *extension;
-/*	int	in_form;
-/*	int	out_form;
+/*    ARGV    *mail_addr_crunch_opt(string, extension, in_form, out_form)
+/*    const char *string;
+/*    const char *extension;
+/*    int    in_form;
+/*    int    out_form;
 /* DESCRIPTION
-/*	mail_addr_crunch_*() parses a string with zero or more addresses,
-/*	rewrites each address to canonical form, and optionally applies
-/*	an address extension to each resulting address. The caller is
-/*	expected to pass the result to argv_free().
+/*    mail_addr_crunch_*() parses a string with zero or more addresses,
+/*    rewrites each address to canonical form, and optionally applies
+/*    an address extension to each resulting address. The caller is
+/*    expected to pass the result to argv_free().
 /*
-/*	With mail_addr_crunch_ext_to_int(), the string is in external
-/*	form, and the result is in internal form. This API minimizes
-/*	the number of conversions between internal and external forms.
+/*    With mail_addr_crunch_ext_to_int(), the string is in external
+/*    form, and the result is in internal form. This API minimizes
+/*    the number of conversions between internal and external forms.
 /*
-/*	mail_addr_crunch_opt() gives more control, at the cost of
-/*	additional conversions between internal and external forms.
+/*    mail_addr_crunch_opt() gives more control, at the cost of
+/*    additional conversions between internal and external forms.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP string
-/*	A string with zero or more addresses in external (quoted)
-/*	form, or in the form specified with the in_form argument.
+/*    A string with zero or more addresses in external (quoted)
+/*    form, or in the form specified with the in_form argument.
 /* .IP extension
-/*	A null pointer, or an address extension (including the recipient
-/*	address delimiter) that is propagated to all result addresses.
-/*	This is in internal (unquoted) form.
+/*    A null pointer, or an address extension (including the recipient
+/*    address delimiter) that is propagated to all result addresses.
+/*    This is in internal (unquoted) form.
 /* .IP in_form
 /* .IP out_form
-/*	Input and output address forms, either MA_FORM_INTERNAL
-/*	(unquoted form) or MA_FORM_EXTERNAL (quoted form).
+/*    Input and output address forms, either MA_FORM_INTERNAL
+/*    (unquoted form) or MA_FORM_EXTERNAL (quoted form).
 /* DIAGNOSTICS
-/*	Fatal error: out of memory.
+/*    Fatal error: out of memory.
 /* SEE ALSO
-/*	tok822_parse(3), address parser
-/*	canon_addr(3), address canonicalization
+/*    tok822_parse(3), address parser
+/*    canon_addr(3), address canonicalization
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -82,7 +82,7 @@
 /* mail_addr_crunch - break string into addresses, optionally add extension */
 
 ARGV   *mail_addr_crunch_opt(const char *string, const char *extension,
-			             int in_form, int out_form)
+                         int in_form, int out_form)
 {
     VSTRING *intern_addr = vstring_alloc(100);
     VSTRING *extern_addr = vstring_alloc(100);
@@ -95,7 +95,7 @@ ARGV   *mail_addr_crunch_opt(const char *string, const char *extension,
     ssize_t extlen;
 
     if (extension)
-	extlen = strlen(extension);
+    extlen = strlen(extension);
 
 #define STR(x) vstring_str(x)
 
@@ -103,8 +103,8 @@ ARGV   *mail_addr_crunch_opt(const char *string, const char *extension,
      * Optionally convert input from internal form.
      */
     if (in_form == MA_FORM_INTERNAL) {
-	quote_822_local(extern_addr, string);
-	string = STR(extern_addr);
+    quote_822_local(extern_addr, string);
+    string = STR(extern_addr);
     }
 
     /*
@@ -116,32 +116,32 @@ ARGV   *mail_addr_crunch_opt(const char *string, const char *extension,
      * produces ugly results for message headers.
      */
     if (*string == 0 || strcmp(string, "<>") == 0)
-	string = "\"\"";
+    string = "\"\"";
     tree = tok822_parse(string);
     /* string->extern_addr would be invalidated by tok822_externalize() */
     string = 0;
     addr_list = tok822_grep(tree, TOK822_ADDR);
     for (tpp = addr_list; *tpp; tpp++) {
-	tok822_externalize(extern_addr, tpp[0]->head, TOK822_STR_DEFL);
-	canon_addr_external(canon_addr, STR(extern_addr));
-	unquote_822_local(intern_addr, STR(canon_addr));
-	if (extension) {
-	    VSTRING_SPACE(intern_addr, extlen + 1);
-	    if ((ratsign = strrchr(STR(intern_addr), '@')) == 0) {
-		vstring_strcat(intern_addr, extension);
-	    } else {
-		memmove(ratsign + extlen, ratsign, strlen(ratsign) + 1);
-		memcpy(ratsign, extension, extlen);
-		VSTRING_SKIP(intern_addr);
-	    }
-	}
-	/* Optionally convert output to external form. */
-	if (out_form == MA_FORM_EXTERNAL) {
-	    quote_822_local(extern_addr, STR(intern_addr));
-	    argv_add(argv, STR(extern_addr), ARGV_END);
-	} else {
-	    argv_add(argv, STR(intern_addr), ARGV_END);
-	}
+    tok822_externalize(extern_addr, tpp[0]->head, TOK822_STR_DEFL);
+    canon_addr_external(canon_addr, STR(extern_addr));
+    unquote_822_local(intern_addr, STR(canon_addr));
+    if (extension) {
+        VSTRING_SPACE(intern_addr, extlen + 1);
+        if ((ratsign = strrchr(STR(intern_addr), '@')) == 0) {
+        vstring_strcat(intern_addr, extension);
+        } else {
+        memmove(ratsign + extlen, ratsign, strlen(ratsign) + 1);
+        memcpy(ratsign, extension, extlen);
+        VSTRING_SKIP(intern_addr);
+        }
+    }
+    /* Optionally convert output to external form. */
+    if (out_form == MA_FORM_EXTERNAL) {
+        quote_822_local(extern_addr, STR(intern_addr));
+        argv_add(argv, STR(extern_addr), ARGV_END);
+    } else {
+        argv_add(argv, STR(intern_addr), ARGV_END);
+    }
     }
     argv_terminate(argv);
     myfree((void *) addr_list);
@@ -177,13 +177,13 @@ static int get_addr_form(const char *prompt, VSTRING *buf)
     int     addr_form;
 
     if (prompt) {
-	vstream_printf("%s: ", prompt);
-	vstream_fflush(VSTREAM_OUT);
+    vstream_printf("%s: ", prompt);
+    vstream_fflush(VSTREAM_OUT);
     }
     if (vstring_get_nonl(buf, VSTREAM_IN) == VSTREAM_EOF)
-	exit(0);
+    exit(0);
     if ((addr_form = mail_addr_form_from_string(STR(buf))) < 0)
-	msg_fatal("bad address form: %s", STR(buf));
+    msg_fatal("bad address form: %s", STR(buf));
     return (addr_form);
 }
 
@@ -199,29 +199,29 @@ int     main(int unused_argc, char **unused_argv)
 
     mail_conf_read();
     if (chdir(var_queue_dir) < 0)
-	msg_fatal("chdir %s: %m", var_queue_dir);
+    msg_fatal("chdir %s: %m", var_queue_dir);
 
     in_form = get_addr_form(do_prompt ? "input form" : 0, buf);
     out_form = get_addr_form(do_prompt ? "output form" : 0, buf);
     if (do_prompt) {
-	vstream_printf("extension: (CR for none): ");
-	vstream_fflush(VSTREAM_OUT);
+    vstream_printf("extension: (CR for none): ");
+    vstream_fflush(VSTREAM_OUT);
     }
     if (vstring_get_nonl(extension, VSTREAM_IN) == VSTREAM_EOF)
-	exit(0);
+    exit(0);
 
     if (do_prompt) {
-	vstream_printf("print strings to be translated, one per line\n");
-	vstream_fflush(VSTREAM_OUT);
+    vstream_printf("print strings to be translated, one per line\n");
+    vstream_fflush(VSTREAM_OUT);
     }
     while (vstring_get_nonl(buf, VSTREAM_IN) != VSTREAM_EOF) {
-	argv = mail_addr_crunch_opt(STR(buf), (VSTRING_LEN(extension) ?
-					       STR(extension) : 0),
-				    in_form, out_form);
-	for (cpp = argv->argv; *cpp; cpp++)
-	    vstream_printf("|%s|\n", *cpp);
-	vstream_fflush(VSTREAM_OUT);
-	argv_free(argv);
+    argv = mail_addr_crunch_opt(STR(buf), (VSTRING_LEN(extension) ?
+                           STR(extension) : 0),
+                    in_form, out_form);
+    for (cpp = argv->argv; *cpp; cpp++)
+        vstream_printf("|%s|\n", *cpp);
+    vstream_fflush(VSTREAM_OUT);
+    argv_free(argv);
     }
     vstring_free(extension);
     vstring_free(buf);

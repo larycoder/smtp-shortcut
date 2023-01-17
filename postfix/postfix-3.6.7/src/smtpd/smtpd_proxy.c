@@ -1,177 +1,177 @@
 /*++
 /* NAME
-/*	smtpd_proxy 3
+/*    smtpd_proxy 3
 /* SUMMARY
-/*	SMTP server pass-through proxy client
+/*    SMTP server pass-through proxy client
 /* SYNOPSIS
-/*	#include <smtpd.h>
-/*	#include <smtpd_proxy.h>
+/*    #include <smtpd.h>
+/*    #include <smtpd_proxy.h>
 /*
-/*	typedef struct {
+/*    typedef struct {
 /* .in +4
-/*		VSTREAM *stream;	/* SMTP proxy or replay log */
-/*		VSTRING *buffer;	/* last SMTP proxy response */
-/*		/* other fields... */
+/*        VSTREAM *stream;    /* SMTP proxy or replay log */
+/*        VSTRING *buffer;    /* last SMTP proxy response */
+/*        /* other fields... */
 /* .in -4
-/*	} SMTPD_PROXY;
+/*    } SMTPD_PROXY;
 /*
-/*	int	smtpd_proxy_create(state, flags, service, timeout,
-/*					ehlo_name, mail_from)
-/*	SMTPD_STATE *state;
-/*	int	flags;
-/*	const char *service;
-/*	int	timeout;
-/*	const char *ehlo_name;
-/*	const char *mail_from;
+/*    int    smtpd_proxy_create(state, flags, service, timeout,
+/*                    ehlo_name, mail_from)
+/*    SMTPD_STATE *state;
+/*    int    flags;
+/*    const char *service;
+/*    int    timeout;
+/*    const char *ehlo_name;
+/*    const char *mail_from;
 /*
-/*	int	proxy->cmd(state, expect, format, ...)
-/*	SMTPD_PROXY *proxy;
-/*	SMTPD_STATE *state;
-/*	int	expect;
-/*	const char *format;
+/*    int    proxy->cmd(state, expect, format, ...)
+/*    SMTPD_PROXY *proxy;
+/*    SMTPD_STATE *state;
+/*    int    expect;
+/*    const char *format;
 /*
-/*	void	smtpd_proxy_free(state)
-/*	SMTPD_STATE *state;
+/*    void    smtpd_proxy_free(state)
+/*    SMTPD_STATE *state;
 /*
-/*	int	smtpd_proxy_parse_opts(param_name, param_val)
-/*	const char *param_name;
-/*	const char *param_val;
+/*    int    smtpd_proxy_parse_opts(param_name, param_val)
+/*    const char *param_name;
+/*    const char *param_val;
 /* RECORD-LEVEL ROUTINES
-/*	int	proxy->rec_put(proxy->stream, rec_type, data, len)
-/*	SMTPD_PROXY *proxy;
-/*	int	rec_type;
-/*	const char *data;
-/*	ssize_t	len;
+/*    int    proxy->rec_put(proxy->stream, rec_type, data, len)
+/*    SMTPD_PROXY *proxy;
+/*    int    rec_type;
+/*    const char *data;
+/*    ssize_t    len;
 /*
-/*	int	proxy->rec_fprintf(proxy->stream, rec_type, format, ...)
-/*	SMTPD_PROXY *proxy;
-/*	int	rec_type;
-/*	cont char *format;
+/*    int    proxy->rec_fprintf(proxy->stream, rec_type, format, ...)
+/*    SMTPD_PROXY *proxy;
+/*    int    rec_type;
+/*    cont char *format;
 /* DESCRIPTION
-/*	The functions in this module implement a pass-through proxy
-/*	client.
+/*    The functions in this module implement a pass-through proxy
+/*    client.
 /*
-/*	In order to minimize the intrusiveness of pass-through
-/*	proxying, 1) the proxy server must support the same MAIL
-/*	FROM/RCPT syntax that Postfix supports, 2) the record-level
-/*	routines for message content proxying have the same interface
-/*	as the routines that are used for non-proxied mail.
+/*    In order to minimize the intrusiveness of pass-through
+/*    proxying, 1) the proxy server must support the same MAIL
+/*    FROM/RCPT syntax that Postfix supports, 2) the record-level
+/*    routines for message content proxying have the same interface
+/*    as the routines that are used for non-proxied mail.
 /*
-/*	smtpd_proxy_create() takes a description of a before-queue
-/*	filter.  Depending on flags, it either arranges to buffer
-/*	up commands and message content until the entire message
-/*	is received, or it immediately connects to the proxy service,
-/*	sends EHLO, sends client information with the XFORWARD
-/*	command if possible, sends the MAIL FROM command, and
-/*	receives the reply.
-/*	A non-zero result value means trouble: either the proxy is
-/*	unavailable, or it did not send the expected reply.
-/*	All results are reported via the proxy->buffer field in a
-/*	form that can be sent to the SMTP client.  An unexpected
-/*	2xx or 3xx proxy server response is replaced by a generic
-/*	error response to avoid support problems.
-/*	In case of error, smtpd_proxy_create() updates the
-/*	state->error_mask and state->err fields, and leaves the
-/*	SMTPD_PROXY handle in an unconnected state.  Destroy the
-/*	handle after reporting the error reply in the proxy->buffer
-/*	field.
+/*    smtpd_proxy_create() takes a description of a before-queue
+/*    filter.  Depending on flags, it either arranges to buffer
+/*    up commands and message content until the entire message
+/*    is received, or it immediately connects to the proxy service,
+/*    sends EHLO, sends client information with the XFORWARD
+/*    command if possible, sends the MAIL FROM command, and
+/*    receives the reply.
+/*    A non-zero result value means trouble: either the proxy is
+/*    unavailable, or it did not send the expected reply.
+/*    All results are reported via the proxy->buffer field in a
+/*    form that can be sent to the SMTP client.  An unexpected
+/*    2xx or 3xx proxy server response is replaced by a generic
+/*    error response to avoid support problems.
+/*    In case of error, smtpd_proxy_create() updates the
+/*    state->error_mask and state->err fields, and leaves the
+/*    SMTPD_PROXY handle in an unconnected state.  Destroy the
+/*    handle after reporting the error reply in the proxy->buffer
+/*    field.
 /*
-/*	proxy->cmd() formats and either buffers up the command and
-/*	expected response until the entire message is received, or
-/*	it immediately sends the specified command to the proxy
-/*	server, and receives the proxy server reply.
-/*	A non-zero result value means trouble: either the proxy is
-/*	unavailable, or it did not send the expected reply.
-/*	All results are reported via the proxy->buffer field in a
-/*	form that can be sent to the SMTP client.  An unexpected
-/*	2xx or 3xx proxy server response is replaced by a generic
-/*	error response to avoid support problems.
-/*	In case of error, proxy->cmd() updates the state->error_mask
-/*	and state->err fields.
+/*    proxy->cmd() formats and either buffers up the command and
+/*    expected response until the entire message is received, or
+/*    it immediately sends the specified command to the proxy
+/*    server, and receives the proxy server reply.
+/*    A non-zero result value means trouble: either the proxy is
+/*    unavailable, or it did not send the expected reply.
+/*    All results are reported via the proxy->buffer field in a
+/*    form that can be sent to the SMTP client.  An unexpected
+/*    2xx or 3xx proxy server response is replaced by a generic
+/*    error response to avoid support problems.
+/*    In case of error, proxy->cmd() updates the state->error_mask
+/*    and state->err fields.
 /*
-/*	smtpd_proxy_free() destroys a proxy server handle and resets
-/*	the state->proxy field.
+/*    smtpd_proxy_free() destroys a proxy server handle and resets
+/*    the state->proxy field.
 /*
-/*	smtpd_proxy_parse_opts() parses main.cf processing options.
+/*    smtpd_proxy_parse_opts() parses main.cf processing options.
 /*
-/*	proxy->rec_put() is a rec_put() clone that either buffers
-/*	up arbitrary message content records until the entire message
-/*	is received, or that immediately sends it to the proxy
-/*	server.
-/*	All data is expected to be in SMTP dot-escaped form.
-/*	All errors are reported as a REC_TYPE_ERROR result value,
-/*	with the state->error_mask, state->err and proxy-buffer
-/*	fields given appropriate values.
+/*    proxy->rec_put() is a rec_put() clone that either buffers
+/*    up arbitrary message content records until the entire message
+/*    is received, or that immediately sends it to the proxy
+/*    server.
+/*    All data is expected to be in SMTP dot-escaped form.
+/*    All errors are reported as a REC_TYPE_ERROR result value,
+/*    with the state->error_mask, state->err and proxy-buffer
+/*    fields given appropriate values.
 /*
-/*	proxy->rec_fprintf() is a rec_fprintf() clone that formats
-/*	message content and either buffers up the record until the
-/*	entire message is received, or that immediately sends it
-/*	to the proxy server.
-/*	All data is expected to be in SMTP dot-escaped form.
-/*	All errors are reported as a REC_TYPE_ERROR result value,
-/*	with the state->error_mask, state->err and proxy-buffer
-/*	fields given appropriate values.
+/*    proxy->rec_fprintf() is a rec_fprintf() clone that formats
+/*    message content and either buffers up the record until the
+/*    entire message is received, or that immediately sends it
+/*    to the proxy server.
+/*    All data is expected to be in SMTP dot-escaped form.
+/*    All errors are reported as a REC_TYPE_ERROR result value,
+/*    with the state->error_mask, state->err and proxy-buffer
+/*    fields given appropriate values.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP flags
-/*	Zero, or SMTPD_PROXY_FLAG_SPEED_ADJUST to buffer up the entire
-/*	message before contacting a before-queue content filter.
-/*	Note: when this feature is requested, the before-queue
-/*	filter MUST use the same 2xx, 4xx or 5xx reply code for all
-/*	recipients of a multi-recipient message.
+/*    Zero, or SMTPD_PROXY_FLAG_SPEED_ADJUST to buffer up the entire
+/*    message before contacting a before-queue content filter.
+/*    Note: when this feature is requested, the before-queue
+/*    filter MUST use the same 2xx, 4xx or 5xx reply code for all
+/*    recipients of a multi-recipient message.
 /* .IP server
-/*	The SMTP proxy server host:port. The host or host: part is optional.
-/*	This argument is not duplicated.
+/*    The SMTP proxy server host:port. The host or host: part is optional.
+/*    This argument is not duplicated.
 /* .IP timeout
-/*	Time limit for connecting to the proxy server and for
-/*	sending and receiving proxy server commands and replies.
+/*    Time limit for connecting to the proxy server and for
+/*    sending and receiving proxy server commands and replies.
 /* .IP ehlo_name
-/*	The EHLO Hostname that will be sent to the proxy server.
-/*	This argument is not duplicated.
+/*    The EHLO Hostname that will be sent to the proxy server.
+/*    This argument is not duplicated.
 /* .IP mail_from
-/*	The MAIL FROM command. This argument is not duplicated.
+/*    The MAIL FROM command. This argument is not duplicated.
 /* .IP state
-/*	SMTP server state.
+/*    SMTP server state.
 /* .IP expect
-/*	Expected proxy server reply status code range. A warning is logged
-/*	when an unexpected reply is received. Specify one of the following:
+/*    Expected proxy server reply status code range. A warning is logged
+/*    when an unexpected reply is received. Specify one of the following:
 /* .RS
 /* .IP SMTPD_PROX_WANT_OK
-/*	The caller expects a reply in the 200 range.
+/*    The caller expects a reply in the 200 range.
 /* .IP SMTPD_PROX_WANT_MORE
-/*	The caller expects a reply in the 300 range.
+/*    The caller expects a reply in the 300 range.
 /* .IP SMTPD_PROX_WANT_ANY
-/*	The caller has no expectation. Do not warn for unexpected replies.
+/*    The caller has no expectation. Do not warn for unexpected replies.
 /* .IP SMTPD_PROX_WANT_NONE
-/*	Do not bother waiting for a reply.
+/*    Do not bother waiting for a reply.
 /* .RE
 /* .IP format
-/*	A format string.
+/*    A format string.
 /* .IP stream
-/*	Connection to proxy server.
+/*    Connection to proxy server.
 /* .IP data
-/*	Pointer to the content of one message content record.
+/*    Pointer to the content of one message content record.
 /* .IP len
-/*	The length of a message content record.
+/*    The length of a message content record.
 /* SEE ALSO
-/*	smtpd(8) Postfix smtp server
+/*    smtpd(8) Postfix smtp server
 /* DIAGNOSTICS
-/*	Panic: internal API violations.
+/*    Panic: internal API violations.
 /*
-/*	Fatal errors: memory allocation problem.
+/*    Fatal errors: memory allocation problem.
 /*
-/*	Warnings: unexpected response from proxy server, unable
-/*	to connect to proxy server, proxy server read/write error,
-/*	proxy speed-adjust buffer read/write error.
+/*    Warnings: unexpected response from proxy server, unable
+/*    to connect to proxy server, proxy server read/write error,
+/*    proxy speed-adjust buffer read/write error.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -214,13 +214,13 @@
  /*
   * XFORWARD server features, recognized by the pass-through proxy client.
   */
-#define SMTPD_PROXY_XFORWARD_NAME  (1<<0)	/* client name */
-#define SMTPD_PROXY_XFORWARD_ADDR  (1<<1)	/* client address */
-#define SMTPD_PROXY_XFORWARD_PROTO (1<<2)	/* protocol */
-#define SMTPD_PROXY_XFORWARD_HELO  (1<<3)	/* client helo */
-#define SMTPD_PROXY_XFORWARD_IDENT (1<<4)	/* message identifier */
-#define SMTPD_PROXY_XFORWARD_DOMAIN (1<<5)	/* origin type */
-#define SMTPD_PROXY_XFORWARD_PORT  (1<<6)	/* client port */
+#define SMTPD_PROXY_XFORWARD_NAME  (1<<0)    /* client name */
+#define SMTPD_PROXY_XFORWARD_ADDR  (1<<1)    /* client address */
+#define SMTPD_PROXY_XFORWARD_PROTO (1<<2)    /* protocol */
+#define SMTPD_PROXY_XFORWARD_HELO  (1<<3)    /* client helo */
+#define SMTPD_PROXY_XFORWARD_IDENT (1<<4)    /* message identifier */
+#define SMTPD_PROXY_XFORWARD_DOMAIN (1<<5)    /* origin type */
+#define SMTPD_PROXY_XFORWARD_PORT  (1<<6)    /* client port */
 
  /*
   * Spead-matching: we use an unlinked file for transient storage.
@@ -238,9 +238,9 @@ static int smtpd_proxy_rec_put(VSTREAM *, int, const char *, ssize_t);
  /*
   * SLMs.
   */
-#define STR(x)	vstring_str(x)
-#define LEN(x)	VSTRING_LEN(x)
-#define STREQ(x, y)	(strcmp((x), (y)) == 0)
+#define STR(x)    vstring_str(x)
+#define LEN(x)    VSTRING_LEN(x)
+#define STREQ(x, y)    (strcmp((x), (y)) == 0)
 
 /* smtpd_proxy_xforward_flush - flush forwarding information */
 
@@ -249,10 +249,10 @@ static int smtpd_proxy_xforward_flush(SMTPD_STATE *state, VSTRING *buf)
     int     ret;
 
     if (VSTRING_LEN(buf) > 0) {
-	ret = smtpd_proxy_cmd(state, SMTPD_PROX_WANT_OK,
-			      XFORWARD_CMD "%s", STR(buf));
-	VSTRING_RESET(buf);
-	return (ret);
+    ret = smtpd_proxy_cmd(state, SMTPD_PROX_WANT_OK,
+                  XFORWARD_CMD "%s", STR(buf));
+    VSTRING_RESET(buf);
+    return (ret);
     }
     return (0);
 }
@@ -260,24 +260,24 @@ static int smtpd_proxy_xforward_flush(SMTPD_STATE *state, VSTRING *buf)
 /* smtpd_proxy_xforward_send - send forwarding information */
 
 static int smtpd_proxy_xforward_send(SMTPD_STATE *state, VSTRING *buf,
-				             const char *name,
-				             int value_available,
-				             const char *value)
+                             const char *name,
+                             int value_available,
+                             const char *value)
 {
     size_t  new_len;
     int     ret;
 
-#define CONSTR_LEN(s)	(sizeof(s) - 1)
-#define PAYLOAD_LIMIT	(512 - CONSTR_LEN("250 " XFORWARD_CMD "\r\n"))
+#define CONSTR_LEN(s)    (sizeof(s) - 1)
+#define PAYLOAD_LIMIT    (512 - CONSTR_LEN("250 " XFORWARD_CMD "\r\n"))
 
     if (!value_available)
-	value = XFORWARD_UNAVAILABLE;
+    value = XFORWARD_UNAVAILABLE;
 
     /*
      * Encode the attribute value.
      */
     if (state->expand_buf == 0)
-	state->expand_buf = vstring_alloc(100);
+    state->expand_buf = vstring_alloc(100);
     xtext_quote(state->expand_buf, value, "");
 
     /*
@@ -285,15 +285,15 @@ static int smtpd_proxy_xforward_send(SMTPD_STATE *state, VSTRING *buf,
      */
     new_len = strlen(name) + strlen(STR(state->expand_buf)) + 2;
     if (new_len > PAYLOAD_LIMIT)
-	msg_warn("%s command payload %s=%.10s... exceeds SMTP protocol limit",
-		 XFORWARD_CMD, name, value);
+    msg_warn("%s command payload %s=%.10s... exceeds SMTP protocol limit",
+         XFORWARD_CMD, name, value);
 
     /*
      * Flush the buffer if we need to, and store the attribute.
      */
     if (VSTRING_LEN(buf) > 0 && VSTRING_LEN(buf) + new_len > PAYLOAD_LIMIT)
-	if ((ret = smtpd_proxy_xforward_flush(state, buf)) < 0)
-	    return (ret);
+    if ((ret = smtpd_proxy_xforward_flush(state, buf)) < 0)
+        return (ret);
     vstring_sprintf_append(buf, " %s=%s", name, STR(state->expand_buf));
 
     return (0);
@@ -311,14 +311,14 @@ static int smtpd_proxy_connect(SMTPD_STATE *state)
     int     bad;
     char   *word;
     static const NAME_CODE known_xforward_features[] = {
-	XFORWARD_NAME, SMTPD_PROXY_XFORWARD_NAME,
-	XFORWARD_ADDR, SMTPD_PROXY_XFORWARD_ADDR,
-	XFORWARD_PORT, SMTPD_PROXY_XFORWARD_PORT,
-	XFORWARD_PROTO, SMTPD_PROXY_XFORWARD_PROTO,
-	XFORWARD_HELO, SMTPD_PROXY_XFORWARD_HELO,
-	XFORWARD_IDENT, SMTPD_PROXY_XFORWARD_IDENT,
-	XFORWARD_DOMAIN, SMTPD_PROXY_XFORWARD_DOMAIN,
-	0, 0,
+    XFORWARD_NAME, SMTPD_PROXY_XFORWARD_NAME,
+    XFORWARD_ADDR, SMTPD_PROXY_XFORWARD_ADDR,
+    XFORWARD_PORT, SMTPD_PROXY_XFORWARD_PORT,
+    XFORWARD_PROTO, SMTPD_PROXY_XFORWARD_PROTO,
+    XFORWARD_HELO, SMTPD_PROXY_XFORWARD_HELO,
+    XFORWARD_IDENT, SMTPD_PROXY_XFORWARD_IDENT,
+    XFORWARD_DOMAIN, SMTPD_PROXY_XFORWARD_DOMAIN,
+    0, 0,
     };
     int     server_xforward_features;
     int     (*connect_fn) (const char *, int, int);
@@ -328,31 +328,31 @@ static int smtpd_proxy_connect(SMTPD_STATE *state)
      * Find connection method (default inet)
      */
     if (strncasecmp("unix:", proxy->service_name, 5) == 0) {
-	endpoint = proxy->service_name + 5;
-	connect_fn = unix_connect;
+    endpoint = proxy->service_name + 5;
+    connect_fn = unix_connect;
     } else {
-	if (strncasecmp("inet:", proxy->service_name, 5) == 0)
-	    endpoint = proxy->service_name + 5;
-	else
-	    endpoint = proxy->service_name;
-	connect_fn = inet_connect;
+    if (strncasecmp("inet:", proxy->service_name, 5) == 0)
+        endpoint = proxy->service_name + 5;
+    else
+        endpoint = proxy->service_name;
+    connect_fn = inet_connect;
     }
 
     /*
      * Connect to proxy.
      */
     if ((fd = connect_fn(endpoint, BLOCKING, proxy->timeout)) < 0) {
-	msg_warn("connect to proxy filter %s: %m", proxy->service_name);
-	return (smtpd_proxy_rdwr_error(state, 0));
+    msg_warn("connect to proxy filter %s: %m", proxy->service_name);
+    return (smtpd_proxy_rdwr_error(state, 0));
     }
     proxy->service_stream = vstream_fdopen(fd, O_RDWR);
     /* Needed by our DATA-phase record emulation routines. */
     vstream_control(proxy->service_stream,
-		    CA_VSTREAM_CTL_CONTEXT((void *) state),
-		    CA_VSTREAM_CTL_END);
+            CA_VSTREAM_CTL_CONTEXT((void *) state),
+            CA_VSTREAM_CTL_END);
     /* Avoid poor performance when TCP MSS > VSTREAM_BUFSIZE. */
     if (connect_fn == inet_connect)
-	vstream_tweak_tcp(proxy->service_stream);
+    vstream_tweak_tcp(proxy->service_stream);
     smtp_timeout_setup(proxy->service_stream, proxy->timeout);
 
     /*
@@ -364,9 +364,9 @@ static int smtpd_proxy_connect(SMTPD_STATE *state)
      * point that the client expects a MAIL FROM or RCPT TO reply.
      */
     if (smtpd_proxy_cmd(state, SMTPD_PROX_WANT_OK, "%s", "")) {
-	smtpd_proxy_fake_server_reply(state, CLEANUP_STAT_PROXY);
-	smtpd_proxy_close(state);
-	return (-1);
+    smtpd_proxy_fake_server_reply(state, CLEANUP_STAT_PROXY);
+    smtpd_proxy_close(state);
+    return (-1);
     }
 
     /*
@@ -377,10 +377,10 @@ static int smtpd_proxy_connect(SMTPD_STATE *state)
      * MAIL FROM or RCPT TO reply.
      */
     if (smtpd_proxy_cmd(state, SMTPD_PROX_WANT_OK, "EHLO %s",
-			proxy->ehlo_name)) {
-	smtpd_proxy_fake_server_reply(state, CLEANUP_STAT_PROXY);
-	smtpd_proxy_close(state);
-	return (-1);
+            proxy->ehlo_name)) {
+    smtpd_proxy_fake_server_reply(state, CLEANUP_STAT_PROXY);
+    smtpd_proxy_close(state);
+    return (-1);
     }
 
     /*
@@ -389,13 +389,13 @@ static int smtpd_proxy_connect(SMTPD_STATE *state)
     server_xforward_features = 0;
     lines = STR(proxy->reply);
     while ((words = mystrtok(&lines, "\n")) != 0) {
-	if (mystrtok(&words, "- ") && (word = mystrtok(&words, " \t")) != 0) {
-	    if (strcasecmp(word, XFORWARD_CMD) == 0)
-		while ((word = mystrtok(&words, " \t")) != 0)
-		    server_xforward_features |=
-			name_code(known_xforward_features,
-				  NAME_CODE_FLAG_NONE, word);
-	}
+    if (mystrtok(&words, "- ") && (word = mystrtok(&words, " \t")) != 0) {
+        if (strcasecmp(word, XFORWARD_CMD) == 0)
+        while ((word = mystrtok(&words, " \t")) != 0)
+            server_xforward_features |=
+            name_code(known_xforward_features,
+                  NAME_CODE_FLAG_NONE, word);
+    }
     }
 
     /*
@@ -406,43 +406,43 @@ static int smtpd_proxy_connect(SMTPD_STATE *state)
      * or RCPT TO reply.
      */
     if (server_xforward_features) {
-	buf = vstring_alloc(100);
-	bad =
-	    (((server_xforward_features & SMTPD_PROXY_XFORWARD_NAME)
-	      && smtpd_proxy_xforward_send(state, buf, XFORWARD_NAME,
-				  IS_AVAIL_CLIENT_NAME(FORWARD_NAME(state)),
-					   FORWARD_NAME(state)))
-	     || ((server_xforward_features & SMTPD_PROXY_XFORWARD_ADDR)
-		 && smtpd_proxy_xforward_send(state, buf, XFORWARD_ADDR,
-				  IS_AVAIL_CLIENT_ADDR(FORWARD_ADDR(state)),
-					      FORWARD_ADDR(state)))
-	     || ((server_xforward_features & SMTPD_PROXY_XFORWARD_PORT)
-		 && smtpd_proxy_xforward_send(state, buf, XFORWARD_PORT,
-				  IS_AVAIL_CLIENT_PORT(FORWARD_PORT(state)),
-					      FORWARD_PORT(state)))
-	     || ((server_xforward_features & SMTPD_PROXY_XFORWARD_HELO)
-		 && smtpd_proxy_xforward_send(state, buf, XFORWARD_HELO,
-				  IS_AVAIL_CLIENT_HELO(FORWARD_HELO(state)),
-					      FORWARD_HELO(state)))
-	     || ((server_xforward_features & SMTPD_PROXY_XFORWARD_IDENT)
-		 && smtpd_proxy_xforward_send(state, buf, XFORWARD_IDENT,
-				IS_AVAIL_CLIENT_IDENT(FORWARD_IDENT(state)),
-					      FORWARD_IDENT(state)))
-	     || ((server_xforward_features & SMTPD_PROXY_XFORWARD_PROTO)
-		 && smtpd_proxy_xforward_send(state, buf, XFORWARD_PROTO,
-				IS_AVAIL_CLIENT_PROTO(FORWARD_PROTO(state)),
-					      FORWARD_PROTO(state)))
-	     || ((server_xforward_features & SMTPD_PROXY_XFORWARD_DOMAIN)
-		 && smtpd_proxy_xforward_send(state, buf, XFORWARD_DOMAIN, 1,
-			 STREQ(FORWARD_DOMAIN(state), MAIL_ATTR_RWR_LOCAL) ?
-				  XFORWARD_DOM_LOCAL : XFORWARD_DOM_REMOTE))
-	     || smtpd_proxy_xforward_flush(state, buf));
-	vstring_free(buf);
-	if (bad) {
-	    smtpd_proxy_fake_server_reply(state, CLEANUP_STAT_PROXY);
-	    smtpd_proxy_close(state);
-	    return (-1);
-	}
+    buf = vstring_alloc(100);
+    bad =
+        (((server_xforward_features & SMTPD_PROXY_XFORWARD_NAME)
+          && smtpd_proxy_xforward_send(state, buf, XFORWARD_NAME,
+                  IS_AVAIL_CLIENT_NAME(FORWARD_NAME(state)),
+                       FORWARD_NAME(state)))
+         || ((server_xforward_features & SMTPD_PROXY_XFORWARD_ADDR)
+         && smtpd_proxy_xforward_send(state, buf, XFORWARD_ADDR,
+                  IS_AVAIL_CLIENT_ADDR(FORWARD_ADDR(state)),
+                          FORWARD_ADDR(state)))
+         || ((server_xforward_features & SMTPD_PROXY_XFORWARD_PORT)
+         && smtpd_proxy_xforward_send(state, buf, XFORWARD_PORT,
+                  IS_AVAIL_CLIENT_PORT(FORWARD_PORT(state)),
+                          FORWARD_PORT(state)))
+         || ((server_xforward_features & SMTPD_PROXY_XFORWARD_HELO)
+         && smtpd_proxy_xforward_send(state, buf, XFORWARD_HELO,
+                  IS_AVAIL_CLIENT_HELO(FORWARD_HELO(state)),
+                          FORWARD_HELO(state)))
+         || ((server_xforward_features & SMTPD_PROXY_XFORWARD_IDENT)
+         && smtpd_proxy_xforward_send(state, buf, XFORWARD_IDENT,
+                IS_AVAIL_CLIENT_IDENT(FORWARD_IDENT(state)),
+                          FORWARD_IDENT(state)))
+         || ((server_xforward_features & SMTPD_PROXY_XFORWARD_PROTO)
+         && smtpd_proxy_xforward_send(state, buf, XFORWARD_PROTO,
+                IS_AVAIL_CLIENT_PROTO(FORWARD_PROTO(state)),
+                          FORWARD_PROTO(state)))
+         || ((server_xforward_features & SMTPD_PROXY_XFORWARD_DOMAIN)
+         && smtpd_proxy_xforward_send(state, buf, XFORWARD_DOMAIN, 1,
+             STREQ(FORWARD_DOMAIN(state), MAIL_ATTR_RWR_LOCAL) ?
+                  XFORWARD_DOM_LOCAL : XFORWARD_DOM_REMOTE))
+         || smtpd_proxy_xforward_flush(state, buf));
+    vstring_free(buf);
+    if (bad) {
+        smtpd_proxy_fake_server_reply(state, CLEANUP_STAT_PROXY);
+        smtpd_proxy_close(state);
+        return (-1);
+    }
     }
 
     /*
@@ -451,10 +451,10 @@ static int smtpd_proxy_connect(SMTPD_STATE *state)
      * any MAIL FROM command that was accepted by us.
      */
     if (smtpd_proxy_cmd(state, SMTPD_PROX_WANT_OK, "%s",
-			proxy->mail_from) != 0) {
-	/* NOT: smtpd_proxy_fake_server_reply(state, CLEANUP_STAT_PROXY); */
-	smtpd_proxy_close(state);
-	return (-1);
+            proxy->mail_from) != 0) {
+    /* NOT: smtpd_proxy_fake_server_reply(state, CLEANUP_STAT_PROXY); */
+    smtpd_proxy_close(state);
+    return (-1);
     }
     return (0);
 }
@@ -472,8 +472,8 @@ static void smtpd_proxy_fake_server_reply(SMTPD_STATE *state, int status)
      */
     detail = cleanup_stat_detail(status);
     vstring_sprintf(state->proxy->reply,
-		    "%d %s Error: %s",
-		    detail->smtp, detail->dsn, detail->text);
+            "%d %s Error: %s",
+            detail->smtp, detail->dsn, detail->text);
 }
 
 /* smtpd_proxy_replay_rdwr_error - report replay log I/O error */
@@ -507,7 +507,7 @@ static int smtpd_proxy_rdwr_error(SMTPD_STATE *state, int err)
      * Sanity check.
      */
     if (err != 0 && err != SMTP_ERR_NONE && proxy == 0)
-	msg_panic("%s: proxy error %d without proxy handle", myname, err);
+    msg_panic("%s: proxy error %d without proxy handle", myname, err);
 
     /*
      * Log an appropriate warning message.
@@ -515,16 +515,16 @@ static int smtpd_proxy_rdwr_error(SMTPD_STATE *state, int err)
     switch (err) {
     case 0:
     case SMTP_ERR_NONE:
-	break;
+    break;
     case SMTP_ERR_EOF:
-	msg_warn("lost connection with proxy %s", proxy->service_name);
-	break;
+    msg_warn("lost connection with proxy %s", proxy->service_name);
+    break;
     case SMTP_ERR_TIME:
-	msg_warn("timeout talking to proxy %s", proxy->service_name);
-	break;
+    msg_warn("timeout talking to proxy %s", proxy->service_name);
+    break;
     default:
-	msg_panic("%s: unknown proxy %s error %d",
-		  myname, proxy->service_name, err);
+    msg_panic("%s: unknown proxy %s error %d",
+          myname, proxy->service_name, err);
     }
 
     /*
@@ -551,23 +551,23 @@ static int smtpd_proxy_replay_send(SMTPD_STATE *state)
      * Sanity check.
      */
     if (smtpd_proxy_replay_stream == 0)
-	msg_panic("%s: no before-queue filter speed-adjust log", myname);
+    msg_panic("%s: no before-queue filter speed-adjust log", myname);
 
     /*
      * Errors first.
      */
     if (vstream_ferror(smtpd_proxy_replay_stream)
-	|| vstream_feof(smtpd_proxy_replay_stream)
-	|| rec_put(smtpd_proxy_replay_stream, REC_TYPE_END, "", 0) != REC_TYPE_END
-	|| vstream_fflush(smtpd_proxy_replay_stream))
-	/* NOT: fsync(vstream_fileno(smtpd_proxy_replay_stream)) */
-	return (smtpd_proxy_replay_rdwr_error(state));
+    || vstream_feof(smtpd_proxy_replay_stream)
+    || rec_put(smtpd_proxy_replay_stream, REC_TYPE_END, "", 0) != REC_TYPE_END
+    || vstream_fflush(smtpd_proxy_replay_stream))
+    /* NOT: fsync(vstream_fileno(smtpd_proxy_replay_stream)) */
+    return (smtpd_proxy_replay_rdwr_error(state));
 
     /*
      * Delayed connection to the before-queue filter.
      */
     if (smtpd_proxy_connect(state) < 0)
-	return (-1);
+    return (-1);
 
     /*
      * Replay the speed-match log. We do sanity check record content, but we
@@ -590,61 +590,61 @@ static int smtpd_proxy_replay_send(SMTPD_STATE *state)
      * SMTP-based content filter.
      */
     if (replay_buf == 0)
-	replay_buf = vstring_alloc(100);
+    replay_buf = vstring_alloc(100);
     if (vstream_fseek(smtpd_proxy_replay_stream, (off_t) 0, SEEK_SET) < 0)
-	return (smtpd_proxy_replay_rdwr_error(state));
+    return (smtpd_proxy_replay_rdwr_error(state));
 
     for (;;) {
-	switch (rec_type = rec_get(smtpd_proxy_replay_stream, replay_buf,
-				   REC_FLAG_NONE)) {
+    switch (rec_type = rec_get(smtpd_proxy_replay_stream, replay_buf,
+                   REC_FLAG_NONE)) {
 
-	    /*
-	     * Message content.
-	     */
-	case REC_TYPE_NORM:
-	case REC_TYPE_CONT:
-	    if (smtpd_proxy_rec_put(proxy->service_stream, rec_type,
-				    STR(replay_buf), LEN(replay_buf)) < 0)
-		return (-1);
-	    break;
+        /*
+         * Message content.
+         */
+    case REC_TYPE_NORM:
+    case REC_TYPE_CONT:
+        if (smtpd_proxy_rec_put(proxy->service_stream, rec_type,
+                    STR(replay_buf), LEN(replay_buf)) < 0)
+        return (-1);
+        break;
 
-	    /*
-	     * Expected server reply type.
-	     */
-	case REC_TYPE_RCPT:
-	    if (!alldig(STR(replay_buf))
-		|| (expect = atoi(STR(replay_buf))) == SMTPD_PROX_WANT_BAD)
-		msg_panic("%s: malformed server reply type: %s",
-			  myname, STR(replay_buf));
-	    break;
+        /*
+         * Expected server reply type.
+         */
+    case REC_TYPE_RCPT:
+        if (!alldig(STR(replay_buf))
+        || (expect = atoi(STR(replay_buf))) == SMTPD_PROX_WANT_BAD)
+        msg_panic("%s: malformed server reply type: %s",
+              myname, STR(replay_buf));
+        break;
 
-	    /*
-	     * Client command, or void. Bail out on the first negative proxy
-	     * response. This is OK, because the filter must use the same
-	     * reply code for all recipients of a multi-recipient message.
-	     */
-	case REC_TYPE_FROM:
-	    if (expect == SMTPD_PROX_WANT_BAD)
-		msg_panic("%s: missing server reply type", myname);
-	    if (smtpd_proxy_cmd(state, expect, "%s", STR(replay_buf)) < 0)
-		return (-1);
-	    expect = SMTPD_PROX_WANT_BAD;
-	    break;
+        /*
+         * Client command, or void. Bail out on the first negative proxy
+         * response. This is OK, because the filter must use the same
+         * reply code for all recipients of a multi-recipient message.
+         */
+    case REC_TYPE_FROM:
+        if (expect == SMTPD_PROX_WANT_BAD)
+        msg_panic("%s: missing server reply type", myname);
+        if (smtpd_proxy_cmd(state, expect, "%s", STR(replay_buf)) < 0)
+        return (-1);
+        expect = SMTPD_PROX_WANT_BAD;
+        break;
 
-	    /*
-	     * Explicit end marker, instead of implicit EOF.
-	     */
-	case REC_TYPE_END:
-	    return (0);
+        /*
+         * Explicit end marker, instead of implicit EOF.
+         */
+    case REC_TYPE_END:
+        return (0);
 
-	    /*
-	     * Errors.
-	     */
-	case REC_TYPE_ERROR:
-	    return (smtpd_proxy_replay_rdwr_error(state));
-	default:
-	    msg_panic("%s: unexpected record type; %d", myname, rec_type);
-	}
+        /*
+         * Errors.
+         */
+    case REC_TYPE_ERROR:
+        return (smtpd_proxy_replay_rdwr_error(state));
+    default:
+        msg_panic("%s: unexpected record type; %d", myname, rec_type);
+    }
     }
 }
 
@@ -658,8 +658,8 @@ static int PRINTFLIKE(3, 4) smtpd_proxy_save_cmd(SMTPD_STATE *state, int expect,
      * Errors first.
      */
     if (vstream_ferror(smtpd_proxy_replay_stream)
-	|| vstream_feof(smtpd_proxy_replay_stream))
-	return (smtpd_proxy_replay_rdwr_error(state));
+    || vstream_feof(smtpd_proxy_replay_stream))
+    return (smtpd_proxy_replay_rdwr_error(state));
 
     /*
      * Save the expected reply first, so that the replayer can safely
@@ -702,9 +702,9 @@ static int smtpd_proxy_cmd(SMTPD_STATE *state, int expect, const char *fmt,...)
      * Errors first. Be prepared for delayed errors from the DATA phase.
      */
     if (vstream_ferror(proxy->service_stream)
-	|| vstream_feof(proxy->service_stream)
-	|| (err = vstream_setjmp(proxy->service_stream)) != 0) {
-	return (smtpd_proxy_rdwr_error(state, err));
+    || vstream_feof(proxy->service_stream)
+    || (err = vstream_setjmp(proxy->service_stream)) != 0) {
+    return (smtpd_proxy_rdwr_error(state, err));
     }
 
     /*
@@ -721,19 +721,19 @@ static int smtpd_proxy_cmd(SMTPD_STATE *state, int expect, const char *fmt,...)
      */
     if (LEN(proxy->request) > 0) {
 
-	/*
-	 * Optionally log the command first, so that we can see in the log
-	 * what the program is trying to do.
-	 */
-	if (msg_verbose)
-	    msg_info("> %s: %s", proxy->service_name, STR(proxy->request));
+    /*
+     * Optionally log the command first, so that we can see in the log
+     * what the program is trying to do.
+     */
+    if (msg_verbose)
+        msg_info("> %s: %s", proxy->service_name, STR(proxy->request));
 
-	/*
-	 * Send the command to the proxy server. Since we're going to read a
-	 * reply immediately, there is no need to flush buffers.
-	 */
-	smtp_fputs(STR(proxy->request), LEN(proxy->request),
-		   proxy->service_stream);
+    /*
+     * Send the command to the proxy server. Since we're going to read a
+     * reply immediately, there is no need to flush buffers.
+     */
+    smtp_fputs(STR(proxy->request), LEN(proxy->request),
+           proxy->service_stream);
     }
 
     /*
@@ -741,7 +741,7 @@ static int smtpd_proxy_cmd(SMTPD_STATE *state, int expect, const char *fmt,...)
      * after sending QUIT).
      */
     if (expect == SMTPD_PROX_WANT_NONE)
-	return (0);
+    return (0);
 
     /*
      * Censor out non-printable characters in server responses and save
@@ -752,44 +752,44 @@ static int smtpd_proxy_cmd(SMTPD_STATE *state, int expect, const char *fmt,...)
      */
     VSTRING_RESET(proxy->reply);
     if (buffer == 0)
-	buffer = vstring_alloc(10);
+    buffer = vstring_alloc(10);
     for (;;) {
-	last_char = smtp_get(buffer, proxy->service_stream, var_line_limit,
-			     SMTP_GET_FLAG_SKIP);
-	printable(STR(buffer), '?');
-	if (last_char != '\n')
-	    msg_warn("%s: response longer than %d: %.30s...",
-		     proxy->service_name, var_line_limit,
-		     STR(buffer));
-	if (msg_verbose)
-	    msg_info("< %s: %.100s", proxy->service_name, STR(buffer));
+    last_char = smtp_get(buffer, proxy->service_stream, var_line_limit,
+                 SMTP_GET_FLAG_SKIP);
+    printable(STR(buffer), '?');
+    if (last_char != '\n')
+        msg_warn("%s: response longer than %d: %.30s...",
+             proxy->service_name, var_line_limit,
+             STR(buffer));
+    if (msg_verbose)
+        msg_info("< %s: %.100s", proxy->service_name, STR(buffer));
 
-	/*
-	 * Defend against a denial of service attack by limiting the amount
-	 * of multi-line text that we are willing to store.
-	 */
-	if (LEN(proxy->reply) < var_line_limit) {
-	    if (VSTRING_LEN(proxy->reply))
-		vstring_strcat(proxy->reply, "\r\n");
-	    vstring_strcat(proxy->reply, STR(buffer));
-	}
+    /*
+     * Defend against a denial of service attack by limiting the amount
+     * of multi-line text that we are willing to store.
+     */
+    if (LEN(proxy->reply) < var_line_limit) {
+        if (VSTRING_LEN(proxy->reply))
+        vstring_strcat(proxy->reply, "\r\n");
+        vstring_strcat(proxy->reply, STR(buffer));
+    }
 
-	/*
-	 * Parse the response into code and text. Ignore unrecognized
-	 * garbage. This means that any character except space (or end of
-	 * line) will have the same effect as the '-' line continuation
-	 * character.
-	 */
-	for (cp = STR(buffer); *cp && ISDIGIT(*cp); cp++)
-	     /* void */ ;
-	if (cp - STR(buffer) == 3) {
-	    if (*cp == '-')
-		continue;
-	    if (*cp == ' ' || *cp == 0)
-		break;
-	}
-	msg_warn("received garbage from proxy %s: %.100s",
-		 proxy->service_name, STR(buffer));
+    /*
+     * Parse the response into code and text. Ignore unrecognized
+     * garbage. This means that any character except space (or end of
+     * line) will have the same effect as the '-' line continuation
+     * character.
+     */
+    for (cp = STR(buffer); *cp && ISDIGIT(*cp); cp++)
+         /* void */ ;
+    if (cp - STR(buffer) == 3) {
+        if (*cp == '-')
+        continue;
+        if (*cp == ' ' || *cp == 0)
+        break;
+    }
+    msg_warn("received garbage from proxy %s: %.100s",
+         proxy->service_name, STR(buffer));
     }
 
     /*
@@ -801,24 +801,24 @@ static int smtpd_proxy_cmd(SMTPD_STATE *state, int expect, const char *fmt,...)
      * them by generic server error replies.
      */
     if (expect != SMTPD_PROX_WANT_ANY && expect != *STR(proxy->reply)) {
-	msg_warn("proxy %s rejected \"%s\": \"%s\"",
-		 proxy->service_name, LEN(proxy->request) == 0 ?
-		 "connection request" : STR(proxy->request),
-		 STR(proxy->reply));
-	if (*STR(proxy->reply) == SMTPD_PROX_WANT_OK
-	    || *STR(proxy->reply) == SMTPD_PROX_WANT_MORE) {
-	    smtpd_proxy_rdwr_error(state, 0);
-	}
-	return (-1);
+    msg_warn("proxy %s rejected \"%s\": \"%s\"",
+         proxy->service_name, LEN(proxy->request) == 0 ?
+         "connection request" : STR(proxy->request),
+         STR(proxy->reply));
+    if (*STR(proxy->reply) == SMTPD_PROX_WANT_OK
+        || *STR(proxy->reply) == SMTPD_PROX_WANT_MORE) {
+        smtpd_proxy_rdwr_error(state, 0);
+    }
+    return (-1);
     } else {
-	return (0);
+    return (0);
     }
 }
 
 /* smtpd_proxy_save_rec_put - save message content to replay log */
 
 static int smtpd_proxy_save_rec_put(VSTREAM *stream, int rec_type,
-				            const char *data, ssize_t len)
+                            const char *data, ssize_t len)
 {
     const char *myname = "smtpd_proxy_save_rec_put";
     int     ret;
@@ -829,22 +829,22 @@ static int smtpd_proxy_save_rec_put(VSTREAM *stream, int rec_type,
      * Sanity check.
      */
     if (stream == 0)
-	msg_panic("%s: attempt to use closed stream", myname);
+    msg_panic("%s: attempt to use closed stream", myname);
 
     /*
      * Send one content record. Errors and results must be as with rec_put().
      */
     if (rec_type == REC_TYPE_NORM || rec_type == REC_TYPE_CONT)
-	ret = rec_put(stream, rec_type, data, len);
+    ret = rec_put(stream, rec_type, data, len);
     else
-	msg_panic("%s: need REC_TYPE_NORM or REC_TYPE_CONT", myname);
+    msg_panic("%s: need REC_TYPE_NORM or REC_TYPE_CONT", myname);
 
     /*
      * Errors last.
      */
     if (ret != rec_type) {
-	(void) smtpd_proxy_replay_rdwr_error(VSTREAM_TO_SMTPD_STATE(stream));
-	return (REC_TYPE_ERROR);
+    (void) smtpd_proxy_replay_rdwr_error(VSTREAM_TO_SMTPD_STATE(stream));
+    return (REC_TYPE_ERROR);
     }
     return (rec_type);
 }
@@ -852,7 +852,7 @@ static int smtpd_proxy_save_rec_put(VSTREAM *stream, int rec_type,
 /* smtpd_proxy_rec_put - send message content, rec_put() clone */
 
 static int smtpd_proxy_rec_put(VSTREAM *stream, int rec_type,
-			               const char *data, ssize_t len)
+                           const char *data, ssize_t len)
 {
     const char *myname = "smtpd_proxy_rec_put";
     int     err = 0;
@@ -861,27 +861,27 @@ static int smtpd_proxy_rec_put(VSTREAM *stream, int rec_type,
      * Errors first.
      */
     if (vstream_ferror(stream) || vstream_feof(stream)
-	|| (err = vstream_setjmp(stream)) != 0) {
-	(void) smtpd_proxy_rdwr_error(VSTREAM_TO_SMTPD_STATE(stream), err);
-	return (REC_TYPE_ERROR);
+    || (err = vstream_setjmp(stream)) != 0) {
+    (void) smtpd_proxy_rdwr_error(VSTREAM_TO_SMTPD_STATE(stream), err);
+    return (REC_TYPE_ERROR);
     }
 
     /*
      * Send one content record. Errors and results must be as with rec_put().
      */
     if (rec_type == REC_TYPE_NORM)
-	smtp_fputs(data, len, stream);
+    smtp_fputs(data, len, stream);
     else if (rec_type == REC_TYPE_CONT)
-	smtp_fwrite(data, len, stream);
+    smtp_fwrite(data, len, stream);
     else
-	msg_panic("%s: need REC_TYPE_NORM or REC_TYPE_CONT", myname);
+    msg_panic("%s: need REC_TYPE_NORM or REC_TYPE_CONT", myname);
     return (rec_type);
 }
 
 /* smtpd_proxy_save_rec_fprintf - save message content to replay log */
 
 static int smtpd_proxy_save_rec_fprintf(VSTREAM *stream, int rec_type,
-					        const char *fmt,...)
+                            const char *fmt,...)
 {
     const char *myname = "smtpd_proxy_save_rec_fprintf";
     va_list ap;
@@ -891,7 +891,7 @@ static int smtpd_proxy_save_rec_fprintf(VSTREAM *stream, int rec_type,
      * Sanity check.
      */
     if (stream == 0)
-	msg_panic("%s: attempt to use closed stream", myname);
+    msg_panic("%s: attempt to use closed stream", myname);
 
     /*
      * Save one content record. Errors and results must be as with
@@ -899,17 +899,17 @@ static int smtpd_proxy_save_rec_fprintf(VSTREAM *stream, int rec_type,
      */
     va_start(ap, fmt);
     if (rec_type == REC_TYPE_NORM)
-	ret = rec_vfprintf(stream, rec_type, fmt, ap);
+    ret = rec_vfprintf(stream, rec_type, fmt, ap);
     else
-	msg_panic("%s: need REC_TYPE_NORM", myname);
+    msg_panic("%s: need REC_TYPE_NORM", myname);
     va_end(ap);
 
     /*
      * Errors last.
      */
     if (ret != rec_type) {
-	(void) smtpd_proxy_replay_rdwr_error(VSTREAM_TO_SMTPD_STATE(stream));
-	return (REC_TYPE_ERROR);
+    (void) smtpd_proxy_replay_rdwr_error(VSTREAM_TO_SMTPD_STATE(stream));
+    return (REC_TYPE_ERROR);
     }
     return (rec_type);
 }
@@ -917,7 +917,7 @@ static int smtpd_proxy_save_rec_fprintf(VSTREAM *stream, int rec_type,
 /* smtpd_proxy_rec_fprintf - send message content, rec_fprintf() clone */
 
 static int smtpd_proxy_rec_fprintf(VSTREAM *stream, int rec_type,
-				           const char *fmt,...)
+                           const char *fmt,...)
 {
     const char *myname = "smtpd_proxy_rec_fprintf";
     va_list ap;
@@ -927,9 +927,9 @@ static int smtpd_proxy_rec_fprintf(VSTREAM *stream, int rec_type,
      * Errors first.
      */
     if (vstream_ferror(stream) || vstream_feof(stream)
-	|| (err = vstream_setjmp(stream)) != 0) {
-	(void) smtpd_proxy_rdwr_error(VSTREAM_TO_SMTPD_STATE(stream), err);
-	return (REC_TYPE_ERROR);
+    || (err = vstream_setjmp(stream)) != 0) {
+    (void) smtpd_proxy_rdwr_error(VSTREAM_TO_SMTPD_STATE(stream), err);
+    return (REC_TYPE_ERROR);
     }
 
     /*
@@ -938,9 +938,9 @@ static int smtpd_proxy_rec_fprintf(VSTREAM *stream, int rec_type,
      */
     va_start(ap, fmt);
     if (rec_type == REC_TYPE_NORM)
-	smtp_vprintf(stream, fmt, ap);
+    smtp_vprintf(stream, fmt, ap);
     else
-	msg_panic("%s: need REC_TYPE_NORM", myname);
+    msg_panic("%s: need REC_TYPE_NORM", myname);
     va_end(ap);
     return (rec_type);
 }
@@ -964,39 +964,39 @@ static int smtpd_proxy_replay_setup(SMTPD_STATE *state)
      * less expensive than truncating the file redundantly.
      */
     if (smtpd_proxy_replay_stream != 0) {
-	/* vstream_ftell() won't invoke the kernel, so all errors are mine. */
-	if ((file_offs = vstream_ftell(smtpd_proxy_replay_stream)) != 0)
-	    msg_panic("%s: bad before-queue filter speed-adjust log offset %lu",
-		      myname, (unsigned long) file_offs);
-	vstream_clearerr(smtpd_proxy_replay_stream);
-	if (msg_verbose)
-	    msg_info("%s: reuse speed-adjust stream fd=%d", myname,
-		     vstream_fileno(smtpd_proxy_replay_stream));
-	/* Here, smtpd_proxy_replay_stream != 0 */
+    /* vstream_ftell() won't invoke the kernel, so all errors are mine. */
+    if ((file_offs = vstream_ftell(smtpd_proxy_replay_stream)) != 0)
+        msg_panic("%s: bad before-queue filter speed-adjust log offset %lu",
+              myname, (unsigned long) file_offs);
+    vstream_clearerr(smtpd_proxy_replay_stream);
+    if (msg_verbose)
+        msg_info("%s: reuse speed-adjust stream fd=%d", myname,
+             vstream_fileno(smtpd_proxy_replay_stream));
+    /* Here, smtpd_proxy_replay_stream != 0 */
     }
 
     /*
      * Create a new replay logfile.
      */
     if (smtpd_proxy_replay_stream == 0) {
-	smtpd_proxy_replay_stream = mail_queue_enter(MAIL_QUEUE_INCOMING, 0,
-						     (struct timeval *) 0);
-	if (smtpd_proxy_replay_stream == 0)
-	    return (smtpd_proxy_replay_rdwr_error(state));
-	if (unlink(VSTREAM_PATH(smtpd_proxy_replay_stream)) < 0)
-	    msg_warn("remove before-queue filter speed-adjust log %s: %m",
-		     VSTREAM_PATH(smtpd_proxy_replay_stream));
-	if (msg_verbose)
-	    msg_info("%s: new speed-adjust stream fd=%d", myname,
-		     vstream_fileno(smtpd_proxy_replay_stream));
+    smtpd_proxy_replay_stream = mail_queue_enter(MAIL_QUEUE_INCOMING, 0,
+                             (struct timeval *) 0);
+    if (smtpd_proxy_replay_stream == 0)
+        return (smtpd_proxy_replay_rdwr_error(state));
+    if (unlink(VSTREAM_PATH(smtpd_proxy_replay_stream)) < 0)
+        msg_warn("remove before-queue filter speed-adjust log %s: %m",
+             VSTREAM_PATH(smtpd_proxy_replay_stream));
+    if (msg_verbose)
+        msg_info("%s: new speed-adjust stream fd=%d", myname,
+             vstream_fileno(smtpd_proxy_replay_stream));
     }
 
     /*
      * Needed by our DATA-phase record emulation routines.
      */
     vstream_control(smtpd_proxy_replay_stream,
-		    CA_VSTREAM_CTL_CONTEXT((void *) state),
-		    CA_VSTREAM_CTL_END);
+            CA_VSTREAM_CTL_CONTEXT((void *) state),
+            CA_VSTREAM_CTL_END);
     return (0);
 }
 
@@ -1005,8 +1005,8 @@ static int smtpd_proxy_replay_setup(SMTPD_STATE *state)
 /* smtpd_proxy_create - set up smtpd proxy handle */
 
 int     smtpd_proxy_create(SMTPD_STATE *state, int flags, const char *service,
-			           int timeout, const char *ehlo_name,
-			           const char *mail_from)
+                       int timeout, const char *ehlo_name,
+                       const char *mail_from)
 {
     SMTPD_PROXY *proxy;
 
@@ -1015,35 +1015,35 @@ int     smtpd_proxy_create(SMTPD_STATE *state, int flags, const char *service,
      * parameters, and have the compiler enforce the argument count.
      */
 #define SMTPD_PROXY_ALLOC(p, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12) \
-	((p) = (SMTPD_PROXY *) mymalloc(sizeof(*(p))), (p)->a1, (p)->a2, \
-	 (p)->a3, (p)->a4, (p)->a5, (p)->a6, (p)->a7, (p)->a8, (p)->a9, \
-	 (p)->a10, (p)->a11, (p)->a12, (p))
+    ((p) = (SMTPD_PROXY *) mymalloc(sizeof(*(p))), (p)->a1, (p)->a2, \
+     (p)->a3, (p)->a4, (p)->a5, (p)->a6, (p)->a7, (p)->a8, (p)->a9, \
+     (p)->a10, (p)->a11, (p)->a12, (p))
 
     /*
      * Sanity check.
      */
     if (state->proxy != 0)
-	msg_panic("smtpd_proxy_create: handle still exists");
+    msg_panic("smtpd_proxy_create: handle still exists");
 
     /*
      * Connect to the before-queue filter immediately.
      */
     if ((flags & SMTPD_PROXY_FLAG_SPEED_ADJUST) == 0) {
-	state->proxy =
-	    SMTPD_PROXY_ALLOC(proxy, stream = 0, request = vstring_alloc(10),
-			      reply = vstring_alloc(10),
-			      cmd = smtpd_proxy_cmd,
-			      rec_fprintf = smtpd_proxy_rec_fprintf,
-			      rec_put = smtpd_proxy_rec_put,
-			      flags = flags, service_stream = 0,
-			      service_name = service, timeout = timeout,
-			      ehlo_name = ehlo_name, mail_from = mail_from);
-	if (smtpd_proxy_connect(state) < 0) {
-	    /* NOT: smtpd_proxy_free(state); we still need proxy->reply. */
-	    return (-1);
-	}
-	proxy->stream = proxy->service_stream;
-	return (0);
+    state->proxy =
+        SMTPD_PROXY_ALLOC(proxy, stream = 0, request = vstring_alloc(10),
+                  reply = vstring_alloc(10),
+                  cmd = smtpd_proxy_cmd,
+                  rec_fprintf = smtpd_proxy_rec_fprintf,
+                  rec_put = smtpd_proxy_rec_put,
+                  flags = flags, service_stream = 0,
+                  service_name = service, timeout = timeout,
+                  ehlo_name = ehlo_name, mail_from = mail_from);
+    if (smtpd_proxy_connect(state) < 0) {
+        /* NOT: smtpd_proxy_free(state); we still need proxy->reply. */
+        return (-1);
+    }
+    proxy->stream = proxy->service_stream;
+    return (0);
     }
 
     /*
@@ -1054,21 +1054,21 @@ int     smtpd_proxy_create(SMTPD_STATE *state, int flags, const char *service,
      */
     else {
 #ifdef NO_TRUNCATE
-	msg_panic("smtpd_proxy_create: speed-adjust support is not available");
+    msg_panic("smtpd_proxy_create: speed-adjust support is not available");
 #else
-	if (smtpd_proxy_replay_setup(state) < 0)
-	    return (-1);
-	state->proxy =
-	    SMTPD_PROXY_ALLOC(proxy, stream = smtpd_proxy_replay_stream,
-			      request = vstring_alloc(10),
-			      reply = vstring_alloc(10),
-			      cmd = smtpd_proxy_save_cmd,
-			      rec_fprintf = smtpd_proxy_save_rec_fprintf,
-			      rec_put = smtpd_proxy_save_rec_put,
-			      flags = flags, service_stream = 0,
-			      service_name = service, timeout = timeout,
-			      ehlo_name = ehlo_name, mail_from = mail_from);
-	return (0);
+    if (smtpd_proxy_replay_setup(state) < 0)
+        return (-1);
+    state->proxy =
+        SMTPD_PROXY_ALLOC(proxy, stream = smtpd_proxy_replay_stream,
+                  request = vstring_alloc(10),
+                  reply = vstring_alloc(10),
+                  cmd = smtpd_proxy_save_cmd,
+                  rec_fprintf = smtpd_proxy_save_rec_fprintf,
+                  rec_put = smtpd_proxy_save_rec_put,
+                  flags = flags, service_stream = 0,
+                  service_name = service, timeout = timeout,
+                  ehlo_name = ehlo_name, mail_from = mail_from);
+    return (0);
 #endif
     }
 }
@@ -1084,14 +1084,14 @@ void    smtpd_proxy_close(SMTPD_STATE *state)
      * the END-OF-DATA reply.
      */
     if (proxy->service_stream != 0) {
-	if (vstream_feof(proxy->service_stream) == 0
-	    && vstream_ferror(proxy->service_stream) == 0)
-	    (void) smtpd_proxy_cmd(state, SMTPD_PROX_WANT_NONE,
-				   SMTPD_CMD_QUIT);
-	(void) vstream_fclose(proxy->service_stream);
-	if (proxy->stream == proxy->service_stream)
-	    proxy->stream = 0;
-	proxy->service_stream = 0;
+    if (vstream_feof(proxy->service_stream) == 0
+        && vstream_ferror(proxy->service_stream) == 0)
+        (void) smtpd_proxy_cmd(state, SMTPD_PROX_WANT_NONE,
+                   SMTPD_CMD_QUIT);
+    (void) vstream_fclose(proxy->service_stream);
+    if (proxy->stream == proxy->service_stream)
+        proxy->stream = 0;
+    proxy->service_stream = 0;
     }
 }
 
@@ -1105,11 +1105,11 @@ void    smtpd_proxy_free(SMTPD_STATE *state)
      * Clean up.
      */
     if (proxy->service_stream != 0)
-	(void) smtpd_proxy_close(state);
+    (void) smtpd_proxy_close(state);
     if (proxy->request != 0)
-	vstring_free(proxy->request);
+    vstring_free(proxy->request);
     if (proxy->reply != 0)
-	vstring_free(proxy->reply);
+    vstring_free(proxy->reply);
     myfree((void *) proxy);
     state->proxy = 0;
 
@@ -1121,25 +1121,25 @@ void    smtpd_proxy_free(SMTPD_STATE *state)
      * guarantee by requiring that no I/O happens before the file is reused.
      */
     if (smtpd_proxy_replay_stream == 0)
-	return;
+    return;
     if (vstream_ferror(smtpd_proxy_replay_stream)) {
-	/* Errors are already reported. */
-	(void) vstream_fclose(smtpd_proxy_replay_stream);
-	smtpd_proxy_replay_stream = 0;
-	return;
+    /* Errors are already reported. */
+    (void) vstream_fclose(smtpd_proxy_replay_stream);
+    smtpd_proxy_replay_stream = 0;
+    return;
     }
     /* Flush output from aborted transaction before truncating the file!! */
     if (vstream_fseek(smtpd_proxy_replay_stream, (off_t) 0, SEEK_SET) < 0) {
-	msg_warn("seek before-queue filter speed-adjust log: %m");
-	(void) vstream_fclose(smtpd_proxy_replay_stream);
-	smtpd_proxy_replay_stream = 0;
-	return;
+    msg_warn("seek before-queue filter speed-adjust log: %m");
+    (void) vstream_fclose(smtpd_proxy_replay_stream);
+    smtpd_proxy_replay_stream = 0;
+    return;
     }
     if (ftruncate(vstream_fileno(smtpd_proxy_replay_stream), (off_t) 0) < 0) {
-	msg_warn("truncate before-queue filter speed-adjust log: %m");
-	(void) vstream_fclose(smtpd_proxy_replay_stream);
-	smtpd_proxy_replay_stream = 0;
-	return;
+    msg_warn("truncate before-queue filter speed-adjust log: %m");
+    (void) vstream_fclose(smtpd_proxy_replay_stream);
+    smtpd_proxy_replay_stream = 0;
+    return;
     }
 }
 
@@ -1148,8 +1148,8 @@ void    smtpd_proxy_free(SMTPD_STATE *state)
 int     smtpd_proxy_parse_opts(const char *param_name, const char *param_val)
 {
     static const NAME_MASK proxy_opts_table[] = {
-	SMTPD_PROXY_NAME_SPEED_ADJUST, SMTPD_PROXY_FLAG_SPEED_ADJUST,
-	0, 0,
+    SMTPD_PROXY_NAME_SPEED_ADJUST, SMTPD_PROXY_FLAG_SPEED_ADJUST,
+    0, 0,
     };
     int     flags;
 
@@ -1162,9 +1162,9 @@ int     smtpd_proxy_parse_opts(const char *param_name, const char *param_val)
     flags = name_mask(param_name, proxy_opts_table, param_val);
     if (flags & SMTPD_PROXY_FLAG_SPEED_ADJUST) {
 #ifdef NO_TRUNCATE
-	msg_warn("smtpd_proxy %s support is not available",
-		 SMTPD_PROXY_NAME_SPEED_ADJUST);
-	flags &= ~SMTPD_PROXY_FLAG_SPEED_ADJUST;
+    msg_warn("smtpd_proxy %s support is not available",
+         SMTPD_PROXY_NAME_SPEED_ADJUST);
+    flags &= ~SMTPD_PROXY_FLAG_SPEED_ADJUST;
 #endif
     }
     return (flags);

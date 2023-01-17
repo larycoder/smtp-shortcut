@@ -1,26 +1,26 @@
 /*++
 /* NAME
-/*	mark_corrupt 3
+/*    mark_corrupt 3
 /* SUMMARY
-/*	mark queue file as corrupt
+/*    mark queue file as corrupt
 /* SYNOPSIS
-/*	#include <mark_corrupt.h>
+/*    #include <mark_corrupt.h>
 /*
-/*	char	*mark_corrupt(src)
-/*	VSTREAM *src;
+/*    char    *mark_corrupt(src)
+/*    VSTREAM *src;
 /* DESCRIPTION
-/*	The \fBmark_corrupt\fR() routine marks the specified open
-/*	queue file as corrupt, and returns a suitable delivery status
-/*	so that the queue manager will do the right thing.
+/*    The \fBmark_corrupt\fR() routine marks the specified open
+/*    queue file as corrupt, and returns a suitable delivery status
+/*    so that the queue manager will do the right thing.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -54,8 +54,8 @@ int     mark_corrupt(VSTREAM *src)
      * If not running as the mail system, change privileges first.
      */
     if ((saved_uid = geteuid()) != var_owner_uid) {
-	saved_gid = getegid();
-	set_eugid(var_owner_uid, var_owner_gid);
+    saved_gid = getegid();
+    set_eugid(var_owner_uid, var_owner_gid);
     }
 
     /*
@@ -65,13 +65,13 @@ int     mark_corrupt(VSTREAM *src)
      */
     msg_warn("corrupted queue file: %s", VSTREAM_PATH(src));
     if (fchmod(vstream_fileno(src), MAIL_QUEUE_STAT_CORRUPT))
-	msg_fatal("%s: fchmod %s: %m", myname, VSTREAM_PATH(src));
+    msg_fatal("%s: fchmod %s: %m", myname, VSTREAM_PATH(src));
 
     /*
      * Restore privileges.
      */
     if (saved_uid != var_owner_uid)
-	set_eugid(saved_uid, saved_gid);
+    set_eugid(saved_uid, saved_gid);
 
     return (DEL_STAT_DEFER);
 }

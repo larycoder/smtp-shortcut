@@ -1,184 +1,184 @@
 /*++
 /* NAME
-/*	myaddrinfo 3
+/*    myaddrinfo 3
 /* SUMMARY
-/*	addrinfo encapsulation and emulation
+/*    addrinfo encapsulation and emulation
 /* SYNOPSIS
-/*	#include <myaddrinfo.h>
+/*    #include <myaddrinfo.h>
 /*
-/*	#define MAI_V4ADDR_BITS ...
-/*	#define MAI_V6ADDR_BITS ...
-/*	#define MAI_V4ADDR_BYTES ...
-/*	#define MAI_V6ADDR_BYTES ...
+/*    #define MAI_V4ADDR_BITS ...
+/*    #define MAI_V6ADDR_BITS ...
+/*    #define MAI_V4ADDR_BYTES ...
+/*    #define MAI_V6ADDR_BYTES ...
 /*
-/*	typedef struct { char buf[....]; } MAI_HOSTNAME_STR;
-/*	typedef struct { char buf[....]; } MAI_HOSTADDR_STR;
-/*	typedef struct { char buf[....]; } MAI_SERVNAME_STR;
-/*	typedef struct { char buf[....]; } MAI_SERVPORT_STR;
+/*    typedef struct { char buf[....]; } MAI_HOSTNAME_STR;
+/*    typedef struct { char buf[....]; } MAI_HOSTADDR_STR;
+/*    typedef struct { char buf[....]; } MAI_SERVNAME_STR;
+/*    typedef struct { char buf[....]; } MAI_SERVPORT_STR;
 /*
-/*	int	hostname_to_sockaddr(hostname, service, socktype, result)
-/*	const char *hostname;
-/*	const char *service;
-/*	int	socktype;
-/*	struct addrinfo **result;
+/*    int    hostname_to_sockaddr(hostname, service, socktype, result)
+/*    const char *hostname;
+/*    const char *service;
+/*    int    socktype;
+/*    struct addrinfo **result;
 /*
-/*	int	hostname_to_sockaddr_pf(hostname, pf, service, socktype, result)
-/*	const char *hostname;
-/*	int	pf;
-/*	const char *service;
-/*	int	socktype;
-/*	struct addrinfo **result;
+/*    int    hostname_to_sockaddr_pf(hostname, pf, service, socktype, result)
+/*    const char *hostname;
+/*    int    pf;
+/*    const char *service;
+/*    int    socktype;
+/*    struct addrinfo **result;
 /*
-/*	int	hostaddr_to_sockaddr(hostaddr, service, socktype, result)
-/*	const char *hostaddr;
-/*	const char *service;
-/*	int	socktype;
-/*	struct addrinfo **result;
+/*    int    hostaddr_to_sockaddr(hostaddr, service, socktype, result)
+/*    const char *hostaddr;
+/*    const char *service;
+/*    int    socktype;
+/*    struct addrinfo **result;
 /*
-/*	int	sockaddr_to_hostaddr(sa, salen, hostaddr, portnum, socktype)
-/*	const struct sockaddr *sa;
-/*	SOCKADDR_SIZE salen;
-/*	MAI_HOSTADDR_STR *hostaddr;
-/*	MAI_SERVPORT_STR *portnum;
-/*	int	socktype;
+/*    int    sockaddr_to_hostaddr(sa, salen, hostaddr, portnum, socktype)
+/*    const struct sockaddr *sa;
+/*    SOCKADDR_SIZE salen;
+/*    MAI_HOSTADDR_STR *hostaddr;
+/*    MAI_SERVPORT_STR *portnum;
+/*    int    socktype;
 /*
-/*	int	sockaddr_to_hostname(sa, salen, hostname, service, socktype)
-/*	const struct sockaddr *sa;
-/*	SOCKADDR_SIZE salen;
-/*	MAI_HOSTNAME_STR *hostname;
-/*	MAI_SERVNAME_STR *service;
-/*	int	socktype;
+/*    int    sockaddr_to_hostname(sa, salen, hostname, service, socktype)
+/*    const struct sockaddr *sa;
+/*    SOCKADDR_SIZE salen;
+/*    MAI_HOSTNAME_STR *hostname;
+/*    MAI_SERVNAME_STR *service;
+/*    int    socktype;
 /*
-/*	const char *MAI_STRERROR(error)
-/*	int	error;
+/*    const char *MAI_STRERROR(error)
+/*    int    error;
 /* DESCRIPTION
-/*	This module provides a simplified user interface to the
-/*	getaddrinfo(3) and getnameinfo(3) routines (which provide
-/*	a unified interface to manipulate IPv4 and IPv6 socket
-/*	address structures).
+/*    This module provides a simplified user interface to the
+/*    getaddrinfo(3) and getnameinfo(3) routines (which provide
+/*    a unified interface to manipulate IPv4 and IPv6 socket
+/*    address structures).
 /*
-/*	On systems without getaddrinfo(3) and getnameinfo(3) support,
-/*	emulation for IPv4 only can be enabled by defining
-/*	EMULATE_IPV4_ADDRINFO.
+/*    On systems without getaddrinfo(3) and getnameinfo(3) support,
+/*    emulation for IPv4 only can be enabled by defining
+/*    EMULATE_IPV4_ADDRINFO.
 /*
-/*	hostname_to_sockaddr() looks up the binary addresses for
-/*	the specified symbolic hostname or numeric address.  The
-/*	result should be destroyed with freeaddrinfo(). A null host
-/*	pointer converts to the null host address.
+/*    hostname_to_sockaddr() looks up the binary addresses for
+/*    the specified symbolic hostname or numeric address.  The
+/*    result should be destroyed with freeaddrinfo(). A null host
+/*    pointer converts to the null host address.
 /*
-/*	hostname_to_sockaddr_pf() is an extended interface that
-/*	provides a protocol family override.
+/*    hostname_to_sockaddr_pf() is an extended interface that
+/*    provides a protocol family override.
 /*
-/*	hostaddr_to_sockaddr() converts a printable network address
-/*	into the corresponding binary form.  The result should be
-/*	destroyed with freeaddrinfo(). A null host pointer converts
-/*	to the null host address.
+/*    hostaddr_to_sockaddr() converts a printable network address
+/*    into the corresponding binary form.  The result should be
+/*    destroyed with freeaddrinfo(). A null host pointer converts
+/*    to the null host address.
 /*
-/*	sockaddr_to_hostaddr() converts a binary network address
-/*	into printable form. The result buffers should be large
-/*	enough to hold the printable address or port including the
-/*	null terminator.
-/*	This function strips off the IPv6 datalink suffix.
+/*    sockaddr_to_hostaddr() converts a binary network address
+/*    into printable form. The result buffers should be large
+/*    enough to hold the printable address or port including the
+/*    null terminator.
+/*    This function strips off the IPv6 datalink suffix.
 /*
-/*	sockaddr_to_hostname() converts a binary network address
-/*	into a hostname or service.  The result buffer should be
-/*	large enough to hold the hostname or service including the
-/*	null terminator. This routine rejects malformed hostnames
-/*	or numeric hostnames and pretends that the lookup failed.
+/*    sockaddr_to_hostname() converts a binary network address
+/*    into a hostname or service.  The result buffer should be
+/*    large enough to hold the hostname or service including the
+/*    null terminator. This routine rejects malformed hostnames
+/*    or numeric hostnames and pretends that the lookup failed.
 /*
-/*	MAI_STRERROR() is an unsafe macro (it evaluates the argument
-/*	multiple times) that invokes strerror() or gai_strerror()
-/*	as appropriate.
+/*    MAI_STRERROR() is an unsafe macro (it evaluates the argument
+/*    multiple times) that invokes strerror() or gai_strerror()
+/*    as appropriate.
 /*
-/*	This module exports the following constants that should be
-/*	user for storage allocation of name or address information:
+/*    This module exports the following constants that should be
+/*    user for storage allocation of name or address information:
 /* .IP MAI_V4ADDR_BITS
 /* .IP MAI_V6ADDR_BITS
 /* .IP MAI_V4ADDR_BYTES
 /* .IP MAI_V6ADDR_BYTES
-/*	The number of bits or bytes needed to store a binary
-/*	IPv4 or IPv6 network address.
+/*    The number of bits or bytes needed to store a binary
+/*    IPv4 or IPv6 network address.
 /* .PP
-/*	The types MAI_HOST{NAME,ADDR}_STR and MAI_SERV{NAME,PORT}_STR
-/*	implement buffers for the storage of the string representations
-/*	of symbolic or numerical hosts or services. Do not use
-/*	buffer types other than the ones that are expected here,
-/*	or things will blow up with buffer overflow problems.
+/*    The types MAI_HOST{NAME,ADDR}_STR and MAI_SERV{NAME,PORT}_STR
+/*    implement buffers for the storage of the string representations
+/*    of symbolic or numerical hosts or services. Do not use
+/*    buffer types other than the ones that are expected here,
+/*    or things will blow up with buffer overflow problems.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP hostname
-/*	On input to hostname_to_sockaddr(), a numeric or symbolic
-/*	hostname, or a null pointer (meaning the wild-card listen
-/*	address).  On output from sockaddr_to_hostname(), storage
-/*	for the result hostname, or a null pointer.
+/*    On input to hostname_to_sockaddr(), a numeric or symbolic
+/*    hostname, or a null pointer (meaning the wild-card listen
+/*    address).  On output from sockaddr_to_hostname(), storage
+/*    for the result hostname, or a null pointer.
 /* .IP pf
-/*	Protocol type: PF_UNSPEC (meaning: use any protocol that is
-/*	available), PF_INET, or PF_INET6.  This argument is ignored
-/*	in EMULATE_IPV4_ADDRINFO mode.
+/*    Protocol type: PF_UNSPEC (meaning: use any protocol that is
+/*    available), PF_INET, or PF_INET6.  This argument is ignored
+/*    in EMULATE_IPV4_ADDRINFO mode.
 /* .IP hostaddr
-/*	On input to hostaddr_to_sockaddr(), a numeric hostname,
-/*	or a null pointer (meaning the wild-card listen address).
-/*	On output from sockaddr_to_hostaddr(), storage for the
-/*	result hostaddress, or a null pointer.
+/*    On input to hostaddr_to_sockaddr(), a numeric hostname,
+/*    or a null pointer (meaning the wild-card listen address).
+/*    On output from sockaddr_to_hostaddr(), storage for the
+/*    result hostaddress, or a null pointer.
 /* .IP service
-/*	On input to hostname/addr_to_sockaddr(), a numeric or
-/*	symbolic service name, or a null pointer in which case the
-/*	socktype argument is ignored.  On output from
-/*	sockaddr_to_hostname/addr(), storage for the result service
-/*	name, or a null pointer.
+/*    On input to hostname/addr_to_sockaddr(), a numeric or
+/*    symbolic service name, or a null pointer in which case the
+/*    socktype argument is ignored.  On output from
+/*    sockaddr_to_hostname/addr(), storage for the result service
+/*    name, or a null pointer.
 /* .IP portnum
-/*	Storage for the result service port number, or a null pointer.
+/*    Storage for the result service port number, or a null pointer.
 /* .IP socktype
-/*	Socket type: SOCK_STREAM, SOCK_DGRAM, etc. This argument is
-/*	ignored when no service or port are specified.
+/*    Socket type: SOCK_STREAM, SOCK_DGRAM, etc. This argument is
+/*    ignored when no service or port are specified.
 /* .IP sa
-/*	Protocol-independent socket address structure.
+/*    Protocol-independent socket address structure.
 /* .IP salen
-/*	Protocol-dependent socket address structure size in bytes.
+/*    Protocol-dependent socket address structure size in bytes.
 /* SEE ALSO
-/*	getaddrinfo(3), getnameinfo(3), freeaddrinfo(3), gai_strerror(3)
+/*    getaddrinfo(3), getnameinfo(3), freeaddrinfo(3), gai_strerror(3)
 /* DIAGNOSTICS
-/*	All routines either return 0 upon success, or an error code
-/*	that is compatible with gai_strerror().
+/*    All routines either return 0 upon success, or an error code
+/*    that is compatible with gai_strerror().
 /*
-/*	On systems where addrinfo support is emulated by Postfix,
-/*	some out-of-memory errors are not reported to the caller,
-/*	but are handled by mymalloc().
+/*    On systems where addrinfo support is emulated by Postfix,
+/*    some out-of-memory errors are not reported to the caller,
+/*    but are handled by mymalloc().
 /* BUGS
-/*	The IPv4-only emulation code does not support requests that
-/*	specify a service but no socket type. It returns an error
-/*	indication, instead of enumerating all the possible answers.
+/*    The IPv4-only emulation code does not support requests that
+/*    specify a service but no socket type. It returns an error
+/*    indication, instead of enumerating all the possible answers.
 /*
-/*	The hostname/addr_to_sockaddr() routines should accept a
-/*	list of address families that the caller is interested in,
-/*	and they should return only information of those types.
+/*    The hostname/addr_to_sockaddr() routines should accept a
+/*    list of address families that the caller is interested in,
+/*    and they should return only information of those types.
 /*
-/*	Unfortunately, it is not possible to remove unwanted address
-/*	family results from hostname_to_sockaddr(), because we
-/*	don't know how the system library routine getaddrinfo()
-/*	allocates memory.  For example, getaddrinfo() could save
-/*	space by referencing the same string object from multiple
-/*	addrinfo structures; or it could allocate a string object
-/*	and the addrinfo structure as one memory block.
+/*    Unfortunately, it is not possible to remove unwanted address
+/*    family results from hostname_to_sockaddr(), because we
+/*    don't know how the system library routine getaddrinfo()
+/*    allocates memory.  For example, getaddrinfo() could save
+/*    space by referencing the same string object from multiple
+/*    addrinfo structures; or it could allocate a string object
+/*    and the addrinfo structure as one memory block.
 /*
-/*	We could get around this by copying getaddrinfo() results
-/*	to our own private data structures, but that would only
-/*	make an already expensive API even more expensive.
+/*    We could get around this by copying getaddrinfo() results
+/*    to our own private data structures, but that would only
+/*    make an already expensive API even more expensive.
 /*
-/*	A better workaround is to return a vector of addrinfo
-/*	pointers to the elements that contain only the elements
-/*	that the caller is interested in. The pointer to the
-/*	original getaddrinfo() result can be hidden at the end
-/*	after the null terminator, or before the first element.
+/*    A better workaround is to return a vector of addrinfo
+/*    pointers to the elements that contain only the elements
+/*    that the caller is interested in. The pointer to the
+/*    original getaddrinfo() result can be hidden at the end
+/*    after the null terminator, or before the first element.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -192,7 +192,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <stdio.h>			/* sprintf() */
+#include <stdio.h>            /* sprintf() */
 
 /* Utility library. */
 
@@ -224,7 +224,7 @@ struct ipv4addrinfo {
   * and another set for UDP. For consistency, we'll use the same default
   * socket type for the results from emulation mode.
   */
-#define MAI_SOCKTYPE	SOCK_STREAM	/* getaddrinfo() query */
+#define MAI_SOCKTYPE    SOCK_STREAM    /* getaddrinfo() query */
 
 #ifdef EMULATE_IPV4_ADDRINFO
 
@@ -252,7 +252,7 @@ static void init_ipv4addrinfo(struct ipv4addrinfo * ip, int socktype)
     memset((void *) ip, 0, sizeof(*ip));
     ip->info.ai_family = PF_INET;
     ip->info.ai_socktype = socktype;
-    ip->info.ai_protocol = 0;			/* XXX */
+    ip->info.ai_protocol = 0;            /* XXX */
     ip->info.ai_addrlen = sizeof(ip->sin);
     ip->info.ai_canonname = 0;
     ip->info.ai_addr = (struct sockaddr *) &(ip->sin);
@@ -273,20 +273,20 @@ static int find_service(const char *service, int socktype)
 
     service = filter_known_tcp_port(service);
     if (alldig(service)) {
-	port = atoi(service);
-	return (port < 65536 ? htons(port) : -1);
+    port = atoi(service);
+    return (port < 65536 ? htons(port) : -1);
     }
     if (socktype == SOCK_STREAM) {
-	proto = "tcp";
+    proto = "tcp";
     } else if (socktype == SOCK_DGRAM) {
-	proto = "udp";
+    proto = "udp";
     } else {
-	return (-1);
+    return (-1);
     }
     if ((sp = getservbyname(service, proto)) != 0) {
-	return (sp->s_port);
+    return (sp->s_port);
     } else {
-	return (-1);
+    return (-1);
     }
 }
 
@@ -295,8 +295,8 @@ static int find_service(const char *service, int socktype)
 /* hostname_to_sockaddr_pf - hostname to binary address form */
 
 int     hostname_to_sockaddr_pf(const char *hostname, int pf,
-				        const char *service, int socktype,
-				        struct addrinfo ** res)
+                        const char *service, int socktype,
+                        struct addrinfo ** res)
 {
 #ifdef EMULATE_IPV4_ADDRINFO
 
@@ -315,65 +315,65 @@ int     hostname_to_sockaddr_pf(const char *hostname, int pf,
      * Validate the service.
      */
     if (service) {
-	if ((port = find_service(service, socktype)) < 0)
-	    return (EAI_SERVICE);
+    if ((port = find_service(service, socktype)) < 0)
+        return (EAI_SERVICE);
     } else {
-	port = 0;
-	socktype = MAI_SOCKTYPE;
+    port = 0;
+    socktype = MAI_SOCKTYPE;
     }
 
     /*
      * No host means INADDR_ANY.
      */
     if (hostname == 0) {
-	ip = (struct ipv4addrinfo *) mymalloc(sizeof(*ip));
-	init_ipv4addrinfo(ip, socktype);
-	ip->sin.sin_addr.s_addr = INADDR_ANY;
-	ip->sin.sin_port = port;
-	*res = &(ip->info);
-	return (0);
+    ip = (struct ipv4addrinfo *) mymalloc(sizeof(*ip));
+    init_ipv4addrinfo(ip, socktype);
+    ip->sin.sin_addr.s_addr = INADDR_ANY;
+    ip->sin.sin_port = port;
+    *res = &(ip->info);
+    return (0);
     }
 
     /*
      * Numeric host.
      */
     if (inet_pton(AF_INET, hostname, (void *) &addr) == 1) {
-	ip = (struct ipv4addrinfo *) mymalloc(sizeof(*ip));
-	init_ipv4addrinfo(ip, socktype);
-	ip->sin.sin_addr = addr;
-	ip->sin.sin_port = port;
-	*res = &(ip->info);
-	return (0);
+    ip = (struct ipv4addrinfo *) mymalloc(sizeof(*ip));
+    init_ipv4addrinfo(ip, socktype);
+    ip->sin.sin_addr = addr;
+    ip->sin.sin_port = port;
+    *res = &(ip->info);
+    return (0);
     }
 
     /*
      * Look up the IPv4 address list.
      */
     if ((hp = gethostbyname(hostname)) == 0)
-	return (h_errno == TRY_AGAIN ? EAI_AGAIN : EAI_NODATA);
+    return (h_errno == TRY_AGAIN ? EAI_AGAIN : EAI_NODATA);
     if (hp->h_addrtype != AF_INET
-	|| hp->h_length != sizeof(template.sin.sin_addr))
-	return (EAI_NODATA);
+    || hp->h_length != sizeof(template.sin.sin_addr))
+    return (EAI_NODATA);
 
     /*
      * Initialize the result template.
      */
     if (template.info.ai_addrlen == 0)
-	init_ipv4addrinfo(&template, socktype);
+    init_ipv4addrinfo(&template, socktype);
 
     /*
      * Copy the address information into an addrinfo structure.
      */
     prev = &template;
     for (name_list = hp->h_addr_list; name_list[0]; name_list++) {
-	ip = clone_ipv4addrinfo(prev);
-	ip->sin.sin_addr = IN_ADDR(name_list[0]);
-	ip->sin.sin_port = port;
-	if (prev == &template)
-	    *res = &(ip->info);
-	else
-	    prev->info.ai_next = &(ip->info);
-	prev = ip;
+    ip = clone_ipv4addrinfo(prev);
+    ip->sin.sin_addr = IN_ADDR(name_list[0]);
+    ip->sin.sin_port = port;
+    if (prev == &template)
+        *res = &(ip->info);
+    else
+        prev->info.ai_next = &(ip->info);
+    prev = ip;
     }
     return (0);
 #else
@@ -430,36 +430,36 @@ int     hostname_to_sockaddr_pf(const char *hostname, int pf,
     hints.ai_family = (pf != PF_UNSPEC) ? pf : inet_proto_info()->ai_family;
     hints.ai_socktype = service ? socktype : MAI_SOCKTYPE;
     if (!hostname) {
-	hints.ai_flags = AI_PASSIVE;
+    hints.ai_flags = AI_PASSIVE;
 #if !defined(IPV6_V6ONLY) || defined(BROKEN_AI_PASSIVE_NULL_HOST)
-	switch (hints.ai_family) {
-	case PF_UNSPEC:
-	    hints.ai_family = PF_INET6;
+    switch (hints.ai_family) {
+    case PF_UNSPEC:
+        hints.ai_family = PF_INET6;
 #ifdef BROKEN_AI_PASSIVE_NULL_HOST
-	case PF_INET6:
-	    hostname = "::";
-	    break;
-	case PF_INET:
-	    hostname = "0.0.0.0";
-	    break;
+    case PF_INET6:
+        hostname = "::";
+        break;
+    case PF_INET:
+        hostname = "0.0.0.0";
+        break;
 #endif
-	}
+    }
 #endif
     }
     if (service) {
-	service = filter_known_tcp_port(service);
-	if (alldig(service))
-	    hints.ai_flags |= AI_NUMERICSERV;
+    service = filter_known_tcp_port(service);
+    if (alldig(service))
+        hints.ai_flags |= AI_NUMERICSERV;
     }
     err = getaddrinfo(hostname, service, &hints, res);
 #if defined(BROKEN_AI_NULL_SERVICE)
     if (service == 0 && err == 0) {
-	struct addrinfo *r;
-	unsigned short *portp;
+    struct addrinfo *r;
+    unsigned short *portp;
 
-	for (r = *res; r != 0; r = r->ai_next)
-	    if (*(portp = SOCK_ADDR_PORTP(r->ai_addr)) != 0)
-		*portp = 0;
+    for (r = *res; r != 0; r = r->ai_next)
+        if (*(portp = SOCK_ADDR_PORTP(r->ai_addr)) != 0)
+        *portp = 0;
     }
 #endif
     return (err);
@@ -469,7 +469,7 @@ int     hostname_to_sockaddr_pf(const char *hostname, int pf,
 /* hostaddr_to_sockaddr - printable address to binary address form */
 
 int     hostaddr_to_sockaddr(const char *hostaddr, const char *service,
-			             int socktype, struct addrinfo ** res)
+                         int socktype, struct addrinfo ** res)
 {
 #ifdef EMULATE_IPV4_ADDRINFO
 
@@ -484,35 +484,35 @@ int     hostaddr_to_sockaddr(const char *hostaddr, const char *service,
      * Validate the service.
      */
     if (service) {
-	if ((port = find_service(service, socktype)) < 0)
-	    return (EAI_SERVICE);
+    if ((port = find_service(service, socktype)) < 0)
+        return (EAI_SERVICE);
     } else {
-	port = 0;
-	socktype = MAI_SOCKTYPE;
+    port = 0;
+    socktype = MAI_SOCKTYPE;
     }
 
     /*
      * No host means INADDR_ANY.
      */
     if (hostaddr == 0) {
-	ip = (struct ipv4addrinfo *) mymalloc(sizeof(*ip));
-	init_ipv4addrinfo(ip, socktype);
-	ip->sin.sin_addr.s_addr = INADDR_ANY;
-	ip->sin.sin_port = port;
-	*res = &(ip->info);
-	return (0);
+    ip = (struct ipv4addrinfo *) mymalloc(sizeof(*ip));
+    init_ipv4addrinfo(ip, socktype);
+    ip->sin.sin_addr.s_addr = INADDR_ANY;
+    ip->sin.sin_port = port;
+    *res = &(ip->info);
+    return (0);
     }
 
     /*
      * Deal with bad address forms.
      */
     switch (inet_pton(AF_INET, hostaddr, (void *) &addr)) {
-    case 1:					/* Success */
-	break;
-    default:					/* Unparsable */
-	return (EAI_NONAME);
-    case -1:					/* See errno */
-	return (EAI_SYSTEM);
+    case 1:                    /* Success */
+    break;
+    default:                    /* Unparsable */
+    return (EAI_NONAME);
+    case -1:                    /* See errno */
+    return (EAI_SYSTEM);
     }
 
     /*
@@ -551,36 +551,36 @@ int     hostaddr_to_sockaddr(const char *hostaddr, const char *service,
     hints.ai_socktype = service ? socktype : MAI_SOCKTYPE;
     hints.ai_flags = AI_NUMERICHOST;
     if (!hostaddr) {
-	hints.ai_flags |= AI_PASSIVE;
+    hints.ai_flags |= AI_PASSIVE;
 #if !defined(IPV6_V6ONLY) || defined(BROKEN_AI_PASSIVE_NULL_HOST)
-	switch (hints.ai_family) {
-	case PF_UNSPEC:
-	    hints.ai_family = PF_INET6;
+    switch (hints.ai_family) {
+    case PF_UNSPEC:
+        hints.ai_family = PF_INET6;
 #ifdef BROKEN_AI_PASSIVE_NULL_HOST
-	case PF_INET6:
-	    hostaddr = "::";
-	    break;
-	case PF_INET:
-	    hostaddr = "0.0.0.0";
-	    break;
+    case PF_INET6:
+        hostaddr = "::";
+        break;
+    case PF_INET:
+        hostaddr = "0.0.0.0";
+        break;
 #endif
-	}
+    }
 #endif
     }
     if (service) {
-	service = filter_known_tcp_port(service);
-	if (alldig(service))
-	    hints.ai_flags |= AI_NUMERICSERV;
+    service = filter_known_tcp_port(service);
+    if (alldig(service))
+        hints.ai_flags |= AI_NUMERICSERV;
     }
     err = getaddrinfo(hostaddr, service, &hints, res);
 #if defined(BROKEN_AI_NULL_SERVICE)
     if (service == 0 && err == 0) {
-	struct addrinfo *r;
-	unsigned short *portp;
+    struct addrinfo *r;
+    unsigned short *portp;
 
-	for (r = *res; r != 0; r = r->ai_next)
-	    if (*(portp = SOCK_ADDR_PORTP(r->ai_addr)) != 0)
-		*portp = 0;
+    for (r = *res; r != 0; r = r->ai_next)
+        if (*(portp = SOCK_ADDR_PORTP(r->ai_addr)) != 0)
+        *portp = 0;
     }
 #endif
     return (err);
@@ -590,9 +590,9 @@ int     hostaddr_to_sockaddr(const char *hostaddr, const char *service,
 /* sockaddr_to_hostaddr - binary address to printable address form */
 
 int     sockaddr_to_hostaddr(const struct sockaddr *sa, SOCKADDR_SIZE salen,
-			             MAI_HOSTADDR_STR *hostaddr,
-			             MAI_SERVPORT_STR *portnum,
-			             int unused_socktype)
+                         MAI_HOSTADDR_STR *hostaddr,
+                         MAI_SERVPORT_STR *portnum,
+                         int unused_socktype)
 {
 #ifdef EMULATE_IPV4_ADDRINFO
     char    portbuf[sizeof("65535")];
@@ -603,21 +603,21 @@ int     sockaddr_to_hostaddr(const struct sockaddr *sa, SOCKADDR_SIZE salen,
      * for the null terminator.
      */
     if (sa->sa_family != AF_INET) {
-	errno = EAFNOSUPPORT;
-	return (EAI_SYSTEM);
+    errno = EAFNOSUPPORT;
+    return (EAI_SYSTEM);
     }
     if (hostaddr != 0) {
-	if (inet_ntop(AF_INET, (void *) &(SOCK_ADDR_IN_ADDR(sa)),
-		      hostaddr->buf, sizeof(hostaddr->buf)) == 0)
-	    return (EAI_SYSTEM);
+    if (inet_ntop(AF_INET, (void *) &(SOCK_ADDR_IN_ADDR(sa)),
+              hostaddr->buf, sizeof(hostaddr->buf)) == 0)
+        return (EAI_SYSTEM);
     }
     if (portnum != 0) {
-	sprintf(portbuf, "%d", ntohs(SOCK_ADDR_IN_PORT(sa)) & 0xffff);
-	if ((len = strlen(portbuf)) >= sizeof(portnum->buf)) {
-	    errno = ENOSPC;
-	    return (EAI_SYSTEM);
-	}
-	memcpy(portnum->buf, portbuf, len + 1);
+    sprintf(portbuf, "%d", ntohs(SOCK_ADDR_IN_PORT(sa)) & 0xffff);
+    if ((len = strlen(portbuf)) >= sizeof(portnum->buf)) {
+        errno = ENOSPC;
+        return (EAI_SYSTEM);
+    }
+    memcpy(portnum->buf, portbuf, len + 1);
     }
     return (0);
 #else
@@ -627,13 +627,13 @@ int     sockaddr_to_hostaddr(const struct sockaddr *sa, SOCKADDR_SIZE salen,
      * Native getnameinfo(3) version.
      */
     ret = getnameinfo(sa, salen,
-		      hostaddr ? hostaddr->buf : (char *) 0,
-		      hostaddr ? sizeof(hostaddr->buf) : 0,
-		      portnum ? portnum->buf : (char *) 0,
-		      portnum ? sizeof(portnum->buf) : 0,
-		      NI_NUMERICHOST | NI_NUMERICSERV);
+              hostaddr ? hostaddr->buf : (char *) 0,
+              hostaddr ? sizeof(hostaddr->buf) : 0,
+              portnum ? portnum->buf : (char *) 0,
+              portnum ? sizeof(portnum->buf) : 0,
+              NI_NUMERICHOST | NI_NUMERICSERV);
     if (hostaddr != 0 && ret == 0 && sa->sa_family == AF_INET6)
-	(void) split_at(hostaddr->buf, '%');
+    (void) split_at(hostaddr->buf, '%');
     return (ret);
 #endif
 }
@@ -641,9 +641,9 @@ int     sockaddr_to_hostaddr(const struct sockaddr *sa, SOCKADDR_SIZE salen,
 /* sockaddr_to_hostname - binary address to printable hostname */
 
 int     sockaddr_to_hostname(const struct sockaddr *sa, SOCKADDR_SIZE salen,
-			             MAI_HOSTNAME_STR *hostname,
-			             MAI_SERVNAME_STR *service,
-			             int socktype)
+                         MAI_HOSTNAME_STR *hostname,
+                         MAI_SERVNAME_STR *service,
+                         int socktype)
 {
 #ifdef EMULATE_IPV4_ADDRINFO
 
@@ -658,46 +658,46 @@ int     sockaddr_to_hostname(const struct sockaddr *sa, SOCKADDR_SIZE salen,
      * Sanity check.
      */
     if (sa->sa_family != AF_INET)
-	return (EAI_NODATA);
+    return (EAI_NODATA);
 
     /*
      * Look up the host name.
      */
     if (hostname != 0) {
-	if ((hp = gethostbyaddr((char *) &(SOCK_ADDR_IN_ADDR(sa)),
-				sizeof(SOCK_ADDR_IN_ADDR(sa)),
-				AF_INET)) == 0)
-	    return (h_errno == TRY_AGAIN ? EAI_AGAIN : EAI_NONAME);
+    if ((hp = gethostbyaddr((char *) &(SOCK_ADDR_IN_ADDR(sa)),
+                sizeof(SOCK_ADDR_IN_ADDR(sa)),
+                AF_INET)) == 0)
+        return (h_errno == TRY_AGAIN ? EAI_AGAIN : EAI_NONAME);
 
-	/*
-	 * Save the result. The buffer length includes the space for the null
-	 * terminator. Hostname sanity checks are at the end of this
-	 * function.
-	 */
-	if ((len = strlen(hp->h_name)) >= sizeof(hostname->buf)) {
-	    errno = ENOSPC;
-	    return (EAI_SYSTEM);
-	}
-	memcpy(hostname->buf, hp->h_name, len + 1);
+    /*
+     * Save the result. The buffer length includes the space for the null
+     * terminator. Hostname sanity checks are at the end of this
+     * function.
+     */
+    if ((len = strlen(hp->h_name)) >= sizeof(hostname->buf)) {
+        errno = ENOSPC;
+        return (EAI_SYSTEM);
+    }
+    memcpy(hostname->buf, hp->h_name, len + 1);
     }
 
     /*
      * Look up the service.
      */
     if (service != 0) {
-	if ((sp = getservbyport(ntohs(SOCK_ADDR_IN_PORT(sa)),
-			      socktype == SOCK_DGRAM ? "udp" : "tcp")) == 0)
-	    return (EAI_NONAME);
+    if ((sp = getservbyport(ntohs(SOCK_ADDR_IN_PORT(sa)),
+                  socktype == SOCK_DGRAM ? "udp" : "tcp")) == 0)
+        return (EAI_NONAME);
 
-	/*
-	 * Save the result. The buffer length includes the space for the null
-	 * terminator.
-	 */
-	if ((len = strlen(sp->s_name)) >= sizeof(service->buf)) {
-	    errno = ENOSPC;
-	    return (EAI_SYSTEM);
-	}
-	memcpy(service->buf, sp->s_name, len + 1);
+    /*
+     * Save the result. The buffer length includes the space for the null
+     * terminator.
+     */
+    if ((len = strlen(sp->s_name)) >= sizeof(service->buf)) {
+        errno = ENOSPC;
+        return (EAI_SYSTEM);
+    }
+    memcpy(service->buf, sp->s_name, len + 1);
     }
 #else
 
@@ -707,26 +707,26 @@ int     sockaddr_to_hostname(const struct sockaddr *sa, SOCKADDR_SIZE salen,
     int     err;
 
     err = getnameinfo(sa, salen,
-		      hostname ? hostname->buf : (char *) 0,
-		      hostname ? sizeof(hostname->buf) : 0,
-		      service ? service->buf : (char *) 0,
-		      service ? sizeof(service->buf) : 0,
-		      socktype == SOCK_DGRAM ?
-		      NI_NAMEREQD | NI_DGRAM : NI_NAMEREQD);
+              hostname ? hostname->buf : (char *) 0,
+              hostname ? sizeof(hostname->buf) : 0,
+              service ? service->buf : (char *) 0,
+              service ? sizeof(service->buf) : 0,
+              socktype == SOCK_DGRAM ?
+              NI_NAMEREQD | NI_DGRAM : NI_NAMEREQD);
     if (err != 0)
-	return (err);
+    return (err);
 #endif
 
     /*
      * Hostname sanity checks.
      */
     if (hostname != 0) {
-	if (valid_hostaddr(hostname->buf, DONT_GRIPE)) {
-	    msg_warn("numeric hostname: %s", hostname->buf);
-	    return (EAI_NONAME);
-	}
-	if (!valid_hostname(hostname->buf, DO_GRIPE))
-	    return (EAI_NONAME);
+    if (valid_hostaddr(hostname->buf, DONT_GRIPE)) {
+        msg_warn("numeric hostname: %s", hostname->buf);
+        return (EAI_NONAME);
+    }
+    if (!valid_hostname(hostname->buf, DO_GRIPE))
+        return (EAI_NONAME);
     }
     return (0);
 }
@@ -739,10 +739,10 @@ void    myaddrinfo_control(int name,...)
     va_list ap;
 
     for (va_start(ap, name); name != 0; name = va_arg(ap, int)) {
-	switch (name) {
-	default:
-	    msg_panic("%s: bad name %d", myname, name);
-	}
+    switch (name) {
+    default:
+        msg_panic("%s: bad name %d", myname, name);
+    }
     }
     va_end(ap);
 }
@@ -760,30 +760,30 @@ void    freeaddrinfo(struct addrinfo * ai)
      * Artefact of implementation: tolerate a null pointer argument.
      */
     for (ap = ai; ap != 0; ap = next) {
-	next = ap->ai_next;
-	if (ap->ai_canonname)
-	    myfree(ap->ai_canonname);
-	/* ap->ai_addr is allocated within this memory block */
-	myfree((void *) ap);
+    next = ap->ai_next;
+    if (ap->ai_canonname)
+        myfree(ap->ai_canonname);
+    /* ap->ai_addr is allocated within this memory block */
+    myfree((void *) ap);
     }
 }
 
 static char *ai_errlist[] = {
     "Success",
-    "Address family for hostname not supported",	/* EAI_ADDRFAMILY */
-    "Temporary failure in name resolution",	/* EAI_AGAIN	 */
-    "Invalid value for ai_flags",	/* EAI_BADFLAGS   */
-    "Non-recoverable failure in name resolution",	/* EAI_FAIL	 */
-    "ai_family not supported",		/* EAI_FAMILY     */
-    "Memory allocation failure",	/* EAI_MEMORY     */
-    "No address associated with hostname",	/* EAI_NODATA     */
-    "hostname nor servname provided, or not known",	/* EAI_NONAME     */
-    "service name not supported for ai_socktype",	/* EAI_SERVICE    */
-    "ai_socktype not supported",	/* EAI_SOCKTYPE   */
-    "System error returned in errno",	/* EAI_SYSTEM     */
-    "Invalid value for hints",		/* EAI_BADHINTS   */
-    "Resolved protocol is unknown",	/* EAI_PROTOCOL   */
-    "Unknown error",			/* EAI_MAX	  */
+    "Address family for hostname not supported",    /* EAI_ADDRFAMILY */
+    "Temporary failure in name resolution",    /* EAI_AGAIN     */
+    "Invalid value for ai_flags",    /* EAI_BADFLAGS   */
+    "Non-recoverable failure in name resolution",    /* EAI_FAIL     */
+    "ai_family not supported",        /* EAI_FAMILY     */
+    "Memory allocation failure",    /* EAI_MEMORY     */
+    "No address associated with hostname",    /* EAI_NODATA     */
+    "hostname nor servname provided, or not known",    /* EAI_NONAME     */
+    "service name not supported for ai_socktype",    /* EAI_SERVICE    */
+    "ai_socktype not supported",    /* EAI_SOCKTYPE   */
+    "System error returned in errno",    /* EAI_SYSTEM     */
+    "Invalid value for hints",        /* EAI_BADHINTS   */
+    "Resolved protocol is unknown",    /* EAI_PROTOCOL   */
+    "Unknown error",            /* EAI_MAX      */
 };
 
 /* gai_strerror - error number to string */
@@ -796,7 +796,7 @@ char   *gai_strerror(int ecode)
      * strerror(). The application decides.
      */
     if (ecode < 0 || ecode > EAI_MAX)
-	ecode = EAI_MAX;
+    ecode = EAI_MAX;
     return (ai_errlist[ecode]);
 }
 
@@ -834,65 +834,65 @@ int     main(int argc, char **argv)
     msg_vstream_init(argv[0], VSTREAM_ERR);
 
     if (argc != 4)
-	msg_fatal("usage: %s protocols hostname hostaddress", argv[0]);
+    msg_fatal("usage: %s protocols hostname hostaddress", argv[0]);
 
     inet_proto_init(argv[0], argv[1]);
 
     msg_info("=== hostname %s ===", argv[2]);
 
     if ((err = hostname_to_sockaddr(argv[2], (char *) 0, 0, &info)) != 0) {
-	msg_info("hostname_to_sockaddr(%s): %s",
-	  argv[2], err == EAI_SYSTEM ? strerror(errno) : gai_strerror(err));
+    msg_info("hostname_to_sockaddr(%s): %s",
+      argv[2], err == EAI_SYSTEM ? strerror(errno) : gai_strerror(err));
     } else {
-	for (len = 0, ip = info; ip != 0; ip = ip->ai_next)
-	    len += 1;
-	resv = (struct addrinfo **) mymalloc(len * sizeof(*resv));
-	for (len = 0, ip = info; ip != 0; ip = ip->ai_next)
-	    resv[len++] = ip;
-	qsort((void *) resv, len, sizeof(*resv), compare_family);
-	for (n = 0; n < len; n++) {
-	    ip = resv[n];
-	    if ((err = sockaddr_to_hostaddr(ip->ai_addr, ip->ai_addrlen, &addr,
-					 (MAI_SERVPORT_STR *) 0, 0)) != 0) {
-		msg_info("sockaddr_to_hostaddr: %s",
-		   err == EAI_SYSTEM ? strerror(errno) : gai_strerror(err));
-		continue;
-	    }
-	    msg_info("%s -> family=%d sock=%d proto=%d %s", argv[2],
-		 ip->ai_family, ip->ai_socktype, ip->ai_protocol, addr.buf);
-	    if ((err = sockaddr_to_hostname(ip->ai_addr, ip->ai_addrlen, &host,
-					 (MAI_SERVNAME_STR *) 0, 0)) != 0) {
-		msg_info("sockaddr_to_hostname: %s",
-		   err == EAI_SYSTEM ? strerror(errno) : gai_strerror(err));
-		continue;
-	    }
-	    msg_info("%s -> %s", addr.buf, host.buf);
-	}
-	freeaddrinfo(info);
-	myfree((void *) resv);
+    for (len = 0, ip = info; ip != 0; ip = ip->ai_next)
+        len += 1;
+    resv = (struct addrinfo **) mymalloc(len * sizeof(*resv));
+    for (len = 0, ip = info; ip != 0; ip = ip->ai_next)
+        resv[len++] = ip;
+    qsort((void *) resv, len, sizeof(*resv), compare_family);
+    for (n = 0; n < len; n++) {
+        ip = resv[n];
+        if ((err = sockaddr_to_hostaddr(ip->ai_addr, ip->ai_addrlen, &addr,
+                     (MAI_SERVPORT_STR *) 0, 0)) != 0) {
+        msg_info("sockaddr_to_hostaddr: %s",
+           err == EAI_SYSTEM ? strerror(errno) : gai_strerror(err));
+        continue;
+        }
+        msg_info("%s -> family=%d sock=%d proto=%d %s", argv[2],
+         ip->ai_family, ip->ai_socktype, ip->ai_protocol, addr.buf);
+        if ((err = sockaddr_to_hostname(ip->ai_addr, ip->ai_addrlen, &host,
+                     (MAI_SERVNAME_STR *) 0, 0)) != 0) {
+        msg_info("sockaddr_to_hostname: %s",
+           err == EAI_SYSTEM ? strerror(errno) : gai_strerror(err));
+        continue;
+        }
+        msg_info("%s -> %s", addr.buf, host.buf);
+    }
+    freeaddrinfo(info);
+    myfree((void *) resv);
     }
 
     msg_info("=== host address %s ===", argv[3]);
 
     if ((err = hostaddr_to_sockaddr(argv[3], (char *) 0, 0, &ip)) != 0) {
-	msg_info("hostaddr_to_sockaddr(%s): %s",
-	  argv[3], err == EAI_SYSTEM ? strerror(errno) : gai_strerror(err));
+    msg_info("hostaddr_to_sockaddr(%s): %s",
+      argv[3], err == EAI_SYSTEM ? strerror(errno) : gai_strerror(err));
     } else {
-	if ((err = sockaddr_to_hostaddr(ip->ai_addr, ip->ai_addrlen, &addr,
-					(MAI_SERVPORT_STR *) 0, 0)) != 0) {
-	    msg_info("sockaddr_to_hostaddr: %s",
-		   err == EAI_SYSTEM ? strerror(errno) : gai_strerror(err));
-	} else {
-	    msg_info("%s -> family=%d sock=%d proto=%d %s", argv[3],
-		 ip->ai_family, ip->ai_socktype, ip->ai_protocol, addr.buf);
-	    if ((err = sockaddr_to_hostname(ip->ai_addr, ip->ai_addrlen, &host,
-					 (MAI_SERVNAME_STR *) 0, 0)) != 0) {
-		msg_info("sockaddr_to_hostname: %s",
-		   err == EAI_SYSTEM ? strerror(errno) : gai_strerror(err));
-	    } else
-		msg_info("%s -> %s", addr.buf, host.buf);
-	    freeaddrinfo(ip);
-	}
+    if ((err = sockaddr_to_hostaddr(ip->ai_addr, ip->ai_addrlen, &addr,
+                    (MAI_SERVPORT_STR *) 0, 0)) != 0) {
+        msg_info("sockaddr_to_hostaddr: %s",
+           err == EAI_SYSTEM ? strerror(errno) : gai_strerror(err));
+    } else {
+        msg_info("%s -> family=%d sock=%d proto=%d %s", argv[3],
+         ip->ai_family, ip->ai_socktype, ip->ai_protocol, addr.buf);
+        if ((err = sockaddr_to_hostname(ip->ai_addr, ip->ai_addrlen, &host,
+                     (MAI_SERVNAME_STR *) 0, 0)) != 0) {
+        msg_info("sockaddr_to_hostname: %s",
+           err == EAI_SYSTEM ? strerror(errno) : gai_strerror(err));
+        } else
+        msg_info("%s -> %s", addr.buf, host.buf);
+        freeaddrinfo(ip);
+    }
     }
     exit(0);
 }

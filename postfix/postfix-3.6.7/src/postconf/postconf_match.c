@@ -1,105 +1,105 @@
 /*++
 /* NAME
-/*	postconf_match 3
+/*    postconf_match 3
 /* SUMMARY
-/*	pattern-matching support
+/*    pattern-matching support
 /* SYNOPSIS
-/*	#include <postconf.h>
+/*    #include <postconf.h>
 /*
-/*	int	pcf_parse_field_pattern(field_expr)
-/*	char	*field_expr;
+/*    int    pcf_parse_field_pattern(field_expr)
+/*    char    *field_expr;
 /*
-/*	const char *pcf_str_field_pattern(field_pattern)
-/*	int	field_pattern;
+/*    const char *pcf_str_field_pattern(field_pattern)
+/*    int    field_pattern;
 /*
-/*	int	pcf_is_magic_field_pattern(field_pattern)
-/*	int	field_pattern;
+/*    int    pcf_is_magic_field_pattern(field_pattern)
+/*    int    field_pattern;
 /*
-/*	ARGV	*pcf_parse_service_pattern(service_expr, min_expr, max_expr)
-/*	const char *service_expr;
-/*	int	min_expr;
-/*	int	max_expr;
+/*    ARGV    *pcf_parse_service_pattern(service_expr, min_expr, max_expr)
+/*    const char *service_expr;
+/*    int    min_expr;
+/*    int    max_expr;
 /*
-/*	int	PCF_IS_MAGIC_SERVICE_PATTERN(service_pattern)
-/*	const ARGV *service_pattern;
+/*    int    PCF_IS_MAGIC_SERVICE_PATTERN(service_pattern)
+/*    const ARGV *service_pattern;
 /*
-/*	int	PCF_MATCH_SERVICE_PATTERN(service_pattern, service_name,
-/*					service_type)
-/*	const ARGV *service_pattern;
-/*	const char *service_name;
-/*	const char *service_type;
+/*    int    PCF_MATCH_SERVICE_PATTERN(service_pattern, service_name,
+/*                    service_type)
+/*    const ARGV *service_pattern;
+/*    const char *service_name;
+/*    const char *service_type;
 /*
-/*	const char *pcf_str_field_pattern(field_pattern)
-/*	int	field_pattern;
+/*    const char *pcf_str_field_pattern(field_pattern)
+/*    int    field_pattern;
 /*
-/*	int	PCF_IS_MAGIC_PARAM_PATTERN(param_pattern)
-/*	const char *param_pattern;
+/*    int    PCF_IS_MAGIC_PARAM_PATTERN(param_pattern)
+/*    const char *param_pattern;
 /*
-/*	int	PCF_MATCH_PARAM_PATTERN(param_pattern, param_name)
-/*	const char *param_pattern;
-/*	const char *param_name;
+/*    int    PCF_MATCH_PARAM_PATTERN(param_pattern, param_name)
+/*    const char *param_pattern;
+/*    const char *param_name;
 /* DESCRIPTION
-/*	pcf_parse_service_pattern() takes an expression and splits
-/*	it up on '/' into an array of sub-expressions, This function
-/*	returns null if the input does fewer than "min" or more
-/*	than "max" sub-expressions.
+/*    pcf_parse_service_pattern() takes an expression and splits
+/*    it up on '/' into an array of sub-expressions, This function
+/*    returns null if the input does fewer than "min" or more
+/*    than "max" sub-expressions.
 /*
-/*	PCF_IS_MAGIC_SERVICE_PATTERN() returns non-zero if any of
-/*	the service name or service type sub-expressions contains
-/*	a matching operator (as opposed to string literals that
-/*	only match themselves). This is an unsafe macro that evaluates
-/*	its arguments more than once.
+/*    PCF_IS_MAGIC_SERVICE_PATTERN() returns non-zero if any of
+/*    the service name or service type sub-expressions contains
+/*    a matching operator (as opposed to string literals that
+/*    only match themselves). This is an unsafe macro that evaluates
+/*    its arguments more than once.
 /*
-/*	PCF_MATCH_SERVICE_PATTERN() matches a service name and type
-/*	from master.cf against the parsed pattern. This is an unsafe
-/*	macro that evaluates its arguments more than once.
+/*    PCF_MATCH_SERVICE_PATTERN() matches a service name and type
+/*    from master.cf against the parsed pattern. This is an unsafe
+/*    macro that evaluates its arguments more than once.
 /*
-/*	pcf_parse_field_pattern() converts a field sub-expression,
-/*	and returns the conversion result.
+/*    pcf_parse_field_pattern() converts a field sub-expression,
+/*    and returns the conversion result.
 /*
-/*	pcf_str_field_pattern() converts a result from
-/*	pcf_parse_field_pattern() into string form.
+/*    pcf_str_field_pattern() converts a result from
+/*    pcf_parse_field_pattern() into string form.
 /*
-/*	pcf_is_magic_field_pattern() returns non-zero if the field
-/*	pattern sub-expression contained a matching operator (as
-/*	opposed to a string literal that only matches itself).
+/*    pcf_is_magic_field_pattern() returns non-zero if the field
+/*    pattern sub-expression contained a matching operator (as
+/*    opposed to a string literal that only matches itself).
 /*
-/*	PCF_IS_MAGIC_PARAM_PATTERN() returns non-zero if the parameter
-/*	sub-expression contains a matching operator (as opposed to
-/*	a string literal that only matches itself). This is an
-/*	unsafe macro that evaluates its arguments more than once.
+/*    PCF_IS_MAGIC_PARAM_PATTERN() returns non-zero if the parameter
+/*    sub-expression contains a matching operator (as opposed to
+/*    a string literal that only matches itself). This is an
+/*    unsafe macro that evaluates its arguments more than once.
 /*
-/*	PCF_MATCH_PARAM_PATTERN() matches a parameter name from
-/*	master.cf against the parsed pattern. This is an unsafe
-/*	macro that evaluates its arguments more than once.
+/*    PCF_MATCH_PARAM_PATTERN() matches a parameter name from
+/*    master.cf against the parsed pattern. This is an unsafe
+/*    macro that evaluates its arguments more than once.
 /*
-/*	Arguments
+/*    Arguments
 /* .IP field_expr
-/*	A field expression.
+/*    A field expression.
 /* .IP service_expr
-/*	This argument is split on '/' into its constituent
-/*	sub-expressions.
+/*    This argument is split on '/' into its constituent
+/*    sub-expressions.
 /* .IP min_expr
-/*	The minimum number of sub-expressions in service_expr.
+/*    The minimum number of sub-expressions in service_expr.
 /* .IP max_expr
-/*	The maximum number of sub-expressions in service_expr.
+/*    The maximum number of sub-expressions in service_expr.
 /* .IP service_name
-/*	Service name from master.cf.
+/*    Service name from master.cf.
 /* .IP service_type
-/*	Service type from master.cf.
+/*    Service type from master.cf.
 /* .IP param_pattern
-/*	A parameter name expression.
+/*    A parameter name expression.
 /* DIAGNOSTICS
-/*	Fatal errors: invalid syntax.
+/*    Fatal errors: invalid syntax.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -145,9 +145,9 @@ int     pcf_parse_field_pattern(const char *field_name)
     int     field_pattern;
 
     if ((field_pattern = name_code(pcf_field_name_offset,
-				   NAME_CODE_FLAG_STRICT_CASE,
-				   field_name)) == PCF_MASTER_FLD_NONE)
-	msg_fatal("invalid service attribute name: \"%s\"", field_name);
+                   NAME_CODE_FLAG_STRICT_CASE,
+                   field_name)) == PCF_MASTER_FLD_NONE)
+    msg_fatal("invalid service attribute name: \"%s\"", field_name);
     return (field_pattern);
 }
 
@@ -162,27 +162,27 @@ ARGV   *pcf_parse_service_pattern(const char *pattern, int min_expr, int max_exp
      * Work around argv_split() lameness.
      */
     if (*pattern == '/')
-	return (0);
+    return (0);
     argv = argv_split(pattern, PCF_NAMESP_SEP_STR);
     if (argv->argc < min_expr || argv->argc > max_expr) {
-	argv_free(argv);
-	return (0);
+    argv_free(argv);
+    return (0);
     }
 
     /*
      * Allow '*' only all by itself.
      */
     for (cpp = argv->argv; *cpp; cpp++) {
-	if (!PCF_MATCH_ANY(*cpp) && strchr(*cpp, PCF_MATCH_WILDC_STR[0]) != 0) {
-	    argv_free(argv);
-	    return (0);
-	}
+    if (!PCF_MATCH_ANY(*cpp) && strchr(*cpp, PCF_MATCH_WILDC_STR[0]) != 0) {
+        argv_free(argv);
+        return (0);
+    }
     }
 
     /*
      * Provide defaults for missing fields.
      */
     while (argv->argc < max_expr)
-	argv_add(argv, PCF_MATCH_WILDC_STR, ARGV_END);
+    argv_add(argv, PCF_MATCH_WILDC_STR, ARGV_END);
     return (argv);
 }

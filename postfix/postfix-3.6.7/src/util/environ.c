@@ -17,8 +17,8 @@
 
 extern char **environ;
 
-static int addenv(char *);		/* append entry to environment */
-static int allocated = 0;		/* environ is, or is not, allocated */
+static int addenv(char *);        /* append entry to environment */
+static int allocated = 0;        /* environ is, or is not, allocated */
 
 #define DO_CLOBBER      1
 
@@ -39,8 +39,8 @@ static char **findenv(const char *name, ssize_t len)
     char  **envp;
 
     for (envp = environ; envp && *envp; envp++)
-	if (strncmp(name, *envp, len) == 0 && (*envp)[len] == '=')
-	    return (envp);
+    if (strncmp(name, *envp, len) == 0 && (*envp)[len] == '=')
+        return (envp);
     return (0);
 }
 
@@ -73,8 +73,8 @@ void    unsetenv(const char *name)
     char  **envp;
 
     while ((envp = findenv(name, namelength(name))) != 0)
-	while (envp[0] = envp[1])
-	    envp++;
+    while (envp[0] = envp[1])
+        envp++;
 }
 
 #endif
@@ -85,17 +85,17 @@ int     setenv(const char *name, const char *value, int clobber)
 {
     char   *destination;
     char  **envp;
-    ssize_t l_name;			/* length of name part */
-    unsigned int l_nameval;		/* length of name=value */
+    ssize_t l_name;            /* length of name part */
+    unsigned int l_nameval;        /* length of name=value */
 
     /* Permit name= and =value. */
 
     l_name = namelength(name);
     envp = findenv(name, l_name);
     if (envp != 0 && clobber == 0)
-	return (0);
+    return (0);
     if (*value == '=')
-	value++;
+    value++;
     l_nameval = l_name + strlen(value) + 1;
 
     /*
@@ -104,9 +104,9 @@ int     setenv(const char *name, const char *value, int clobber)
      */
 
     destination = (envp != 0 && strlen(*envp) >= l_nameval) ?
-	*envp : malloc(l_nameval + 1);
+    *envp : malloc(l_nameval + 1);
     if (destination == 0)
-	return (-1);
+    return (-1);
     strncpy(destination, name, l_name);
     destination[l_name] = '=';
     strcpy(destination + l_name + 1, value);
@@ -120,7 +120,7 @@ static char *cmalloc(ssize_t new_len, char *old, ssize_t old_len)
     char   *new = malloc(new_len);
 
     if (new != 0)
-	memcpy(new, old, old_len);
+    memcpy(new, old, old_len);
     return (new);
 }
 
@@ -129,27 +129,27 @@ static char *cmalloc(ssize_t new_len, char *old, ssize_t old_len)
 static int addenv(char *nameval)
 {
     char  **envp;
-    ssize_t n_used;			/* number of environment entries */
-    ssize_t l_used;			/* bytes used excl. terminator */
-    ssize_t l_need;			/* bytes needed incl. terminator */
+    ssize_t n_used;            /* number of environment entries */
+    ssize_t l_used;            /* bytes used excl. terminator */
+    ssize_t l_need;            /* bytes needed incl. terminator */
 
     for (envp = environ; envp && *envp; envp++)
-	 /* void */ ;
+     /* void */ ;
     n_used = envp - environ;
     l_used = n_used * sizeof(*envp);
     l_need = l_used + 2 * sizeof(*envp);
 
     envp = allocated ?
-	(char **) realloc((char *) environ, l_need) :
-	(char **) cmalloc(l_need, (char *) environ, l_used);
+    (char **) realloc((char *) environ, l_need) :
+    (char **) cmalloc(l_need, (char *) environ, l_used);
     if (envp == 0) {
-	return (-1);
+    return (-1);
     } else {
-	allocated = 1;
-	environ = envp;
-	environ[n_used++] = nameval;		/* add new entry */
-	environ[n_used] = 0;			/* terminate list */
-	return (0);
+    allocated = 1;
+    environ = envp;
+    environ[n_used++] = nameval;        /* add new entry */
+    environ[n_used] = 0;            /* terminate list */
+    return (0);
     }
 }
 

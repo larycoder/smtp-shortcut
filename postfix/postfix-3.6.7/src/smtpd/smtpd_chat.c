@@ -1,75 +1,75 @@
 /*++
 /* NAME
-/*	smtpd_chat 3
+/*    smtpd_chat 3
 /* SUMMARY
-/*	SMTP server request/response support
+/*    SMTP server request/response support
 /* SYNOPSIS
-/*	#include <smtpd.h>
-/*	#include <smtpd_chat.h>
+/*    #include <smtpd.h>
+/*    #include <smtpd_chat.h>
 /*
-/*	void	smtpd_chat_pre_jail_init(void)
+/*    void    smtpd_chat_pre_jail_init(void)
 /*
-/*	int	smtpd_chat_query_limit(state, limit)
-/*	SMTPD_STATE *state;
-/*	int limit;
+/*    int    smtpd_chat_query_limit(state, limit)
+/*    SMTPD_STATE *state;
+/*    int limit;
 /*
-/*	void	smtpd_chat_query(state)
-/*	SMTPD_STATE *state;
+/*    void    smtpd_chat_query(state)
+/*    SMTPD_STATE *state;
 /*
-/*	void	smtpd_chat_reply(state, format, ...)
-/*	SMTPD_STATE *state;
-/*	char	*format;
+/*    void    smtpd_chat_reply(state, format, ...)
+/*    SMTPD_STATE *state;
+/*    char    *format;
 /*
-/*	void	smtpd_chat_notify(state)
-/*	SMTPD_STATE *state;
+/*    void    smtpd_chat_notify(state)
+/*    SMTPD_STATE *state;
 /*
-/*	void	smtpd_chat_reset(state)
-/*	SMTPD_STATE *state;
+/*    void    smtpd_chat_reset(state)
+/*    SMTPD_STATE *state;
 /* DESCRIPTION
-/*	This module implements SMTP server support for request/reply
-/*	conversations, and maintains a limited SMTP transaction log.
+/*    This module implements SMTP server support for request/reply
+/*    conversations, and maintains a limited SMTP transaction log.
 /*
-/*	smtpd_chat_pre_jail_init() performs one-time initialization.
+/*    smtpd_chat_pre_jail_init() performs one-time initialization.
 /*
-/*	smtpd_chat_query_limit() reads a line from the client that is
-/*	at most "limit" bytes long.  A copy is appended to the SMTP
-/*	transaction log.  The return value is non-zero for a complete
-/*	line or else zero if the length limit was exceeded.
+/*    smtpd_chat_query_limit() reads a line from the client that is
+/*    at most "limit" bytes long.  A copy is appended to the SMTP
+/*    transaction log.  The return value is non-zero for a complete
+/*    line or else zero if the length limit was exceeded.
 /*
-/*	smtpd_chat_query() receives a client request and appends a copy
-/*	to the SMTP transaction log.
+/*    smtpd_chat_query() receives a client request and appends a copy
+/*    to the SMTP transaction log.
 /*
-/*	smtpd_chat_reply() formats a server reply, sends it to the
-/*	client, and appends a copy to the SMTP transaction log.
-/*	When soft_bounce is enabled, all 5xx (reject) responses are
-/*	replaced by 4xx (try again). In case of a 421 reply the
-/*	SMTPD_FLAG_HANGUP flag is set for orderly disconnect.
+/*    smtpd_chat_reply() formats a server reply, sends it to the
+/*    client, and appends a copy to the SMTP transaction log.
+/*    When soft_bounce is enabled, all 5xx (reject) responses are
+/*    replaced by 4xx (try again). In case of a 421 reply the
+/*    SMTPD_FLAG_HANGUP flag is set for orderly disconnect.
 /*
-/*	smtpd_chat_notify() sends a copy of the SMTP transaction log
-/*	to the postmaster for review. The postmaster notice is sent only
-/*	when delivery is possible immediately. It is an error to call
-/*	smtpd_chat_notify() when no SMTP transaction log exists.
+/*    smtpd_chat_notify() sends a copy of the SMTP transaction log
+/*    to the postmaster for review. The postmaster notice is sent only
+/*    when delivery is possible immediately. It is an error to call
+/*    smtpd_chat_notify() when no SMTP transaction log exists.
 /*
-/*	smtpd_chat_reset() resets the transaction log. This is
-/*	typically done at the beginning of an SMTP session, or
-/*	within a session to discard non-error information.
+/*    smtpd_chat_reset() resets the transaction log. This is
+/*    typically done at the beginning of an SMTP session, or
+/*    within a session to discard non-error information.
 /* DIAGNOSTICS
-/*	Panic: interface violations. Fatal errors: out of memory.
-/*	internal protocol errors.
+/*    Panic: interface violations. Fatal errors: out of memory.
+/*    internal protocol errors.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -78,7 +78,7 @@
 #include <setjmp.h>
 #include <unistd.h>
 #include <time.h>
-#include <stdlib.h>			/* 44BSD stdarg.h uses abort() */
+#include <stdlib.h>            /* 44BSD stdarg.h uses abort() */
 #include <stdarg.h>
 
 /* Utility library. */
@@ -115,8 +115,8 @@
   */
 static MAPS *smtpd_rej_ftr_maps;
 
-#define STR	vstring_str
-#define LEN	VSTRING_LEN
+#define STR    vstring_str
+#define LEN    VSTRING_LEN
 
 /* smtpd_chat_pre_jail_init - initialize */
 
@@ -125,15 +125,15 @@ void    smtpd_chat_pre_jail_init(void)
     static int init_count = 0;
 
     if (init_count++ != 0)
-	msg_panic("smtpd_chat_pre_jail_init: multiple calls");
+    msg_panic("smtpd_chat_pre_jail_init: multiple calls");
 
     /*
      * SMTP server reject footer.
      */
     if (*var_smtpd_rej_ftr_maps)
-	smtpd_rej_ftr_maps = maps_create(VAR_SMTPD_REJ_FTR_MAPS,
-					 var_smtpd_rej_ftr_maps,
-					 DICT_FLAG_LOCK);
+    smtpd_rej_ftr_maps = maps_create(VAR_SMTPD_REJ_FTR_MAPS,
+                     var_smtpd_rej_ftr_maps,
+                     DICT_FLAG_LOCK);
 }
 
 /* smtp_chat_reset - reset SMTP transaction log */
@@ -141,23 +141,23 @@ void    smtpd_chat_pre_jail_init(void)
 void    smtpd_chat_reset(SMTPD_STATE *state)
 {
     if (state->history) {
-	argv_free(state->history);
-	state->history = 0;
+    argv_free(state->history);
+    state->history = 0;
     }
 }
 
 /* smtp_chat_append - append record to SMTP transaction log */
 
 static void smtp_chat_append(SMTPD_STATE *state, char *direction,
-			             const char *text)
+                         const char *text)
 {
     char   *line;
 
     if (state->notify_mask == 0)
-	return;
+    return;
 
     if (state->history == 0)
-	state->history = argv_alloc(10);
+    state->history = argv_alloc(10);
     line = concatenate(direction, text, (char *) 0);
     argv_add(state->history, line, (char *) 0);
     myfree(line);
@@ -174,15 +174,15 @@ int     smtpd_chat_query_limit(SMTPD_STATE *state, int limit)
      * over it to avoid loss of synchronization.
      */
     last_char = smtp_get(state->buffer, state->client, limit,
-			 SMTP_GET_FLAG_SKIP);
+             SMTP_GET_FLAG_SKIP);
     smtp_chat_append(state, "In:  ", STR(state->buffer));
     if (last_char != '\n')
-	msg_warn("%s: request longer than %d: %.30s...",
-		 state->namaddr, limit,
-		 printable(STR(state->buffer), '?'));
+    msg_warn("%s: request longer than %d: %.30s...",
+         state->namaddr, limit,
+         printable(STR(state->buffer), '?'));
 
     if (msg_verbose)
-	msg_info("< %s: %s", state->namaddr, STR(state->buffer));
+    msg_info("< %s: %s", state->namaddr, STR(state->buffer));
     return (last_char == '\n');
 }
 
@@ -212,46 +212,46 @@ void    vsmtpd_chat_reply(SMTPD_STATE *state, const char *format, va_list ap)
      * clients that make an excessive number of errors within a session.
      */
     if (state->error_count >= var_smtpd_soft_erlim)
-	sleep(delay = var_smtpd_err_sleep);
+    sleep(delay = var_smtpd_err_sleep);
 
     vstring_vsprintf(state->buffer, format, ap);
 
     if ((*(cp = STR(state->buffer)) == '4' || *cp == '5')
-	&& ((smtpd_rej_ftr_maps != 0
-	     && (footer = maps_find(smtpd_rej_ftr_maps, cp, 0)) != 0)
-	    || *(footer = var_smtpd_rej_footer) != 0))
-	smtp_reply_footer(state->buffer, 0, footer, STR(smtpd_expand_filter),
-			  smtpd_expand_lookup, (void *) state);
+    && ((smtpd_rej_ftr_maps != 0
+         && (footer = maps_find(smtpd_rej_ftr_maps, cp, 0)) != 0)
+        || *(footer = var_smtpd_rej_footer) != 0))
+    smtp_reply_footer(state->buffer, 0, footer, STR(smtpd_expand_filter),
+              smtpd_expand_lookup, (void *) state);
 
     /* All 5xx replies must have a 5.xx.xx detail code. */
     for (cp = STR(state->buffer), end = cp + strlen(STR(state->buffer));;) {
-	if (var_soft_bounce) {
-	    if (cp[0] == '5') {
-		cp[0] = '4';
-		if (cp[4] == '5')
-		    cp[4] = '4';
-	    }
-	}
-	/* This is why we use strlen() above instead of VSTRING_LEN(). */
-	if ((next = strstr(cp, "\r\n")) != 0) {
-	    *next = 0;
-	    if (next[2] != 0)
-		cp[3] = '-';			/* contact footer kludge */
-	    else
-		next = end;			/* strip trailing \r\n */
-	} else {
-	    next = end;
-	}
-	smtp_chat_append(state, "Out: ", cp);
+    if (var_soft_bounce) {
+        if (cp[0] == '5') {
+        cp[0] = '4';
+        if (cp[4] == '5')
+            cp[4] = '4';
+        }
+    }
+    /* This is why we use strlen() above instead of VSTRING_LEN(). */
+    if ((next = strstr(cp, "\r\n")) != 0) {
+        *next = 0;
+        if (next[2] != 0)
+        cp[3] = '-';            /* contact footer kludge */
+        else
+        next = end;            /* strip trailing \r\n */
+    } else {
+        next = end;
+    }
+    smtp_chat_append(state, "Out: ", cp);
 
-	if (msg_verbose)
-	    msg_info("> %s: %s", state->namaddr, cp);
+    if (msg_verbose)
+        msg_info("> %s: %s", state->namaddr, cp);
 
-	smtp_fputs(cp, next - cp, state->client);
-	if (next < end)
-	    cp = next + 2;
-	else
-	    break;
+    smtp_fputs(cp, next - cp, state->client);
+    if (next < end)
+        cp = next + 2;
+    else
+        break;
     }
 
     /*
@@ -260,22 +260,22 @@ void    vsmtpd_chat_reply(SMTPD_STATE *state, const char *format, va_list ap)
      * delays (tarpit delays or DNS lookups for UCE restrictions).
      */
     if (delay || time((time_t *) 0) - vstream_ftime(state->client) > 10)
-	vstream_fflush(state->client);
+    vstream_fflush(state->client);
 
     /*
      * Abort immediately if the connection is broken.
      */
     if (vstream_ftimeout(state->client))
-	vstream_longjmp(state->client, SMTP_ERR_TIME);
+    vstream_longjmp(state->client, SMTP_ERR_TIME);
     if (vstream_ferror(state->client))
-	vstream_longjmp(state->client, SMTP_ERR_EOF);
+    vstream_longjmp(state->client, SMTP_ERR_EOF);
 
     /*
      * Orderly disconnect in case of 421 or 521 reply.
      */
     if (strncmp(STR(state->buffer), "421", 3) == 0
-	|| strncmp(STR(state->buffer), "521", 3) == 0)
-	state->flags |= SMTPD_FLAG_HANGUP;
+    || strncmp(STR(state->buffer), "521", 3) == 0)
+    state->flags |= SMTPD_FLAG_HANGUP;
 }
 
 /* print_line - line_wrap callback */
@@ -299,9 +299,9 @@ void    smtpd_chat_notify(SMTPD_STATE *state)
      * Sanity checks.
      */
     if (state->history == 0)
-	msg_panic("%s: no conversation history", myname);
+    msg_panic("%s: no conversation history", myname);
     if (msg_verbose)
-	msg_info("%s: notify postmaster", myname);
+    msg_info("%s: notify postmaster", myname);
 
     /*
      * Construct a message for the postmaster, explaining what this is all
@@ -310,35 +310,35 @@ void    smtpd_chat_notify(SMTPD_STATE *state)
      * mail bounce wars. Always prepend one space to message content that we
      * generate from untrusted data.
      */
-#define NULL_TRACE_FLAGS	0
-#define NO_QUEUE_ID		((VSTRING *) 0)
-#define LENGTH	78
-#define INDENT	4
+#define NULL_TRACE_FLAGS    0
+#define NO_QUEUE_ID        ((VSTRING *) 0)
+#define LENGTH    78
+#define INDENT    4
 
     notice = post_mail_fopen_nowait(mail_addr_double_bounce(),
-				    (state->error_mask & MAIL_ERROR_BOUNCE) ?
-				    var_bounce_rcpt : var_error_rcpt,
-				    MAIL_SRC_MASK_NOTIFY, NULL_TRACE_FLAGS,
-				    SMTPUTF8_FLAG_NONE, NO_QUEUE_ID);
+                    (state->error_mask & MAIL_ERROR_BOUNCE) ?
+                    var_bounce_rcpt : var_error_rcpt,
+                    MAIL_SRC_MASK_NOTIFY, NULL_TRACE_FLAGS,
+                    SMTPUTF8_FLAG_NONE, NO_QUEUE_ID);
     if (notice == 0) {
-	msg_warn("postmaster notify: %m");
-	return;
+    msg_warn("postmaster notify: %m");
+    return;
     }
     post_mail_fprintf(notice, "From: %s (Mail Delivery System)",
-		      mail_addr_mail_daemon());
+              mail_addr_mail_daemon());
     post_mail_fprintf(notice, "To: %s (Postmaster)", var_error_rcpt);
     post_mail_fprintf(notice, "Subject: %s SMTP server: errors from %s",
-		      var_mail_name, state->namaddr);
+              var_mail_name, state->namaddr);
     post_mail_fputs(notice, "");
     post_mail_fputs(notice, "Transcript of session follows.");
     post_mail_fputs(notice, "");
     argv_terminate(state->history);
     for (cpp = state->history->argv; *cpp; cpp++)
-	line_wrap(printable(*cpp, '?'), LENGTH, INDENT, print_line,
-		  (void *) notice);
+    line_wrap(printable(*cpp, '?'), LENGTH, INDENT, print_line,
+          (void *) notice);
     post_mail_fputs(notice, "");
     if (state->reason)
-	post_mail_fprintf(notice, "Session aborted, reason: %s", state->reason);
+    post_mail_fprintf(notice, "Session aborted, reason: %s", state->reason);
     post_mail_fputs(notice, "");
     post_mail_fprintf(notice, "For other details, see the local mail logfile");
     (void) post_mail_fclose(notice);

@@ -1,28 +1,28 @@
 /*++
 /* NAME
-/*	mkmap_fail 3
+/*    mkmap_fail 3
 /* SUMMARY
-/*	create or open database, fail: style
+/*    create or open database, fail: style
 /* SYNOPSIS
-/*	#include <mkmap.h>
+/*    #include <mkmap.h>
 /*
-/*	MKMAP	*mkmap_fail_open(path)
-/*	const char *path;
+/*    MKMAP    *mkmap_fail_open(path)
+/*    const char *path;
 /*
 /* DESCRIPTION
-/*	This module implements support for error testing postmap
-/*	and postalias with the fail: table type.
+/*    This module implements support for error testing postmap
+/*    and postalias with the fail: table type.
 /* SEE ALSO
-/*	dict_fail(3), fail dictionary interface.
+/*    dict_fail(3), fail dictionary interface.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */

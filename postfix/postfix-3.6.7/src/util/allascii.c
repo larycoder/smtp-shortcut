@@ -1,39 +1,39 @@
 /*++
 /* NAME
-/*	allascii 3
+/*    allascii 3
 /* SUMMARY
-/*	predicate if string is all ASCII
+/*    predicate if string is all ASCII
 /* SYNOPSIS
-/*	#include <stringops.h>
+/*    #include <stringops.h>
 /*
-/*	int	allascii(buffer)
-/*	const char *buffer;
+/*    int    allascii(buffer)
+/*    const char *buffer;
 /*
-/*	int	allascii_len(buffer, len)
-/*	const char *buffer;
-/*	ssize_t	len;
+/*    int    allascii_len(buffer, len)
+/*    const char *buffer;
+/*    ssize_t    len;
 /* DESCRIPTION
-/*	allascii() determines if its argument is an all-ASCII string.
+/*    allascii() determines if its argument is an all-ASCII string.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP buffer
-/*	The null-terminated input string.
+/*    The null-terminated input string.
 /* .IP len
-/*	The string length, -1 to determine the length dynamically.
+/*    The string length, -1 to determine the length dynamically.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -54,12 +54,12 @@ int     allascii_len(const char *string, ssize_t len)
     int     ch;
 
     if (len < 0)
-	len = strlen(string);
+    len = strlen(string);
     if (len == 0)
-	return (0);
+    return (0);
     for (cp = string; cp < string + len
-	 && (ch = *(unsigned char *) cp) != 0; cp++)
-	if (!ISASCII(ch))
-	    return (0);
+     && (ch = *(unsigned char *) cp) != 0; cp++)
+    if (!ISASCII(ch))
+        return (0);
     return (1);
 }

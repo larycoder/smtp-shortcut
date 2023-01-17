@@ -1,57 +1,57 @@
 /*++
 /* NAME
-/*	xsasl_cyrus_server 3
+/*    xsasl_cyrus_server 3
 /* SUMMARY
-/*	Cyrus SASL server-side plug-in
+/*    Cyrus SASL server-side plug-in
 /* SYNOPSIS
-/*	#include <xsasl_cyrus_server.h>
+/*    #include <xsasl_cyrus_server.h>
 /*
-/*	XSASL_SERVER_IMPL *xsasl_cyrus_server_init(server_type, path_info)
-/*	const char *server_type;
-/*	const char *path_info;
+/*    XSASL_SERVER_IMPL *xsasl_cyrus_server_init(server_type, path_info)
+/*    const char *server_type;
+/*    const char *path_info;
 /* DESCRIPTION
-/*	This module implements the Cyrus SASL server-side authentication
-/*	plug-in.
+/*    This module implements the Cyrus SASL server-side authentication
+/*    plug-in.
 /*
-/*	xsasl_cyrus_server_init() initializes the Cyrus SASL library and
-/*	returns an implementation handle that can be used to generate
-/*	SASL server instances.
+/*    xsasl_cyrus_server_init() initializes the Cyrus SASL library and
+/*    returns an implementation handle that can be used to generate
+/*    SASL server instances.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP server_type
-/*	The server type (cyrus). This argument is ignored, but it
-/*	could be used when one implementation provides multiple
-/*	variants.
+/*    The server type (cyrus). This argument is ignored, but it
+/*    could be used when one implementation provides multiple
+/*    variants.
 /* .IP path_info
-/*	The base name of the SASL server configuration file (example:
-/*	smtpd becomes /usr/lib/sasl2/smtpd.conf).
+/*    The base name of the SASL server configuration file (example:
+/*    smtpd becomes /usr/lib/sasl2/smtpd.conf).
 /* DIAGNOSTICS
-/*	Fatal: out of memory.
+/*    Fatal: out of memory.
 /*
-/*	Panic: interface violation.
+/*    Panic: interface violation.
 /*
-/*	Other: the routines log a warning and return an error result
-/*	as specified in xsasl_server(3).
+/*    Other: the routines log a warning and return an error result
+/*    as specified in xsasl_server(3).
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Initial implementation by:
-/*	Till Franke
-/*	SuSE Rhein/Main AG
-/*	65760 Eschborn, Germany
+/*    Initial implementation by:
+/*    Till Franke
+/*    SuSE Rhein/Main AG
+/*    65760 Eschborn, Germany
 /*
-/*	Adopted by:
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Adopted by:
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -86,7 +86,7 @@
 /*
  * Silly little macros.
  */
-#define STR(s)	vstring_str(s)
+#define STR(s)    vstring_str(s)
 
  /*
   * Macros to handle API differences between SASLv1 and SASLv2. Specifics:
@@ -111,13 +111,13 @@
 #if SASL_VERSION_MAJOR < 2
 /* SASL version 1.x */
 #define SASL_SERVER_NEW(srv, fqdn, rlm, lport, rport, cb, secflags, pconn) \
-	sasl_server_new(srv, fqdn, rlm, cb, secflags, pconn)
+    sasl_server_new(srv, fqdn, rlm, cb, secflags, pconn)
 #define SASL_SERVER_START(conn, mech, clin, clinlen, srvout, srvoutlen, err) \
-	sasl_server_start(conn, mech, clin, clinlen, srvout, srvoutlen, err)
+    sasl_server_start(conn, mech, clin, clinlen, srvout, srvoutlen, err)
 #define SASL_SERVER_STEP(conn, clin, clinlen, srvout, srvoutlen, err) \
-	sasl_server_step(conn, clin, clinlen, srvout, srvoutlen, err)
+    sasl_server_step(conn, clin, clinlen, srvout, srvoutlen, err)
 #define SASL_DECODE64(in, inlen, out, outmaxlen, outlen) \
-	sasl_decode64(in, inlen, out, outlen)
+    sasl_decode64(in, inlen, out, outlen)
 typedef char *MECHANISM_TYPE;
 typedef unsigned MECHANISM_COUNT_TYPE;
 typedef char *SERVEROUT_TYPE;
@@ -128,13 +128,13 @@ typedef void *VOID_SERVEROUT_TYPE;
 #if SASL_VERSION_MAJOR >= 2
 /* SASL version > 2.x */
 #define SASL_SERVER_NEW(srv, fqdn, rlm, lport, rport, cb, secflags, pconn) \
-	sasl_server_new(srv, fqdn, rlm, lport, rport, cb, secflags, pconn)
+    sasl_server_new(srv, fqdn, rlm, lport, rport, cb, secflags, pconn)
 #define SASL_SERVER_START(conn, mech, clin, clinlen, srvout, srvoutlen, err) \
-	sasl_server_start(conn, mech, clin, clinlen, srvout, srvoutlen)
+    sasl_server_start(conn, mech, clin, clinlen, srvout, srvoutlen)
 #define SASL_SERVER_STEP(conn, clin, clinlen, srvout, srvoutlen, err) \
-	sasl_server_step(conn, clin, clinlen, srvout, srvoutlen)
+    sasl_server_step(conn, clin, clinlen, srvout, srvoutlen)
 #define SASL_DECODE64(in, inlen, out, outmaxlen, outlen) \
-	sasl_decode64(in, inlen, out, outmaxlen, outlen)
+    sasl_decode64(in, inlen, out, outmaxlen, outlen)
 typedef const char *MECHANISM_TYPE;
 typedef int MECHANISM_COUNT_TYPE;
 typedef const char *SERVEROUT_TYPE;
@@ -151,12 +151,12 @@ typedef const void *VOID_SERVEROUT_TYPE;
   * object.
   */
 typedef struct {
-    XSASL_SERVER xsasl;			/* generic members, must be first */
-    VSTREAM *stream;			/* client-server connection */
-    sasl_conn_t *sasl_conn;		/* SASL context */
-    VSTRING *decoded;			/* decoded challenge or response */
-    char   *username;			/* authenticated user */
-    char   *mechanism_list;		/* applicable mechanisms */
+    XSASL_SERVER xsasl;            /* generic members, must be first */
+    VSTREAM *stream;            /* client-server connection */
+    sasl_conn_t *sasl_conn;        /* SASL context */
+    VSTRING *decoded;            /* decoded challenge or response */
+    char   *username;            /* authenticated user */
+    char   *mechanism_list;        /* applicable mechanisms */
 } XSASL_CYRUS_SERVER;
 
  /*
@@ -164,10 +164,10 @@ typedef struct {
   */
 static void xsasl_cyrus_server_done(XSASL_SERVER_IMPL *);
 static XSASL_SERVER *xsasl_cyrus_server_create(XSASL_SERVER_IMPL *,
-					        XSASL_SERVER_CREATE_ARGS *);
+                            XSASL_SERVER_CREATE_ARGS *);
 static void xsasl_cyrus_server_free(XSASL_SERVER *);
 static int xsasl_cyrus_server_first(XSASL_SERVER *, const char *,
-				            const char *, VSTRING *);
+                            const char *, VSTRING *);
 static int xsasl_cyrus_server_next(XSASL_SERVER *, const char *, VSTRING *);
 static int xsasl_cyrus_server_set_security(XSASL_SERVER *, const char *);
 static const char *xsasl_cyrus_server_get_mechanism_list(XSASL_SERVER *);
@@ -177,7 +177,7 @@ static const char *xsasl_cyrus_server_get_username(XSASL_SERVER *);
   * SASL callback interface structure. These call-backs have no per-session
   * context.
   */
-#define NO_CALLBACK_CONTEXT	0
+#define NO_CALLBACK_CONTEXT    0
 
 static sasl_callback_t callbacks[] = {
     {SASL_CB_LOG, (XSASL_CYRUS_CB) &xsasl_cyrus_log, NO_CALLBACK_CONTEXT},
@@ -187,7 +187,7 @@ static sasl_callback_t callbacks[] = {
 /* xsasl_cyrus_server_init - create implementation handle */
 
 XSASL_SERVER_IMPL *xsasl_cyrus_server_init(const char *unused_server_type,
-					           const char *path_info)
+                               const char *path_info)
 {
     const char *myname = "xsasl_cyrus_server_init";
     XSASL_SERVER_IMPL *xp;
@@ -203,34 +203,34 @@ XSASL_SERVER_IMPL *xsasl_cyrus_server_init(const char *unused_server_type,
      * DLL hell guard.
      */
     sasl_version_info((const char **) 0, (const char **) 0,
-		      &sasl_major, &sasl_minor,
-		      &sasl_step, (int *) 0);
+              &sasl_major, &sasl_minor,
+              &sasl_step, (int *) 0);
     if (sasl_major != SASL_VERSION_MAJOR
 #if 0
-	|| sasl_minor != SASL_VERSION_MINOR
-	|| sasl_step != SASL_VERSION_STEP
+    || sasl_minor != SASL_VERSION_MINOR
+    || sasl_step != SASL_VERSION_STEP
 #endif
-	) {
-	msg_warn("incorrect SASL library version. "
-	      "Postfix was built with include files from version %d.%d.%d, "
-		 "but the run-time library version is %d.%d.%d",
-		 SASL_VERSION_MAJOR, SASL_VERSION_MINOR, SASL_VERSION_STEP,
-		 sasl_major, sasl_minor, sasl_step);
-	return (0);
+    ) {
+    msg_warn("incorrect SASL library version. "
+          "Postfix was built with include files from version %d.%d.%d, "
+         "but the run-time library version is %d.%d.%d",
+         SASL_VERSION_MAJOR, SASL_VERSION_MINOR, SASL_VERSION_STEP,
+         sasl_major, sasl_minor, sasl_step);
+    return (0);
     }
 #endif
 
     if (*var_cyrus_conf_path) {
-#ifdef SASL_PATH_TYPE_CONFIG			/* Cyrus SASL 2.1.22 */
-	if (sasl_set_path(SASL_PATH_TYPE_CONFIG,
-			  var_cyrus_conf_path) != SASL_OK)
-	    msg_warn("failed to set Cyrus SASL configuration path: \"%s\"",
-		     var_cyrus_conf_path);
+#ifdef SASL_PATH_TYPE_CONFIG            /* Cyrus SASL 2.1.22 */
+    if (sasl_set_path(SASL_PATH_TYPE_CONFIG,
+              var_cyrus_conf_path) != SASL_OK)
+        msg_warn("failed to set Cyrus SASL configuration path: \"%s\"",
+             var_cyrus_conf_path);
 #else
-	msg_warn("%s is not empty, but setting the Cyrus SASL configuration "
-		 "path is not supported with SASL library version %d.%d.%d",
-		 VAR_CYRUS_CONF_PATH, SASL_VERSION_MAJOR,
-		 SASL_VERSION_MINOR, SASL_VERSION_STEP);
+    msg_warn("%s is not empty, but setting the Cyrus SASL configuration "
+         "path is not supported with SASL library version %d.%d.%d",
+         VAR_CYRUS_CONF_PATH, SASL_VERSION_MAJOR,
+         SASL_VERSION_MINOR, SASL_VERSION_STEP);
 #endif
     }
 
@@ -238,11 +238,11 @@ XSASL_SERVER_IMPL *xsasl_cyrus_server_init(const char *unused_server_type,
      * Initialize the library: load SASL plug-in routines, etc.
      */
     if (msg_verbose)
-	msg_info("%s: SASL config file is %s.conf", myname, path_info);
+    msg_info("%s: SASL config file is %s.conf", myname, path_info);
     if ((sasl_status = sasl_server_init(callbacks, path_info)) != SASL_OK) {
-	msg_warn("SASL per-process initialization failed: %s",
-		 xsasl_cyrus_strerror(sasl_status));
-	return (0);
+    msg_warn("SASL per-process initialization failed: %s",
+         xsasl_cyrus_strerror(sasl_status));
+    return (0);
     }
 
     /*
@@ -266,7 +266,7 @@ static void xsasl_cyrus_server_done(XSASL_SERVER_IMPL *impl)
 /* xsasl_cyrus_server_create - create server instance */
 
 static XSASL_SERVER *xsasl_cyrus_server_create(XSASL_SERVER_IMPL *unused_impl,
-				             XSASL_SERVER_CREATE_ARGS *args)
+                             XSASL_SERVER_CREATE_ARGS *args)
 {
     const char *myname = "xsasl_cyrus_server_create";
     char   *server_addr_port = 0;
@@ -276,39 +276,39 @@ static XSASL_SERVER *xsasl_cyrus_server_create(XSASL_SERVER_IMPL *unused_impl,
     int     sasl_status;
 
     if (msg_verbose)
-	msg_info("%s: SASL service=%s, realm=%s",
-		 myname, args->service, args->user_realm ?
-		 args->user_realm : "(null)");
+    msg_info("%s: SASL service=%s, realm=%s",
+         myname, args->service, args->user_realm ?
+         args->user_realm : "(null)");
 
     /*
      * The optimizer will eliminate code duplication and/or dead code.
      */
 #define XSASL_CYRUS_SERVER_CREATE_ERROR_RETURN(x) \
     do { \
-	if (server) { \
-	    xsasl_cyrus_server_free(&server->xsasl); \
-	} else { \
-	    if (sasl_conn) \
-		sasl_dispose(&sasl_conn); \
-	} \
-	XSASL_CYRUS_SERVER_CREATE_RETURN(x); \
+    if (server) { \
+        xsasl_cyrus_server_free(&server->xsasl); \
+    } else { \
+        if (sasl_conn) \
+        sasl_dispose(&sasl_conn); \
+    } \
+    XSASL_CYRUS_SERVER_CREATE_RETURN(x); \
     } while (0)
 
 #define XSASL_CYRUS_SERVER_CREATE_RETURN(x) \
     do { \
-	if (server_addr_port) \
-	    myfree(server_addr_port); \
-	if (client_addr_port) \
-	    myfree(client_addr_port); \
-	return (x); \
+    if (server_addr_port) \
+        myfree(server_addr_port); \
+    if (client_addr_port) \
+        myfree(client_addr_port); \
+    return (x); \
     } while (0)
 
     /*
      * Set up a new server context.
      */
-#define NO_SECURITY_LAYERS	(0)
-#define NO_SESSION_CALLBACKS	((sasl_callback_t *) 0)
-#define NO_AUTH_REALM		((char *) 0)
+#define NO_SECURITY_LAYERS    (0)
+#define NO_SESSION_CALLBACKS    ((sasl_callback_t *) 0)
+#define NO_AUTH_REALM        ((char *) 0)
 
 #if SASL_VERSION_MAJOR >= 2 && defined(USE_IP_CYRUS_SASL_AUTH)
 
@@ -319,11 +319,11 @@ static XSASL_SERVER *xsasl_cyrus_server_create(XSASL_SERVER_IMPL *unused_impl,
      * historical "address;port" syntax, so we stick with that for now.
      */
     server_addr_port = (*args->server_addr && *args->server_port ?
-			concatenate(args->server_addr, ";",
-				    args->server_port, (char *) 0) : 0);
+            concatenate(args->server_addr, ";",
+                    args->server_port, (char *) 0) : 0);
     client_addr_port = (*args->client_addr && *args->client_port ?
-			concatenate(args->client_addr, ";",
-				    args->client_port, (char *) 0) : 0);
+            concatenate(args->client_addr, ";",
+                    args->client_port, (char *) 0) : 0);
 #else
 
     /*
@@ -332,14 +332,14 @@ static XSASL_SERVER *xsasl_cyrus_server_create(XSASL_SERVER_IMPL *unused_impl,
 #endif
 
     if ((sasl_status =
-	 SASL_SERVER_NEW(args->service, var_myhostname,
-			 args->user_realm ? args->user_realm : NO_AUTH_REALM,
-			 server_addr_port, client_addr_port,
-			 NO_SESSION_CALLBACKS, NO_SECURITY_LAYERS,
-			 &sasl_conn)) != SASL_OK) {
-	msg_warn("SASL per-connection server initialization: %s",
-		 xsasl_cyrus_strerror(sasl_status));
-	XSASL_CYRUS_SERVER_CREATE_ERROR_RETURN(0);
+     SASL_SERVER_NEW(args->service, var_myhostname,
+             args->user_realm ? args->user_realm : NO_AUTH_REALM,
+             server_addr_port, client_addr_port,
+             NO_SESSION_CALLBACKS, NO_SECURITY_LAYERS,
+             &sasl_conn)) != SASL_OK) {
+    msg_warn("SASL per-connection server initialization: %s",
+         xsasl_cyrus_strerror(sasl_status));
+    XSASL_CYRUS_SERVER_CREATE_ERROR_RETURN(0);
     }
 
     /*
@@ -360,8 +360,8 @@ static XSASL_SERVER *xsasl_cyrus_server_create(XSASL_SERVER_IMPL *unused_impl,
     server->mechanism_list = 0;
 
     if (xsasl_cyrus_server_set_security(&server->xsasl, args->security_options)
-	!= XSASL_AUTH_OK)
-	XSASL_CYRUS_SERVER_CREATE_ERROR_RETURN(0);
+    != XSASL_AUTH_OK)
+    XSASL_CYRUS_SERVER_CREATE_ERROR_RETURN(0);
 
     XSASL_CYRUS_SERVER_CREATE_RETURN(&server->xsasl);
 }
@@ -369,7 +369,7 @@ static XSASL_SERVER *xsasl_cyrus_server_create(XSASL_SERVER_IMPL *unused_impl,
 /* xsasl_cyrus_server_set_security - set security properties */
 
 static int xsasl_cyrus_server_set_security(XSASL_SERVER *xp,
-					           const char *sasl_opts_val)
+                               const char *sasl_opts_val)
 {
     XSASL_CYRUS_SERVER *server = (XSASL_CYRUS_SERVER *) xp;
     sasl_security_properties_t sec_props;
@@ -381,27 +381,27 @@ static int xsasl_cyrus_server_set_security(XSASL_SERVER *xp,
      */
     memset(&sec_props, 0, sizeof(sec_props));
     sec_props.min_ssf = 0;
-    sec_props.max_ssf = 0;			/* don't allow real SASL
-						 * security layer */
+    sec_props.max_ssf = 0;            /* don't allow real SASL
+                         * security layer */
     if (*sasl_opts_val == 0) {
-	sec_props.security_flags = 0;
+    sec_props.security_flags = 0;
     } else {
-	sec_props.security_flags =
-	    xsasl_cyrus_security_parse_opts(sasl_opts_val);
-	if (sec_props.security_flags == 0) {
-	    msg_warn("bad per-session SASL security properties");
-	    return (XSASL_AUTH_FAIL);
-	}
+    sec_props.security_flags =
+        xsasl_cyrus_security_parse_opts(sasl_opts_val);
+    if (sec_props.security_flags == 0) {
+        msg_warn("bad per-session SASL security properties");
+        return (XSASL_AUTH_FAIL);
+    }
     }
     sec_props.maxbufsize = 0;
     sec_props.property_names = 0;
     sec_props.property_values = 0;
 
     if ((sasl_status = sasl_setprop(server->sasl_conn, SASL_SEC_PROPS,
-				    &sec_props)) != SASL_OK) {
-	msg_warn("SASL per-connection security setup; %s",
-		 xsasl_cyrus_strerror(sasl_status));
-	return (XSASL_AUTH_FAIL);
+                    &sec_props)) != SASL_OK) {
+    msg_warn("SASL per-connection security setup; %s",
+         xsasl_cyrus_strerror(sasl_status));
+    return (XSASL_AUTH_FAIL);
     }
     return (XSASL_AUTH_OK);
 }
@@ -419,20 +419,20 @@ static const char *xsasl_cyrus_server_get_mechanism_list(XSASL_SERVER *xp)
     /*
      * Get the list of authentication mechanisms.
      */
-#define UNSUPPORTED_USER	((char *) 0)
-#define IGNORE_MECHANISM_LEN	((unsigned *) 0)
+#define UNSUPPORTED_USER    ((char *) 0)
+#define IGNORE_MECHANISM_LEN    ((unsigned *) 0)
 
     if ((sasl_status = sasl_listmech(server->sasl_conn, UNSUPPORTED_USER,
-				     "", " ", "",
-				     &mechanism_list,
-				     IGNORE_MECHANISM_LEN,
-				     &mechanism_count)) != SASL_OK) {
-	msg_warn("%s: %s", myname, xsasl_cyrus_strerror(sasl_status));
-	return (0);
+                     "", " ", "",
+                     &mechanism_list,
+                     IGNORE_MECHANISM_LEN,
+                     &mechanism_count)) != SASL_OK) {
+    msg_warn("%s: %s", myname, xsasl_cyrus_strerror(sasl_status));
+    return (0);
     }
     if (mechanism_count <= 0) {
-	msg_warn("%s: no applicable SASL mechanisms", myname);
-	return (0);
+    msg_warn("%s: no applicable SASL mechanisms", myname);
+    return (0);
     }
     server->mechanism_list = mystrdup(mechanism_list);
 #if SASL_VERSION_MAJOR < 2
@@ -451,18 +451,18 @@ static void xsasl_cyrus_server_free(XSASL_SERVER *xp)
     sasl_dispose(&server->sasl_conn);
     vstring_free(server->decoded);
     if (server->username)
-	myfree(server->username);
+    myfree(server->username);
     if (server->mechanism_list)
-	myfree(server->mechanism_list);
+    myfree(server->mechanism_list);
     myfree((void *) server);
 }
 
 /* xsasl_cyrus_server_auth_response - encode server first/next response */
 
 static int xsasl_cyrus_server_auth_response(int sasl_status,
-					            SERVEROUT_TYPE serverout,
-					            unsigned serveroutlen,
-					            VSTRING *reply)
+                                SERVEROUT_TYPE serverout,
+                                unsigned serveroutlen,
+                                VSTRING *reply)
 {
     const char *myname = "xsasl_cyrus_server_auth_response";
     unsigned enc_length;
@@ -478,41 +478,41 @@ static int xsasl_cyrus_server_auth_response(int sasl_status,
      * terminator.
      */
     if (sasl_status == SASL_OK) {
-	vstring_strcpy(reply, "");
-	return (XSASL_AUTH_DONE);
+    vstring_strcpy(reply, "");
+    return (XSASL_AUTH_DONE);
     } else if (sasl_status == SASL_CONTINUE) {
-	if (msg_verbose)
-	    msg_info("%s: uncoded server challenge: %.*s",
-		     myname, (int) serveroutlen, serverout);
-	enc_length = ((serveroutlen + 2) / 3) * 4 + 1;
-	VSTRING_RESET(reply);			/* Fix 200512 */
-	VSTRING_SPACE(reply, enc_length);
-	if ((sasl_status = sasl_encode64(serverout, serveroutlen,
-					 STR(reply), vstring_avail(reply),
-					 &enc_length_out)) != SASL_OK)
-	    msg_panic("%s: sasl_encode64 botch: %s",
-		      myname, xsasl_cyrus_strerror(sasl_status));
-	return (XSASL_AUTH_MORE);
+    if (msg_verbose)
+        msg_info("%s: uncoded server challenge: %.*s",
+             myname, (int) serveroutlen, serverout);
+    enc_length = ((serveroutlen + 2) / 3) * 4 + 1;
+    VSTRING_RESET(reply);            /* Fix 200512 */
+    VSTRING_SPACE(reply, enc_length);
+    if ((sasl_status = sasl_encode64(serverout, serveroutlen,
+                     STR(reply), vstring_avail(reply),
+                     &enc_length_out)) != SASL_OK)
+        msg_panic("%s: sasl_encode64 botch: %s",
+              myname, xsasl_cyrus_strerror(sasl_status));
+    return (XSASL_AUTH_MORE);
     } else {
-	if (sasl_status == SASL_NOUSER)		/* privacy */
-	    sasl_status = SASL_BADAUTH;
-	vstring_strcpy(reply, xsasl_cyrus_strerror(sasl_status));
-	switch (sasl_status) {
-	case SASL_FAIL:
-	case SASL_NOMEM:
-	case SASL_TRYAGAIN:
-	case SASL_UNAVAIL:
-	    return XSASL_AUTH_TEMP;
-	default:
-	    return (XSASL_AUTH_FAIL);
-	}
+    if (sasl_status == SASL_NOUSER)        /* privacy */
+        sasl_status = SASL_BADAUTH;
+    vstring_strcpy(reply, xsasl_cyrus_strerror(sasl_status));
+    switch (sasl_status) {
+    case SASL_FAIL:
+    case SASL_NOMEM:
+    case SASL_TRYAGAIN:
+    case SASL_UNAVAIL:
+        return XSASL_AUTH_TEMP;
+    default:
+        return (XSASL_AUTH_FAIL);
+    }
     }
 }
 
 /* xsasl_cyrus_server_first - per-session authentication */
 
 int     xsasl_cyrus_server_first(XSASL_SERVER *xp, const char *sasl_method,
-			          const char *init_response, VSTRING *reply)
+                      const char *init_response, VSTRING *reply)
 {
     const char *myname = "xsasl_cyrus_server_first";
     XSASL_CYRUS_SERVER *server = (XSASL_CYRUS_SERVER *) xp;
@@ -532,36 +532,36 @@ int     xsasl_cyrus_server_first(XSASL_SERVER *xp, const char *sasl_method,
 #define IFELSE(e1,e2,e3) ((e1) ? (e2) : (e3))
 
     if (msg_verbose)
-	msg_info("%s: sasl_method %s%s%s", myname, sasl_method,
-		 IFELSE(init_response, ", init_response ", ""),
-		 IFELSE(init_response, init_response, ""));
+    msg_info("%s: sasl_method %s%s%s", myname, sasl_method,
+         IFELSE(init_response, ", init_response ", ""),
+         IFELSE(init_response, init_response, ""));
 
     /*
      * SASL authentication protocol start-up. Process any initial client
      * response that was sent along in the AUTH command.
      */
     if (init_response) {
-	reply_len = strlen(init_response);
-	VSTRING_RESET(server->decoded);		/* Fix 200512 */
-	VSTRING_SPACE(server->decoded, reply_len);
-	if ((sasl_status = SASL_DECODE64(init_response, reply_len,
-					 dec_buffer = STR(server->decoded),
-					 vstring_avail(server->decoded),
-					 &dec_length)) != SASL_OK) {
-	    vstring_strcpy(reply, xsasl_cyrus_strerror(sasl_status));
-	    return (XSASL_AUTH_FORM);
-	}
-	if (msg_verbose)
-	    msg_info("%s: decoded initial response %s", myname, dec_buffer);
+    reply_len = strlen(init_response);
+    VSTRING_RESET(server->decoded);        /* Fix 200512 */
+    VSTRING_SPACE(server->decoded, reply_len);
+    if ((sasl_status = SASL_DECODE64(init_response, reply_len,
+                     dec_buffer = STR(server->decoded),
+                     vstring_avail(server->decoded),
+                     &dec_length)) != SASL_OK) {
+        vstring_strcpy(reply, xsasl_cyrus_strerror(sasl_status));
+        return (XSASL_AUTH_FORM);
+    }
+    if (msg_verbose)
+        msg_info("%s: decoded initial response %s", myname, dec_buffer);
     } else {
-	dec_buffer = 0;
-	dec_length = 0;
+    dec_buffer = 0;
+    dec_length = 0;
     }
     sasl_status = SASL_SERVER_START(server->sasl_conn, sasl_method, dec_buffer,
-				    dec_length, &serverout,
-				    &serveroutlen, &errstr);
+                    dec_length, &serverout,
+                    &serveroutlen, &errstr);
     xsasl_status = xsasl_cyrus_server_auth_response(sasl_status, serverout,
-						    serveroutlen, reply);
+                            serveroutlen, reply);
 #if SASL_VERSION_MAJOR < 2
     /* SASL version 1 doesn't free memory that it allocates. */
     free(serverout);
@@ -572,7 +572,7 @@ int     xsasl_cyrus_server_first(XSASL_SERVER *xp, const char *sasl_method,
 /* xsasl_cyrus_server_next - continue authentication */
 
 static int xsasl_cyrus_server_next(XSASL_SERVER *xp, const char *request,
-				           VSTRING *reply)
+                           VSTRING *reply)
 {
     const char *myname = "xsasl_cyrus_server_next";
     XSASL_CYRUS_SERVER *server = (XSASL_CYRUS_SERVER *) xp;
@@ -589,23 +589,23 @@ static int xsasl_cyrus_server_next(XSASL_SERVER *xp, const char *request,
 #endif
 
     request_len = strlen(request);
-    VSTRING_RESET(server->decoded);		/* Fix 200512 */
+    VSTRING_RESET(server->decoded);        /* Fix 200512 */
     VSTRING_SPACE(server->decoded, request_len);
     if ((sasl_status = SASL_DECODE64(request, request_len,
-				     STR(server->decoded),
-				     vstring_avail(server->decoded),
-				     &dec_length)) != SASL_OK) {
-	vstring_strcpy(reply, xsasl_cyrus_strerror(sasl_status));
-	return (XSASL_AUTH_FORM);
+                     STR(server->decoded),
+                     vstring_avail(server->decoded),
+                     &dec_length)) != SASL_OK) {
+    vstring_strcpy(reply, xsasl_cyrus_strerror(sasl_status));
+    return (XSASL_AUTH_FORM);
     }
     if (msg_verbose)
-	msg_info("%s: decoded response: %.*s",
-		 myname, (int) dec_length, STR(server->decoded));
+    msg_info("%s: decoded response: %.*s",
+         myname, (int) dec_length, STR(server->decoded));
     sasl_status = SASL_SERVER_STEP(server->sasl_conn, STR(server->decoded),
-				   dec_length, &serverout,
-				   &serveroutlen, &errstr);
+                   dec_length, &serverout,
+                   &serveroutlen, &errstr);
     xsasl_status = xsasl_cyrus_server_auth_response(sasl_status, serverout,
-						    serveroutlen, reply);
+                            serveroutlen, reply);
 #if SASL_VERSION_MAJOR < 2
     /* SASL version 1 doesn't free memory that it allocates. */
     free(serverout);
@@ -627,12 +627,12 @@ static const char *xsasl_cyrus_server_get_username(XSASL_SERVER *xp)
      */
     sasl_status = sasl_getprop(server->sasl_conn, SASL_USERNAME, &serverout);
     if (sasl_status != SASL_OK || serverout == 0) {
-	msg_warn("%s: sasl_getprop SASL_USERNAME botch: %s",
-		 myname, xsasl_cyrus_strerror(sasl_status));
-	return (0);
+    msg_warn("%s: sasl_getprop SASL_USERNAME botch: %s",
+         myname, xsasl_cyrus_strerror(sasl_status));
+    return (0);
     }
     if (server->username)
-	myfree(server->username);
+    myfree(server->username);
     server->username = mystrdup(serverout);
     printable(server->username, '?');
     return (server->username);

@@ -1,38 +1,38 @@
 /*++
 /* NAME
-/*	alldig 3
+/*    alldig 3
 /* SUMMARY
-/*	predicate if string is all numerical
+/*    predicate if string is all numerical
 /* SYNOPSIS
-/*	#include <stringops.h>
+/*    #include <stringops.h>
 /*
-/*	int	alldig(string)
-/*	const char *string;
+/*    int    alldig(string)
+/*    const char *string;
 /*
-/*	int	allalnum(string)
-/*	const char *string;
+/*    int    allalnum(string)
+/*    const char *string;
 /* DESCRIPTION
-/*	alldig() determines if its argument is an all-numerical string.
+/*    alldig() determines if its argument is an all-numerical string.
 /*
-/*	allalnum() determines if its argument is an all-alphanumerical
-/*	string.
+/*    allalnum() determines if its argument is an all-alphanumerical
+/*    string.
 /* SEE ALSO
-/*	An alldig() routine appears in Brian W. Kernighan, P.J. Plauger:
-/*	"Software Tools", Addison-Wesley 1976.
+/*    An alldig() routine appears in Brian W. Kernighan, P.J. Plauger:
+/*    "Software Tools", Addison-Wesley 1976.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -51,10 +51,10 @@ int     alldig(const char *string)
     const char *cp;
 
     if (*string == 0)
-	return (0);
+    return (0);
     for (cp = string; *cp != 0; cp++)
-	if (!ISDIGIT(*cp))
-	    return (0);
+    if (!ISDIGIT(*cp))
+        return (0);
     return (1);
 }
 

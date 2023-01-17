@@ -1,35 +1,35 @@
 /*++
 /* NAME
-/*	warn_stat 3
+/*    warn_stat 3
 /* SUMMARY
-/*	baby-sit stat() error returns
+/*    baby-sit stat() error returns
 /* SYNOPSIS
-/*	#include <warn_stat.h>
+/*    #include <warn_stat.h>
 /*
-/*	int     warn_stat(path, st)
-/*	const char *path;
-/*	struct stat *st;
+/*    int     warn_stat(path, st)
+/*    const char *path;
+/*    struct stat *st;
 /*
-/*	int     warn_lstat(path, st)
-/*	const char *path;
-/*	struct stat *st;
+/*    int     warn_lstat(path, st)
+/*    const char *path;
+/*    struct stat *st;
 /*
-/*	int     warn_fstat(fd, st)
-/*	int     fd;
-/*	struct stat *st;
+/*    int     warn_fstat(fd, st)
+/*    int     fd;
+/*    struct stat *st;
 /* DESCRIPTION
-/*	warn_stat(), warn_fstat() and warn_lstat() wrap the stat(),
-/*	fstat() and lstat() system calls with code that logs a
-/*	diagnosis for common error cases.
+/*    warn_stat(), warn_fstat() and warn_lstat() wrap the stat(),
+/*    fstat() and lstat() system calls with code that logs a
+/*    diagnosis for common error cases.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -56,10 +56,10 @@ static void diagnose_stat(void)
      */
 #ifdef EOVERFLOW
     if (errno == EOVERFLOW && sizeof(st.st_size) == 4) {
-	msg_warn("this program was built for 32-bit file handles, "
-		 "but some number does not fit in 32 bits");
-	msg_warn("possible solution: recompile in 64-bit mode, or "
-		 "recompile in 32-bit mode with 'large file' support");
+    msg_warn("this program was built for 32-bit file handles, "
+         "but some number does not fit in 32 bits");
+    msg_warn("possible solution: recompile in 64-bit mode, or "
+         "recompile in 32-bit mode with 'large file' support");
     }
 #endif
 }
@@ -72,7 +72,7 @@ int     warn_stat(const char *path, struct stat * st)
 
     ret = stat(path, st);
     if (ret < 0)
-	diagnose_stat();
+    diagnose_stat();
     return (ret);
 }
 
@@ -84,7 +84,7 @@ int     warn_lstat(const char *path, struct stat * st)
 
     ret = lstat(path, st);
     if (ret < 0)
-	diagnose_stat();
+    diagnose_stat();
     return (ret);
 }
 
@@ -96,6 +96,6 @@ int     warn_fstat(int fd, struct stat * st)
 
     ret = fstat(fd, st);
     if (ret < 0)
-	diagnose_stat();
+    diagnose_stat();
     return (ret);
 }

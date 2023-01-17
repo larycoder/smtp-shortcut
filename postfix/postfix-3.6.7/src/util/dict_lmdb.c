@@ -1,58 +1,58 @@
 /*++
 /* NAME
-/*	dict_lmdb 3
+/*    dict_lmdb 3
 /* SUMMARY
-/*	dictionary manager interface to OpenLDAP LMDB files
+/*    dictionary manager interface to OpenLDAP LMDB files
 /* SYNOPSIS
-/*	#include <dict_lmdb.h>
+/*    #include <dict_lmdb.h>
 /*
-/*	extern size_t dict_lmdb_map_size;
+/*    extern size_t dict_lmdb_map_size;
 /*
-/*	DEFINE_DICT_LMDB_MAP_SIZE;
+/*    DEFINE_DICT_LMDB_MAP_SIZE;
 /*
-/*	DICT	*dict_lmdb_open(path, open_flags, dict_flags)
-/*	const char *name;
-/*	const char *path;
-/*	int	open_flags;
-/*	int	dict_flags;
+/*    DICT    *dict_lmdb_open(path, open_flags, dict_flags)
+/*    const char *name;
+/*    const char *path;
+/*    int    open_flags;
+/*    int    dict_flags;
 /* DESCRIPTION
-/*	dict_lmdb_open() opens the named LMDB database and makes
-/*	it available via the generic interface described in
-/*	dict_open(3).
+/*    dict_lmdb_open() opens the named LMDB database and makes
+/*    it available via the generic interface described in
+/*    dict_open(3).
 /*
-/*	The dict_lmdb_map_size variable specifies the initial
-/*	database memory map size.  When a map becomes full its size
-/*	is doubled, and other programs pick up the size change.
+/*    The dict_lmdb_map_size variable specifies the initial
+/*    database memory map size.  When a map becomes full its size
+/*    is doubled, and other programs pick up the size change.
 /*
-/*	This variable cannot be exported via the dict(3) API and
-/*	must therefore be defined in the calling program by invoking
-/*	the DEFINE_DICT_LMDB_MAP_SIZE macro at the global level.
+/*    This variable cannot be exported via the dict(3) API and
+/*    must therefore be defined in the calling program by invoking
+/*    the DEFINE_DICT_LMDB_MAP_SIZE macro at the global level.
 /* DIAGNOSTICS
-/*	Fatal errors: cannot open file, file write error, out of
-/*	memory.
+/*    Fatal errors: cannot open file, file write error, out of
+/*    memory.
 /* BUGS
-/*	The on-the-fly map resize operations require no concurrent
-/*	activity in the same database by other threads in the same
-/*	memory address space.
+/*    The on-the-fly map resize operations require no concurrent
+/*    activity in the same database by other threads in the same
+/*    memory address space.
 /* SEE ALSO
-/*	dict(3) generic dictionary manager
+/*    dict(3) generic dictionary manager
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Howard Chu
-/*	Symas Corporation
+/*    Howard Chu
+/*    Symas Corporation
 /*
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 #include <sys_defs.h>
@@ -83,10 +83,10 @@
 /* Application-specific. */
 
 typedef struct {
-    DICT    dict;			/* generic members */
-    SLMDB   slmdb;			/* sane LMDB API */
-    VSTRING *key_buf;			/* key buffer */
-    VSTRING *val_buf;			/* value buffer */
+    DICT    dict;            /* generic members */
+    SLMDB   slmdb;            /* sane LMDB API */
+    VSTRING *key_buf;            /* key buffer */
+    VSTRING *val_buf;            /* value buffer */
 } DICT_LMDB;
 
  /*
@@ -94,7 +94,7 @@ typedef struct {
   * prefix, but that doesn't mean it is kosher to use DICT_TYPE_LMDB where a
   * suffix is needed, so we define an explicit suffix here.
   */
-#define DICT_LMDB_SUFFIX	"lmdb"
+#define DICT_LMDB_SUFFIX    "lmdb"
 
  /*
   * Make a safe string copy that is guaranteed to be null-terminated.
@@ -114,13 +114,13 @@ typedef struct {
   * We do not expose these details to the Postfix user interface. The purpose of
   * Postfix is to solve problems, not punt them to the user.
   */
-#define DICT_LMDB_SIZE_INCR	2	/* Increase size by 1 bit on retry */
-#define DICT_LMDB_SIZE_MAX	SSIZE_T_MAX
+#define DICT_LMDB_SIZE_INCR    2    /* Increase size by 1 bit on retry */
+#define DICT_LMDB_SIZE_MAX    SSIZE_T_MAX
 
-#define DICT_LMDB_API_RETRY_LIMIT 2	/* Retries per dict(3) API call */
+#define DICT_LMDB_API_RETRY_LIMIT 2    /* Retries per dict(3) API call */
 #define DICT_LMDB_BULK_RETRY_LIMIT \
-	((int) (2 * sizeof(size_t) * CHAR_BIT))	/* Retries per bulk-mode
-						 * transaction */
+    ((int) (2 * sizeof(size_t) * CHAR_BIT))    /* Retries per bulk-mode
+                         * transaction */
 
 /* #define msg_verbose 1 */
 
@@ -142,16 +142,16 @@ static const char *dict_lmdb_lookup(DICT *dict, const char *name)
      * Sanity check.
      */
     if ((dict->flags & (DICT_FLAG_TRY1NULL | DICT_FLAG_TRY0NULL)) == 0)
-	msg_panic("dict_lmdb_lookup: no DICT_FLAG_TRY1NULL | DICT_FLAG_TRY0NULL flag");
+    msg_panic("dict_lmdb_lookup: no DICT_FLAG_TRY1NULL | DICT_FLAG_TRY0NULL flag");
 
     /*
      * Optionally fold the key.
      */
     if (dict->flags & DICT_FLAG_FOLD_FIX) {
-	if (dict->fold_buf == 0)
-	    dict->fold_buf = vstring_alloc(10);
-	vstring_strcpy(dict->fold_buf, name);
-	name = lowercase(vstring_str(dict->fold_buf));
+    if (dict->fold_buf == 0)
+        dict->fold_buf = vstring_alloc(10);
+    vstring_strcpy(dict->fold_buf, name);
+    name = lowercase(vstring_str(dict->fold_buf));
     }
 
     /*
@@ -159,25 +159,25 @@ static const char *dict_lmdb_lookup(DICT *dict, const char *name)
      */
     if ((dict->flags & DICT_FLAG_LOCK)
       && myflock(dict->lock_fd, MYFLOCK_STYLE_FCNTL, MYFLOCK_OP_SHARED) < 0)
-	msg_fatal("%s: lock dictionary: %m", dict->name);
+    msg_fatal("%s: lock dictionary: %m", dict->name);
 
     /*
      * See if this LMDB file was written with one null byte appended to key
      * and value.
      */
     if (dict->flags & DICT_FLAG_TRY1NULL) {
-	mdb_key.mv_data = (void *) name;
-	mdb_key.mv_size = klen + 1;
-	status = slmdb_get(&dict_lmdb->slmdb, &mdb_key, &mdb_value);
-	if (status == 0) {
-	    dict->flags &= ~DICT_FLAG_TRY0NULL;
-	    result = SCOPY(dict_lmdb->val_buf, mdb_value.mv_data,
-			   mdb_value.mv_size);
-	} else if (status != MDB_NOTFOUND) {
-	    msg_fatal("error reading %s:%s: %s",
-		      dict_lmdb->dict.type, dict_lmdb->dict.name,
-		      mdb_strerror(status));
-	}
+    mdb_key.mv_data = (void *) name;
+    mdb_key.mv_size = klen + 1;
+    status = slmdb_get(&dict_lmdb->slmdb, &mdb_key, &mdb_value);
+    if (status == 0) {
+        dict->flags &= ~DICT_FLAG_TRY0NULL;
+        result = SCOPY(dict_lmdb->val_buf, mdb_value.mv_data,
+               mdb_value.mv_size);
+    } else if (status != MDB_NOTFOUND) {
+        msg_fatal("error reading %s:%s: %s",
+              dict_lmdb->dict.type, dict_lmdb->dict.name,
+              mdb_strerror(status));
+    }
     }
 
     /*
@@ -185,26 +185,26 @@ static const char *dict_lmdb_lookup(DICT *dict, const char *name)
      * and value.
      */
     if (result == 0 && (dict->flags & DICT_FLAG_TRY0NULL)) {
-	mdb_key.mv_data = (void *) name;
-	mdb_key.mv_size = klen;
-	status = slmdb_get(&dict_lmdb->slmdb, &mdb_key, &mdb_value);
-	if (status == 0) {
-	    dict->flags &= ~DICT_FLAG_TRY1NULL;
-	    result = SCOPY(dict_lmdb->val_buf, mdb_value.mv_data,
-			   mdb_value.mv_size);
-	} else if (status != MDB_NOTFOUND) {
-	    msg_fatal("error reading %s:%s: %s",
-		      dict_lmdb->dict.type, dict_lmdb->dict.name,
-		      mdb_strerror(status));
-	}
+    mdb_key.mv_data = (void *) name;
+    mdb_key.mv_size = klen;
+    status = slmdb_get(&dict_lmdb->slmdb, &mdb_key, &mdb_value);
+    if (status == 0) {
+        dict->flags &= ~DICT_FLAG_TRY1NULL;
+        result = SCOPY(dict_lmdb->val_buf, mdb_value.mv_data,
+               mdb_value.mv_size);
+    } else if (status != MDB_NOTFOUND) {
+        msg_fatal("error reading %s:%s: %s",
+              dict_lmdb->dict.type, dict_lmdb->dict.name,
+              mdb_strerror(status));
+    }
     }
 
     /*
      * Release the shared lock.
      */
     if ((dict->flags & DICT_FLAG_LOCK)
-	&& myflock(dict->lock_fd, MYFLOCK_STYLE_FCNTL, MYFLOCK_OP_NONE) < 0)
-	msg_fatal("%s: unlock dictionary: %m", dict->name);
+    && myflock(dict->lock_fd, MYFLOCK_STYLE_FCNTL, MYFLOCK_OP_NONE) < 0)
+    msg_fatal("%s: unlock dictionary: %m", dict->name);
 
     return (result);
 }
@@ -224,16 +224,16 @@ static int dict_lmdb_update(DICT *dict, const char *name, const char *value)
      * Sanity check.
      */
     if ((dict->flags & (DICT_FLAG_TRY1NULL | DICT_FLAG_TRY0NULL)) == 0)
-	msg_panic("dict_lmdb_update: no DICT_FLAG_TRY1NULL | DICT_FLAG_TRY0NULL flag");
+    msg_panic("dict_lmdb_update: no DICT_FLAG_TRY1NULL | DICT_FLAG_TRY0NULL flag");
 
     /*
      * Optionally fold the key.
      */
     if (dict->flags & DICT_FLAG_FOLD_FIX) {
-	if (dict->fold_buf == 0)
-	    dict->fold_buf = vstring_alloc(10);
-	vstring_strcpy(dict->fold_buf, name);
-	name = lowercase(vstring_str(dict->fold_buf));
+    if (dict->fold_buf == 0)
+        dict->fold_buf = vstring_alloc(10);
+    vstring_strcpy(dict->fold_buf, name);
+    name = lowercase(vstring_str(dict->fold_buf));
     }
     mdb_key.mv_data = (void *) name;
     mdb_value.mv_data = (void *) value;
@@ -245,11 +245,11 @@ static int dict_lmdb_update(DICT *dict, const char *name, const char *value)
      * default depending on the platform.
      */
     if ((dict->flags & DICT_FLAG_TRY1NULL)
-	&& (dict->flags & DICT_FLAG_TRY0NULL)) {
+    && (dict->flags & DICT_FLAG_TRY0NULL)) {
 #ifdef LMDB_NO_TRAILING_NULL
-	dict->flags &= ~DICT_FLAG_TRY1NULL;
+    dict->flags &= ~DICT_FLAG_TRY1NULL;
 #else
-	dict->flags &= ~DICT_FLAG_TRY0NULL;
+    dict->flags &= ~DICT_FLAG_TRY0NULL;
 #endif
     }
 
@@ -257,8 +257,8 @@ static int dict_lmdb_update(DICT *dict, const char *name, const char *value)
      * Optionally append a null byte to key and value.
      */
     if (dict->flags & DICT_FLAG_TRY1NULL) {
-	mdb_key.mv_size++;
-	mdb_value.mv_size++;
+    mdb_key.mv_size++;
+    mdb_value.mv_size++;
     }
 
     /*
@@ -266,36 +266,36 @@ static int dict_lmdb_update(DICT *dict, const char *name, const char *value)
      */
     if ((dict->flags & DICT_FLAG_LOCK)
     && myflock(dict->lock_fd, MYFLOCK_STYLE_FCNTL, MYFLOCK_OP_EXCLUSIVE) < 0)
-	msg_fatal("%s: lock dictionary: %m", dict->name);
+    msg_fatal("%s: lock dictionary: %m", dict->name);
 
     /*
      * Do the update.
      */
     status = slmdb_put(&dict_lmdb->slmdb, &mdb_key, &mdb_value,
-	       (dict->flags & DICT_FLAG_DUP_REPLACE) ? 0 : MDB_NOOVERWRITE);
+           (dict->flags & DICT_FLAG_DUP_REPLACE) ? 0 : MDB_NOOVERWRITE);
     if (status != 0) {
-	if (status == MDB_KEYEXIST) {
-	    if (dict->flags & DICT_FLAG_DUP_IGNORE)
-		 /* void */ ;
-	    else if (dict->flags & DICT_FLAG_DUP_WARN)
-		msg_warn("%s:%s: duplicate entry: \"%s\"",
-			 dict_lmdb->dict.type, dict_lmdb->dict.name, name);
-	    else
-		msg_fatal("%s:%s: duplicate entry: \"%s\"",
-			  dict_lmdb->dict.type, dict_lmdb->dict.name, name);
-	} else {
-	    msg_fatal("error updating %s:%s: %s",
-		      dict_lmdb->dict.type, dict_lmdb->dict.name,
-		      mdb_strerror(status));
-	}
+    if (status == MDB_KEYEXIST) {
+        if (dict->flags & DICT_FLAG_DUP_IGNORE)
+         /* void */ ;
+        else if (dict->flags & DICT_FLAG_DUP_WARN)
+        msg_warn("%s:%s: duplicate entry: \"%s\"",
+             dict_lmdb->dict.type, dict_lmdb->dict.name, name);
+        else
+        msg_fatal("%s:%s: duplicate entry: \"%s\"",
+              dict_lmdb->dict.type, dict_lmdb->dict.name, name);
+    } else {
+        msg_fatal("error updating %s:%s: %s",
+              dict_lmdb->dict.type, dict_lmdb->dict.name,
+              mdb_strerror(status));
+    }
     }
 
     /*
      * Release the exclusive lock.
      */
     if ((dict->flags & DICT_FLAG_LOCK)
-	&& myflock(dict->lock_fd, MYFLOCK_STYLE_FCNTL, MYFLOCK_OP_NONE) < 0)
-	msg_fatal("%s: unlock dictionary: %m", dict->name);
+    && myflock(dict->lock_fd, MYFLOCK_STYLE_FCNTL, MYFLOCK_OP_NONE) < 0)
+    msg_fatal("%s: unlock dictionary: %m", dict->name);
 
     return (status);
 }
@@ -316,16 +316,16 @@ static int dict_lmdb_delete(DICT *dict, const char *name)
      * Sanity check.
      */
     if ((dict->flags & (DICT_FLAG_TRY1NULL | DICT_FLAG_TRY0NULL)) == 0)
-	msg_panic("dict_lmdb_delete: no DICT_FLAG_TRY1NULL | DICT_FLAG_TRY0NULL flag");
+    msg_panic("dict_lmdb_delete: no DICT_FLAG_TRY1NULL | DICT_FLAG_TRY0NULL flag");
 
     /*
      * Optionally fold the key.
      */
     if (dict->flags & DICT_FLAG_FOLD_FIX) {
-	if (dict->fold_buf == 0)
-	    dict->fold_buf = vstring_alloc(10);
-	vstring_strcpy(dict->fold_buf, name);
-	name = lowercase(vstring_str(dict->fold_buf));
+    if (dict->fold_buf == 0)
+        dict->fold_buf = vstring_alloc(10);
+    vstring_strcpy(dict->fold_buf, name);
+    name = lowercase(vstring_str(dict->fold_buf));
     }
 
     /*
@@ -333,26 +333,26 @@ static int dict_lmdb_delete(DICT *dict, const char *name)
      */
     if ((dict->flags & DICT_FLAG_LOCK)
     && myflock(dict->lock_fd, MYFLOCK_STYLE_FCNTL, MYFLOCK_OP_EXCLUSIVE) < 0)
-	msg_fatal("%s: lock dictionary: %m", dict->name);
+    msg_fatal("%s: lock dictionary: %m", dict->name);
 
     /*
      * See if this LMDB file was written with one null byte appended to key
      * and value.
      */
     if (dict->flags & DICT_FLAG_TRY1NULL) {
-	mdb_key.mv_data = (void *) name;
-	mdb_key.mv_size = klen + 1;
-	status = slmdb_del(&dict_lmdb->slmdb, &mdb_key);
-	if (status != 0) {
-	    if (status == MDB_NOTFOUND)
-		status = 1;
-	    else
-		msg_fatal("error deleting from %s:%s: %s",
-			  dict_lmdb->dict.type, dict_lmdb->dict.name,
-			  mdb_strerror(status));
-	} else {
-	    dict->flags &= ~DICT_FLAG_TRY0NULL;	/* found */
-	}
+    mdb_key.mv_data = (void *) name;
+    mdb_key.mv_size = klen + 1;
+    status = slmdb_del(&dict_lmdb->slmdb, &mdb_key);
+    if (status != 0) {
+        if (status == MDB_NOTFOUND)
+        status = 1;
+        else
+        msg_fatal("error deleting from %s:%s: %s",
+              dict_lmdb->dict.type, dict_lmdb->dict.name,
+              mdb_strerror(status));
+    } else {
+        dict->flags &= ~DICT_FLAG_TRY0NULL;    /* found */
+    }
     }
 
     /*
@@ -360,27 +360,27 @@ static int dict_lmdb_delete(DICT *dict, const char *name)
      * and value.
      */
     if (status > 0 && (dict->flags & DICT_FLAG_TRY0NULL)) {
-	mdb_key.mv_data = (void *) name;
-	mdb_key.mv_size = klen;
-	status = slmdb_del(&dict_lmdb->slmdb, &mdb_key);
-	if (status != 0) {
-	    if (status == MDB_NOTFOUND)
-		status = 1;
-	    else
-		msg_fatal("error deleting from %s:%s: %s",
-			  dict_lmdb->dict.type, dict_lmdb->dict.name,
-			  mdb_strerror(status));
-	} else {
-	    dict->flags &= ~DICT_FLAG_TRY1NULL;	/* found */
-	}
+    mdb_key.mv_data = (void *) name;
+    mdb_key.mv_size = klen;
+    status = slmdb_del(&dict_lmdb->slmdb, &mdb_key);
+    if (status != 0) {
+        if (status == MDB_NOTFOUND)
+        status = 1;
+        else
+        msg_fatal("error deleting from %s:%s: %s",
+              dict_lmdb->dict.type, dict_lmdb->dict.name,
+              mdb_strerror(status));
+    } else {
+        dict->flags &= ~DICT_FLAG_TRY1NULL;    /* found */
+    }
     }
 
     /*
      * Release the exclusive lock.
      */
     if ((dict->flags & DICT_FLAG_LOCK)
-	&& myflock(dict->lock_fd, MYFLOCK_STYLE_FCNTL, MYFLOCK_OP_NONE) < 0)
-	msg_fatal("%s: unlock dictionary: %m", dict->name);
+    && myflock(dict->lock_fd, MYFLOCK_STYLE_FCNTL, MYFLOCK_OP_NONE) < 0)
+    msg_fatal("%s: unlock dictionary: %m", dict->name);
 
     return (status);
 }
@@ -388,7 +388,7 @@ static int dict_lmdb_delete(DICT *dict, const char *name)
 /* dict_lmdb_sequence - traverse the dictionary */
 
 static int dict_lmdb_sequence(DICT *dict, int function,
-			              const char **key, const char **value)
+                          const char **key, const char **value)
 {
     const char *myname = "dict_lmdb_sequence";
     DICT_LMDB *dict_lmdb = (DICT_LMDB *) dict;
@@ -404,13 +404,13 @@ static int dict_lmdb_sequence(DICT *dict, int function,
      */
     switch (function) {
     case DICT_SEQ_FUN_FIRST:
-	op = MDB_FIRST;
-	break;
+    op = MDB_FIRST;
+    break;
     case DICT_SEQ_FUN_NEXT:
-	op = MDB_NEXT;
-	break;
+    op = MDB_NEXT;
+    break;
     default:
-	msg_panic("%s: invalid function: %d", myname, function);
+    msg_panic("%s: invalid function: %d", myname, function);
     }
 
     /*
@@ -418,7 +418,7 @@ static int dict_lmdb_sequence(DICT *dict, int function,
      */
     if ((dict->flags & DICT_FLAG_LOCK)
       && myflock(dict->lock_fd, MYFLOCK_STYLE_FCNTL, MYFLOCK_OP_SHARED) < 0)
-	msg_fatal("%s: lock dictionary: %m", dict->name);
+    msg_fatal("%s: lock dictionary: %m", dict->name);
 
     /*
      * Database lookup.
@@ -427,41 +427,41 @@ static int dict_lmdb_sequence(DICT *dict, int function,
 
     switch (status) {
 
-	/*
-	 * Copy the key and value so they are guaranteed null terminated.
-	 */
+    /*
+     * Copy the key and value so they are guaranteed null terminated.
+     */
     case 0:
-	*key = SCOPY(dict_lmdb->key_buf, mdb_key.mv_data, mdb_key.mv_size);
-	if (mdb_value.mv_data != 0 && mdb_value.mv_size > 0)
-	    *value = SCOPY(dict_lmdb->val_buf, mdb_value.mv_data,
-			   mdb_value.mv_size);
-	else
-	    *value = "";			/* XXX */
-	break;
+    *key = SCOPY(dict_lmdb->key_buf, mdb_key.mv_data, mdb_key.mv_size);
+    if (mdb_value.mv_data != 0 && mdb_value.mv_size > 0)
+        *value = SCOPY(dict_lmdb->val_buf, mdb_value.mv_data,
+               mdb_value.mv_size);
+    else
+        *value = "";            /* XXX */
+    break;
 
-	/*
-	 * End-of-database.
-	 */
+    /*
+     * End-of-database.
+     */
     case MDB_NOTFOUND:
-	status = 1;
-	/* Not: mdb_cursor_close(). Wrong abstraction level. */
-	break;
+    status = 1;
+    /* Not: mdb_cursor_close(). Wrong abstraction level. */
+    break;
 
-	/*
-	 * Bust.
-	 */
+    /*
+     * Bust.
+     */
     default:
-	msg_fatal("error seeking %s:%s: %s",
-		  dict_lmdb->dict.type, dict_lmdb->dict.name,
-		  mdb_strerror(status));
+    msg_fatal("error seeking %s:%s: %s",
+          dict_lmdb->dict.type, dict_lmdb->dict.name,
+          mdb_strerror(status));
     }
 
     /*
      * Release the shared lock.
      */
     if ((dict->flags & DICT_FLAG_LOCK)
-	&& myflock(dict->lock_fd, MYFLOCK_STYLE_FCNTL, MYFLOCK_OP_NONE) < 0)
-	msg_fatal("%s: unlock dictionary: %m", dict->name);
+    && myflock(dict->lock_fd, MYFLOCK_STYLE_FCNTL, MYFLOCK_OP_NONE) < 0)
+    msg_fatal("%s: unlock dictionary: %m", dict->name);
 
     return (status);
 }
@@ -474,11 +474,11 @@ static void dict_lmdb_close(DICT *dict)
 
     slmdb_close(&dict_lmdb->slmdb);
     if (dict_lmdb->key_buf)
-	vstring_free(dict_lmdb->key_buf);
+    vstring_free(dict_lmdb->key_buf);
     if (dict_lmdb->val_buf)
-	vstring_free(dict_lmdb->val_buf);
+    vstring_free(dict_lmdb->val_buf);
     if (dict->fold_buf)
-	vstring_free(dict->fold_buf);
+    vstring_free(dict->fold_buf);
     dict_free(dict);
 }
 
@@ -501,27 +501,27 @@ static void dict_lmdb_notify(void *context, int error_code,...)
     va_start(ap, error_code);
     switch (error_code) {
     case MDB_SUCCESS:
-	msg_info("database %s:%s: using size limit %lu during open",
-		 dict_lmdb->dict.type, dict_lmdb->dict.name,
-		 (unsigned long) va_arg(ap, size_t));
-	break;
+    msg_info("database %s:%s: using size limit %lu during open",
+         dict_lmdb->dict.type, dict_lmdb->dict.name,
+         (unsigned long) va_arg(ap, size_t));
+    break;
     case MDB_MAP_FULL:
-	msg_info("database %s:%s: using size limit %lu after MDB_MAP_FULL",
-		 dict_lmdb->dict.type, dict_lmdb->dict.name,
-		 (unsigned long) va_arg(ap, size_t));
-	break;
+    msg_info("database %s:%s: using size limit %lu after MDB_MAP_FULL",
+         dict_lmdb->dict.type, dict_lmdb->dict.name,
+         (unsigned long) va_arg(ap, size_t));
+    break;
     case MDB_MAP_RESIZED:
-	msg_info("database %s:%s: using size limit %lu after MDB_MAP_RESIZED",
-		 dict_lmdb->dict.type, dict_lmdb->dict.name,
-		 (unsigned long) va_arg(ap, size_t));
-	break;
+    msg_info("database %s:%s: using size limit %lu after MDB_MAP_RESIZED",
+         dict_lmdb->dict.type, dict_lmdb->dict.name,
+         (unsigned long) va_arg(ap, size_t));
+    break;
     case MDB_READERS_FULL:
-	msg_info("database %s:%s: pausing after MDB_READERS_FULL",
-		 dict_lmdb->dict.type, dict_lmdb->dict.name);
-	break;
+    msg_info("database %s:%s: pausing after MDB_READERS_FULL",
+         dict_lmdb->dict.type, dict_lmdb->dict.name);
+    break;
     default:
-	msg_warn("unknown MDB error code: %d", error_code);
-	break;
+    msg_warn("unknown MDB error code: %d", error_code);
+    break;
     }
     va_end(ap);
 }
@@ -533,7 +533,7 @@ static void dict_lmdb_assert(void *context, const char *text)
     DICT_LMDB *dict_lmdb = (DICT_LMDB *) context;
 
     msg_fatal("%s:%s: internal error: %s",
-	      dict_lmdb->dict.type, dict_lmdb->dict.name, text);
+          dict_lmdb->dict.type, dict_lmdb->dict.name, text);
 }
 
 /* dict_lmdb_open - open LMDB data base */
@@ -552,9 +552,9 @@ DICT   *dict_lmdb_open(const char *path, int open_flags, int dict_flags)
      * Let the optimizer worry about eliminating redundant code.
      */
 #define DICT_LMDB_OPEN_RETURN(d) do { \
-	DICT *__d = (d); \
-	myfree(mdb_path); \
-	return (__d); \
+    DICT *__d = (d); \
+    myfree(mdb_path); \
+    return (__d); \
     } while (0)
 
     mdb_path = concatenate(path, "." DICT_TYPE_LMDB, (char *) 0);
@@ -564,11 +564,11 @@ DICT   *dict_lmdb_open(const char *path, int open_flags, int dict_flags)
      */
     mdb_flags = MDB_NOSUBDIR | MDB_NOLOCK;
     if (open_flags == O_RDONLY)
-	mdb_flags |= MDB_RDONLY;
+    mdb_flags |= MDB_RDONLY;
 
     slmdb_flags = 0;
     if (dict_flags & DICT_FLAG_BULK_UPDATE)
-	slmdb_flags |= SLMDB_FLAG_BULK;
+    slmdb_flags |= SLMDB_FLAG_BULK;
 
     /*
      * Security violation.
@@ -600,21 +600,21 @@ DICT   *dict_lmdb_open(const char *path, int open_flags, int dict_flags)
      * workaround for older LMDB versions.
      */
 #ifndef MDB_NOMEMINIT
-    if (dict_flags & DICT_FLAG_BULK_UPDATE)	/* XXX Good enough */
-	mdb_flags |= MDB_WRITEMAP;
+    if (dict_flags & DICT_FLAG_BULK_UPDATE)    /* XXX Good enough */
+    mdb_flags |= MDB_WRITEMAP;
 #endif
 
     /*
      * Gracefully handle most database open errors.
      */
     if ((status = slmdb_init(&slmdb, dict_lmdb_map_size, DICT_LMDB_SIZE_INCR,
-			     DICT_LMDB_SIZE_MAX)) != 0
-	|| (status = slmdb_open(&slmdb, mdb_path, open_flags, mdb_flags,
-				slmdb_flags)) != 0) {
-	/* This leaks a little memory that would have been used otherwise. */
-	dict = dict_surrogate(DICT_TYPE_LMDB, path, open_flags, dict_flags,
-		    "open database %s: %s", mdb_path, mdb_strerror(status));
-	DICT_LMDB_OPEN_RETURN(dict);
+                 DICT_LMDB_SIZE_MAX)) != 0
+    || (status = slmdb_open(&slmdb, mdb_path, open_flags, mdb_flags,
+                slmdb_flags)) != 0) {
+    /* This leaks a little memory that would have been used otherwise. */
+    dict = dict_surrogate(DICT_TYPE_LMDB, path, open_flags, dict_flags,
+            "open database %s: %s", mdb_path, mdb_strerror(status));
+    DICT_LMDB_OPEN_RETURN(dict);
     }
 
     /*
@@ -628,10 +628,10 @@ DICT   *dict_lmdb_open(const char *path, int open_flags, int dict_flags)
      */
     db_fd = slmdb_fd(&slmdb);
     if (dict_flags & DICT_FLAG_BULK_UPDATE) {
-	if (myflock(db_fd, MYFLOCK_STYLE_FCNTL, MYFLOCK_OP_EXCLUSIVE) < 0)
-	    msg_fatal("%s: lock dictionary: %m", mdb_path);
-	if (myflock(db_fd, MYFLOCK_STYLE_FCNTL, MYFLOCK_OP_SHARED) < 0)
-	    msg_fatal("%s: unlock dictionary: %m", mdb_path);
+    if (myflock(db_fd, MYFLOCK_STYLE_FCNTL, MYFLOCK_OP_EXCLUSIVE) < 0)
+        msg_fatal("%s: lock dictionary: %m", mdb_path);
+    if (myflock(db_fd, MYFLOCK_STYLE_FCNTL, MYFLOCK_OP_SHARED) < 0)
+        msg_fatal("%s: unlock dictionary: %m", mdb_path);
     }
 
     /*
@@ -646,7 +646,7 @@ DICT   *dict_lmdb_open(const char *path, int open_flags, int dict_flags)
     dict_lmdb->dict.close = dict_lmdb_close;
 
     if (fstat(db_fd, &st) < 0)
-	msg_fatal("dict_lmdb_open: fstat: %m");
+    msg_fatal("dict_lmdb_open: fstat: %m");
     dict_lmdb->dict.lock_fd = dict_lmdb->dict.stat_fd = db_fd;
     dict_lmdb->dict.lock_type = MYFLOCK_STYLE_FCNTL;
     dict_lmdb->dict.mtime = st.st_mtime;
@@ -661,40 +661,40 @@ DICT   *dict_lmdb_open(const char *path, int open_flags, int dict_flags)
      * the source file changed only seconds ago.
      */
     if ((dict_flags & DICT_FLAG_LOCK) != 0
-	&& stat(path, &st) == 0
-	&& st.st_mtime > dict_lmdb->dict.mtime
-	&& st.st_mtime < time((time_t *) 0) - 100)
-	msg_warn("database %s is older than source file %s", mdb_path, path);
+    && stat(path, &st) == 0
+    && st.st_mtime > dict_lmdb->dict.mtime
+    && st.st_mtime < time((time_t *) 0) - 100)
+    msg_warn("database %s is older than source file %s", mdb_path, path);
 
-#define DICT_LMDB_IMPL_FLAGS	(DICT_FLAG_FIXED | DICT_FLAG_MULTI_WRITER)
+#define DICT_LMDB_IMPL_FLAGS    (DICT_FLAG_FIXED | DICT_FLAG_MULTI_WRITER)
 
     dict_lmdb->dict.flags = dict_flags | DICT_LMDB_IMPL_FLAGS;
     if ((dict_flags & (DICT_FLAG_TRY0NULL | DICT_FLAG_TRY1NULL)) == 0)
-	dict_lmdb->dict.flags |= (DICT_FLAG_TRY0NULL | DICT_FLAG_TRY1NULL);
+    dict_lmdb->dict.flags |= (DICT_FLAG_TRY0NULL | DICT_FLAG_TRY1NULL);
     if (dict_flags & DICT_FLAG_FOLD_FIX)
-	dict_lmdb->dict.fold_buf = vstring_alloc(10);
+    dict_lmdb->dict.fold_buf = vstring_alloc(10);
 
     if (dict_flags & DICT_FLAG_BULK_UPDATE)
-	dict_jmp_alloc(&dict_lmdb->dict);
+    dict_jmp_alloc(&dict_lmdb->dict);
 
     /*
      * The following requests return an error result only if we have serious
      * memory corruption problem.
      */
     if (slmdb_control(&dict_lmdb->slmdb,
-		    CA_SLMDB_CTL_API_RETRY_LIMIT(DICT_LMDB_API_RETRY_LIMIT),
-		  CA_SLMDB_CTL_BULK_RETRY_LIMIT(DICT_LMDB_BULK_RETRY_LIMIT),
-		      CA_SLMDB_CTL_LONGJMP_FN(dict_lmdb_longjmp),
-		      CA_SLMDB_CTL_NOTIFY_FN(msg_verbose ?
-				    dict_lmdb_notify : (SLMDB_NOTIFY_FN) 0),
-		      CA_SLMDB_CTL_ASSERT_FN(dict_lmdb_assert),
-		      CA_SLMDB_CTL_CB_CONTEXT((void *) dict_lmdb),
-		      CA_SLMDB_CTL_END) != 0)
-	msg_panic("dict_lmdb_open: slmdb_control: %m");
+            CA_SLMDB_CTL_API_RETRY_LIMIT(DICT_LMDB_API_RETRY_LIMIT),
+          CA_SLMDB_CTL_BULK_RETRY_LIMIT(DICT_LMDB_BULK_RETRY_LIMIT),
+              CA_SLMDB_CTL_LONGJMP_FN(dict_lmdb_longjmp),
+              CA_SLMDB_CTL_NOTIFY_FN(msg_verbose ?
+                    dict_lmdb_notify : (SLMDB_NOTIFY_FN) 0),
+              CA_SLMDB_CTL_ASSERT_FN(dict_lmdb_assert),
+              CA_SLMDB_CTL_CB_CONTEXT((void *) dict_lmdb),
+              CA_SLMDB_CTL_END) != 0)
+    msg_panic("dict_lmdb_open: slmdb_control: %m");
 
     if (msg_verbose)
-	dict_lmdb_notify((void *) dict_lmdb, MDB_SUCCESS,
-			 slmdb_curr_limit(&dict_lmdb->slmdb));
+    dict_lmdb_notify((void *) dict_lmdb, MDB_SUCCESS,
+             slmdb_curr_limit(&dict_lmdb->slmdb));
 
     DICT_LMDB_OPEN_RETURN(DICT_DEBUG (&dict_lmdb->dict));
 }

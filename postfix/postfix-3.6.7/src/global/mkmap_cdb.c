@@ -1,37 +1,37 @@
 /*++
 /* NAME
-/*	mkmap_cdb 3
+/*    mkmap_cdb 3
 /* SUMMARY
-/*	create or open database, CDB style
+/*    create or open database, CDB style
 /* SYNOPSIS
-/*	#include <mkmap.h>
+/*    #include <mkmap.h>
 /*
-/*	MKMAP	*mkmap_cdb_open(path)
-/*	const char *path;
+/*    MKMAP    *mkmap_cdb_open(path)
+/*    const char *path;
 /*
 /* DESCRIPTION
-/*	This module implements support for creating DJB's CDB "constant
-/*	databases".
+/*    This module implements support for creating DJB's CDB "constant
+/*    databases".
 /*
-/*	mkmap_cdb_open() take a file name, append the ".cdb.tmp" suffix,
-/*	create the named DB database.  On close, this file renamed to
-/*	file name with ".cdb" suffix appended (without ".tmp" part).
-/*	This routine is a CDB-specific helper for the more
-/*	general mkmap_open() interface.
+/*    mkmap_cdb_open() take a file name, append the ".cdb.tmp" suffix,
+/*    create the named DB database.  On close, this file renamed to
+/*    file name with ".cdb" suffix appended (without ".tmp" part).
+/*    This routine is a CDB-specific helper for the more
+/*    general mkmap_open() interface.
 /*
-/*	All errors are fatal.
+/*    All errors are fatal.
 /* SEE ALSO
-/*	dict_cdb(3), CDB dictionary interface.
+/*    dict_cdb(3), CDB dictionary interface.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Written by Michael Tokarev <mjt@tls.msk.ru> based on mkmap_db by
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Written by Michael Tokarev <mjt@tls.msk.ru> based on mkmap_db by
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */

@@ -1,38 +1,38 @@
 /*++
 /* NAME
-/*	scache_multi 3
+/*    scache_multi 3
 /* SUMMARY
-/*	multi-session cache
+/*    multi-session cache
 /* SYNOPSIS
-/*	#include <scache.h>
+/*    #include <scache.h>
 /* DESCRIPTION
-/*	SCACHE *scache_multi_create()
+/*    SCACHE *scache_multi_create()
 /* DESCRIPTION
-/*	This module implements an in-memory, multi-session cache.
+/*    This module implements an in-memory, multi-session cache.
 /*
-/*	scache_multi_create() instantiates a session cache that
-/*	stores multiple sessions.
+/*    scache_multi_create() instantiates a session cache that
+/*    stores multiple sessions.
 /* DIAGNOSTICS
-/*	Fatal error: memory allocation problem;
-/*	panic: internal consistency failure.
+/*    Fatal error: memory allocation problem;
+/*    panic: internal consistency failure.
 /* SEE ALSO
-/*	scache(3), generic session cache API
+/*    scache(3), generic session cache API
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
 
 #include <sys_defs.h>
 #include <unistd.h>
-#include <stddef.h>			/* offsetof() */
+#include <stddef.h>            /* offsetof() */
 #include <string.h>
 
 /* Utility library. */
@@ -73,10 +73,10 @@
   * every session in recent history, may be in for a surprise.
   */
 typedef struct {
-    SCACHE  scache[1];			/* super-class */
-    HTABLE *dest_cache;			/* destination->endpoint bindings */
-    HTABLE *endp_cache;			/* endpoint->session bindings */
-    int     sess_count;			/* number of cached sessions */
+    SCACHE  scache[1];            /* super-class */
+    HTABLE *dest_cache;            /* destination->endpoint bindings */
+    HTABLE *endp_cache;            /* endpoint->session bindings */
+    int     sess_count;            /* number of cached sessions */
 } SCACHE_MULTI;
 
  /*
@@ -85,9 +85,9 @@ typedef struct {
   * empty. List items are stored in a circular list under the list head.
   */
 typedef struct {
-    RING    ring[1];			/* circular list linkage */
-    char   *parent_key;			/* parent linkage: hash table */
-    SCACHE_MULTI *cache;		/* parent linkage: cache */
+    RING    ring[1];            /* circular list linkage */
+    char   *parent_key;            /* parent linkage: hash table */
+    SCACHE_MULTI *cache;        /* parent linkage: cache */
 } SCACHE_MULTI_HEAD;
 
 #define RING_TO_MULTI_HEAD(p) RING_TO_APPL((p), SCACHE_MULTI_HEAD, ring)
@@ -97,10 +97,10 @@ typedef struct {
   * circular list, whose list head specifies the destination.
   */
 typedef struct {
-    RING    ring[1];			/* circular list linkage */
-    SCACHE_MULTI_HEAD *head;		/* parent linkage: list head */
-    char   *endp_label;			/* endpoint name */
-    char   *dest_prop;			/* binding properties */
+    RING    ring[1];            /* circular list linkage */
+    SCACHE_MULTI_HEAD *head;        /* parent linkage: list head */
+    char   *endp_label;            /* endpoint name */
+    char   *dest_prop;            /* binding properties */
 } SCACHE_MULTI_DEST;
 
 #define RING_TO_MULTI_DEST(p) RING_TO_APPL((p), SCACHE_MULTI_DEST, ring)
@@ -112,10 +112,10 @@ static void scache_multi_expire_dest(int, void *);
   * circular list, whose list head specifies the endpoint.
   */
 typedef struct {
-    RING    ring[1];			/* circular list linkage */
-    SCACHE_MULTI_HEAD *head;		/* parent linkage: list head */
-    int     fd;				/* cached session */
-    char   *endp_prop;			/* binding properties */
+    RING    ring[1];            /* circular list linkage */
+    SCACHE_MULTI_HEAD *head;        /* parent linkage: list head */
+    int     fd;                /* cached session */
+    char   *endp_prop;            /* binding properties */
 } SCACHE_MULTI_ENDP;
 
 #define RING_TO_MULTI_ENDP(p) RING_TO_APPL((p), SCACHE_MULTI_ENDP, ring)
@@ -128,8 +128,8 @@ static void scache_multi_expire_endp(int, void *);
   * distinction to avoid a re-entrancy problem between htable_delete() and
   * htable_free().
   */
-#define BOTTOM_UP	1		/* one item */
-#define TOP_DOWN	2		/* whole list */
+#define BOTTOM_UP    1        /* one item */
+#define TOP_DOWN    2        /* whole list */
 
 /* scache_multi_drop_endp - destroy endpoint->session binding */
 
@@ -139,8 +139,8 @@ static void scache_multi_drop_endp(SCACHE_MULTI_ENDP *endp, int direction)
     SCACHE_MULTI_HEAD *head;
 
     if (msg_verbose)
-	msg_info("%s: endp_prop=%s fd=%d", myname,
-		 endp->endp_prop, endp->fd);
+    msg_info("%s: endp_prop=%s fd=%d", myname,
+         endp->endp_prop, endp->fd);
 
     /*
      * Stop the timer.
@@ -156,13 +156,13 @@ static void scache_multi_drop_endp(SCACHE_MULTI_ENDP *endp, int direction)
     head = endp->head;
     head->cache->sess_count--;
     if (direction == BOTTOM_UP && ring_pred(head->ring) == head->ring)
-	htable_delete(head->cache->endp_cache, head->parent_key, myfree);
+    htable_delete(head->cache->endp_cache, head->parent_key, myfree);
 
     /*
      * Destroy the endpoint->session binding.
      */
     if (endp->fd >= 0 && close(endp->fd) != 0)
-	msg_warn("%s: close(%d): %m", myname, endp->fd);
+    msg_warn("%s: close(%d): %m", myname, endp->fd);
     myfree(endp->endp_prop);
 
     myfree((void *) endp);
@@ -190,8 +190,8 @@ static void scache_multi_free_endp(void *ptr)
      * list head. Note: this changes the list, so we must iterate carefully.
      */
     while ((ring = ring_succ(head->ring)) != head->ring) {
-	endp = RING_TO_MULTI_ENDP(ring);
-	scache_multi_drop_endp(endp, TOP_DOWN);
+    endp = RING_TO_MULTI_ENDP(ring);
+    scache_multi_drop_endp(endp, TOP_DOWN);
     }
     myfree((void *) head);
 }
@@ -199,8 +199,8 @@ static void scache_multi_free_endp(void *ptr)
 /* scache_multi_save_endp - save endpoint->session binding */
 
 static void scache_multi_save_endp(SCACHE *scache, int ttl,
-				           const char *endp_label,
-				           const char *endp_prop, int fd)
+                           const char *endp_label,
+                           const char *endp_prop, int fd)
 {
     const char *myname = "scache_multi_save_endp";
     SCACHE_MULTI *sp = (SCACHE_MULTI *) scache;
@@ -208,18 +208,18 @@ static void scache_multi_save_endp(SCACHE *scache, int ttl,
     SCACHE_MULTI_ENDP *endp;
 
     if (ttl < 0)
-	msg_panic("%s: bad ttl: %d", myname, ttl);
+    msg_panic("%s: bad ttl: %d", myname, ttl);
 
     /*
      * Look up or instantiate the list head with the endpoint name.
      */
     if ((head = (SCACHE_MULTI_HEAD *)
-	 htable_find(sp->endp_cache, endp_label)) == 0) {
-	head = (SCACHE_MULTI_HEAD *) mymalloc(sizeof(*head));
-	ring_init(head->ring);
-	head->parent_key =
-	    htable_enter(sp->endp_cache, endp_label, (void *) head)->key;
-	head->cache = sp;
+     htable_find(sp->endp_cache, endp_label)) == 0) {
+    head = (SCACHE_MULTI_HEAD *) mymalloc(sizeof(*head));
+    ring_init(head->ring);
+    head->parent_key =
+        htable_enter(sp->endp_cache, endp_label, (void *) head)->key;
+    head->cache = sp;
     }
 
     /*
@@ -239,14 +239,14 @@ static void scache_multi_save_endp(SCACHE *scache, int ttl,
     event_request_timer(scache_multi_expire_endp, (void *) endp, ttl);
 
     if (msg_verbose)
-	msg_info("%s: endp_label=%s -> endp_prop=%s fd=%d",
-		 myname, endp_label, endp_prop, fd);
+    msg_info("%s: endp_label=%s -> endp_prop=%s fd=%d",
+         myname, endp_label, endp_prop, fd);
 }
 
 /* scache_multi_find_endp - look up session for named endpoint */
 
 static int scache_multi_find_endp(SCACHE *scache, const char *endp_label,
-				          VSTRING *endp_prop)
+                          VSTRING *endp_prop)
 {
     const char *myname = "scache_multi_find_endp";
     SCACHE_MULTI *sp = (SCACHE_MULTI *) scache;
@@ -259,11 +259,11 @@ static int scache_multi_find_endp(SCACHE *scache, const char *endp_label,
      * Look up the list head with the endpoint name.
      */
     if ((head = (SCACHE_MULTI_HEAD *)
-	 htable_find(sp->endp_cache, endp_label)) == 0) {
-	if (msg_verbose)
-	    msg_info("%s: no endpoint cache: endp_label=%s",
-		     myname, endp_label);
-	return (-1);
+     htable_find(sp->endp_cache, endp_label)) == 0) {
+    if (msg_verbose)
+        msg_info("%s: no endpoint cache: endp_label=%s",
+             myname, endp_label);
+    return (-1);
     }
 
     /*
@@ -271,18 +271,18 @@ static int scache_multi_find_endp(SCACHE *scache, const char *endp_label,
      * because we're giving it to someone else.
      */
     if ((ring = ring_succ(head->ring)) != head->ring) {
-	endp = RING_TO_MULTI_ENDP(ring);
-	fd = endp->fd;
-	endp->fd = -1;
-	vstring_strcpy(endp_prop, endp->endp_prop);
-	if (msg_verbose)
-	    msg_info("%s: found: endp_label=%s -> endp_prop=%s fd=%d",
-		     myname, endp_label, endp->endp_prop, fd);
-	scache_multi_drop_endp(endp, BOTTOM_UP);
-	return (fd);
+    endp = RING_TO_MULTI_ENDP(ring);
+    fd = endp->fd;
+    endp->fd = -1;
+    vstring_strcpy(endp_prop, endp->endp_prop);
+    if (msg_verbose)
+        msg_info("%s: found: endp_label=%s -> endp_prop=%s fd=%d",
+             myname, endp_label, endp->endp_prop, fd);
+    scache_multi_drop_endp(endp, BOTTOM_UP);
+    return (fd);
     }
     if (msg_verbose)
-	msg_info("%s: not found: endp_label=%s", myname, endp_label);
+    msg_info("%s: not found: endp_label=%s", myname, endp_label);
     return (-1);
 }
 
@@ -294,8 +294,8 @@ static void scache_multi_drop_dest(SCACHE_MULTI_DEST *dest, int direction)
     SCACHE_MULTI_HEAD *head;
 
     if (msg_verbose)
-	msg_info("%s: dest_prop=%s endp_label=%s",
-		 myname, dest->dest_prop, dest->endp_label);
+    msg_info("%s: dest_prop=%s endp_label=%s",
+         myname, dest->dest_prop, dest->endp_label);
 
     /*
      * Stop the timer.
@@ -310,7 +310,7 @@ static void scache_multi_drop_dest(SCACHE_MULTI_DEST *dest, int direction)
     ring_detach(dest->ring);
     head = dest->head;
     if (direction == BOTTOM_UP && ring_pred(head->ring) == head->ring)
-	htable_delete(head->cache->dest_cache, head->parent_key, myfree);
+    htable_delete(head->cache->dest_cache, head->parent_key, myfree);
 
     /*
      * Destroy the destination->endpoint binding.
@@ -343,8 +343,8 @@ static void scache_multi_free_dest(void *ptr)
      * list head. Note: this changes the list, so we must iterate carefully.
      */
     while ((ring = ring_succ(head->ring)) != head->ring) {
-	dest = RING_TO_MULTI_DEST(ring);
-	scache_multi_drop_dest(dest, TOP_DOWN);
+    dest = RING_TO_MULTI_DEST(ring);
+    scache_multi_drop_dest(dest, TOP_DOWN);
     }
     myfree((void *) head);
 }
@@ -352,9 +352,9 @@ static void scache_multi_free_dest(void *ptr)
 /* scache_multi_save_dest - save destination->endpoint binding */
 
 static void scache_multi_save_dest(SCACHE *scache, int ttl,
-				           const char *dest_label,
-				           const char *dest_prop,
-				           const char *endp_label)
+                           const char *dest_label,
+                           const char *dest_prop,
+                           const char *endp_label)
 {
     const char *myname = "scache_multi_save_dest";
     SCACHE_MULTI *sp = (SCACHE_MULTI *) scache;
@@ -364,18 +364,18 @@ static void scache_multi_save_dest(SCACHE *scache, int ttl,
     int     refresh = 0;
 
     if (ttl < 0)
-	msg_panic("%s: bad ttl: %d", myname, ttl);
+    msg_panic("%s: bad ttl: %d", myname, ttl);
 
     /*
      * Look up or instantiate the list head with the destination name.
      */
     if ((head = (SCACHE_MULTI_HEAD *)
-	 htable_find(sp->dest_cache, dest_label)) == 0) {
-	head = (SCACHE_MULTI_HEAD *) mymalloc(sizeof(*head));
-	ring_init(head->ring);
-	head->parent_key =
-	    htable_enter(sp->dest_cache, dest_label, (void *) head)->key;
-	head->cache = sp;
+     htable_find(sp->dest_cache, dest_label)) == 0) {
+    head = (SCACHE_MULTI_HEAD *) mymalloc(sizeof(*head));
+    ring_init(head->ring);
+    head->parent_key =
+        htable_enter(sp->dest_cache, dest_label, (void *) head)->key;
+    head->cache = sp;
     }
 
     /*
@@ -383,19 +383,19 @@ static void scache_multi_save_dest(SCACHE *scache, int ttl,
      * expiration time if this destination->endpoint binding already exists.
      */
     RING_FOREACH(ring, head->ring) {
-	dest = RING_TO_MULTI_DEST(ring);
-	if (strcmp(dest->endp_label, endp_label) == 0
-	    && strcmp(dest->dest_prop, dest_prop) == 0) {
-	    refresh = 1;
-	    break;
-	}
+    dest = RING_TO_MULTI_DEST(ring);
+    if (strcmp(dest->endp_label, endp_label) == 0
+        && strcmp(dest->dest_prop, dest_prop) == 0) {
+        refresh = 1;
+        break;
+    }
     }
     if (refresh == 0) {
-	dest = (SCACHE_MULTI_DEST *) mymalloc(sizeof(*dest));
-	dest->head = head;
-	dest->endp_label = mystrdup(endp_label);
-	dest->dest_prop = mystrdup(dest_prop);
-	ring_prepend(head->ring, dest->ring);
+    dest = (SCACHE_MULTI_DEST *) mymalloc(sizeof(*dest));
+    dest->head = head;
+    dest->endp_label = mystrdup(endp_label);
+    dest->dest_prop = mystrdup(dest_prop);
+    ring_prepend(head->ring, dest->ring);
     }
 
     /*
@@ -404,16 +404,16 @@ static void scache_multi_save_dest(SCACHE *scache, int ttl,
     event_request_timer(scache_multi_expire_dest, (void *) dest, ttl);
 
     if (msg_verbose)
-	msg_info("%s: dest_label=%s -> dest_prop=%s endp_label=%s%s",
-		 myname, dest_label, dest_prop, endp_label,
-		 refresh ? " (refreshed)" : "");
+    msg_info("%s: dest_label=%s -> dest_prop=%s endp_label=%s%s",
+         myname, dest_label, dest_prop, endp_label,
+         refresh ? " (refreshed)" : "");
 }
 
 /* scache_multi_find_dest - look up session for named destination */
 
 static int scache_multi_find_dest(SCACHE *scache, const char *dest_label,
-				          VSTRING *dest_prop,
-				          VSTRING *endp_prop)
+                          VSTRING *dest_prop,
+                          VSTRING *endp_prop)
 {
     const char *myname = "scache_multi_find_dest";
     SCACHE_MULTI *sp = (SCACHE_MULTI *) scache;
@@ -426,26 +426,26 @@ static int scache_multi_find_dest(SCACHE *scache, const char *dest_label,
      * Look up the list head with the destination name.
      */
     if ((head = (SCACHE_MULTI_HEAD *)
-	 htable_find(sp->dest_cache, dest_label)) == 0) {
-	if (msg_verbose)
-	    msg_info("%s: no destination cache: dest_label=%s",
-		     myname, dest_label);
-	return (-1);
+     htable_find(sp->dest_cache, dest_label)) == 0) {
+    if (msg_verbose)
+        msg_info("%s: no destination cache: dest_label=%s",
+             myname, dest_label);
+    return (-1);
     }
 
     /*
      * Search endpoints for the first available session.
      */
     RING_FOREACH(ring, head->ring) {
-	dest = RING_TO_MULTI_DEST(ring);
-	fd = scache_multi_find_endp(scache, dest->endp_label, endp_prop);
-	if (fd >= 0) {
-	    vstring_strcpy(dest_prop, dest->dest_prop);
-	    return (fd);
-	}
+    dest = RING_TO_MULTI_DEST(ring);
+    fd = scache_multi_find_endp(scache, dest->endp_label, endp_prop);
+    if (fd >= 0) {
+        vstring_strcpy(dest_prop, dest->dest_prop);
+        return (fd);
+    }
     }
     if (msg_verbose)
-	msg_info("%s: not found: dest_label=%s", myname, dest_label);
+    msg_info("%s: not found: dest_label=%s", myname, dest_label);
     return (-1);
 }
 

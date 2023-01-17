@@ -1,46 +1,46 @@
 /*++
 /* NAME
-/*	qmqpd_peer 3
+/*    qmqpd_peer 3
 /* SUMMARY
-/*	look up peer name/address information
+/*    look up peer name/address information
 /* SYNOPSIS
-/*	#include "qmqpd.h"
+/*    #include "qmqpd.h"
 /*
-/*	void	qmqpd_peer_init(state)
-/*	QMQPD_STATE *state;
+/*    void    qmqpd_peer_init(state)
+/*    QMQPD_STATE *state;
 /*
-/*	void	qmqpd_peer_reset(state)
-/*	QMQPD_STATE *state;
+/*    void    qmqpd_peer_reset(state)
+/*    QMQPD_STATE *state;
 /* DESCRIPTION
-/*	The qmqpd_peer_init() routine attempts to produce a printable
-/*	version of the peer name and address of the specified socket.
-/*	Where information is unavailable, the name and/or address
-/*	are set to "unknown".
+/*    The qmqpd_peer_init() routine attempts to produce a printable
+/*    version of the peer name and address of the specified socket.
+/*    Where information is unavailable, the name and/or address
+/*    are set to "unknown".
 /*
-/*	qmqpd_peer_init() updates the following fields:
+/*    qmqpd_peer_init() updates the following fields:
 /* .IP name
-/*	The client hostname. An unknown name is represented by the
-/*	string "unknown".
+/*    The client hostname. An unknown name is represented by the
+/*    string "unknown".
 /* .IP addr
-/*	Printable representation of the client address.
+/*    Printable representation of the client address.
 /* .IP namaddr
-/*	String of the form: "name[addr]:port".
+/*    String of the form: "name[addr]:port".
 /* .PP
-/*	qmqpd_peer_reset() releases memory allocated by qmqpd_peer_init().
+/*    qmqpd_peer_reset() releases memory allocated by qmqpd_peer_init().
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -90,18 +90,18 @@ void    qmqpd_peer_init(QMQPD_STATE *state)
      * Look up the peer address information.
      */
     if (getpeername(vstream_fileno(state->client), sa, &sa_length) >= 0) {
-	errno = 0;
+    errno = 0;
     }
 
     /*
      * If peer went away, give up.
      */
     if (errno != 0 && errno != ENOTSOCK) {
-	state->name = mystrdup(CLIENT_NAME_UNKNOWN);
-	state->addr = mystrdup(CLIENT_ADDR_UNKNOWN);
-	state->rfc_addr = mystrdup(CLIENT_ADDR_UNKNOWN);
-	state->addr_family = AF_UNSPEC;
-	state->port = mystrdup(CLIENT_PORT_UNKNOWN);
+    state->name = mystrdup(CLIENT_NAME_UNKNOWN);
+    state->addr = mystrdup(CLIENT_ADDR_UNKNOWN);
+    state->rfc_addr = mystrdup(CLIENT_ADDR_UNKNOWN);
+    state->addr_family = AF_UNSPEC;
+    state->port = mystrdup(CLIENT_PORT_UNKNOWN);
     }
 
     /*
@@ -113,167 +113,167 @@ void    qmqpd_peer_init(QMQPD_STATE *state)
      * open relay).
      */
     else if (errno == 0
-	     && (sa->sa_family == AF_INET
+         && (sa->sa_family == AF_INET
 #ifdef AF_INET6
-		 || sa->sa_family == AF_INET6
+         || sa->sa_family == AF_INET6
 #endif
-		 )) {
-	MAI_HOSTNAME_STR client_name;
-	MAI_HOSTADDR_STR client_addr;
-	MAI_SERVPORT_STR client_port;
-	int     aierr;
-	char   *colonp;
+         )) {
+    MAI_HOSTNAME_STR client_name;
+    MAI_HOSTADDR_STR client_addr;
+    MAI_SERVPORT_STR client_port;
+    int     aierr;
+    char   *colonp;
 
-	/*
-	 * Sanity check: we can't use sockets that we're not configured for.
-	 */
-	if (strchr((char *) proto_info->sa_family_list, sa->sa_family) == 0)
-	    msg_fatal("cannot handle socket type %s with \"%s = %s\"",
+    /*
+     * Sanity check: we can't use sockets that we're not configured for.
+     */
+    if (strchr((char *) proto_info->sa_family_list, sa->sa_family) == 0)
+        msg_fatal("cannot handle socket type %s with \"%s = %s\"",
 #ifdef AF_INET6
-		      sa->sa_family == AF_INET6 ? "AF_INET6" :
+              sa->sa_family == AF_INET6 ? "AF_INET6" :
 #endif
-		      sa->sa_family == AF_INET ? "AF_INET" :
-		      "other", VAR_INET_PROTOCOLS, var_inet_protocols);
+              sa->sa_family == AF_INET ? "AF_INET" :
+              "other", VAR_INET_PROTOCOLS, var_inet_protocols);
 
-	/*
-	 * Sorry, but there are some things that we just cannot do while
-	 * connected to the network.
-	 */
-	if (geteuid() != var_owner_uid || getuid() != var_owner_uid) {
-	    msg_error("incorrect QMQP server privileges: uid=%lu euid=%lu",
-		      (unsigned long) getuid(), (unsigned long) geteuid());
-	    msg_fatal("the Postfix QMQP server must run with $%s privileges",
-		      VAR_MAIL_OWNER);
-	}
-
-	/*
-	 * Convert the client address to printable form.
-	 */
-	if ((aierr = sockaddr_to_hostaddr(sa, sa_length, &client_addr,
-					  &client_port, 0)) != 0)
-	    msg_fatal("%s: cannot convert client address/port to string: %s",
-		      myname, MAI_STRERROR(aierr));
-	state->port = mystrdup(client_port.buf);
-
-	/*
-	 * XXX Require that the infrastructure strips off the IPv6 datalink
-	 * suffix to avoid false alarms with strict address syntax checks.
-	 */
-#ifdef HAS_IPV6
-	if (strchr(client_addr.buf, '%') != 0)
-	    msg_panic("%s: address %s has datalink suffix",
-		      myname, client_addr.buf);
-#endif
-
-	/*
-	 * We convert IPv4-in-IPv6 address to 'true' IPv4 address early on,
-	 * but only if IPv4 support is enabled (why would anyone want to turn
-	 * it off)? With IPv4 support enabled we have no need for the IPv6
-	 * form in logging, hostname verification and access checks.
-	 */
-#ifdef HAS_IPV6
-	if (sa->sa_family == AF_INET6) {
-	    if (strchr((char *) proto_info->sa_family_list, AF_INET) != 0
-		&& IN6_IS_ADDR_V4MAPPED(&SOCK_ADDR_IN6_ADDR(sa))
-		&& (colonp = strrchr(client_addr.buf, ':')) != 0) {
-		struct addrinfo *res0;
-
-		if (msg_verbose > 1)
-		    msg_info("%s: rewriting V4-mapped address \"%s\" to \"%s\"",
-			     myname, client_addr.buf, colonp + 1);
-
-		state->addr = mystrdup(colonp + 1);
-		state->rfc_addr = mystrdup(colonp + 1);
-		state->addr_family = AF_INET;
-		aierr = hostaddr_to_sockaddr(state->addr, (char *) 0, 0, &res0);
-		if (aierr)
-		    msg_fatal("%s: cannot convert %s from string to binary: %s",
-			      myname, state->addr, MAI_STRERROR(aierr));
-		sa_length = res0->ai_addrlen;
-		if (sa_length > sizeof(ss))
-		    sa_length = sizeof(ss);
-		memcpy((void *) sa, res0->ai_addr, sa_length);
-		freeaddrinfo(res0);
-	    }
-
-	    /*
-	     * Following RFC 2821 section 4.1.3, an IPv6 address literal gets
-	     * a prefix of 'IPv6:'. We do this consistently for all IPv6
-	     * addresses that that appear in headers or envelopes. The fact
-	     * that valid_mailhost_addr() enforces the form helps of course.
-	     * We use the form without IPV6: prefix when doing access
-	     * control, or when accessing the connection cache.
-	     */
-	    else {
-		state->addr = mystrdup(client_addr.buf);
-		state->rfc_addr =
-		    concatenate(IPV6_COL, client_addr.buf, (char *) 0);
-		state->addr_family = sa->sa_family;
-	    }
-	}
-
-	/*
-	 * An IPv4 address is in dotted quad decimal form.
-	 */
-	else
-#endif
-	{
-	    state->addr = mystrdup(client_addr.buf);
-	    state->rfc_addr = mystrdup(client_addr.buf);
-	    state->addr_family = sa->sa_family;
-	}
-
-	/*
-	 * Look up and sanity check the client hostname.
-	 * 
-	 * It is unsafe to allow numeric hostnames, especially because there
-	 * exists pressure to turn off the name->addr double check. In that
-	 * case an attacker could trivally bypass access restrictions.
-	 * 
-	 * sockaddr_to_hostname() already rejects malformed or numeric names.
-	 */
-#define REJECT_PEER_NAME(state) { \
-	myfree(state->name); \
-	state->name = mystrdup(CLIENT_NAME_UNKNOWN); \
+    /*
+     * Sorry, but there are some things that we just cannot do while
+     * connected to the network.
+     */
+    if (geteuid() != var_owner_uid || getuid() != var_owner_uid) {
+        msg_error("incorrect QMQP server privileges: uid=%lu euid=%lu",
+              (unsigned long) getuid(), (unsigned long) geteuid());
+        msg_fatal("the Postfix QMQP server must run with $%s privileges",
+              VAR_MAIL_OWNER);
     }
 
-	if ((aierr = sockaddr_to_hostname(sa, sa_length, &client_name,
-					  (MAI_SERVNAME_STR *) 0, 0)) != 0) {
-	    state->name = mystrdup(CLIENT_NAME_UNKNOWN);
-	} else {
-	    struct addrinfo *res0;
-	    struct addrinfo *res;
+    /*
+     * Convert the client address to printable form.
+     */
+    if ((aierr = sockaddr_to_hostaddr(sa, sa_length, &client_addr,
+                      &client_port, 0)) != 0)
+        msg_fatal("%s: cannot convert client address/port to string: %s",
+              myname, MAI_STRERROR(aierr));
+    state->port = mystrdup(client_port.buf);
 
-	    state->name = mystrdup(client_name.buf);
+    /*
+     * XXX Require that the infrastructure strips off the IPv6 datalink
+     * suffix to avoid false alarms with strict address syntax checks.
+     */
+#ifdef HAS_IPV6
+    if (strchr(client_addr.buf, '%') != 0)
+        msg_panic("%s: address %s has datalink suffix",
+              myname, client_addr.buf);
+#endif
 
-	    /*
-	     * Reject the hostname if it does not list the peer address.
-	     */
-	    aierr = hostname_to_sockaddr_pf(state->name, state->addr_family,
-					    (char *) 0, 0, &res0);
-	    if (aierr) {
-		msg_warn("hostname %s does not resolve to address %s: %s",
-			 state->name, state->addr, MAI_STRERROR(aierr));
-		REJECT_PEER_NAME(state);
-	    } else {
-		for (res = res0; /* void */ ; res = res->ai_next) {
-		    if (res == 0) {
-			msg_warn("hostname %s does not resolve to address %s",
-				 state->addr, state->name);
-			REJECT_PEER_NAME(state);
-			break;
-		    }
-		    if (strchr((char *) proto_info->sa_family_list, res->ai_family) == 0) {
-			msg_info("skipping address family %d for host %s",
-				 res->ai_family, state->name);
-			continue;
-		    }
-		    if (sock_addr_cmp_addr(res->ai_addr, sa) == 0)
-			break;			/* keep peer name */
-		}
-		freeaddrinfo(res0);
-	    }
-	}
+    /*
+     * We convert IPv4-in-IPv6 address to 'true' IPv4 address early on,
+     * but only if IPv4 support is enabled (why would anyone want to turn
+     * it off)? With IPv4 support enabled we have no need for the IPv6
+     * form in logging, hostname verification and access checks.
+     */
+#ifdef HAS_IPV6
+    if (sa->sa_family == AF_INET6) {
+        if (strchr((char *) proto_info->sa_family_list, AF_INET) != 0
+        && IN6_IS_ADDR_V4MAPPED(&SOCK_ADDR_IN6_ADDR(sa))
+        && (colonp = strrchr(client_addr.buf, ':')) != 0) {
+        struct addrinfo *res0;
+
+        if (msg_verbose > 1)
+            msg_info("%s: rewriting V4-mapped address \"%s\" to \"%s\"",
+                 myname, client_addr.buf, colonp + 1);
+
+        state->addr = mystrdup(colonp + 1);
+        state->rfc_addr = mystrdup(colonp + 1);
+        state->addr_family = AF_INET;
+        aierr = hostaddr_to_sockaddr(state->addr, (char *) 0, 0, &res0);
+        if (aierr)
+            msg_fatal("%s: cannot convert %s from string to binary: %s",
+                  myname, state->addr, MAI_STRERROR(aierr));
+        sa_length = res0->ai_addrlen;
+        if (sa_length > sizeof(ss))
+            sa_length = sizeof(ss);
+        memcpy((void *) sa, res0->ai_addr, sa_length);
+        freeaddrinfo(res0);
+        }
+
+        /*
+         * Following RFC 2821 section 4.1.3, an IPv6 address literal gets
+         * a prefix of 'IPv6:'. We do this consistently for all IPv6
+         * addresses that that appear in headers or envelopes. The fact
+         * that valid_mailhost_addr() enforces the form helps of course.
+         * We use the form without IPV6: prefix when doing access
+         * control, or when accessing the connection cache.
+         */
+        else {
+        state->addr = mystrdup(client_addr.buf);
+        state->rfc_addr =
+            concatenate(IPV6_COL, client_addr.buf, (char *) 0);
+        state->addr_family = sa->sa_family;
+        }
+    }
+
+    /*
+     * An IPv4 address is in dotted quad decimal form.
+     */
+    else
+#endif
+    {
+        state->addr = mystrdup(client_addr.buf);
+        state->rfc_addr = mystrdup(client_addr.buf);
+        state->addr_family = sa->sa_family;
+    }
+
+    /*
+     * Look up and sanity check the client hostname.
+     * 
+     * It is unsafe to allow numeric hostnames, especially because there
+     * exists pressure to turn off the name->addr double check. In that
+     * case an attacker could trivally bypass access restrictions.
+     * 
+     * sockaddr_to_hostname() already rejects malformed or numeric names.
+     */
+#define REJECT_PEER_NAME(state) { \
+    myfree(state->name); \
+    state->name = mystrdup(CLIENT_NAME_UNKNOWN); \
+    }
+
+    if ((aierr = sockaddr_to_hostname(sa, sa_length, &client_name,
+                      (MAI_SERVNAME_STR *) 0, 0)) != 0) {
+        state->name = mystrdup(CLIENT_NAME_UNKNOWN);
+    } else {
+        struct addrinfo *res0;
+        struct addrinfo *res;
+
+        state->name = mystrdup(client_name.buf);
+
+        /*
+         * Reject the hostname if it does not list the peer address.
+         */
+        aierr = hostname_to_sockaddr_pf(state->name, state->addr_family,
+                        (char *) 0, 0, &res0);
+        if (aierr) {
+        msg_warn("hostname %s does not resolve to address %s: %s",
+             state->name, state->addr, MAI_STRERROR(aierr));
+        REJECT_PEER_NAME(state);
+        } else {
+        for (res = res0; /* void */ ; res = res->ai_next) {
+            if (res == 0) {
+            msg_warn("hostname %s does not resolve to address %s",
+                 state->addr, state->name);
+            REJECT_PEER_NAME(state);
+            break;
+            }
+            if (strchr((char *) proto_info->sa_family_list, res->ai_family) == 0) {
+            msg_info("skipping address family %d for host %s",
+                 res->ai_family, state->name);
+            continue;
+            }
+            if (sock_addr_cmp_addr(res->ai_addr, sa) == 0)
+            break;            /* keep peer name */
+        }
+        freeaddrinfo(res0);
+        }
+    }
     }
 
     /*
@@ -281,20 +281,20 @@ void    qmqpd_peer_init(QMQPD_STATE *state)
      * naming service because that can hang when the machine is disconnected.
      */
     else {
-	state->name = mystrdup("localhost");
-	state->addr = mystrdup("127.0.0.1");	/* XXX bogus. */
-	state->rfc_addr = mystrdup("127.0.0.1");/* XXX bogus. */
-	state->addr_family = AF_UNSPEC;
-	state->port = mystrdup("0");		/* XXX bogus. */
+    state->name = mystrdup("localhost");
+    state->addr = mystrdup("127.0.0.1");    /* XXX bogus. */
+    state->rfc_addr = mystrdup("127.0.0.1");/* XXX bogus. */
+    state->addr_family = AF_UNSPEC;
+    state->port = mystrdup("0");        /* XXX bogus. */
     }
 
     /*
      * Do the name[addr]:port formatting for pretty reports.
      */
     state->namaddr =
-	concatenate(state->name, "[", state->addr, "]",
-		    var_qmqpd_client_port_log ? ":" : (char *) 0,
-		    state->port, (char *) 0);
+    concatenate(state->name, "[", state->addr, "]",
+            var_qmqpd_client_port_log ? ":" : (char *) 0,
+            state->port, (char *) 0);
 }
 
 /* qmqpd_peer_reset - destroy peer information */

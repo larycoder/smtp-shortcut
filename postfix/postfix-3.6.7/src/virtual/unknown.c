@@ -1,32 +1,32 @@
 /*++
 /* NAME
-/*	unknown 3
+/*    unknown 3
 /* SUMMARY
-/*	delivery of unknown recipients
+/*    delivery of unknown recipients
 /* SYNOPSIS
-/*	#include "virtual.h"
+/*    #include "virtual.h"
 /*
-/*	int	deliver_unknown(state)
-/*	LOCAL_STATE state;
+/*    int    deliver_unknown(state)
+/*    LOCAL_STATE state;
 /* DESCRIPTION
-/*	deliver_unknown() delivers a message for unknown recipients.
+/*    deliver_unknown() delivers a message for unknown recipients.
 /* .PP
-/*	Arguments:
+/*    Arguments:
 /* .IP state
-/*	Message delivery attributes (sender, recipient etc.).
+/*    Message delivery attributes (sender, recipient etc.).
 /* .IP usr_attr
-/*	Attributes describing user rights and mailbox location.
+/*    Attributes describing user rights and mailbox location.
 /* DIAGNOSTICS
-/*	The result status is non-zero when delivery should be tried again.
+/*    The result status is non-zero when delivery should be tried again.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -56,10 +56,10 @@ int     deliver_unknown(LOCAL_STATE state)
      */
     state.level++;
     if (msg_verbose)
-	MSG_LOG_STATE(myname, state);
+    MSG_LOG_STATE(myname, state);
 
     dsb_simple(state.msg_attr.why, "5.1.1",
-	       "unknown user: \"%s\"", state.msg_attr.user);
+           "unknown user: \"%s\"", state.msg_attr.user);
     return (bounce_append(BOUNCE_FLAGS(state.request),
-			  BOUNCE_ATTR(state.msg_attr)));
+              BOUNCE_ATTR(state.msg_attr)));
 }

@@ -1,30 +1,30 @@
 /*++
 /* NAME
-/*	master_vars 3
+/*    master_vars 3
 /* SUMMARY
-/*	Postfix master - global configuration file access
+/*    Postfix master - global configuration file access
 /* SYNOPSIS
-/*	#include "master.h"
+/*    #include "master.h"
 /*
-/*	void	master_vars_init()
+/*    void    master_vars_init()
 /* DESCRIPTION
-/*	master_vars_init() reads values from the global Postfix configuration
-/*	file and assigns them to tunable program parameters. Where no value
-/*	is specified, a compiled-in default value is used.
+/*    master_vars_init() reads values from the global Postfix configuration
+/*    file and assigns them to tunable program parameters. Where no value
+/*    is specified, a compiled-in default value is used.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -60,22 +60,22 @@ void    master_vars_init(void)
 {
     char   *path;
     static const CONFIG_STR_TABLE str_table[] = {
-	VAR_MASTER_DISABLE, DEF_MASTER_DISABLE, &var_master_disable, 0, 0,
-	0,
+    VAR_MASTER_DISABLE, DEF_MASTER_DISABLE, &var_master_disable, 0, 0,
+    0,
     };
     static const CONFIG_TIME_TABLE time_table[] = {
-	VAR_THROTTLE_TIME, DEF_THROTTLE_TIME, &var_throttle_time, 1, 0,
-	0,
+    VAR_THROTTLE_TIME, DEF_THROTTLE_TIME, &var_throttle_time, 1, 0,
+    0,
     };
     static char *saved_inet_protocols;
     static char *saved_queue_dir;
     static char *saved_config_dir;
     static const MASTER_STR_WATCH str_watch_table[] = {
-	VAR_CONFIG_DIR, &var_config_dir, &saved_config_dir, 0, 0,
-	VAR_QUEUE_DIR, &var_queue_dir, &saved_queue_dir, 0, 0,
-	VAR_INET_PROTOCOLS, &var_inet_protocols, &saved_inet_protocols, 0, 0,
-	/* XXX Add inet_interfaces here after this code is burned in. */
-	0,
+    VAR_CONFIG_DIR, &var_config_dir, &saved_config_dir, 0, 0,
+    VAR_QUEUE_DIR, &var_queue_dir, &saved_queue_dir, 0, 0,
+    VAR_INET_PROTOCOLS, &var_inet_protocols, &saved_inet_protocols, 0, 0,
+    /* XXX Add inet_interfaces here after this code is burned in. */
+    0,
     };
 
     /*

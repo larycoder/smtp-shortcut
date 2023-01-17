@@ -1,34 +1,34 @@
 /*++
 /* NAME
-/*	make_dirs 3
+/*    make_dirs 3
 /* SUMMARY
-/*	create directory hierarchy
+/*    create directory hierarchy
 /* SYNOPSIS
-/*	#include <make_dirs.h>
+/*    #include <make_dirs.h>
 /*
-/*	int	make_dirs(path, perms)
-/*	const char *path;
-/*	int	perms;
+/*    int    make_dirs(path, perms)
+/*    const char *path;
+/*    int    perms;
 /* DESCRIPTION
-/*	make_dirs() creates the directory specified in \fIpath\fR, and
-/*	creates any missing intermediate directories as well. Directories
-/*	are created with the permissions specified in \fIperms\fR, as
-/*	modified by the process umask.
+/*    make_dirs() creates the directory specified in \fIpath\fR, and
+/*    creates any missing intermediate directories as well. Directories
+/*    are created with the permissions specified in \fIperms\fR, as
+/*    modified by the process umask.
 /* DIAGNOSTICS:
-/*	Fatal: out of memory. make_dirs() returns 0 in case of success.
-/*	In case of problems. make_dirs() returns -1 and \fIerrno\fR
-/*	reflects the nature of the problem.
+/*    Fatal: out of memory. make_dirs() returns 0 in case of success.
+/*    In case of problems. make_dirs() returns -1 and \fIerrno\fR
+/*    reflects the nature of the problem.
 /* SEE ALSO
-/*	mkdir(2)
+/*    mkdir(2)
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -74,74 +74,74 @@ int     make_dirs(const char *path, int perms)
     SKIP_WHILE(*cp == '/', cp);
 
     for (;;) {
-	SKIP_WHILE(*cp != '/', cp);
-	if ((saved_ch = *cp) != 0)
-	    *cp = 0;
-	if ((ret = stat(saved_path, &st)) >= 0) {
-	    if (!S_ISDIR(st.st_mode)) {
-		errno = ENOTDIR;
-		ret = -1;
-		break;
-	    }
-	    saved_mode = st.st_mode;
-	} else {
-	    if (errno != ENOENT)
-		break;
+    SKIP_WHILE(*cp != '/', cp);
+    if ((saved_ch = *cp) != 0)
+        *cp = 0;
+    if ((ret = stat(saved_path, &st)) >= 0) {
+        if (!S_ISDIR(st.st_mode)) {
+        errno = ENOTDIR;
+        ret = -1;
+        break;
+        }
+        saved_mode = st.st_mode;
+    } else {
+        if (errno != ENOENT)
+        break;
 
-	    /*
-	     * mkdir(foo) fails with EEXIST if foo is a symlink.
-	     */
+        /*
+         * mkdir(foo) fails with EEXIST if foo is a symlink.
+         */
 #if 0
 
-	    /*
-	     * Create a new directory. Unfortunately, mkdir(2) has no
-	     * equivalent of open(2)'s O_CREAT|O_EXCL safety net, so we must
-	     * require that the parent directory is not world writable.
-	     * Detecting a lost race condition after the fact is not
-	     * sufficient, as an attacker could repeat the attack and add one
-	     * directory level at a time.
-	     */
-	    if (saved_mode & S_IWOTH) {
-		msg_warn("refusing to mkdir %s: parent directory is writable by everyone",
-			 saved_path);
-		errno = EPERM;
-		ret = -1;
-		break;
-	    }
+        /*
+         * Create a new directory. Unfortunately, mkdir(2) has no
+         * equivalent of open(2)'s O_CREAT|O_EXCL safety net, so we must
+         * require that the parent directory is not world writable.
+         * Detecting a lost race condition after the fact is not
+         * sufficient, as an attacker could repeat the attack and add one
+         * directory level at a time.
+         */
+        if (saved_mode & S_IWOTH) {
+        msg_warn("refusing to mkdir %s: parent directory is writable by everyone",
+             saved_path);
+        errno = EPERM;
+        ret = -1;
+        break;
+        }
 #endif
-	    if ((ret = mkdir(saved_path, perms)) < 0) {
-		if (errno != EEXIST)
-		    break;
-		/* Race condition? */
-		if ((ret = stat(saved_path, &st)) < 0)
-		    break;
-		if (!S_ISDIR(st.st_mode)) {
-		    errno = ENOTDIR;
-		    ret = -1;
-		    break;
-		}
-	    }
+        if ((ret = mkdir(saved_path, perms)) < 0) {
+        if (errno != EEXIST)
+            break;
+        /* Race condition? */
+        if ((ret = stat(saved_path, &st)) < 0)
+            break;
+        if (!S_ISDIR(st.st_mode)) {
+            errno = ENOTDIR;
+            ret = -1;
+            break;
+        }
+        }
 
-	    /*
-	     * Fix directory ownership when mkdir() ignores the effective
-	     * GID. Don't change the effective UID for doing this.
-	     */
-	    if ((ret = stat(saved_path, &st)) < 0) {
-		msg_warn("%s: stat %s: %m", myname, saved_path);
-		break;
-	    }
-	    if (egid == -1)
-		egid = getegid();
-	    if (st.st_gid != egid && (ret = chown(saved_path, -1, egid)) < 0) {
-		msg_warn("%s: chgrp %s: %m", myname, saved_path);
-		break;
-	    }
-	}
-	if (saved_ch != 0)
-	    *cp = saved_ch;
-	SKIP_WHILE(*cp == '/', cp);
-	if (*cp == 0)
-	    break;
+        /*
+         * Fix directory ownership when mkdir() ignores the effective
+         * GID. Don't change the effective UID for doing this.
+         */
+        if ((ret = stat(saved_path, &st)) < 0) {
+        msg_warn("%s: stat %s: %m", myname, saved_path);
+        break;
+        }
+        if (egid == -1)
+        egid = getegid();
+        if (st.st_gid != egid && (ret = chown(saved_path, -1, egid)) < 0) {
+        msg_warn("%s: chgrp %s: %m", myname, saved_path);
+        break;
+        }
+    }
+    if (saved_ch != 0)
+        *cp = saved_ch;
+    SKIP_WHILE(*cp == '/', cp);
+    if (*cp == 0)
+        break;
     }
 
     /*
@@ -163,10 +163,10 @@ int     main(int argc, char **argv)
 {
     msg_vstream_init(argv[0], VSTREAM_ERR);
     if (argc < 2)
-	msg_fatal("usage: %s path...", argv[0]);
+    msg_fatal("usage: %s path...", argv[0]);
     while (--argc > 0 && *++argv != 0)
-	if (make_dirs(*argv, 0755))
-	    msg_fatal("%s: %m", *argv);
+    if (make_dirs(*argv, 0755))
+        msg_fatal("%s: %m", *argv);
     exit(0);
 }
 

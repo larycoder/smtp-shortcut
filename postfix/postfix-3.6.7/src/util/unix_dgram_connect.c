@@ -1,42 +1,42 @@
 /*++
 /* NAME
-/*	unix_dgram_connect 3
+/*    unix_dgram_connect 3
 /* SUMMARY
-/*	connect to UNIX-domain datagram server
+/*    connect to UNIX-domain datagram server
 /* SYNOPSIS
-/*	#include <connect.h>
+/*    #include <connect.h>
 /*
-/*	int	unix_dgram_connect(
-/*	const char *path,
-/*	int	block_mode)
+/*    int    unix_dgram_connect(
+/*    const char *path,
+/*    int    block_mode)
 /* DESCRIPTION
-/*	unix_dgram_connect() connects to the specified UNIX-domain
-/*	datagram server, and returns the resulting file descriptor.
+/*    unix_dgram_connect() connects to the specified UNIX-domain
+/*    datagram server, and returns the resulting file descriptor.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP path
-/*	Null-terminated string with connection destination.`
+/*    Null-terminated string with connection destination.`
 /* .IP block_mode
-/*	Either NON_BLOCKING for a non-blocking socket, or BLOCKING for
-/*	blocking mode.
+/*    Either NON_BLOCKING for a non-blocking socket, or BLOCKING for
+/*    blocking mode.
 /* DIAGNOSIICS
-/*	Fatal errors: path too large, can't create socket.
+/*    Fatal errors: path too large, can't create socket.
 /*
-/*	Other errors result in a -1 result value, with errno indicating
-/*	why the service is unavailable.
+/*    Other errors result in a -1 result value, with errno indicating
+/*    why the service is unavailable.
 /* .sp
-/*	ENOENT: the named socket does not exist.
+/*    ENOENT: the named socket does not exist.
 /* .sp
-/*	ECONNREFUSED: the named socket is not open.
+/*    ECONNREFUSED: the named socket is not open.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
  /*
@@ -69,7 +69,7 @@ int     unix_dgram_connect(const char *path, int block_mode)
      * Translate address information to internal form.
      */
     if ((path_len = strlen(path)) >= sizeof(sun.sun_path))
-	msg_fatal("%s: unix-domain name too long: %s", myname, path);
+    msg_fatal("%s: unix-domain name too long: %s", myname, path);
     memset((void *) &sun, 0, sizeof(sun));
     sun.sun_family = AF_UNIX;
 #ifdef HAS_SUN_LEN
@@ -81,10 +81,10 @@ int     unix_dgram_connect(const char *path, int block_mode)
      * Create a client socket.
      */
     if ((sock = socket(AF_UNIX, SOCK_DGRAM, 0)) < 0)
-	msg_fatal("%s: socket: %m", myname);
+    msg_fatal("%s: socket: %m", myname);
     if (connect(sock, (struct sockaddr *) &sun, sizeof(sun)) < 0) {
-	close(sock);
-	return (-1);
+    close(sock);
+    return (-1);
     }
     non_blocking(sock, block_mode);
     return (sock);

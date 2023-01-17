@@ -1,38 +1,38 @@
 /*++
 /* NAME
-/*	msg_stats_scan
+/*    msg_stats_scan
 /* SUMMARY
-/*	read MSG_STATS from stream
+/*    read MSG_STATS from stream
 /* SYNOPSIS
-/*	#include <msg_stats.h>
+/*    #include <msg_stats.h>
 /*
-/*	int	msg_stats_scan(scan_fn, stream, flags, ptr)
-/*	ATTR_SCAN_COMMON_FN scan_fn;
-/*	VSTREAM *stream;
-/*	int	flags;
-/*	void	*ptr;
+/*    int    msg_stats_scan(scan_fn, stream, flags, ptr)
+/*    ATTR_SCAN_COMMON_FN scan_fn;
+/*    VSTREAM *stream;
+/*    int    flags;
+/*    void    *ptr;
 /* DESCRIPTION
-/*	msg_stats_scan() reads an MSG_STATS from the named stream
-/*	using the specified attribute scan routine. msg_stats_scan()
-/*	is meant to be passed as a call-back to attr_scan(), thusly:
+/*    msg_stats_scan() reads an MSG_STATS from the named stream
+/*    using the specified attribute scan routine. msg_stats_scan()
+/*    is meant to be passed as a call-back to attr_scan(), thusly:
 /*
-/*	... RECV_ATTR_FUNC(msg_stats_scan, (void *) &stats), ...
+/*    ... RECV_ATTR_FUNC(msg_stats_scan, (void *) &stats), ...
 /* DIAGNOSTICS
-/*	Fatal: out of memory.
+/*    Fatal: out of memory.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -59,7 +59,7 @@
 /* msg_stats_scan - read MSG_STATS from stream */
 
 int     msg_stats_scan(ATTR_SCAN_COMMON_FN scan_fn, VSTREAM *fp,
-		               int flags, void *ptr)
+                       int flags, void *ptr)
 {
     MSG_STATS *stats = (MSG_STATS *) ptr;
     VSTRING *buf = vstring_alloc(sizeof(MSG_STATS) * 2);
@@ -75,16 +75,16 @@ int     msg_stats_scan(ATTR_SCAN_COMMON_FN scan_fn, VSTREAM *fp,
      * gracefully reject attempts to extend it.
      */
     ret = scan_fn(fp, flags | ATTR_FLAG_MORE,
-		  RECV_ATTR_DATA(MAIL_ATTR_TIME, buf),
-		  ATTR_TYPE_END);
+          RECV_ATTR_DATA(MAIL_ATTR_TIME, buf),
+          ATTR_TYPE_END);
     if (ret == 1) {
-	if (LEN(buf) == sizeof(*stats)) {
-	    memcpy((void *) stats, STR(buf), sizeof(*stats));
-	} else {
-	    msg_warn("msg_stats_scan: size mis-match: %u != %u",
-		     (unsigned) LEN(buf), (unsigned) sizeof(*stats));
-	    ret = (-1);
-	}
+    if (LEN(buf) == sizeof(*stats)) {
+        memcpy((void *) stats, STR(buf), sizeof(*stats));
+    } else {
+        msg_warn("msg_stats_scan: size mis-match: %u != %u",
+             (unsigned) LEN(buf), (unsigned) sizeof(*stats));
+        ret = (-1);
+    }
     }
     vstring_free(buf);
     return (ret);

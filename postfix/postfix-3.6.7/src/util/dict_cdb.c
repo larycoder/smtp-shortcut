@@ -1,42 +1,42 @@
 /*++
 /* NAME
-/*	dict_cdb 3
+/*    dict_cdb 3
 /* SUMMARY
-/*	dictionary manager interface to CDB files
+/*    dictionary manager interface to CDB files
 /* SYNOPSIS
-/*	#include <dict_cdb.h>
+/*    #include <dict_cdb.h>
 /*
-/*	DICT	*dict_cdb_open(path, open_flags, dict_flags)
-/*	const char *path;
-/*	int	open_flags;
-/*	int	dict_flags;
+/*    DICT    *dict_cdb_open(path, open_flags, dict_flags)
+/*    const char *path;
+/*    int    open_flags;
+/*    int    dict_flags;
 /*
 /* DESCRIPTION
-/*	dict_cdb_open() opens the specified CDB database.  The result is
-/*	a pointer to a structure that can be used to access the dictionary
-/*	using the generic methods documented in dict_open(3).
+/*    dict_cdb_open() opens the specified CDB database.  The result is
+/*    a pointer to a structure that can be used to access the dictionary
+/*    using the generic methods documented in dict_open(3).
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP path
-/*	The database pathname, not including the ".cdb" suffix.
+/*    The database pathname, not including the ".cdb" suffix.
 /* .IP open_flags
-/*	Flags passed to open(). Specify O_RDONLY or O_WRONLY|O_CREAT|O_TRUNC.
+/*    Flags passed to open(). Specify O_RDONLY or O_WRONLY|O_CREAT|O_TRUNC.
 /* .IP dict_flags
-/*	Flags used by the dictionary interface.
+/*    Flags used by the dictionary interface.
 /* SEE ALSO
-/*	dict(3) generic dictionary manager
+/*    dict(3) generic dictionary manager
 /* DIAGNOSTICS
-/*	Fatal errors: cannot open file, write error, out of memory.
+/*    Fatal errors: cannot open file, write error, out of memory.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Michael Tokarev <mjt@tls.msk.ru> based on dict_db.c by
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Michael Tokarev <mjt@tls.msk.ru> based on dict_db.c by
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 #include "sys_defs.h"
@@ -82,16 +82,16 @@
 /* Application-specific. */
 
 typedef struct {
-    DICT    dict;			/* generic members */
-    struct cdb cdb;			/* cdb structure */
-} DICT_CDBQ;				/* query interface */
+    DICT    dict;            /* generic members */
+    struct cdb cdb;            /* cdb structure */
+} DICT_CDBQ;                /* query interface */
 
 typedef struct {
-    DICT    dict;			/* generic members */
-    struct cdb_make cdbm;		/* cdb_make structure */
-    char   *cdb_path;			/* cdb pathname (.cdb) */
-    char   *tmp_path;			/* temporary pathname (.tmp) */
-} DICT_CDBM;				/* rebuild interface */
+    DICT    dict;            /* generic members */
+    struct cdb_make cdbm;        /* cdb_make structure */
+    char   *cdb_path;            /* cdb pathname (.cdb) */
+    char   *tmp_path;            /* temporary pathname (.tmp) */
+} DICT_CDBM;                /* rebuild interface */
 
 /* dict_cdbq_lookup - find database entry, query mode */
 
@@ -112,10 +112,10 @@ static const char *dict_cdbq_lookup(DICT *dict, const char *name)
      * Optionally fold the key.
      */
     if (dict->flags & DICT_FLAG_FOLD_FIX) {
-	if (dict->fold_buf == 0)
-	    dict->fold_buf = vstring_alloc(10);
-	vstring_strcpy(dict->fold_buf, name);
-	name = lowercase(vstring_str(dict->fold_buf));
+    if (dict->fold_buf == 0)
+        dict->fold_buf = vstring_alloc(10);
+    vstring_strcpy(dict->fold_buf, name);
+    name = lowercase(vstring_str(dict->fold_buf));
     }
 
     /*
@@ -123,9 +123,9 @@ static const char *dict_cdbq_lookup(DICT *dict, const char *name)
      * and value.
      */
     if (dict->flags & DICT_FLAG_TRY1NULL) {
-	status = cdb_find(&dict_cdbq->cdb, name, strlen(name) + 1);
-	if (status > 0)
-	    dict->flags &= ~DICT_FLAG_TRY0NULL;
+    status = cdb_find(&dict_cdbq->cdb, name, strlen(name) + 1);
+    if (status > 0)
+        dict->flags &= ~DICT_FLAG_TRY0NULL;
     }
 
     /*
@@ -133,27 +133,27 @@ static const char *dict_cdbq_lookup(DICT *dict, const char *name)
      * value.
      */
     if (status == 0 && (dict->flags & DICT_FLAG_TRY0NULL)) {
-	status = cdb_find(&dict_cdbq->cdb, name, strlen(name));
-	if (status > 0)
-	    dict->flags &= ~DICT_FLAG_TRY1NULL;
+    status = cdb_find(&dict_cdbq->cdb, name, strlen(name));
+    if (status > 0)
+        dict->flags &= ~DICT_FLAG_TRY1NULL;
     }
     if (status < 0)
-	msg_fatal("error reading %s: %m", dict->name);
+    msg_fatal("error reading %s: %m", dict->name);
 
     if (status) {
-	vlen = cdb_datalen(&dict_cdbq->cdb);
-	if (len < vlen) {
-	    if (buf == 0)
-		buf = mymalloc(vlen + 1);
-	    else
-		buf = myrealloc(buf, vlen + 1);
-	    len = vlen;
-	}
-	if (cdb_read(&dict_cdbq->cdb, buf, vlen,
-		     cdb_datapos(&dict_cdbq->cdb)) < 0)
-	    msg_fatal("error reading %s: %m", dict->name);
-	buf[vlen] = '\0';
-	result = buf;
+    vlen = cdb_datalen(&dict_cdbq->cdb);
+    if (len < vlen) {
+        if (buf == 0)
+        buf = mymalloc(vlen + 1);
+        else
+        buf = myrealloc(buf, vlen + 1);
+        len = vlen;
+    }
+    if (cdb_read(&dict_cdbq->cdb, buf, vlen,
+             cdb_datapos(&dict_cdbq->cdb)) < 0)
+        msg_fatal("error reading %s: %m", dict->name);
+    buf[vlen] = '\0';
+    result = buf;
     }
     /* No locking so not release the lock.  */
 
@@ -169,7 +169,7 @@ static void dict_cdbq_close(DICT *dict)
     cdb_free(&dict_cdbq->cdb);
     close(dict->stat_fd);
     if (dict->fold_buf)
-	vstring_free(dict->fold_buf);
+    vstring_free(dict->fold_buf);
     dict_free(dict);
 }
 
@@ -186,23 +186,23 @@ static DICT *dict_cdbq_open(const char *path, int dict_flags)
      * Let the optimizer worry about eliminating redundant code.
      */
 #define DICT_CDBQ_OPEN_RETURN(d) do { \
-	DICT *__d = (d); \
-	myfree(cdb_path); \
-	return (__d); \
+    DICT *__d = (d); \
+    myfree(cdb_path); \
+    return (__d); \
     } while (0)
 
     cdb_path = concatenate(path, CDB_SUFFIX, (char *) 0);
 
     if ((fd = open(cdb_path, O_RDONLY)) < 0)
-	DICT_CDBQ_OPEN_RETURN(dict_surrogate(DICT_TYPE_CDB, path,
-					     O_RDONLY, dict_flags,
-					 "open database %s: %m", cdb_path));
+    DICT_CDBQ_OPEN_RETURN(dict_surrogate(DICT_TYPE_CDB, path,
+                         O_RDONLY, dict_flags,
+                     "open database %s: %m", cdb_path));
 
     dict_cdbq = (DICT_CDBQ *) dict_alloc(DICT_TYPE_CDB,
-					 cdb_path, sizeof(*dict_cdbq));
+                     cdb_path, sizeof(*dict_cdbq));
 #if defined(TINYCDB_VERSION)
     if (cdb_init(&(dict_cdbq->cdb), fd) != 0)
-	msg_fatal("dict_cdbq_open: unable to init %s: %m", cdb_path);
+    msg_fatal("dict_cdbq_open: unable to init %s: %m", cdb_path);
 #else
     cdb_init(&(dict_cdbq->cdb), fd);
 #endif
@@ -210,7 +210,7 @@ static DICT *dict_cdbq_open(const char *path, int dict_flags)
     dict_cdbq->dict.close = dict_cdbq_close;
     dict_cdbq->dict.stat_fd = fd;
     if (fstat(fd, &st) < 0)
-	msg_fatal("dict_dbq_open: fstat: %m");
+    msg_fatal("dict_dbq_open: fstat: %m");
     dict_cdbq->dict.mtime = st.st_mtime;
     dict_cdbq->dict.owner.uid = st.st_uid;
     dict_cdbq->dict.owner.status = (st.st_uid != 0);
@@ -221,19 +221,19 @@ static DICT *dict_cdbq_open(const char *path, int dict_flags)
      * the source file changed only seconds ago.
      */
     if (stat(path, &st) == 0
-	&& st.st_mtime > dict_cdbq->dict.mtime
-	&& st.st_mtime < time((time_t *) 0) - 100)
-	msg_warn("database %s is older than source file %s", cdb_path, path);
+    && st.st_mtime > dict_cdbq->dict.mtime
+    && st.st_mtime < time((time_t *) 0) - 100)
+    msg_warn("database %s is older than source file %s", cdb_path, path);
 
     /*
      * If undecided about appending a null byte to key and value, choose to
      * try both in query mode.
      */
     if ((dict_flags & (DICT_FLAG_TRY1NULL | DICT_FLAG_TRY0NULL)) == 0)
-	dict_flags |= DICT_FLAG_TRY0NULL | DICT_FLAG_TRY1NULL;
+    dict_flags |= DICT_FLAG_TRY0NULL | DICT_FLAG_TRY1NULL;
     dict_cdbq->dict.flags = dict_flags | DICT_FLAG_FIXED;
     if (dict_flags & DICT_FLAG_FOLD_FIX)
-	dict_cdbq->dict.fold_buf = vstring_alloc(10);
+    dict_cdbq->dict.fold_buf = vstring_alloc(10);
 
     DICT_CDBQ_OPEN_RETURN(DICT_DEBUG (&dict_cdbq->dict));
 }
@@ -252,10 +252,10 @@ static int dict_cdbm_update(DICT *dict, const char *name, const char *value)
      * Optionally fold the key.
      */
     if (dict->flags & DICT_FLAG_FOLD_FIX) {
-	if (dict->fold_buf == 0)
-	    dict->fold_buf = vstring_alloc(10);
-	vstring_strcpy(dict->fold_buf, name);
-	name = lowercase(vstring_str(dict->fold_buf));
+    if (dict->fold_buf == 0)
+        dict->fold_buf = vstring_alloc(10);
+    vstring_strcpy(dict->fold_buf, name);
+    name = lowercase(vstring_str(dict->fold_buf));
     }
     ksize = strlen(name);
     vsize = strlen(value);
@@ -264,8 +264,8 @@ static int dict_cdbm_update(DICT *dict, const char *name, const char *value)
      * Optionally append a null byte to key and value.
      */
     if (dict->flags & DICT_FLAG_TRY1NULL) {
-	ksize++;
-	vsize++;
+    ksize++;
+    vsize++;
     }
 
     /*
@@ -276,28 +276,28 @@ static int dict_cdbm_update(DICT *dict, const char *name, const char *value)
 #error please upgrate tinycdb to at least 0.5 version
 #endif
     if (dict->flags & DICT_FLAG_DUP_IGNORE)
-	r = CDB_PUT_ADD;
+    r = CDB_PUT_ADD;
     else if (dict->flags & DICT_FLAG_DUP_REPLACE)
-	r = CDB_PUT_REPLACE;
+    r = CDB_PUT_REPLACE;
     else
-	r = CDB_PUT_INSERT;
+    r = CDB_PUT_INSERT;
     r = cdb_make_put(&dict_cdbm->cdbm, name, ksize, value, vsize, r);
     if (r < 0)
-	msg_fatal("error writing %s: %m", dict_cdbm->tmp_path);
+    msg_fatal("error writing %s: %m", dict_cdbm->tmp_path);
     else if (r > 0) {
-	if (dict->flags & (DICT_FLAG_DUP_IGNORE | DICT_FLAG_DUP_REPLACE))
-	     /* void */ ;
-	else if (dict->flags & DICT_FLAG_DUP_WARN)
-	    msg_warn("%s: duplicate entry: \"%s\"",
-		     dict_cdbm->dict.name, name);
-	else
-	    msg_fatal("%s: duplicate entry: \"%s\"",
-		      dict_cdbm->dict.name, name);
+    if (dict->flags & (DICT_FLAG_DUP_IGNORE | DICT_FLAG_DUP_REPLACE))
+         /* void */ ;
+    else if (dict->flags & DICT_FLAG_DUP_WARN)
+        msg_warn("%s: duplicate entry: \"%s\"",
+             dict_cdbm->dict.name, name);
+    else
+        msg_fatal("%s: duplicate entry: \"%s\"",
+              dict_cdbm->dict.name, name);
     }
     return (r);
 #else
     if (cdb_make_add(&dict_cdbm->cdbm, name, ksize, value, vsize) < 0)
-	msg_fatal("error writing %s: %m", dict_cdbm->tmp_path);
+    msg_fatal("error writing %s: %m", dict_cdbm->tmp_path);
     return (0);
 #endif
 }
@@ -316,16 +316,16 @@ static void dict_cdbm_close(DICT *dict)
      * for database I/O and locking.
      */
     if (cdb_make_finish(&dict_cdbm->cdbm) < 0)
-	msg_fatal("finish database %s: %m", dict_cdbm->tmp_path);
+    msg_fatal("finish database %s: %m", dict_cdbm->tmp_path);
     if (rename(dict_cdbm->tmp_path, dict_cdbm->cdb_path) < 0)
-	msg_fatal("rename database from %s to %s: %m",
-		  dict_cdbm->tmp_path, dict_cdbm->cdb_path);
-    if (close(fd) < 0)				/* releases a lock */
-	msg_fatal("close database %s: %m", dict_cdbm->cdb_path);
+    msg_fatal("rename database from %s to %s: %m",
+          dict_cdbm->tmp_path, dict_cdbm->cdb_path);
+    if (close(fd) < 0)                /* releases a lock */
+    msg_fatal("close database %s: %m", dict_cdbm->cdb_path);
     myfree(dict_cdbm->cdb_path);
     myfree(dict_cdbm->tmp_path);
     if (dict->fold_buf)
-	vstring_free(dict->fold_buf);
+    vstring_free(dict->fold_buf);
     dict_free(dict);
 }
 
@@ -343,12 +343,12 @@ static DICT *dict_cdbm_open(const char *path, int dict_flags)
      * Let the optimizer worry about eliminating redundant code.
      */
 #define DICT_CDBM_OPEN_RETURN(d) do { \
-	DICT *__d = (d); \
-	if (cdb_path) \
-	    myfree(cdb_path); \
-	if (tmp_path) \
-	    myfree(tmp_path); \
-	return (__d); \
+    DICT *__d = (d); \
+    if (cdb_path) \
+        myfree(cdb_path); \
+    if (tmp_path) \
+        myfree(tmp_path); \
+    return (__d); \
     } while (0)
 
     cdb_path = concatenate(path, CDB_SUFFIX, (char *) 0);
@@ -362,51 +362,51 @@ static DICT *dict_cdbm_open(const char *path, int dict_flags)
      * isn't creating it at the same time.
      */
     for (;;) {
-	if ((fd = open(tmp_path, O_RDWR | O_CREAT, 0644)) < 0)
-	    DICT_CDBM_OPEN_RETURN(dict_surrogate(DICT_TYPE_CDB, path,
-						 O_RDWR, dict_flags,
-						 "open database %s: %m",
-						 tmp_path));
-	if (fstat(fd, &st0) < 0)
-	    msg_fatal("fstat(%s): %m", tmp_path);
+    if ((fd = open(tmp_path, O_RDWR | O_CREAT, 0644)) < 0)
+        DICT_CDBM_OPEN_RETURN(dict_surrogate(DICT_TYPE_CDB, path,
+                         O_RDWR, dict_flags,
+                         "open database %s: %m",
+                         tmp_path));
+    if (fstat(fd, &st0) < 0)
+        msg_fatal("fstat(%s): %m", tmp_path);
 
-	/*
-	 * Get an exclusive lock - we're going to change the database so we
-	 * can't have any spectators.
-	 */
-	if (myflock(fd, INTERNAL_LOCK, MYFLOCK_OP_EXCLUSIVE) < 0)
-	    msg_fatal("lock %s: %m", tmp_path);
+    /*
+     * Get an exclusive lock - we're going to change the database so we
+     * can't have any spectators.
+     */
+    if (myflock(fd, INTERNAL_LOCK, MYFLOCK_OP_EXCLUSIVE) < 0)
+        msg_fatal("lock %s: %m", tmp_path);
 
-	if (stat(tmp_path, &st1) < 0)
-	    msg_fatal("stat(%s): %m", tmp_path);
+    if (stat(tmp_path, &st1) < 0)
+        msg_fatal("stat(%s): %m", tmp_path);
 
-	/*
-	 * Compare file's state before and after lock: should be the same,
-	 * and nlinks should be >0, or else we opened non-existing file...
-	 */
-	if (st0.st_ino == st1.st_ino && st0.st_dev == st1.st_dev
-	    && st0.st_rdev == st1.st_rdev && st0.st_nlink == st1.st_nlink
-	    && st0.st_nlink > 0)
-	    break;				/* successefully opened */
+    /*
+     * Compare file's state before and after lock: should be the same,
+     * and nlinks should be >0, or else we opened non-existing file...
+     */
+    if (st0.st_ino == st1.st_ino && st0.st_dev == st1.st_dev
+        && st0.st_rdev == st1.st_rdev && st0.st_nlink == st1.st_nlink
+        && st0.st_nlink > 0)
+        break;                /* successefully opened */
 
-	close(fd);
+    close(fd);
 
     }
 
 #ifndef NO_FTRUNCATE
     if (st0.st_size)
-	ftruncate(fd, 0);
+    ftruncate(fd, 0);
 #endif
 
     dict_cdbm = (DICT_CDBM *) dict_alloc(DICT_TYPE_CDB, path,
-					 sizeof(*dict_cdbm));
+                     sizeof(*dict_cdbm));
     if (cdb_make_start(&dict_cdbm->cdbm, fd) < 0)
-	msg_fatal("initialize database %s: %m", tmp_path);
+    msg_fatal("initialize database %s: %m", tmp_path);
     dict_cdbm->dict.close = dict_cdbm_close;
     dict_cdbm->dict.update = dict_cdbm_update;
     dict_cdbm->cdb_path = cdb_path;
     dict_cdbm->tmp_path = tmp_path;
-    cdb_path = tmp_path = 0;			/* DICT_CDBM_OPEN_RETURN() */
+    cdb_path = tmp_path = 0;            /* DICT_CDBM_OPEN_RETURN() */
     dict_cdbm->dict.owner.uid = st1.st_uid;
     dict_cdbm->dict.owner.status = (st1.st_uid != 0);
     close_on_exec(fd, CLOSE_ON_EXEC);
@@ -416,13 +416,13 @@ static DICT *dict_cdbm_open(const char *path, int dict_flags)
      * default to not append a null byte when creating a cdb.
      */
     if ((dict_flags & (DICT_FLAG_TRY1NULL | DICT_FLAG_TRY0NULL)) == 0)
-	dict_flags |= DICT_FLAG_TRY0NULL;
+    dict_flags |= DICT_FLAG_TRY0NULL;
     else if ((dict_flags & DICT_FLAG_TRY1NULL)
-	     && (dict_flags & DICT_FLAG_TRY0NULL))
-	dict_flags &= ~DICT_FLAG_TRY0NULL;
+         && (dict_flags & DICT_FLAG_TRY0NULL))
+    dict_flags &= ~DICT_FLAG_TRY0NULL;
     dict_cdbm->dict.flags = dict_flags | DICT_FLAG_FIXED;
     if (dict_flags & DICT_FLAG_FOLD_FIX)
-	dict_cdbm->dict.fold_buf = vstring_alloc(10);
+    dict_cdbm->dict.fold_buf = vstring_alloc(10);
 
     DICT_CDBM_OPEN_RETURN(DICT_DEBUG (&dict_cdbm->dict));
 }
@@ -432,15 +432,15 @@ static DICT *dict_cdbm_open(const char *path, int dict_flags)
 DICT   *dict_cdb_open(const char *path, int open_flags, int dict_flags)
 {
     switch (open_flags & (O_RDONLY | O_RDWR | O_WRONLY | O_CREAT | O_TRUNC)) {
-	case O_RDONLY:			/* query mode */
-	return dict_cdbq_open(path, dict_flags);
-    case O_WRONLY | O_CREAT | O_TRUNC:		/* create mode */
-    case O_RDWR | O_CREAT | O_TRUNC:		/* sloppiness */
-	return dict_cdbm_open(path, dict_flags);
+    case O_RDONLY:            /* query mode */
+    return dict_cdbq_open(path, dict_flags);
+    case O_WRONLY | O_CREAT | O_TRUNC:        /* create mode */
+    case O_RDWR | O_CREAT | O_TRUNC:        /* sloppiness */
+    return dict_cdbm_open(path, dict_flags);
     default:
-	msg_fatal("dict_cdb_open: inappropriate open flags for cdb database"
-		  " - specify O_RDONLY or O_WRONLY|O_CREAT|O_TRUNC");
+    msg_fatal("dict_cdb_open: inappropriate open flags for cdb database"
+          " - specify O_RDONLY or O_WRONLY|O_CREAT|O_TRUNC");
     }
 }
 
-#endif					/* HAS_CDB */
+#endif                    /* HAS_CDB */

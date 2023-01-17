@@ -23,7 +23,7 @@ void    master_flow_init(void)
     const char *myname = "master_flow_init";
 
     if (pipe(master_flow_pipe) < 0)
-	msg_fatal("%s: pipe: %m", myname);
+    msg_fatal("%s: pipe: %m", myname);
 
     non_blocking(master_flow_pipe[0], NON_BLOCKING);
     non_blocking(master_flow_pipe[1], NON_BLOCKING);

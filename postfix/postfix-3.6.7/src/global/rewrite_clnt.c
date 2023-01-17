@@ -1,49 +1,49 @@
 /*++
 /* NAME
-/*	rewrite_clnt 3
+/*    rewrite_clnt 3
 /* SUMMARY
-/*	address rewrite service client
+/*    address rewrite service client
 /* SYNOPSIS
-/*	#include <vstring.h>
-/*	#include <rewrite_clnt.h>
+/*    #include <vstring.h>
+/*    #include <rewrite_clnt.h>
 /*
-/*	VSTRING	*rewrite_clnt(ruleset, address, result)
-/*	const char *ruleset;
-/*	const char *address;
+/*    VSTRING    *rewrite_clnt(ruleset, address, result)
+/*    const char *ruleset;
+/*    const char *address;
 /*
-/*	VSTRING	*rewrite_clnt_internal(ruleset, address, result)
-/*	const char *ruleset;
-/*	const char *address;
-/*	VSTRING	*result;
+/*    VSTRING    *rewrite_clnt_internal(ruleset, address, result)
+/*    const char *ruleset;
+/*    const char *address;
+/*    VSTRING    *result;
 /* DESCRIPTION
-/*	This module implements a mail address rewriting client.
+/*    This module implements a mail address rewriting client.
 /*
-/*	rewrite_clnt() sends a rule set name and external-form address to the
-/*	rewriting service and returns the resulting external-form address.
-/*	In case of communication failure the program keeps trying until the
-/*	mail system shuts down.
+/*    rewrite_clnt() sends a rule set name and external-form address to the
+/*    rewriting service and returns the resulting external-form address.
+/*    In case of communication failure the program keeps trying until the
+/*    mail system shuts down.
 /*
-/*	rewrite_clnt_internal() performs the same functionality but takes
-/*	input in internal (unquoted) form, and produces output in internal
-/*	(unquoted) form.
+/*    rewrite_clnt_internal() performs the same functionality but takes
+/*    input in internal (unquoted) form, and produces output in internal
+/*    (unquoted) form.
 /* DIAGNOSTICS
-/*	Warnings: communication failure. Fatal error: mail system is down.
+/*    Warnings: communication failure. Fatal error: mail system is down.
 /* SEE ALSO
-/*	mail_proto(3h) low-level mail component glue.
+/*    mail_proto(3h) low-level mail component glue.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -87,8 +87,8 @@ static VSTRING *last_result;
 static int rewrite_clnt_handshake(VSTREAM *stream)
 {
     return (attr_scan(stream, ATTR_FLAG_STRICT,
-		  RECV_ATTR_STREQ(MAIL_ATTR_PROTO, MAIL_ATTR_PROTO_TRIVIAL),
-		      ATTR_TYPE_END));
+          RECV_ATTR_STREQ(MAIL_ATTR_PROTO, MAIL_ATTR_PROTO_TRIVIAL),
+              ATTR_TYPE_END));
 }
 
 /* rewrite_clnt - rewrite address to (transport, next hop, recipient) */
@@ -103,9 +103,9 @@ VSTRING *rewrite_clnt(const char *rule, const char *addr, VSTRING *result)
      * One-entry cache.
      */
     if (last_addr == 0) {
-	last_rule = vstring_alloc(10);
-	last_addr = vstring_alloc(100);
-	last_result = vstring_alloc(100);
+    last_rule = vstring_alloc(10);
+    last_addr = vstring_alloc(100);
+    last_result = vstring_alloc(100);
     }
 
     /*
@@ -115,21 +115,21 @@ VSTRING *rewrite_clnt(const char *rule, const char *addr, VSTRING *result)
 #define STR vstring_str
 
     if (*addr == 0)
-	addr = "";
+    addr = "";
     if (addr == STR(result))
-	msg_panic("rewrite_clnt: result clobbers input");
+    msg_panic("rewrite_clnt: result clobbers input");
 
     /*
      * Peek at the cache.
      */
     if (time((time_t *) 0) < last_expire
-	&& strcmp(addr, STR(last_addr)) == 0
-	&& strcmp(rule, STR(last_rule)) == 0) {
-	vstring_strcpy(result, STR(last_result));
-	if (msg_verbose)
-	    msg_info("rewrite_clnt: cached: %s: %s -> %s",
-		     rule, addr, vstring_str(result));
-	return (result);
+    && strcmp(addr, STR(last_addr)) == 0
+    && strcmp(rule, STR(last_rule)) == 0) {
+    vstring_strcpy(result, STR(last_result));
+    if (msg_verbose)
+        msg_info("rewrite_clnt: cached: %s: %s -> %s",
+             rule, addr, vstring_str(result));
+    return (result);
     }
 
     /*
@@ -138,41 +138,41 @@ VSTRING *rewrite_clnt(const char *rule, const char *addr, VSTRING *result)
      * code.
      */
     if (rewrite_clnt_stream == 0)
-	rewrite_clnt_stream = clnt_stream_create(MAIL_CLASS_PRIVATE,
-						 var_rewrite_service,
-						 var_ipc_idle_limit,
-						 var_ipc_ttl_limit,
-						 rewrite_clnt_handshake);
+    rewrite_clnt_stream = clnt_stream_create(MAIL_CLASS_PRIVATE,
+                         var_rewrite_service,
+                         var_ipc_idle_limit,
+                         var_ipc_ttl_limit,
+                         rewrite_clnt_handshake);
 
     for (;;) {
-	stream = clnt_stream_access(rewrite_clnt_stream);
-	errno = 0;
-	count += 1;
-	if (stream == 0
-	    || attr_print(stream, ATTR_FLAG_NONE,
-			  SEND_ATTR_STR(MAIL_ATTR_REQ, REWRITE_ADDR),
-			  SEND_ATTR_STR(MAIL_ATTR_RULE, rule),
-			  SEND_ATTR_STR(MAIL_ATTR_ADDR, addr),
-			  ATTR_TYPE_END) != 0
-	    || vstream_fflush(stream)
-	    || attr_scan(stream, ATTR_FLAG_STRICT,
-			 RECV_ATTR_INT(MAIL_ATTR_FLAGS, &server_flags),
-			 RECV_ATTR_STR(MAIL_ATTR_ADDR, result),
-			 ATTR_TYPE_END) != 2) {
-	    if (msg_verbose || count > 1 || (errno && errno != EPIPE && errno != ENOENT))
-		msg_warn("problem talking to service %s: %m",
-			 var_rewrite_service);
-	} else {
-	    if (msg_verbose)
-		msg_info("rewrite_clnt: %s: %s -> %s",
-			 rule, addr, vstring_str(result));
-	    /* Server-requested disconnect. */
-	    if (server_flags != 0)
-		clnt_stream_recover(rewrite_clnt_stream);
-	    break;
-	}
-	sleep(1);				/* XXX make configurable */
-	clnt_stream_recover(rewrite_clnt_stream);
+    stream = clnt_stream_access(rewrite_clnt_stream);
+    errno = 0;
+    count += 1;
+    if (stream == 0
+        || attr_print(stream, ATTR_FLAG_NONE,
+              SEND_ATTR_STR(MAIL_ATTR_REQ, REWRITE_ADDR),
+              SEND_ATTR_STR(MAIL_ATTR_RULE, rule),
+              SEND_ATTR_STR(MAIL_ATTR_ADDR, addr),
+              ATTR_TYPE_END) != 0
+        || vstream_fflush(stream)
+        || attr_scan(stream, ATTR_FLAG_STRICT,
+             RECV_ATTR_INT(MAIL_ATTR_FLAGS, &server_flags),
+             RECV_ATTR_STR(MAIL_ATTR_ADDR, result),
+             ATTR_TYPE_END) != 2) {
+        if (msg_verbose || count > 1 || (errno && errno != EPIPE && errno != ENOENT))
+        msg_warn("problem talking to service %s: %m",
+             var_rewrite_service);
+    } else {
+        if (msg_verbose)
+        msg_info("rewrite_clnt: %s: %s -> %s",
+             rule, addr, vstring_str(result));
+        /* Server-requested disconnect. */
+        if (server_flags != 0)
+        clnt_stream_recover(rewrite_clnt_stream);
+        break;
+    }
+    sleep(1);                /* XXX make configurable */
+    clnt_stream_recover(rewrite_clnt_stream);
     }
 
     /*
@@ -181,7 +181,7 @@ VSTRING *rewrite_clnt(const char *rule, const char *addr, VSTRING *result)
     vstring_strcpy(last_rule, rule);
     vstring_strcpy(last_addr, addr);
     vstring_strcpy(last_result, STR(result));
-    last_expire = time((time_t *) 0) + 30;	/* XXX make configurable */
+    last_expire = time((time_t *) 0) + 30;    /* XXX make configurable */
 
     return (result);
 }
@@ -241,37 +241,37 @@ int     main(int argc, char **argv)
     mail_conf_read();
     msg_info("using config files in %s", var_config_dir);
     if (chdir(var_queue_dir) < 0)
-	msg_fatal("chdir %s: %m", var_queue_dir);
+    msg_fatal("chdir %s: %m", var_queue_dir);
 
     while ((ch = GETOPT(argc, argv, "v")) > 0) {
-	switch (ch) {
-	case 'v':
-	    msg_verbose++;
-	    break;
-	default:
-	    usage(argv[0]);
-	}
+    switch (ch) {
+    case 'v':
+        msg_verbose++;
+        break;
+    default:
+        usage(argv[0]);
+    }
     }
     reply = vstring_alloc(1);
 
     if (argc > optind) {
-	for (;;) {
-	    if ((rule = argv[optind++]) == 0)
-		break;
-	    if ((addr = argv[optind++]) == 0)
-		usage(argv[0]);
-	    rewrite(rule, addr, reply);
-	}
+    for (;;) {
+        if ((rule = argv[optind++]) == 0)
+        break;
+        if ((addr = argv[optind++]) == 0)
+        usage(argv[0]);
+        rewrite(rule, addr, reply);
+    }
     } else {
-	VSTRING *buffer = vstring_alloc(1);
+    VSTRING *buffer = vstring_alloc(1);
 
-	while (vstring_fgets_nonl(buffer, VSTREAM_IN)) {
-	    if ((addr = split_at(STR(buffer), ' ')) == 0
-		|| *(rule = STR(buffer)) == 0)
-		usage(argv[0]);
-	    rewrite(rule, addr, reply);
-	}
-	vstring_free(buffer);
+    while (vstring_fgets_nonl(buffer, VSTREAM_IN)) {
+        if ((addr = split_at(STR(buffer), ' ')) == 0
+        || *(rule = STR(buffer)) == 0)
+        usage(argv[0]);
+        rewrite(rule, addr, reply);
+    }
+    vstring_free(buffer);
     }
     vstring_free(reply);
     exit(0);

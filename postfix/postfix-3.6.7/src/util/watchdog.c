@@ -1,84 +1,84 @@
 /*++
 /* NAME
-/*	watchdog 3
+/*    watchdog 3
 /* SUMMARY
-/*	watchdog timer
+/*    watchdog timer
 /* SYNOPSIS
-/*	#include <watchdog.h>
+/*    #include <watchdog.h>
 /*
-/*	WATCHDOG *watchdog_create(timeout, action, context)
-/*	unsigned timeout;
-/*	void	(*action)(WATCHDOG *watchdog, char *context);
-/*	char	*context;
+/*    WATCHDOG *watchdog_create(timeout, action, context)
+/*    unsigned timeout;
+/*    void    (*action)(WATCHDOG *watchdog, char *context);
+/*    char    *context;
 /*
-/*	void	watchdog_start(watchdog)
-/*	WATCHDOG *watchdog;
+/*    void    watchdog_start(watchdog)
+/*    WATCHDOG *watchdog;
 /*
-/*	void	watchdog_stop(watchdog)
-/*	WATCHDOG *watchdog;
+/*    void    watchdog_stop(watchdog)
+/*    WATCHDOG *watchdog;
 /*
-/*	void	watchdog_destroy(watchdog)
-/*	WATCHDOG *watchdog;
+/*    void    watchdog_destroy(watchdog)
+/*    WATCHDOG *watchdog;
 /*
-/*	void	watchdog_pat()
+/*    void    watchdog_pat()
 /* DESCRIPTION
-/*	This module implements watchdog timers that are based on ugly
-/*	UNIX alarm timers. The module is designed to survive systems
-/*	with clocks that jump occasionally.
+/*    This module implements watchdog timers that are based on ugly
+/*    UNIX alarm timers. The module is designed to survive systems
+/*    with clocks that jump occasionally.
 /*
-/*	Watchdog timers can be stacked. Only one watchdog timer can be
-/*	active at a time. Only the last created watchdog timer can be
-/*	manipulated. Watchdog timers must be destroyed in reverse order
-/*	of creation.
+/*    Watchdog timers can be stacked. Only one watchdog timer can be
+/*    active at a time. Only the last created watchdog timer can be
+/*    manipulated. Watchdog timers must be destroyed in reverse order
+/*    of creation.
 /*
-/*	watchdog_create() suspends the current watchdog timer, if any,
-/*	and instantiates a new watchdog timer.
+/*    watchdog_create() suspends the current watchdog timer, if any,
+/*    and instantiates a new watchdog timer.
 /*
-/*	watchdog_start() starts or restarts the watchdog timer.
+/*    watchdog_start() starts or restarts the watchdog timer.
 /*
-/*	watchdog_stop() stops the watchdog timer.
+/*    watchdog_stop() stops the watchdog timer.
 /*
-/*	watchdog_destroy() stops the watchdog timer, and resumes the
-/*	watchdog timer instance that was suspended by watchdog_create().
+/*    watchdog_destroy() stops the watchdog timer, and resumes the
+/*    watchdog timer instance that was suspended by watchdog_create().
 /*
-/*	watchdog_pat() pats the watchdog, so it stays quiet.
+/*    watchdog_pat() pats the watchdog, so it stays quiet.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP timeout
-/*	The watchdog time limit. When the watchdog timer runs, the
-/*	process must invoke watchdog_start(), watchdog_stop() or
-/*	watchdog_destroy() before the time limit is reached.
+/*    The watchdog time limit. When the watchdog timer runs, the
+/*    process must invoke watchdog_start(), watchdog_stop() or
+/*    watchdog_destroy() before the time limit is reached.
 /* .IP action
-/*	A null pointer, or pointer to function that is called when the
-/*	watchdog alarm goes off. The default action is to terminate
-/*	the process with a fatal error.
+/*    A null pointer, or pointer to function that is called when the
+/*    watchdog alarm goes off. The default action is to terminate
+/*    the process with a fatal error.
 /* .IP context
-/*	Application context that is passed to the action routine.
+/*    Application context that is passed to the action routine.
 /* .IP watchdog
-/*	Must be a pointer to the most recently created watchdog instance.
-/*	This argument is checked upon each call.
+/*    Must be a pointer to the most recently created watchdog instance.
+/*    This argument is checked upon each call.
 /* BUGS
-/*	UNIX alarm timers are not stackable, so there can be at most one
-/*	watchdog instance active at any given time.
+/*    UNIX alarm timers are not stackable, so there can be at most one
+/*    watchdog instance active at any given time.
 /* SEE ALSO
-/*	msg(3) diagnostics interface
+/*    msg(3) diagnostics interface
 /* DIAGNOSTICS
-/*	Fatal errors: memory allocation problem, system call failure.
-/*	Panics: interface violations.
+/*    Fatal errors: memory allocation problem, system call failure.
+/*    Panics: interface violations.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -102,20 +102,20 @@
   * up the time limit into smaller intervals so that we can deal with clocks
   * that jump occasionally.
   */
-#define WATCHDOG_STEPS	3
+#define WATCHDOG_STEPS    3
 
  /*
   * UNIX alarms are not stackable, but we can save and restore state, so that
   * watchdogs can at least be nested, sort of.
   */
 struct WATCHDOG {
-    unsigned timeout;			/* our time resolution */
-    WATCHDOG_FN action;			/* application routine */
-    char   *context;			/* application context */
-    int     trip_run;			/* number of successive timeouts */
-    WATCHDOG *saved_watchdog;		/* saved state */
-    struct sigaction saved_action;	/* saved state */
-    unsigned saved_time;		/* saved state */
+    unsigned timeout;            /* our time resolution */
+    WATCHDOG_FN action;            /* application routine */
+    char   *context;            /* application context */
+    int     trip_run;            /* number of successive timeouts */
+    WATCHDOG *saved_watchdog;        /* saved state */
+    struct sigaction saved_action;    /* saved state */
+    unsigned saved_time;        /* saved state */
 };
 
  /*
@@ -144,10 +144,10 @@ static void watchdog_read(int unused_event, void *unused_context)
     char    ch;
 
     while (read(watchdog_pipe[0], &ch, 1) > 0)
-	 /* void */ ;
+     /* void */ ;
 }
 
-#endif					/* USE_WATCHDOG_PIPE */
+#endif                    /* USE_WATCHDOG_PIPE */
 
 /* watchdog_event - handle timeout event */
 
@@ -163,29 +163,29 @@ static void watchdog_event(int unused_sig)
      * made safe for usage by signal handlers that terminate the process.
      */
     if ((wp = watchdog_curr) == 0)
-	msg_panic("%s: no instance", myname);
+    msg_panic("%s: no instance", myname);
     if (msg_verbose > 1)
-	msg_info("%s: %p %d", myname, (void *) wp, wp->trip_run);
+    msg_info("%s: %p %d", myname, (void *) wp, wp->trip_run);
     if (++(wp->trip_run) < WATCHDOG_STEPS) {
 #ifdef USE_WATCHDOG_PIPE
-	int     saved_errno = errno;
+    int     saved_errno = errno;
 
-	/* Wake up the events(3) engine. */
-	if (write(watchdog_pipe[1], "", 1) != 1)
-	    msg_warn("%s: write watchdog_pipe: %m", myname);
-	errno = saved_errno;
+    /* Wake up the events(3) engine. */
+    if (write(watchdog_pipe[1], "", 1) != 1)
+        msg_warn("%s: write watchdog_pipe: %m", myname);
+    errno = saved_errno;
 #endif
-	alarm(wp->timeout);
+    alarm(wp->timeout);
     } else {
-	if (wp->action)
-	    wp->action(wp, wp->context);
-	else {
-	    killme_after(5);
+    if (wp->action)
+        wp->action(wp, wp->context);
+    else {
+        killme_after(5);
 #ifdef TEST
-	    pause();
+        pause();
 #endif
-	    msg_fatal("watchdog timeout");
-	}
+        msg_fatal("watchdog timeout");
+    }
     }
 }
 
@@ -199,7 +199,7 @@ WATCHDOG *watchdog_create(unsigned timeout, WATCHDOG_FN action, char *context)
 
     wp = (WATCHDOG *) mymalloc(sizeof(*wp));
     if ((wp->timeout = timeout / WATCHDOG_STEPS) == 0)
-	msg_panic("%s: timeout %d is too small", myname, timeout);
+    msg_panic("%s: timeout %d is too small", myname, timeout);
     wp->action = action;
     wp->context = context;
     wp->saved_watchdog = watchdog_curr;
@@ -212,18 +212,18 @@ WATCHDOG *watchdog_create(unsigned timeout, WATCHDOG_FN action, char *context)
 #endif
     sig_action.sa_handler = watchdog_event;
     if (sigaction(SIGALRM, &sig_action, &wp->saved_action) < 0)
-	msg_fatal("%s: sigaction(SIGALRM): %m", myname);
+    msg_fatal("%s: sigaction(SIGALRM): %m", myname);
     if (msg_verbose > 1)
-	msg_info("%s: %p %d", myname, (void *) wp, timeout);
+    msg_info("%s: %p %d", myname, (void *) wp, timeout);
 #ifdef USE_WATCHDOG_PIPE
     if (watchdog_curr == 0) {
-	if (pipe(watchdog_pipe) < 0)
-	    msg_fatal("%s: pipe: %m", myname);
-	non_blocking(watchdog_pipe[0], NON_BLOCKING);
-	non_blocking(watchdog_pipe[1], NON_BLOCKING);
-	close_on_exec(watchdog_pipe[0], CLOSE_ON_EXEC);	/* Fix 20190126 */
-	close_on_exec(watchdog_pipe[1], CLOSE_ON_EXEC);	/* Fix 20190126 */
-	event_enable_read(watchdog_pipe[0], watchdog_read, (void *) 0);
+    if (pipe(watchdog_pipe) < 0)
+        msg_fatal("%s: pipe: %m", myname);
+    non_blocking(watchdog_pipe[0], NON_BLOCKING);
+    non_blocking(watchdog_pipe[1], NON_BLOCKING);
+    close_on_exec(watchdog_pipe[0], CLOSE_ON_EXEC);    /* Fix 20190126 */
+    close_on_exec(watchdog_pipe[1], CLOSE_ON_EXEC);    /* Fix 20190126 */
+    event_enable_read(watchdog_pipe[0], watchdog_read, (void *) 0);
     }
 #endif
     return (watchdog_curr = wp);
@@ -238,19 +238,19 @@ void    watchdog_destroy(WATCHDOG *wp)
     watchdog_stop(wp);
     watchdog_curr = wp->saved_watchdog;
     if (sigaction(SIGALRM, &wp->saved_action, (struct sigaction *) 0) < 0)
-	msg_fatal("%s: sigaction(SIGALRM): %m", myname);
+    msg_fatal("%s: sigaction(SIGALRM): %m", myname);
     if (wp->saved_time)
-	alarm(wp->saved_time);
+    alarm(wp->saved_time);
     myfree((void *) wp);
 #ifdef USE_WATCHDOG_PIPE
     if (watchdog_curr == 0) {
-	event_disable_readwrite(watchdog_pipe[0]);
-	(void) close(watchdog_pipe[0]);
-	(void) close(watchdog_pipe[1]);
+    event_disable_readwrite(watchdog_pipe[0]);
+    (void) close(watchdog_pipe[0]);
+    (void) close(watchdog_pipe[1]);
     }
 #endif
     if (msg_verbose > 1)
-	msg_info("%s: %p", myname, (void *) wp);
+    msg_info("%s: %p", myname, (void *) wp);
 }
 
 /* watchdog_start - enable watchdog timer */
@@ -260,11 +260,11 @@ void    watchdog_start(WATCHDOG *wp)
     const char *myname = "watchdog_start";
 
     if (wp != watchdog_curr)
-	msg_panic("%s: wrong watchdog instance", myname);
+    msg_panic("%s: wrong watchdog instance", myname);
     wp->trip_run = 0;
     alarm(wp->timeout);
     if (msg_verbose > 1)
-	msg_info("%s: %p", myname, (void *) wp);
+    msg_info("%s: %p", myname, (void *) wp);
 }
 
 /* watchdog_stop - disable watchdog timer */
@@ -274,10 +274,10 @@ void    watchdog_stop(WATCHDOG *wp)
     const char *myname = "watchdog_stop";
 
     if (wp != watchdog_curr)
-	msg_panic("%s: wrong watchdog instance", myname);
+    msg_panic("%s: wrong watchdog instance", myname);
     alarm(0);
     if (msg_verbose > 1)
-	msg_info("%s: %p", myname, (void *) wp);
+    msg_info("%s: %p", myname, (void *) wp);
 }
 
 /* watchdog_pat - pat the dog so it stays quiet */
@@ -287,9 +287,9 @@ void    watchdog_pat(void)
     const char *myname = "watchdog_pat";
 
     if (watchdog_curr)
-	watchdog_curr->trip_run = 0;
+    watchdog_curr->trip_run = 0;
     if (msg_verbose > 1)
-	msg_info("%s: %p", myname, (void *) watchdog_curr);
+    msg_info("%s: %p", myname, (void *) watchdog_curr);
 }
 
 #ifdef TEST
@@ -305,7 +305,7 @@ int     main(int unused_argc, char **unused_argv)
     wp = watchdog_create(10, (WATCHDOG_FN) 0, (void *) 0);
     watchdog_start(wp);
     do {
-	watchdog_pat();
+    watchdog_pat();
     } while (VSTREAM_GETCHAR() != VSTREAM_EOF);
     watchdog_destroy(wp);
     return (0);

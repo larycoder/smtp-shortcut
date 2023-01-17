@@ -1,93 +1,93 @@
 /*++
 /* NAME
-/*	cleanup_milter 3
+/*    cleanup_milter 3
 /* SUMMARY
-/*	external mail filter support
+/*    external mail filter support
 /* SYNOPSIS
-/*	#include <cleanup.h>
+/*    #include <cleanup.h>
 /*
-/*	void	cleanup_milter_header_checks_init(void)
+/*    void    cleanup_milter_header_checks_init(void)
 /*
-/*	void	cleanup_milter_receive(state, count)
-/*	CLEANUP_STATE *state;
-/*	int	count;
+/*    void    cleanup_milter_receive(state, count)
+/*    CLEANUP_STATE *state;
+/*    int    count;
 /*
-/*	void	cleanup_milter_inspect(state, milters)
-/*	CLEANUP_STATE *state;
-/*	MILTERS	*milters;
+/*    void    cleanup_milter_inspect(state, milters)
+/*    CLEANUP_STATE *state;
+/*    MILTERS    *milters;
 /*
-/*	cleanup_milter_emul_mail(state, milters, sender)
-/*	CLEANUP_STATE *state;
-/*	MILTERS	*milters;
-/*	const char *sender;
+/*    cleanup_milter_emul_mail(state, milters, sender)
+/*    CLEANUP_STATE *state;
+/*    MILTERS    *milters;
+/*    const char *sender;
 /*
-/*	cleanup_milter_emul_rcpt(state, milters, recipient)
-/*	CLEANUP_STATE *state;
-/*	MILTERS	*milters;
-/*	const char *recipient;
+/*    cleanup_milter_emul_rcpt(state, milters, recipient)
+/*    CLEANUP_STATE *state;
+/*    MILTERS    *milters;
+/*    const char *recipient;
 /*
-/*	cleanup_milter_emul_data(state, milters)
-/*	CLEANUP_STATE *state;
-/*	MILTERS	*milters;
+/*    cleanup_milter_emul_data(state, milters)
+/*    CLEANUP_STATE *state;
+/*    MILTERS    *milters;
 /* DESCRIPTION
-/*	This module implements support for Sendmail-style mail
-/*	filter (milter) applications, including in-place queue file
-/*	modification.
+/*    This module implements support for Sendmail-style mail
+/*    filter (milter) applications, including in-place queue file
+/*    modification.
 /*
-/*	cleanup_milter_header_checks_init() does pre-jail
-/*	initializations.
+/*    cleanup_milter_header_checks_init() does pre-jail
+/*    initializations.
 /*
-/*	cleanup_milter_receive() receives mail filter definitions,
-/*	typically from an smtpd(8) server process, and registers
-/*	local call-back functions for macro expansion and for queue
-/*	file modification.
+/*    cleanup_milter_receive() receives mail filter definitions,
+/*    typically from an smtpd(8) server process, and registers
+/*    local call-back functions for macro expansion and for queue
+/*    file modification.
 /*
-/*	cleanup_milter_inspect() sends the current message headers
-/*	and body to the mail filters that were received with
-/*	cleanup_milter_receive(), or that are specified with the
-/*	cleanup_milters configuration parameter.
+/*    cleanup_milter_inspect() sends the current message headers
+/*    and body to the mail filters that were received with
+/*    cleanup_milter_receive(), or that are specified with the
+/*    cleanup_milters configuration parameter.
 /*
-/*	cleanup_milter_emul_mail() emulates connect, helo and mail
-/*	events for mail that does not arrive via the smtpd(8) server.
-/*	The emulation pretends that mail arrives from localhost/127.0.0.1
-/*	via ESMTP. Milters can reject emulated connect, helo, mail
-/*	or data events, but not emulated rcpt events as described
-/*	next.
+/*    cleanup_milter_emul_mail() emulates connect, helo and mail
+/*    events for mail that does not arrive via the smtpd(8) server.
+/*    The emulation pretends that mail arrives from localhost/127.0.0.1
+/*    via ESMTP. Milters can reject emulated connect, helo, mail
+/*    or data events, but not emulated rcpt events as described
+/*    next.
 /*
-/*	cleanup_milter_emul_rcpt() emulates an rcpt event for mail
-/*	that does not arrive via the smtpd(8) server. This reports
-/*	a server configuration error condition when the milter
-/*	rejects an emulated rcpt event.
+/*    cleanup_milter_emul_rcpt() emulates an rcpt event for mail
+/*    that does not arrive via the smtpd(8) server. This reports
+/*    a server configuration error condition when the milter
+/*    rejects an emulated rcpt event.
 /*
-/*	cleanup_milter_emul_data() emulates a data event for mail
-/*	that does not arrive via the smtpd(8) server.  It's OK for
-/*	milters to reject emulated data events.
+/*    cleanup_milter_emul_data() emulates a data event for mail
+/*    that does not arrive via the smtpd(8) server.  It's OK for
+/*    milters to reject emulated data events.
 /* SEE ALSO
-/*	milter(3) generic mail filter interface
+/*    milter(3) generic mail filter interface
 /* DIAGNOSTICS
-/*	Fatal errors: memory allocation problem.
-/*	Panic: interface violation.
-/*	Warnings: I/O errors (state->errs is updated accordingly).
+/*    Fatal errors: memory allocation problem.
+/*    Panic: interface violation.
+/*    Warnings: I/O errors (state->errs is updated accordingly).
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
 
 #include <sys_defs.h>
-#include <sys/socket.h>			/* AF_INET */
+#include <sys/socket.h>            /* AF_INET */
 #include <string.h>
 #include <errno.h>
 
@@ -225,47 +225,47 @@
   * REC_TYPE_END marker.
   */
 
-/*#define msg_verbose	2*/
+/*#define msg_verbose    2*/
 
 static HBC_CHECKS *cleanup_milter_hbc_checks;
 static VSTRING *cleanup_milter_hbc_reply;
 static void cleanup_milter_set_error(CLEANUP_STATE *, int);
 static const char *cleanup_add_rcpt_par(void *, const char *, const char *);
 
-#define STR(x)		vstring_str(x)
-#define LEN(x)		VSTRING_LEN(x)
+#define STR(x)        vstring_str(x)
+#define LEN(x)        VSTRING_LEN(x)
 
 /* cleanup_milter_hbc_log - log post-milter header/body_checks action */
 
 static void cleanup_milter_hbc_log(void *context, const char *action,
-				        const char *where, const char *line,
-				           const char *optional_text)
+                        const char *where, const char *line,
+                           const char *optional_text)
 {
     const CLEANUP_STATE *state = (CLEANUP_STATE *) context;
     const char *attr;
 
     vstring_sprintf(state->temp1, "%s: milter-%s-%s: %s %.60s from %s[%s];",
-		    state->queue_id, where, action, where, line,
-		    state->client_name, state->client_addr);
+            state->queue_id, where, action, where, line,
+            state->client_name, state->client_addr);
     if (state->sender)
-	vstring_sprintf_append(state->temp1, " from=<%s>",
-			       info_log_addr_form_sender(state->sender));
+    vstring_sprintf_append(state->temp1, " from=<%s>",
+                   info_log_addr_form_sender(state->sender));
     if (state->recip)
-	vstring_sprintf_append(state->temp1, " to=<%s>",
-			       info_log_addr_form_recipient(state->recip));
+    vstring_sprintf_append(state->temp1, " to=<%s>",
+                   info_log_addr_form_recipient(state->recip));
     if ((attr = nvtable_find(state->attr, MAIL_ATTR_LOG_PROTO_NAME)) != 0)
-	vstring_sprintf_append(state->temp1, " proto=%s", attr);
+    vstring_sprintf_append(state->temp1, " proto=%s", attr);
     if ((attr = nvtable_find(state->attr, MAIL_ATTR_LOG_HELO_NAME)) != 0)
-	vstring_sprintf_append(state->temp1, " helo=<%s>", attr);
+    vstring_sprintf_append(state->temp1, " helo=<%s>", attr);
     if (optional_text)
-	vstring_sprintf_append(state->temp1, ": %s", optional_text);
+    vstring_sprintf_append(state->temp1, ": %s", optional_text);
     msg_info("%s", vstring_str(state->temp1));
 }
 
 /* cleanup_milter_header_prepend - prepend header to milter-generated header */
 
 static void cleanup_milter_header_prepend(void *context, int rec_type,
-			         const char *buf, ssize_t len, off_t offset)
+                     const char *buf, ssize_t len, off_t offset)
 {
     /* XXX save prepended header to buffer. */
     msg_warn("the milter_header/body_checks prepend action is not implemented");
@@ -274,12 +274,12 @@ static void cleanup_milter_header_prepend(void *context, int rec_type,
 /* cleanup_milter_hbc_extend - additional header/body_checks actions */
 
 static char *cleanup_milter_hbc_extend(void *context, const char *command,
-			         ssize_t cmd_len, const char *optional_text,
-				         const char *where, const char *buf,
-				               ssize_t buf_len, off_t offset)
+                     ssize_t cmd_len, const char *optional_text,
+                         const char *where, const char *buf,
+                               ssize_t buf_len, off_t offset)
 {
     CLEANUP_STATE *state = (CLEANUP_STATE *) context;
-    const char *map_class = VAR_MILT_HEAD_CHECKS;	/* XXX */
+    const char *map_class = VAR_MILT_HEAD_CHECKS;    /* XXX */
 
 #define STREQUAL(x,y,l) (strncasecmp((x), (y), (l)) == 0 && (y)[l] == 0)
 
@@ -316,91 +316,91 @@ static char *cleanup_milter_hbc_extend(void *context, const char *command,
      * to terminate further header inspection.
      */
     if ((state->flags & CLEANUP_FLAG_FILTER_ALL) == 0)
-	return ((char *) buf);
+    return ((char *) buf);
 
     if (STREQUAL(command, "BCC", cmd_len)) {
-	if (strchr(optional_text, '@') == 0) {
-	    msg_warn("bad BCC address \"%s\" in %s map -- "
-		     "need user@domain",
-		     optional_text, VAR_MILT_HEAD_CHECKS);
-	} else {
-	    cleanup_milter_hbc_log(context, "bcc", where, buf, optional_text);
-	    /* Caller checks state error flags. */
-	    (void) cleanup_add_rcpt_par(state, optional_text, "");
-	}
-	return ((char *) buf);
+    if (strchr(optional_text, '@') == 0) {
+        msg_warn("bad BCC address \"%s\" in %s map -- "
+             "need user@domain",
+             optional_text, VAR_MILT_HEAD_CHECKS);
+    } else {
+        cleanup_milter_hbc_log(context, "bcc", where, buf, optional_text);
+        /* Caller checks state error flags. */
+        (void) cleanup_add_rcpt_par(state, optional_text, "");
+    }
+    return ((char *) buf);
     }
     if (STREQUAL(command, "REJECT", cmd_len)) {
-	const CLEANUP_STAT_DETAIL *detail;
+    const CLEANUP_STAT_DETAIL *detail;
 
-	if (state->reason)
-	    myfree(state->reason);
-	detail = cleanup_stat_detail(CLEANUP_STAT_CONT);
-	if (*optional_text) {
-	    state->reason = dsn_prepend(detail->dsn, optional_text);
-	    if (*state->reason != '4' && *state->reason != '5') {
-		msg_warn("bad DSN action in %s -- need 4.x.x or 5.x.x",
-			 optional_text);
-		*state->reason = '4';
-	    }
-	} else {
-	    state->reason = dsn_prepend(detail->dsn, detail->text);
-	}
-	if (*state->reason == '4')
-	    state->errs |= CLEANUP_STAT_DEFER;
-	else
-	    state->errs |= CLEANUP_STAT_CONT;
-	state->flags &= ~CLEANUP_FLAG_FILTER_ALL;
-	cleanup_milter_hbc_log(context, "reject", where, buf, state->reason);
-	vstring_sprintf(cleanup_milter_hbc_reply, "%d %s",
-			detail->smtp, state->reason);
-	STR(cleanup_milter_hbc_reply)[0] = *state->reason;
-	return ((char *) buf);
+    if (state->reason)
+        myfree(state->reason);
+    detail = cleanup_stat_detail(CLEANUP_STAT_CONT);
+    if (*optional_text) {
+        state->reason = dsn_prepend(detail->dsn, optional_text);
+        if (*state->reason != '4' && *state->reason != '5') {
+        msg_warn("bad DSN action in %s -- need 4.x.x or 5.x.x",
+             optional_text);
+        *state->reason = '4';
+        }
+    } else {
+        state->reason = dsn_prepend(detail->dsn, detail->text);
+    }
+    if (*state->reason == '4')
+        state->errs |= CLEANUP_STAT_DEFER;
+    else
+        state->errs |= CLEANUP_STAT_CONT;
+    state->flags &= ~CLEANUP_FLAG_FILTER_ALL;
+    cleanup_milter_hbc_log(context, "reject", where, buf, state->reason);
+    vstring_sprintf(cleanup_milter_hbc_reply, "%d %s",
+            detail->smtp, state->reason);
+    STR(cleanup_milter_hbc_reply)[0] = *state->reason;
+    return ((char *) buf);
     }
     if (STREQUAL(command, "FILTER", cmd_len)) {
-	if (*optional_text == 0) {
-	    msg_warn("missing FILTER command argument in %s map", map_class);
-	} else if (strchr(optional_text, ':') == 0) {
-	    msg_warn("bad FILTER command %s in %s -- "
-		     "need transport:destination",
-		     optional_text, map_class);
-	} else {
-	    if (state->filter)
-		myfree(state->filter);
-	    state->filter = mystrdup(optional_text);
-	    cleanup_milter_hbc_log(context, "filter", where, buf,
-				   optional_text);
-	}
-	return ((char *) buf);
+    if (*optional_text == 0) {
+        msg_warn("missing FILTER command argument in %s map", map_class);
+    } else if (strchr(optional_text, ':') == 0) {
+        msg_warn("bad FILTER command %s in %s -- "
+             "need transport:destination",
+             optional_text, map_class);
+    } else {
+        if (state->filter)
+        myfree(state->filter);
+        state->filter = mystrdup(optional_text);
+        cleanup_milter_hbc_log(context, "filter", where, buf,
+                   optional_text);
+    }
+    return ((char *) buf);
     }
     if (STREQUAL(command, "DISCARD", cmd_len)) {
-	cleanup_milter_hbc_log(context, "discard", where, buf, optional_text);
-	vstring_strcpy(cleanup_milter_hbc_reply, "D");
-	state->flags |= CLEANUP_FLAG_DISCARD;
-	state->flags &= ~CLEANUP_FLAG_FILTER_ALL;
-	return ((char *) buf);
+    cleanup_milter_hbc_log(context, "discard", where, buf, optional_text);
+    vstring_strcpy(cleanup_milter_hbc_reply, "D");
+    state->flags |= CLEANUP_FLAG_DISCARD;
+    state->flags &= ~CLEANUP_FLAG_FILTER_ALL;
+    return ((char *) buf);
     }
     if (STREQUAL(command, "HOLD", cmd_len)) {
-	if ((state->flags & (CLEANUP_FLAG_HOLD | CLEANUP_FLAG_DISCARD)) == 0) {
-	    cleanup_milter_hbc_log(context, "hold", where, buf, optional_text);
-	    state->flags |= CLEANUP_FLAG_HOLD;
-	}
-	return ((char *) buf);
+    if ((state->flags & (CLEANUP_FLAG_HOLD | CLEANUP_FLAG_DISCARD)) == 0) {
+        cleanup_milter_hbc_log(context, "hold", where, buf, optional_text);
+        state->flags |= CLEANUP_FLAG_HOLD;
+    }
+    return ((char *) buf);
     }
     if (STREQUAL(command, "REDIRECT", cmd_len)) {
-	if (strchr(optional_text, '@') == 0) {
-	    msg_warn("bad REDIRECT target \"%s\" in %s map -- "
-		     "need user@domain",
-		     optional_text, map_class);
-	} else {
-	    if (state->redirect)
-		myfree(state->redirect);
-	    state->redirect = mystrdup(optional_text);
-	    cleanup_milter_hbc_log(context, "redirect", where, buf,
-				   optional_text);
-	    state->flags &= ~CLEANUP_FLAG_FILTER_ALL;
-	}
-	return ((char *) buf);
+    if (strchr(optional_text, '@') == 0) {
+        msg_warn("bad REDIRECT target \"%s\" in %s map -- "
+             "need user@domain",
+             optional_text, map_class);
+    } else {
+        if (state->redirect)
+        myfree(state->redirect);
+        state->redirect = mystrdup(optional_text);
+        cleanup_milter_hbc_log(context, "redirect", where, buf,
+                   optional_text);
+        state->flags &= ~CLEANUP_FLAG_FILTER_ALL;
+    }
+    return ((char *) buf);
     }
     return ((char *) HBC_CHECKS_STAT_UNKNOWN);
 }
@@ -417,22 +417,22 @@ static int cleanup_milter_header_checks(CLEANUP_STATE *state, VSTRING *buf)
      * to the primary message header.
      */
     ret = hbc_header_checks((void *) state, cleanup_milter_hbc_checks,
-			    MIME_HDR_PRIMARY, (HEADER_OPTS *) 0,
-			    buf, (off_t) 0);
+                MIME_HDR_PRIMARY, (HEADER_OPTS *) 0,
+                buf, (off_t) 0);
     if (ret == 0) {
-	return (0);
+    return (0);
     } else if (ret == HBC_CHECKS_STAT_ERROR) {
-	msg_warn("%s: %s map lookup problem -- "
-		 "message not accepted, try again later",
-		 state->queue_id, VAR_MILT_HEAD_CHECKS);
-	state->errs |= CLEANUP_STAT_WRITE;
-	return (0);
+    msg_warn("%s: %s map lookup problem -- "
+         "message not accepted, try again later",
+         state->queue_id, VAR_MILT_HEAD_CHECKS);
+    state->errs |= CLEANUP_STAT_WRITE;
+    return (0);
     } else {
-	if (ret != STR(buf)) {
-	    vstring_strcpy(buf, ret);
-	    myfree(ret);
-	}
-	return (1);
+    if (ret != STR(buf)) {
+        vstring_strcpy(buf, ret);
+        myfree(ret);
+    }
+    return (1);
     }
 }
 
@@ -454,9 +454,9 @@ static void cleanup_milter_hbc_add_meta_records(CLEANUP_STATE *state)
      * Sanity check.
      */
     if (state->append_meta_pt_offset < 0)
-	msg_panic("%s: no meta append pointer location", myname);
+    msg_panic("%s: no meta append pointer location", myname);
     if (state->append_meta_pt_target < 0)
-	msg_panic("%s: no meta append pointer target", myname);
+    msg_panic("%s: no meta append pointer target", myname);
 
     /*
      * Allocate space after the end of the queue file, and write the meta
@@ -469,31 +469,31 @@ static void cleanup_milter_hbc_add_meta_records(CLEANUP_STATE *state)
      * later.
      */
     if ((new_meta_offset = vstream_fseek(state->dst, (off_t) 0, SEEK_END)) < 0) {
-	cleanup_milter_set_error(state, errno);
-	return;
+    cleanup_milter_set_error(state, errno);
+    return;
     }
     if (state->filter != 0)
-	cleanup_out_string(state, REC_TYPE_FILT, state->filter);
+    cleanup_out_string(state, REC_TYPE_FILT, state->filter);
     if (state->redirect != 0)
-	cleanup_out_string(state, REC_TYPE_RDR, state->redirect);
+    cleanup_out_string(state, REC_TYPE_RDR, state->redirect);
     if ((reverse_ptr_offset = vstream_ftell(state->dst)) < 0) {
-	msg_warn("%s: vstream_ftell file %s: %m", myname, cleanup_path);
-	state->errs |= CLEANUP_STAT_WRITE;
-	return;
+    msg_warn("%s: vstream_ftell file %s: %m", myname, cleanup_path);
+    state->errs |= CLEANUP_STAT_WRITE;
+    return;
     }
     cleanup_out_format(state, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
-		       (long) state->append_meta_pt_target);
+               (long) state->append_meta_pt_target);
 
     /*
      * Pointer flipping: update the old "meta record append" pointer record
      * value with the location of the new meta record.
      */
     if (vstream_fseek(state->dst, state->append_meta_pt_offset, SEEK_SET) < 0) {
-	cleanup_milter_set_error(state, errno);
-	return;
+    cleanup_milter_set_error(state, errno);
+    return;
     }
     cleanup_out_format(state, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
-		       (long) new_meta_offset);
+               (long) new_meta_offset);
 
     /*
      * Update the in-memory "meta append" pointer record location with the
@@ -515,30 +515,30 @@ void    cleanup_milter_header_checks_init(void)
 {
     static const char myname[] = "cleanup_milter_header_checks_init";
 
-#define NO_NESTED_HDR_NAME	""
-#define NO_NESTED_HDR_VALUE	""
-#define NO_MIME_HDR_NAME	""
-#define NO_MIME_HDR_VALUE	""
+#define NO_NESTED_HDR_NAME    ""
+#define NO_NESTED_HDR_VALUE    ""
+#define NO_MIME_HDR_NAME    ""
+#define NO_MIME_HDR_VALUE    ""
 
     static /* XXX not const */ HBC_CALL_BACKS call_backs = {
-	cleanup_milter_hbc_log,
-	cleanup_milter_header_prepend,
-	cleanup_milter_hbc_extend,
+    cleanup_milter_hbc_log,
+    cleanup_milter_header_prepend,
+    cleanup_milter_hbc_extend,
     };
 
     if (*var_milt_head_checks == 0)
-	msg_panic("%s: %s is empty", myname, VAR_MILT_HEAD_CHECKS);
+    msg_panic("%s: %s is empty", myname, VAR_MILT_HEAD_CHECKS);
 
     if (cleanup_milter_hbc_checks)
-	msg_panic("%s: cleanup_milter_hbc_checks is not null", myname);
+    msg_panic("%s: cleanup_milter_hbc_checks is not null", myname);
     cleanup_milter_hbc_checks =
-	hbc_header_checks_create(VAR_MILT_HEAD_CHECKS, var_milt_head_checks,
-				 NO_MIME_HDR_NAME, NO_MIME_HDR_VALUE,
-				 NO_NESTED_HDR_NAME, NO_NESTED_HDR_VALUE,
-				 &call_backs);
+    hbc_header_checks_create(VAR_MILT_HEAD_CHECKS, var_milt_head_checks,
+                 NO_MIME_HDR_NAME, NO_MIME_HDR_VALUE,
+                 NO_NESTED_HDR_NAME, NO_NESTED_HDR_VALUE,
+                 &call_backs);
 
     if (cleanup_milter_hbc_reply)
-	msg_panic("%s: cleanup_milter_hbc_reply is not null", myname);
+    msg_panic("%s: cleanup_milter_hbc_reply is not null", myname);
     cleanup_milter_hbc_reply = vstring_alloc(100);
 }
 
@@ -551,12 +551,12 @@ static void cleanup_milter_header_checks_deinit(void)
     static const char myname[] = "cleanup_milter_header_checks_deinit";
 
     if (cleanup_milter_hbc_checks == 0)
-	msg_panic("%s: cleanup_milter_hbc_checks is null", myname);
+    msg_panic("%s: cleanup_milter_hbc_checks is null", myname);
     hbc_header_checks_free(cleanup_milter_hbc_checks);
     cleanup_milter_hbc_checks = 0;
 
     if (cleanup_milter_hbc_reply == 0)
-	msg_panic("%s: cleanup_milter_hbc_reply is null", myname);
+    msg_panic("%s: cleanup_milter_hbc_reply is null", myname);
     vstring_free(cleanup_milter_hbc_reply);
     cleanup_milter_hbc_reply = 0;
 }
@@ -568,10 +568,10 @@ static void cleanup_milter_header_checks_deinit(void)
 static void cleanup_milter_header_checks_reinit(CLEANUP_STATE *state)
 {
     if (state->filter)
-	myfree(state->filter);
+    myfree(state->filter);
     state->filter = 0;
     if (state->redirect)
-	myfree(state->redirect);
+    myfree(state->redirect);
     state->redirect = 0;
     VSTRING_RESET(cleanup_milter_hbc_reply);
 }
@@ -581,32 +581,32 @@ static void cleanup_milter_header_checks_reinit(CLEANUP_STATE *state)
 static void cleanup_milter_hbc_finish(CLEANUP_STATE *state)
 {
     if (CLEANUP_OUT_OK(state)
-	&& !CLEANUP_MILTER_REJECTING_OR_DISCARDING_MESSAGE(state)
-	&& (state->filter || state->redirect))
-	cleanup_milter_hbc_add_meta_records(state);
+    && !CLEANUP_MILTER_REJECTING_OR_DISCARDING_MESSAGE(state)
+    && (state->filter || state->redirect))
+    cleanup_milter_hbc_add_meta_records(state);
 }
 
  /*
   * Milter replies.
   */
 #define CLEANUP_MILTER_SET_REASON(__state, __reason) do { \
-	if ((__state)->reason) \
-	    myfree((__state)->reason); \
-	(__state)->reason = mystrdup(__reason); \
-	if ((__state)->smtp_reply) { \
-	    myfree((__state)->smtp_reply); \
-	    (__state)->smtp_reply = 0; \
-	} \
+    if ((__state)->reason) \
+        myfree((__state)->reason); \
+    (__state)->reason = mystrdup(__reason); \
+    if ((__state)->smtp_reply) { \
+        myfree((__state)->smtp_reply); \
+        (__state)->smtp_reply = 0; \
+    } \
     } while (0)
 
 #define CLEANUP_MILTER_SET_SMTP_REPLY(__state, __smtp_reply) do { \
-	if ((__state)->reason) \
-	    myfree((__state)->reason); \
-	(__state)->reason = mystrdup(__smtp_reply + 4); \
-	printable((__state)->reason, '_'); \
-	if ((__state)->smtp_reply) \
-	    myfree((__state)->smtp_reply); \
-	(__state)->smtp_reply = mystrdup(__smtp_reply); \
+    if ((__state)->reason) \
+        myfree((__state)->reason); \
+    (__state)->reason = mystrdup(__smtp_reply + 4); \
+    printable((__state)->reason, '_'); \
+    if ((__state)->smtp_reply) \
+        myfree((__state)->smtp_reply); \
+    (__state)->smtp_reply = mystrdup(__smtp_reply); \
     } while (0)
 
 /* cleanup_milter_set_error - set error flag from errno */
@@ -614,11 +614,11 @@ static void cleanup_milter_hbc_finish(CLEANUP_STATE *state)
 static void cleanup_milter_set_error(CLEANUP_STATE *state, int err)
 {
     if (err == EFBIG) {
-	msg_warn("%s: queue file size limit exceeded", state->queue_id);
-	state->errs |= CLEANUP_STAT_SIZE;
+    msg_warn("%s: queue file size limit exceeded", state->queue_id);
+    state->errs |= CLEANUP_STAT_SIZE;
     } else {
-	msg_warn("%s: write queue file: %m", state->queue_id);
-	state->errs |= CLEANUP_STAT_WRITE;
+    msg_warn("%s: write queue file: %m", state->queue_id);
+    state->errs |= CLEANUP_STAT_WRITE;
     }
 }
 
@@ -642,21 +642,21 @@ static const char *cleanup_milter_error(CLEANUP_STATE *state, int err)
      * already done elsewhere, possibly outside this module.
      */
     if (err)
-	cleanup_milter_set_error(state, err);
+    cleanup_milter_set_error(state, err);
     else if (CLEANUP_OUT_OK(state))
-	msg_panic("%s: missing errno to error flag mapping", myname);
+    msg_panic("%s: missing errno to error flag mapping", myname);
     if (state->milter_err_text == 0)
-	state->milter_err_text = vstring_alloc(50);
+    state->milter_err_text = vstring_alloc(50);
     dp = cleanup_stat_detail(state->errs);
     return (STR(vstring_sprintf(state->milter_err_text,
-				"%d %s %s", dp->smtp, dp->dsn, dp->text)));
+                "%d %s %s", dp->smtp, dp->dsn, dp->text)));
 }
 
 /* cleanup_add_header - append message header */
 
 static const char *cleanup_add_header(void *context, const char *name,
-				              const char *space,
-				              const char *value)
+                              const char *space,
+                              const char *value)
 {
     const char *myname = "cleanup_add_header";
     CLEANUP_STATE *state = (CLEANUP_STATE *) context;
@@ -671,9 +671,9 @@ static const char *cleanup_add_header(void *context, const char *name,
      * record.
      */
     if (state->append_hdr_pt_offset < 0)
-	msg_panic("%s: no header append pointer location", myname);
+    msg_panic("%s: no header append pointer location", myname);
     if (state->append_hdr_pt_target < 0)
-	msg_panic("%s: no header append pointer target", myname);
+    msg_panic("%s: no header append pointer target", myname);
 
     /*
      * Return early when Milter header checks request that this header record
@@ -684,15 +684,15 @@ static const char *cleanup_add_header(void *context, const char *name,
     buf = vstring_alloc(100);
     vstring_sprintf(buf, "%s:%s%s", name, space, value);
     if (cleanup_milter_hbc_checks) {
-	if (cleanup_milter_header_checks(state, buf) == 0
-	    || (state->flags & CLEANUP_FLAG_DISCARD)) {
-	    vstring_free(buf);
-	    return (0);
-	}
-	if (CLEANUP_OUT_OK(state) == 0) {
-	    vstring_free(buf);
-	    return (cleanup_milter_error(state, 0));
-	}
+    if (cleanup_milter_header_checks(state, buf) == 0
+        || (state->flags & CLEANUP_FLAG_DISCARD)) {
+        vstring_free(buf);
+        return (0);
+    }
+    if (CLEANUP_OUT_OK(state) == 0) {
+        vstring_free(buf);
+        return (cleanup_milter_error(state, 0));
+    }
     }
 
     /*
@@ -702,19 +702,19 @@ static const char *cleanup_add_header(void *context, const char *name,
      * record becomes the new "header append" pointer record.
      */
     if ((new_hdr_offset = vstream_fseek(state->dst, (off_t) 0, SEEK_END)) < 0) {
-	msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-	vstring_free(buf);
-	return (cleanup_milter_error(state, errno));
+    msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+    vstring_free(buf);
+    return (cleanup_milter_error(state, errno));
     }
     /* XXX emit prepended header, then clear it. */
-    cleanup_out_header(state, buf);		/* Includes padding */
+    cleanup_out_header(state, buf);        /* Includes padding */
     vstring_free(buf);
     if ((reverse_ptr_offset = vstream_ftell(state->dst)) < 0) {
-	msg_warn("%s: vstream_ftell file %s: %m", myname, cleanup_path);
-	return (cleanup_milter_error(state, errno));
+    msg_warn("%s: vstream_ftell file %s: %m", myname, cleanup_path);
+    return (cleanup_milter_error(state, errno));
     }
     cleanup_out_format(state, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
-		       (long) state->append_hdr_pt_target);
+               (long) state->append_hdr_pt_target);
 
     /*
      * Pointer flipping: update the old "header append" pointer record value
@@ -727,11 +727,11 @@ static const char *cleanup_add_header(void *context, const char *name,
      * after a write+seek sequence.
      */
     if (vstream_fseek(state->dst, state->append_hdr_pt_offset, SEEK_SET) < 0) {
-	msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-	return (cleanup_milter_error(state, errno));
+    msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+    return (cleanup_milter_error(state, errno));
     }
     cleanup_out_format(state, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
-		       (long) new_hdr_offset);
+               (long) new_hdr_offset);
 
     /*
      * Update the in-memory "header append" pointer record location with the
@@ -746,8 +746,8 @@ static const char *cleanup_add_header(void *context, const char *name,
      * In case of error while doing record output.
      */
     return (CLEANUP_OUT_OK(state) == 0 ? cleanup_milter_error(state, 0) :
-	    cleanup_milter_hbc_reply && LEN(cleanup_milter_hbc_reply) ?
-	    STR(cleanup_milter_hbc_reply) : 0);
+        cleanup_milter_hbc_reply && LEN(cleanup_milter_hbc_reply) ?
+        STR(cleanup_milter_hbc_reply) : 0);
 
     /*
      * Note: state->append_hdr_pt_target never changes.
@@ -757,15 +757,15 @@ static const char *cleanup_add_header(void *context, const char *name,
 /* cleanup_find_header_start - find specific header instance */
 
 static off_t cleanup_find_header_start(CLEANUP_STATE *state, ssize_t index,
-				               const char *header_label,
-				               VSTRING *buf,
-				               int *prec_type,
-				               int allow_ptr_backup,
-				               int skip_headers)
+                               const char *header_label,
+                               VSTRING *buf,
+                               int *prec_type,
+                               int allow_ptr_backup,
+                               int skip_headers)
 {
     const char *myname = "cleanup_find_header_start";
-    off_t   curr_offset;		/* offset after found record */
-    off_t   ptr_offset;			/* pointer to found record */
+    off_t   curr_offset;        /* offset after found record */
+    off_t   ptr_offset;            /* pointer to found record */
     VSTRING *ptr_buf = 0;
     int     rec_type = REC_TYPE_ERROR;
     int     last_type;
@@ -773,14 +773,14 @@ static off_t cleanup_find_header_start(CLEANUP_STATE *state, ssize_t index,
     int     hdr_count = 0;
 
     if (msg_verbose)
-	msg_info("%s: index %ld name \"%s\"",
-	      myname, (long) index, header_label ? header_label : "(none)");
+    msg_info("%s: index %ld name \"%s\"",
+          myname, (long) index, header_label ? header_label : "(none)");
 
     /*
      * Sanity checks.
      */
     if (index < 1)
-	msg_panic("%s: bad header index %ld", myname, (long) index);
+    msg_panic("%s: bad header index %ld", myname, (long) index);
 
     /*
      * Skip to the start of the message content, and read records until we
@@ -843,132 +843,132 @@ static off_t cleanup_find_header_start(CLEANUP_STATE *state, ssize_t index,
      * our own Received: header. From then on, our own Received: header
      * becomes just like other headers.
      */
-#define CLEANUP_FIND_HEADER_NOTFOUND	(-1)
-#define CLEANUP_FIND_HEADER_IOERROR	(-2)
+#define CLEANUP_FIND_HEADER_NOTFOUND    (-1)
+#define CLEANUP_FIND_HEADER_IOERROR    (-2)
 
 #define CLEANUP_FIND_HEADER_RETURN(offs) do { \
-	if (ptr_buf) \
-	    vstring_free(ptr_buf); \
-	return (offs); \
+    if (ptr_buf) \
+        vstring_free(ptr_buf); \
+    return (offs); \
     } while (0)
 
 #define GET_NEXT_TEXT_OR_PTR_RECORD(rec_type, state, buf, curr_offset, quit) \
     if ((rec_type = rec_get_raw(state->dst, buf, 0, REC_FLAG_NONE)) < 0) { \
-	msg_warn("%s: read file %s: %m", myname, cleanup_path); \
-	cleanup_milter_set_error(state, errno); \
-	do { quit; } while (0); \
+    msg_warn("%s: read file %s: %m", myname, cleanup_path); \
+    cleanup_milter_set_error(state, errno); \
+    do { quit; } while (0); \
     } \
     if (msg_verbose > 1) \
-	msg_info("%s: read: %ld: %.*s", myname, (long) curr_offset, \
-		 LEN(buf) > 30 ? 30 : (int) LEN(buf), STR(buf)); \
+    msg_info("%s: read: %ld: %.*s", myname, (long) curr_offset, \
+         LEN(buf) > 30 ? 30 : (int) LEN(buf), STR(buf)); \
     if (rec_type == REC_TYPE_DTXT) \
-	continue; \
+    continue; \
     if (rec_type != REC_TYPE_NORM && rec_type != REC_TYPE_CONT \
-	&& rec_type != REC_TYPE_PTR) \
-	break;
+    && rec_type != REC_TYPE_PTR) \
+    break;
     /* End of hairy macros. */
 
     if (vstream_fseek(state->dst, state->data_offset, SEEK_SET) < 0) {
-	msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-	cleanup_milter_set_error(state, errno);
-	CLEANUP_FIND_HEADER_RETURN(CLEANUP_FIND_HEADER_IOERROR);
+    msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+    cleanup_milter_set_error(state, errno);
+    CLEANUP_FIND_HEADER_RETURN(CLEANUP_FIND_HEADER_IOERROR);
     }
     for (ptr_offset = 0, last_type = 0; /* void */ ; /* void */ ) {
-	if ((curr_offset = vstream_ftell(state->dst)) < 0) {
-	    msg_warn("%s: vstream_ftell file %s: %m", myname, cleanup_path);
-	    cleanup_milter_set_error(state, errno);
-	    CLEANUP_FIND_HEADER_RETURN(CLEANUP_FIND_HEADER_IOERROR);
-	}
-	/* Don't follow the "append header" pointer. */
-	if (curr_offset == state->append_hdr_pt_offset)
-	    break;
-	/* Caution: this macro terminates the loop at end-of-message. */
-	/* Don't do complex processing while breaking out of this loop. */
-	GET_NEXT_TEXT_OR_PTR_RECORD(rec_type, state, buf, curr_offset,
-		   CLEANUP_FIND_HEADER_RETURN(CLEANUP_FIND_HEADER_IOERROR));
-	/* Caution: don't assume ptr->header. This may be header-ptr->body. */
-	if (rec_type == REC_TYPE_PTR) {
-	    if (rec_goto(state->dst, STR(buf)) < 0) {
-		msg_warn("%s: read file %s: %m", myname, cleanup_path);
-		cleanup_milter_set_error(state, errno);
-		CLEANUP_FIND_HEADER_RETURN(CLEANUP_FIND_HEADER_IOERROR);
-	    }
-	    /* Save PTR record, in case it points to the start of a header. */
-	    if (allow_ptr_backup) {
-		ptr_offset = curr_offset;
-		if (ptr_buf == 0)
-		    ptr_buf = vstring_alloc(100);
-		vstring_strcpy(ptr_buf, STR(buf));
-	    }
-	    /* Don't update last_type; PTR can happen after REC_TYPE_CONT. */
-	    continue;
-	}
-	/* The middle of a multi-record header. */
-	else if (last_type == REC_TYPE_CONT || IS_SPACE_TAB(STR(buf)[0])) {
-	    /* Reset the saved PTR record and update last_type. */
-	}
-	/* No more message headers. */
-	else if ((len = is_header(STR(buf))) == 0) {
-	    break;
-	}
-	/* This the start of a message header. */
-	else if (hdr_count++ < skip_headers)
-	     /* Reset the saved PTR record and update last_type. */ ;
-	else if ((header_label == 0
-		  || (strncasecmp(header_label, STR(buf), len) == 0
-		      && (strlen(header_label) == len)))
-		 && --index == 0) {
-	    /* If we have a saved PTR record, it points to start of header. */
-	    break;
-	}
-	ptr_offset = 0;
-	last_type = rec_type;
+    if ((curr_offset = vstream_ftell(state->dst)) < 0) {
+        msg_warn("%s: vstream_ftell file %s: %m", myname, cleanup_path);
+        cleanup_milter_set_error(state, errno);
+        CLEANUP_FIND_HEADER_RETURN(CLEANUP_FIND_HEADER_IOERROR);
+    }
+    /* Don't follow the "append header" pointer. */
+    if (curr_offset == state->append_hdr_pt_offset)
+        break;
+    /* Caution: this macro terminates the loop at end-of-message. */
+    /* Don't do complex processing while breaking out of this loop. */
+    GET_NEXT_TEXT_OR_PTR_RECORD(rec_type, state, buf, curr_offset,
+           CLEANUP_FIND_HEADER_RETURN(CLEANUP_FIND_HEADER_IOERROR));
+    /* Caution: don't assume ptr->header. This may be header-ptr->body. */
+    if (rec_type == REC_TYPE_PTR) {
+        if (rec_goto(state->dst, STR(buf)) < 0) {
+        msg_warn("%s: read file %s: %m", myname, cleanup_path);
+        cleanup_milter_set_error(state, errno);
+        CLEANUP_FIND_HEADER_RETURN(CLEANUP_FIND_HEADER_IOERROR);
+        }
+        /* Save PTR record, in case it points to the start of a header. */
+        if (allow_ptr_backup) {
+        ptr_offset = curr_offset;
+        if (ptr_buf == 0)
+            ptr_buf = vstring_alloc(100);
+        vstring_strcpy(ptr_buf, STR(buf));
+        }
+        /* Don't update last_type; PTR can happen after REC_TYPE_CONT. */
+        continue;
+    }
+    /* The middle of a multi-record header. */
+    else if (last_type == REC_TYPE_CONT || IS_SPACE_TAB(STR(buf)[0])) {
+        /* Reset the saved PTR record and update last_type. */
+    }
+    /* No more message headers. */
+    else if ((len = is_header(STR(buf))) == 0) {
+        break;
+    }
+    /* This the start of a message header. */
+    else if (hdr_count++ < skip_headers)
+         /* Reset the saved PTR record and update last_type. */ ;
+    else if ((header_label == 0
+          || (strncasecmp(header_label, STR(buf), len) == 0
+              && (strlen(header_label) == len)))
+         && --index == 0) {
+        /* If we have a saved PTR record, it points to start of header. */
+        break;
+    }
+    ptr_offset = 0;
+    last_type = rec_type;
     }
 
     /*
      * In case of failure, return negative start position.
      */
     if (index > 0) {
-	curr_offset = CLEANUP_FIND_HEADER_NOTFOUND;
+    curr_offset = CLEANUP_FIND_HEADER_NOTFOUND;
     } else {
 
-	/*
-	 * Skip over short-header padding, so that the file read pointer is
-	 * always positioned at the first non-padding record after the header
-	 * record. Insist on padding after short a header record, so that a
-	 * short header record can safely be overwritten by a pointer record.
-	 */
-	if (LEN(buf) < REC_TYPE_PTR_PAYL_SIZE) {
-	    VSTRING *rbuf = (ptr_offset ? buf :
-			     (ptr_buf ? ptr_buf :
-			      (ptr_buf = vstring_alloc(100))));
-	    int     rval;
+    /*
+     * Skip over short-header padding, so that the file read pointer is
+     * always positioned at the first non-padding record after the header
+     * record. Insist on padding after short a header record, so that a
+     * short header record can safely be overwritten by a pointer record.
+     */
+    if (LEN(buf) < REC_TYPE_PTR_PAYL_SIZE) {
+        VSTRING *rbuf = (ptr_offset ? buf :
+                 (ptr_buf ? ptr_buf :
+                  (ptr_buf = vstring_alloc(100))));
+        int     rval;
 
-	    if ((rval = rec_get_raw(state->dst, rbuf, 0, REC_FLAG_NONE)) < 0) {
-		cleanup_milter_set_error(state, errno);
-		CLEANUP_FIND_HEADER_RETURN(CLEANUP_FIND_HEADER_IOERROR);
-	    }
-	    if (rval != REC_TYPE_DTXT)
-		msg_panic("%s: short header without padding", myname);
-	}
+        if ((rval = rec_get_raw(state->dst, rbuf, 0, REC_FLAG_NONE)) < 0) {
+        cleanup_milter_set_error(state, errno);
+        CLEANUP_FIND_HEADER_RETURN(CLEANUP_FIND_HEADER_IOERROR);
+        }
+        if (rval != REC_TYPE_DTXT)
+        msg_panic("%s: short header without padding", myname);
+    }
 
-	/*
-	 * Optionally return a pointer to the message header, instead of the
-	 * start of the message header itself. In that case the file read
-	 * position is undefined (actually it is at the first non-padding
-	 * record that follows the message header record).
-	 */
-	if (ptr_offset != 0) {
-	    rec_type = REC_TYPE_PTR;
-	    curr_offset = ptr_offset;
-	    vstring_strcpy(buf, STR(ptr_buf));
-	}
-	*prec_type = rec_type;
+    /*
+     * Optionally return a pointer to the message header, instead of the
+     * start of the message header itself. In that case the file read
+     * position is undefined (actually it is at the first non-padding
+     * record that follows the message header record).
+     */
+    if (ptr_offset != 0) {
+        rec_type = REC_TYPE_PTR;
+        curr_offset = ptr_offset;
+        vstring_strcpy(buf, STR(ptr_buf));
+    }
+    *prec_type = rec_type;
     }
     if (msg_verbose)
-	msg_info("%s: index %ld name %s type %d offset %ld",
-		 myname, (long) index, header_label ?
-		 header_label : "(none)", rec_type, (long) curr_offset);
+    msg_info("%s: index %ld name %s type %d offset %ld",
+         myname, (long) index, header_label ?
+         header_label : "(none)", rec_type, (long) curr_offset);
 
     CLEANUP_FIND_HEADER_RETURN(curr_offset);
 }
@@ -976,8 +976,8 @@ static off_t cleanup_find_header_start(CLEANUP_STATE *state, ssize_t index,
 /* cleanup_find_header_end - find end of header */
 
 static off_t cleanup_find_header_end(CLEANUP_STATE *state,
-				             VSTRING *rec_buf,
-				             int last_type)
+                             VSTRING *rec_buf,
+                             int last_type)
 {
     const char *myname = "cleanup_find_header_end";
     off_t   read_offset;
@@ -991,32 +991,32 @@ static off_t cleanup_find_header_end(CLEANUP_STATE *state,
      * header record.
      */
     for (;;) {
-	if ((read_offset = vstream_ftell(state->dst)) < 0) {
-	    msg_warn("%s: read file %s: %m", myname, cleanup_path);
-	    cleanup_milter_error(state, errno);
-	    return (-1);
-	}
-	/* Don't follow the "append header" pointer. */
-	if (read_offset == state->append_hdr_pt_offset)
-	    break;
-	/* Caution: this macro terminates the loop at end-of-message. */
-	/* Don't do complex processing while breaking out of this loop. */
-	GET_NEXT_TEXT_OR_PTR_RECORD(rec_type, state, rec_buf, read_offset,
-	/* Warning and errno->error mapping are done elsewhere. */
-				    return (-1));
-	if (rec_type == REC_TYPE_PTR) {
-	    if (rec_goto(state->dst, STR(rec_buf)) < 0) {
-		msg_warn("%s: read file %s: %m", myname, cleanup_path);
-		cleanup_milter_error(state, errno);
-		return (-1);
-	    }
-	    /* Don't update last_type; PTR may follow REC_TYPE_CONT. */
-	    continue;
-	}
-	/* Start of header or message body. */
-	if (last_type != REC_TYPE_CONT && !IS_SPACE_TAB(STR(rec_buf)[0]))
-	    break;
-	last_type = rec_type;
+    if ((read_offset = vstream_ftell(state->dst)) < 0) {
+        msg_warn("%s: read file %s: %m", myname, cleanup_path);
+        cleanup_milter_error(state, errno);
+        return (-1);
+    }
+    /* Don't follow the "append header" pointer. */
+    if (read_offset == state->append_hdr_pt_offset)
+        break;
+    /* Caution: this macro terminates the loop at end-of-message. */
+    /* Don't do complex processing while breaking out of this loop. */
+    GET_NEXT_TEXT_OR_PTR_RECORD(rec_type, state, rec_buf, read_offset,
+    /* Warning and errno->error mapping are done elsewhere. */
+                    return (-1));
+    if (rec_type == REC_TYPE_PTR) {
+        if (rec_goto(state->dst, STR(rec_buf)) < 0) {
+        msg_warn("%s: read file %s: %m", myname, cleanup_path);
+        cleanup_milter_error(state, errno);
+        return (-1);
+        }
+        /* Don't update last_type; PTR may follow REC_TYPE_CONT. */
+        continue;
+    }
+    /* Start of header or message body. */
+    if (last_type != REC_TYPE_CONT && !IS_SPACE_TAB(STR(rec_buf)[0]))
+        break;
+    last_type = rec_type;
     }
     return (read_offset);
 }
@@ -1024,26 +1024,26 @@ static off_t cleanup_find_header_end(CLEANUP_STATE *state,
 /* cleanup_patch_header - patch new header into an existing header */
 
 static const char *cleanup_patch_header(CLEANUP_STATE *state,
-					        const char *new_hdr_name,
-					        const char *hdr_space,
-					        const char *new_hdr_value,
-					        off_t old_rec_offset,
-					        int old_rec_type,
-					        VSTRING *old_rec_buf,
-					        off_t next_offset)
+                            const char *new_hdr_name,
+                            const char *hdr_space,
+                            const char *new_hdr_value,
+                            off_t old_rec_offset,
+                            int old_rec_type,
+                            VSTRING *old_rec_buf,
+                            off_t next_offset)
 {
     const char *myname = "cleanup_patch_header";
     VSTRING *buf = vstring_alloc(100);
     off_t   new_hdr_offset;
 
 #define CLEANUP_PATCH_HEADER_RETURN(ret) do { \
-	vstring_free(buf); \
-	return (ret); \
+    vstring_free(buf); \
+    return (ret); \
     } while (0)
 
     if (msg_verbose)
-	msg_info("%s: \"%s\" \"%s\" at %ld",
-		 myname, new_hdr_name, new_hdr_value, (long) old_rec_offset);
+    msg_info("%s: \"%s\" \"%s\" at %ld",
+         myname, new_hdr_name, new_hdr_value, (long) old_rec_offset);
 
     /*
      * Allocate space after the end of the queue file for the new header and
@@ -1072,22 +1072,22 @@ static const char *cleanup_patch_header(CLEANUP_STATE *state,
      */
     vstring_sprintf(buf, "%s:%s%s", new_hdr_name, hdr_space, new_hdr_value);
     if (cleanup_milter_hbc_checks
-	&& cleanup_milter_header_checks(state, buf) == 0)
-	CLEANUP_PATCH_HEADER_RETURN(0);
+    && cleanup_milter_header_checks(state, buf) == 0)
+    CLEANUP_PATCH_HEADER_RETURN(0);
 
     /*
      * Write the new header to a new location after the end of the queue
      * file.
      */
     if ((new_hdr_offset = vstream_fseek(state->dst, (off_t) 0, SEEK_END)) < 0) {
-	msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-	CLEANUP_PATCH_HEADER_RETURN(cleanup_milter_error(state, errno));
+    msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+    CLEANUP_PATCH_HEADER_RETURN(cleanup_milter_error(state, errno));
     }
     /* XXX emit prepended header, then clear it. */
-    cleanup_out_header(state, buf);		/* Includes padding */
+    cleanup_out_header(state, buf);        /* Includes padding */
     if (msg_verbose > 1)
-	msg_info("%s: %ld: write %.*s", myname, (long) new_hdr_offset,
-		 LEN(buf) > 30 ? 30 : (int) LEN(buf), STR(buf));
+    msg_info("%s: %ld: write %.*s", myname, (long) new_hdr_offset,
+         LEN(buf) > 30 ? 30 : (int) LEN(buf), STR(buf));
 
     /*
      * Optionally, save the existing text record or pointer record that will
@@ -1095,13 +1095,13 @@ static const char *cleanup_patch_header(CLEANUP_STATE *state,
      * ensure that it, too, can be overwritten by a pointer.
      */
     if (old_rec_type > 0) {
-	CLEANUP_OUT_BUF(state, old_rec_type, old_rec_buf);
-	if (LEN(old_rec_buf) < REC_TYPE_PTR_PAYL_SIZE)
-	    rec_pad(state->dst, REC_TYPE_DTXT,
-		    REC_TYPE_PTR_PAYL_SIZE - LEN(old_rec_buf));
-	if (msg_verbose > 1)
-	    msg_info("%s: write %.*s", myname, LEN(old_rec_buf) > 30 ?
-		     30 : (int) LEN(old_rec_buf), STR(old_rec_buf));
+    CLEANUP_OUT_BUF(state, old_rec_type, old_rec_buf);
+    if (LEN(old_rec_buf) < REC_TYPE_PTR_PAYL_SIZE)
+        rec_pad(state->dst, REC_TYPE_DTXT,
+            REC_TYPE_PTR_PAYL_SIZE - LEN(old_rec_buf));
+    if (msg_verbose > 1)
+        msg_info("%s: write %.*s", myname, LEN(old_rec_buf) > 30 ?
+             30 : (int) LEN(old_rec_buf), STR(old_rec_buf));
     }
 
     /*
@@ -1110,13 +1110,13 @@ static const char *cleanup_patch_header(CLEANUP_STATE *state,
      * confused about what we were going to save.
      */
     if (old_rec_type != REC_TYPE_PTR) {
-	if (next_offset < 0)
-	    msg_panic("%s: bad reverse pointer %ld",
-		      myname, (long) next_offset);
-	cleanup_out_format(state, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
-			   (long) next_offset);
-	if (msg_verbose > 1)
-	    msg_info("%s: write PTR %ld", myname, (long) next_offset);
+    if (next_offset < 0)
+        msg_panic("%s: bad reverse pointer %ld",
+              myname, (long) next_offset);
+    cleanup_out_format(state, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
+               (long) next_offset);
+    if (msg_verbose > 1)
+        msg_info("%s: write PTR %ld", myname, (long) next_offset);
     }
 
     /*
@@ -1126,22 +1126,22 @@ static const char *cleanup_patch_header(CLEANUP_STATE *state,
      * follow pointer records otherwise we get out of sync with the data.
      */
     if (vstream_fseek(state->dst, old_rec_offset, SEEK_SET) < 0) {
-	msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-	CLEANUP_PATCH_HEADER_RETURN(cleanup_milter_error(state, errno));
+    msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+    CLEANUP_PATCH_HEADER_RETURN(cleanup_milter_error(state, errno));
     }
     cleanup_out_format(state, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
-		       (long) new_hdr_offset);
+               (long) new_hdr_offset);
     if (msg_verbose > 1)
-	msg_info("%s: %ld: write PTR %ld", myname, (long) old_rec_offset,
-		 (long) new_hdr_offset);
+    msg_info("%s: %ld: write PTR %ld", myname, (long) old_rec_offset,
+         (long) new_hdr_offset);
 
     /*
      * In case of error while doing record output.
      */
     CLEANUP_PATCH_HEADER_RETURN(
-	       CLEANUP_OUT_OK(state) == 0 ? cleanup_milter_error(state, 0) :
-		 cleanup_milter_hbc_reply && LEN(cleanup_milter_hbc_reply) ?
-				STR(cleanup_milter_hbc_reply) : 0);
+           CLEANUP_OUT_OK(state) == 0 ? cleanup_milter_error(state, 0) :
+         cleanup_milter_hbc_reply && LEN(cleanup_milter_hbc_reply) ?
+                STR(cleanup_milter_hbc_reply) : 0);
 
     /*
      * Note: state->append_hdr_pt_target never changes.
@@ -1151,9 +1151,9 @@ static const char *cleanup_patch_header(CLEANUP_STATE *state,
 /* cleanup_ins_header - insert message header */
 
 static const char *cleanup_ins_header(void *context, ssize_t index,
-				              const char *new_hdr_name,
-				              const char *hdr_space,
-				              const char *new_hdr_value)
+                              const char *new_hdr_name,
+                              const char *hdr_space,
+                              const char *new_hdr_value)
 {
     const char *myname = "cleanup_ins_header";
     CLEANUP_STATE *state = (CLEANUP_STATE *) context;
@@ -1164,13 +1164,13 @@ static const char *cleanup_ins_header(void *context, ssize_t index,
     const char *ret;
 
 #define CLEANUP_INS_HEADER_RETURN(ret) do { \
-	vstring_free(old_rec_buf); \
-	return (ret); \
+    vstring_free(old_rec_buf); \
+    return (ret); \
     } while (0)
 
     if (msg_verbose)
-	msg_info("%s: %ld \"%s\" \"%s\"",
-		 myname, (long) index, new_hdr_name, new_hdr_value);
+    msg_info("%s: %ld \"%s\" \"%s\"",
+         myname, (long) index, new_hdr_name, new_hdr_value);
 
     /*
      * Look for a header at the specified position.
@@ -1180,28 +1180,28 @@ static const char *cleanup_ins_header(void *context, ssize_t index,
      * 
      * Index 1 is the top-most header.
      */
-#define NO_HEADER_NAME	((char *) 0)
-#define ALLOW_PTR_BACKUP	1
-#define SKIP_ONE_HEADER		1
-#define DONT_SKIP_HEADERS	0
+#define NO_HEADER_NAME    ((char *) 0)
+#define ALLOW_PTR_BACKUP    1
+#define SKIP_ONE_HEADER        1
+#define DONT_SKIP_HEADERS    0
 
     if (index < 1)
-	index = 1;
+    index = 1;
     old_rec_offset = cleanup_find_header_start(state, index, NO_HEADER_NAME,
-					       old_rec_buf, &old_rec_type,
-					       ALLOW_PTR_BACKUP,
-					       DONT_SKIP_HEADERS);
+                           old_rec_buf, &old_rec_type,
+                           ALLOW_PTR_BACKUP,
+                           DONT_SKIP_HEADERS);
     if (old_rec_offset == CLEANUP_FIND_HEADER_IOERROR)
-	/* Warning and errno->error mapping are done elsewhere. */
-	CLEANUP_INS_HEADER_RETURN(cleanup_milter_error(state, 0));
+    /* Warning and errno->error mapping are done elsewhere. */
+    CLEANUP_INS_HEADER_RETURN(cleanup_milter_error(state, 0));
 
     /*
      * If the header does not exist, simply append the header to the linked
      * list at the "header append" pointer record.
      */
     if (old_rec_offset < 0)
-	CLEANUP_INS_HEADER_RETURN(cleanup_add_header(context, new_hdr_name,
-						 hdr_space, new_hdr_value));
+    CLEANUP_INS_HEADER_RETURN(cleanup_add_header(context, new_hdr_name,
+                         hdr_space, new_hdr_value));
 
     /*
      * If the header does exist, save both the new and the existing header to
@@ -1210,25 +1210,25 @@ static const char *cleanup_ins_header(void *context, ssize_t index,
      * we are starting with a pointer record).
      */
     if (old_rec_type == REC_TYPE_PTR) {
-	next_offset = -1;
+    next_offset = -1;
     } else {
-	if ((next_offset = vstream_ftell(state->dst)) < 0) {
-	    msg_warn("%s: read file %s: %m", myname, cleanup_path);
-	    CLEANUP_INS_HEADER_RETURN(cleanup_milter_error(state, errno));
-	}
+    if ((next_offset = vstream_ftell(state->dst)) < 0) {
+        msg_warn("%s: read file %s: %m", myname, cleanup_path);
+        CLEANUP_INS_HEADER_RETURN(cleanup_milter_error(state, errno));
+    }
     }
     ret = cleanup_patch_header(state, new_hdr_name, hdr_space, new_hdr_value,
-			       old_rec_offset, old_rec_type,
-			       old_rec_buf, next_offset);
+                   old_rec_offset, old_rec_type,
+                   old_rec_buf, next_offset);
     CLEANUP_INS_HEADER_RETURN(ret);
 }
 
 /* cleanup_upd_header - modify or append message header */
 
 static const char *cleanup_upd_header(void *context, ssize_t index,
-				              const char *new_hdr_name,
-				              const char *hdr_space,
-				              const char *new_hdr_value)
+                              const char *new_hdr_name,
+                              const char *hdr_space,
+                              const char *new_hdr_value)
 {
     const char *myname = "cleanup_upd_header";
     CLEANUP_STATE *state = (CLEANUP_STATE *) context;
@@ -1239,14 +1239,14 @@ static const char *cleanup_upd_header(void *context, ssize_t index,
     const char *ret;
 
     if (msg_verbose)
-	msg_info("%s: %ld \"%s\" \"%s\"",
-		 myname, (long) index, new_hdr_name, new_hdr_value);
+    msg_info("%s: %ld \"%s\" \"%s\"",
+         myname, (long) index, new_hdr_name, new_hdr_value);
 
     /*
      * Sanity check.
      */
     if (*new_hdr_name == 0)
-	msg_panic("%s: null header name", myname);
+    msg_panic("%s: null header name", myname);
 
     /*
      * Find the header that is being modified.
@@ -1259,30 +1259,30 @@ static const char *cleanup_upd_header(void *context, ssize_t index,
      * eliminate this, rewrite the loop below so that we can start with the
      * pointer record that points to the header that's being edited.
      */
-#define DONT_SAVE_RECORD	0
-#define NO_PTR_BACKUP		0
+#define DONT_SAVE_RECORD    0
+#define NO_PTR_BACKUP        0
 
 #define CLEANUP_UPD_HEADER_RETURN(ret) do { \
-	vstring_free(rec_buf); \
-	return (ret); \
+    vstring_free(rec_buf); \
+    return (ret); \
     } while (0)
 
     rec_buf = vstring_alloc(100);
     old_rec_offset = cleanup_find_header_start(state, index, new_hdr_name,
-					       rec_buf, &last_type,
-					       NO_PTR_BACKUP,
-					       SKIP_ONE_HEADER);
+                           rec_buf, &last_type,
+                           NO_PTR_BACKUP,
+                           SKIP_ONE_HEADER);
     if (old_rec_offset == CLEANUP_FIND_HEADER_IOERROR)
-	/* Warning and errno->error mapping are done elsewhere. */
-	CLEANUP_UPD_HEADER_RETURN(cleanup_milter_error(state, 0));
+    /* Warning and errno->error mapping are done elsewhere. */
+    CLEANUP_UPD_HEADER_RETURN(cleanup_milter_error(state, 0));
 
     /*
      * If no old header is found, simply append the new header to the linked
      * list at the "header append" pointer record.
      */
     if (old_rec_offset < 0)
-	CLEANUP_UPD_HEADER_RETURN(cleanup_add_header(context, new_hdr_name,
-						 hdr_space, new_hdr_value));
+    CLEANUP_UPD_HEADER_RETURN(cleanup_add_header(context, new_hdr_name,
+                         hdr_space, new_hdr_value));
 
     /*
      * If the old header is found, find the end of the old header, save the
@@ -1290,18 +1290,18 @@ static const char *cleanup_upd_header(void *context, ssize_t index,
      * new storage with a forward and reverse pointer.
      */
     if ((next_offset = cleanup_find_header_end(state, rec_buf, last_type)) < 0)
-	/* Warning and errno->error mapping are done elsewhere. */
-	CLEANUP_UPD_HEADER_RETURN(cleanup_milter_error(state, 0));
+    /* Warning and errno->error mapping are done elsewhere. */
+    CLEANUP_UPD_HEADER_RETURN(cleanup_milter_error(state, 0));
     ret = cleanup_patch_header(state, new_hdr_name, hdr_space, new_hdr_value,
-			       old_rec_offset, DONT_SAVE_RECORD,
-			       (VSTRING *) 0, next_offset);
+                   old_rec_offset, DONT_SAVE_RECORD,
+                   (VSTRING *) 0, next_offset);
     CLEANUP_UPD_HEADER_RETURN(ret);
 }
 
 /* cleanup_del_header - delete message header */
 
 static const char *cleanup_del_header(void *context, ssize_t index,
-				              const char *hdr_name)
+                              const char *hdr_name)
 {
     const char *myname = "cleanup_del_header";
     CLEANUP_STATE *state = (CLEANUP_STATE *) context;
@@ -1311,13 +1311,13 @@ static const char *cleanup_del_header(void *context, ssize_t index,
     int     last_type;
 
     if (msg_verbose)
-	msg_info("%s: %ld \"%s\"", myname, (long) index, hdr_name);
+    msg_info("%s: %ld \"%s\"", myname, (long) index, hdr_name);
 
     /*
      * Sanity check.
      */
     if (*hdr_name == 0)
-	msg_panic("%s: null header name", myname);
+    msg_panic("%s: null header name", myname);
 
     /*
      * Find the header that is being deleted.
@@ -1327,17 +1327,17 @@ static const char *cleanup_del_header(void *context, ssize_t index,
      * Index 1 is the first matching header instance.
      */
 #define CLEANUP_DEL_HEADER_RETURN(ret) do { \
-	vstring_free(rec_buf); \
-	return (ret); \
+    vstring_free(rec_buf); \
+    return (ret); \
     } while (0)
 
     rec_buf = vstring_alloc(100);
     header_offset = cleanup_find_header_start(state, index, hdr_name, rec_buf,
-					      &last_type, NO_PTR_BACKUP,
-					      SKIP_ONE_HEADER);
+                          &last_type, NO_PTR_BACKUP,
+                          SKIP_ONE_HEADER);
     if (header_offset == CLEANUP_FIND_HEADER_IOERROR)
-	/* Warning and errno->error mapping are done elsewhere. */
-	CLEANUP_DEL_HEADER_RETURN(cleanup_milter_error(state, 0));
+    /* Warning and errno->error mapping are done elsewhere. */
+    CLEANUP_DEL_HEADER_RETURN(cleanup_milter_error(state, 0));
 
     /*
      * Overwrite the beginning of the header record with a pointer to the
@@ -1346,16 +1346,16 @@ static const char *cleanup_del_header(void *context, ssize_t index,
      * there may be a PTR record in the middle of a multi-line header.
      */
     if (header_offset > 0) {
-	if ((next_offset = cleanup_find_header_end(state, rec_buf, last_type)) < 0)
-	    /* Warning and errno->error mapping are done elsewhere. */
-	    CLEANUP_DEL_HEADER_RETURN(cleanup_milter_error(state, 0));
-	/* Mark the header as deleted. */
-	if (vstream_fseek(state->dst, header_offset, SEEK_SET) < 0) {
-	    msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-	    CLEANUP_DEL_HEADER_RETURN(cleanup_milter_error(state, errno));
-	}
-	rec_fprintf(state->dst, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
-		    (long) next_offset);
+    if ((next_offset = cleanup_find_header_end(state, rec_buf, last_type)) < 0)
+        /* Warning and errno->error mapping are done elsewhere. */
+        CLEANUP_DEL_HEADER_RETURN(cleanup_milter_error(state, 0));
+    /* Mark the header as deleted. */
+    if (vstream_fseek(state->dst, header_offset, SEEK_SET) < 0) {
+        msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+        CLEANUP_DEL_HEADER_RETURN(cleanup_milter_error(state, errno));
+    }
+    rec_fprintf(state->dst, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
+            (long) next_offset);
     }
     vstring_free(rec_buf);
 
@@ -1368,7 +1368,7 @@ static const char *cleanup_del_header(void *context, ssize_t index,
 /* cleanup_chg_from - replace sender address, ignore ESMTP arguments */
 
 static const char *cleanup_chg_from(void *context, const char *ext_from,
-				            const char *esmtp_args)
+                            const char *esmtp_args)
 {
     const char *myname = "cleanup_chg_from";
     CLEANUP_STATE *state = (CLEANUP_STATE *) context;
@@ -1383,46 +1383,46 @@ static const char *cleanup_chg_from(void *context, const char *ext_from,
     int     dsn_ret = 0;
 
     if (msg_verbose)
-	msg_info("%s: \"%s\" \"%s\"", myname, ext_from, esmtp_args);
+    msg_info("%s: \"%s\" \"%s\"", myname, ext_from, esmtp_args);
 
     /*
      * ESMTP support is limited to RET and ENVID, i.e. things that are stored
      * together with the sender queue file record.
      */
     if (esmtp_args[0]) {
-	ARGV   *esmtp_argv;
-	int     i;
-	const char *arg;
+    ARGV   *esmtp_argv;
+    int     i;
+    const char *arg;
 
-	esmtp_argv = argv_split(esmtp_args, " ");
-	for (i = 0; i < esmtp_argv->argc; ++i) {
-	    arg = esmtp_argv->argv[i];
-	    if (strncasecmp(arg, "RET=", 4) == 0) {
-		if ((dsn_ret = dsn_ret_code(arg + 4)) == 0) {
-		    msg_warn("Ignoring bad ESMTP parameter \"%s\" in "
-			     "SMFI_CHGFROM request", arg);
-		} else {
-		    state->dsn_ret = dsn_ret;
-		}
-	    } else if (strncasecmp(arg, "ENVID=", 6) == 0) {
-		if (state->milter_dsn_buf == 0)
-		    state->milter_dsn_buf = vstring_alloc(20);
-		dsn_envid = (xtext_unquote(state->milter_dsn_buf, arg + 6)
-			     && allprint(STR(state->milter_dsn_buf)));
-		if (!dsn_envid) {
-		    msg_warn("Ignoring bad ESMTP parameter \"%s\" in "
-			     "SMFI_CHGFROM request", arg);
-		} else {
-		    if (state->dsn_envid)
-			myfree(state->dsn_envid);
-		    state->dsn_envid = mystrdup(STR(state->milter_dsn_buf));
-		}
-	    } else {
-		msg_warn("Ignoring bad ESMTP parameter \"%s\" in "
-			 "SMFI_CHGFROM request", arg);
-	    }
-	}
-	argv_free(esmtp_argv);
+    esmtp_argv = argv_split(esmtp_args, " ");
+    for (i = 0; i < esmtp_argv->argc; ++i) {
+        arg = esmtp_argv->argv[i];
+        if (strncasecmp(arg, "RET=", 4) == 0) {
+        if ((dsn_ret = dsn_ret_code(arg + 4)) == 0) {
+            msg_warn("Ignoring bad ESMTP parameter \"%s\" in "
+                 "SMFI_CHGFROM request", arg);
+        } else {
+            state->dsn_ret = dsn_ret;
+        }
+        } else if (strncasecmp(arg, "ENVID=", 6) == 0) {
+        if (state->milter_dsn_buf == 0)
+            state->milter_dsn_buf = vstring_alloc(20);
+        dsn_envid = (xtext_unquote(state->milter_dsn_buf, arg + 6)
+                 && allprint(STR(state->milter_dsn_buf)));
+        if (!dsn_envid) {
+            msg_warn("Ignoring bad ESMTP parameter \"%s\" in "
+                 "SMFI_CHGFROM request", arg);
+        } else {
+            if (state->dsn_envid)
+            myfree(state->dsn_envid);
+            state->dsn_envid = mystrdup(STR(state->milter_dsn_buf));
+        }
+        } else {
+        msg_warn("Ignoring bad ESMTP parameter \"%s\" in "
+             "SMFI_CHGFROM request", arg);
+        }
+    }
+    argv_free(esmtp_argv);
     }
 
     /*
@@ -1433,9 +1433,9 @@ static const char *cleanup_chg_from(void *context, const char *ext_from,
      * overwritten with a pointer record to the new sender address record.
      */
     if (state->sender_pt_offset < 0)
-	msg_panic("%s: no original sender record offset", myname);
+    msg_panic("%s: no original sender record offset", myname);
     if (state->sender_pt_target < 0)
-	msg_panic("%s: no post-sender record offset", myname);
+    msg_panic("%s: no post-sender record offset", myname);
 
     /*
      * Allocate space after the end of the queue file, and write the new {DSN
@@ -1449,24 +1449,24 @@ static const char *cleanup_chg_from(void *context, const char *ext_from,
      * sender.
      */
     if ((new_offset = vstream_fseek(state->dst, (off_t) 0, SEEK_END)) < 0) {
-	msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-	return (cleanup_milter_error(state, errno));
+    msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+    return (cleanup_milter_error(state, errno));
     }
 
     /*
      * Sender DSN attribute records precede the sender record.
      */
     if (dsn_envid)
-	rec_fprintf(state->dst, REC_TYPE_ATTR, "%s=%s",
-		    MAIL_ATTR_DSN_ENVID, STR(state->milter_dsn_buf));
+    rec_fprintf(state->dst, REC_TYPE_ATTR, "%s=%s",
+            MAIL_ATTR_DSN_ENVID, STR(state->milter_dsn_buf));
     if (dsn_ret)
-	rec_fprintf(state->dst, REC_TYPE_ATTR, "%s=%d",
-		    MAIL_ATTR_DSN_RET, dsn_ret);
+    rec_fprintf(state->dst, REC_TYPE_ATTR, "%s=%d",
+            MAIL_ATTR_DSN_RET, dsn_ret);
     if (dsn_envid == 0 && dsn_ret == 0) {
-	new_sender_offset = new_offset;
+    new_sender_offset = new_offset;
     } else if ((new_sender_offset = vstream_ftell(state->dst)) < 0) {
-	msg_warn("%s: vstream_ftell file %s: %m", myname, cleanup_path);
-	return (cleanup_milter_error(state, errno));
+    msg_warn("%s: vstream_ftell file %s: %m", myname, cleanup_path);
+    return (cleanup_milter_error(state, errno));
     }
 
     /*
@@ -1478,22 +1478,22 @@ static const char *cleanup_chg_from(void *context, const char *ext_from,
     int_sender_buf = vstring_alloc(strlen(ext_from) + 1);
     tree = tok822_parse(ext_from);
     for (addr_count = 0, tp = tree; tp != 0; tp = tp->next) {
-	if (tp->type == TOK822_ADDR) {
-	    if (addr_count == 0) {
-		tok822_internalize(int_sender_buf, tp->head, TOK822_STR_DEFL);
-		addr_count += 1;
-	    } else {
-		msg_warn("%s: Milter request to add multi-sender: \"%s\"",
-			 state->queue_id, ext_from);
-		break;
-	    }
-	}
+    if (tp->type == TOK822_ADDR) {
+        if (addr_count == 0) {
+        tok822_internalize(int_sender_buf, tp->head, TOK822_STR_DEFL);
+        addr_count += 1;
+        } else {
+        msg_warn("%s: Milter request to add multi-sender: \"%s\"",
+             state->queue_id, ext_from);
+        break;
+        }
+    }
     }
     tok822_free_tree(tree);
     after_sender_offs = cleanup_addr_sender(state, STR(int_sender_buf));
     vstring_free(int_sender_buf);
     cleanup_out_format(state, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
-		       (long) state->sender_pt_target);
+               (long) state->sender_pt_target);
     state->sender_pt_target = after_sender_offs;
 
     /*
@@ -1501,11 +1501,11 @@ static const char *cleanup_chg_from(void *context, const char *ext_from,
      * envid, DSN ret, sender address, sender BCC} records.
      */
     if (vstream_fseek(state->dst, state->sender_pt_offset, SEEK_SET) < 0) {
-	msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-	return (cleanup_milter_error(state, errno));
+    msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+    return (cleanup_milter_error(state, errno));
     }
     cleanup_out_format(state, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
-		       (long) new_offset);
+               (long) new_offset);
 
     /*
      * Remember the location of the new current sender record.
@@ -1521,7 +1521,7 @@ static const char *cleanup_chg_from(void *context, const char *ext_from,
 /* cleanup_add_rcpt_par - append recipient address, with ESMTP arguments */
 
 static const char *cleanup_add_rcpt_par(void *context, const char *ext_rcpt,
-					        const char *esmtp_args)
+                            const char *esmtp_args)
 {
     const char *myname = "cleanup_add_rcpt_par";
     CLEANUP_STATE *state = (CLEANUP_STATE *) context;
@@ -1541,7 +1541,7 @@ static const char *cleanup_add_rcpt_par(void *context, const char *ext_rcpt,
     const char *arg_val;
 
     if (msg_verbose)
-	msg_info("%s: \"%s\" \"%s\"", myname, ext_rcpt, esmtp_args);
+    msg_info("%s: \"%s\" \"%s\"", myname, ext_rcpt, esmtp_args);
 
     /*
      * To simplify implementation, the cleanup server writes a dummy
@@ -1550,9 +1550,9 @@ static const char *cleanup_add_rcpt_par(void *context, const char *ext_rcpt,
      * pointer record.
      */
     if (state->append_rcpt_pt_offset < 0)
-	msg_panic("%s: no recipient append pointer location", myname);
+    msg_panic("%s: no recipient append pointer location", myname);
     if (state->append_rcpt_pt_target < 0)
-	msg_panic("%s: no recipient append pointer target", myname);
+    msg_panic("%s: no recipient append pointer target", myname);
 
     /*
      * Allocate space after the end of the queue file, and write the
@@ -1566,45 +1566,45 @@ static const char *cleanup_add_rcpt_par(void *context, const char *ext_rcpt,
      * to the new recipient.
      */
     if ((new_rcpt_offset = vstream_fseek(state->dst, (off_t) 0, SEEK_END)) < 0) {
-	msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-	return (cleanup_milter_error(state, errno));
+    msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+    return (cleanup_milter_error(state, errno));
     }
 
     /*
      * Parse ESMTP parameters. XXX UTF8SMTP don't assume ORCPT is xtext.
      */
     if (esmtp_args[0]) {
-	esmtp_argv = argv_split(esmtp_args, " ");
-	for (i = 0; i < esmtp_argv->argc; ++i) {
-	    arg = esmtp_argv->argv[i];
-	    if (strncasecmp(arg, "NOTIFY=", 7) == 0) {	/* RFC 3461 */
-		if (dsn_notify || (dsn_notify = dsn_notify_mask(arg + 7)) == 0)
-		    msg_warn("%s: Bad NOTIFY parameter from Milter or "
-			     "header/body_checks: \"%.100s\"",
-			     state->queue_id, arg);
-	    } else if (strncasecmp(arg, "ORCPT=", 6) == 0) {	/* RFC 3461 */
-		if (orcpt_buf == 0)
-		    orcpt_buf = vstring_alloc(100);
-		if (dsn_orcpt_info
-		    || (type_len = strcspn(arg_val = arg + 6, ";")) == 0
-		    || (arg_val)[type_len] != ';'
-		    || xtext_unquote_append(vstring_sprintf(orcpt_buf,
-						    "%.*s;", (int) type_len,
-							    arg_val),
-					    arg_val + type_len + 1) == 0) {
-		    msg_warn("%s: Bad ORCPT parameter from Milter or "
-			     "header/body_checks: \"%.100s\"",
-			     state->queue_id, arg);
-		} else {
-		    dsn_orcpt_info = STR(orcpt_buf);
-		}
-	    } else {
-		msg_warn("%s: ignoring ESMTP argument from Milter or "
-			 "header/body_checks: \"%.100s\"",
-			 state->queue_id, arg);
-	    }
-	}
-	argv_free(esmtp_argv);
+    esmtp_argv = argv_split(esmtp_args, " ");
+    for (i = 0; i < esmtp_argv->argc; ++i) {
+        arg = esmtp_argv->argv[i];
+        if (strncasecmp(arg, "NOTIFY=", 7) == 0) {    /* RFC 3461 */
+        if (dsn_notify || (dsn_notify = dsn_notify_mask(arg + 7)) == 0)
+            msg_warn("%s: Bad NOTIFY parameter from Milter or "
+                 "header/body_checks: \"%.100s\"",
+                 state->queue_id, arg);
+        } else if (strncasecmp(arg, "ORCPT=", 6) == 0) {    /* RFC 3461 */
+        if (orcpt_buf == 0)
+            orcpt_buf = vstring_alloc(100);
+        if (dsn_orcpt_info
+            || (type_len = strcspn(arg_val = arg + 6, ";")) == 0
+            || (arg_val)[type_len] != ';'
+            || xtext_unquote_append(vstring_sprintf(orcpt_buf,
+                            "%.*s;", (int) type_len,
+                                arg_val),
+                        arg_val + type_len + 1) == 0) {
+            msg_warn("%s: Bad ORCPT parameter from Milter or "
+                 "header/body_checks: \"%.100s\"",
+                 state->queue_id, arg);
+        } else {
+            dsn_orcpt_info = STR(orcpt_buf);
+        }
+        } else {
+        msg_warn("%s: ignoring ESMTP argument from Milter or "
+             "header/body_checks: \"%.100s\"",
+             state->queue_id, arg);
+        }
+    }
+    argv_free(esmtp_argv);
     }
 
     /*
@@ -1616,57 +1616,57 @@ static const char *cleanup_add_rcpt_par(void *context, const char *ext_rcpt,
     int_rcpt_buf = vstring_alloc(strlen(ext_rcpt) + 1);
     tree = tok822_parse(ext_rcpt);
     for (addr_count = 0, tp = tree; tp != 0; tp = tp->next) {
-	if (tp->type == TOK822_ADDR) {
-	    if (addr_count == 0) {
-		tok822_internalize(int_rcpt_buf, tp->head, TOK822_STR_DEFL);
-		addr_count += 1;
-	    } else {
-		msg_warn("%s: Milter or header/body_checks request to "
-			 "add multi-recipient: \"%s\"",
-			 state->queue_id, ext_rcpt);
-		break;
-	    }
-	}
+    if (tp->type == TOK822_ADDR) {
+        if (addr_count == 0) {
+        tok822_internalize(int_rcpt_buf, tp->head, TOK822_STR_DEFL);
+        addr_count += 1;
+        } else {
+        msg_warn("%s: Milter or header/body_checks request to "
+             "add multi-recipient: \"%s\"",
+             state->queue_id, ext_rcpt);
+        break;
+        }
+    }
     }
     tok822_free_tree(tree);
     if (addr_count != 0)
-	cleanup_addr_bcc_dsn(state, STR(int_rcpt_buf), dsn_orcpt_info,
-			     dsn_notify ? dsn_notify : DEF_DSN_NOTIFY);
+    cleanup_addr_bcc_dsn(state, STR(int_rcpt_buf), dsn_orcpt_info,
+                 dsn_notify ? dsn_notify : DEF_DSN_NOTIFY);
     else
-	msg_warn("%s: ignoring attempt from Milter to add null recipient",
-		 state->queue_id);
+    msg_warn("%s: ignoring attempt from Milter to add null recipient",
+         state->queue_id);
     vstring_free(int_rcpt_buf);
     if (orcpt_buf)
-	vstring_free(orcpt_buf);
+    vstring_free(orcpt_buf);
 
     /*
      * Don't update the queue file when we did not write a recipient record
      * (malformed or duplicate BCC recipient).
      */
     if (vstream_ftell(state->dst) == new_rcpt_offset)
-	return (CLEANUP_OUT_OK(state) ? 0 : cleanup_milter_error(state, 0));
+    return (CLEANUP_OUT_OK(state) ? 0 : cleanup_milter_error(state, 0));
 
     /*
      * Follow the recipient with a "reverse" pointer to the old recipient
      * append target.
      */
     if ((reverse_ptr_offset = vstream_ftell(state->dst)) < 0) {
-	msg_warn("%s: vstream_ftell file %s: %m", myname, cleanup_path);
-	return (cleanup_milter_error(state, errno));
+    msg_warn("%s: vstream_ftell file %s: %m", myname, cleanup_path);
+    return (cleanup_milter_error(state, errno));
     }
     cleanup_out_format(state, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
-		       (long) state->append_rcpt_pt_target);
+               (long) state->append_rcpt_pt_target);
 
     /*
      * Pointer flipping: update the old "recipient append" pointer record
      * value to the location of the new recipient record.
      */
     if (vstream_fseek(state->dst, state->append_rcpt_pt_offset, SEEK_SET) < 0) {
-	msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-	return (cleanup_milter_error(state, errno));
+    msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+    return (cleanup_milter_error(state, errno));
     }
     cleanup_out_format(state, REC_TYPE_PTR, REC_TYPE_PTR_FORMAT,
-		       (long) new_rcpt_offset);
+               (long) new_rcpt_offset);
 
     /*
      * Update the in-memory "recipient append" pointer record location with
@@ -1700,8 +1700,8 @@ static const char *cleanup_del_rcpt(void *context, const char *ext_rcpt)
     VSTRING *buf;
     char   *attr_name;
     char   *attr_value;
-    char   *dsn_orcpt = 0;		/* XXX for dup filter cleanup */
-    int     dsn_notify = 0;		/* XXX for dup filter cleanup */
+    char   *dsn_orcpt = 0;        /* XXX for dup filter cleanup */
+    int     dsn_notify = 0;        /* XXX for dup filter cleanup */
     char   *orig_rcpt = 0;
     char   *start;
     int     rec_type;
@@ -1713,7 +1713,7 @@ static const char *cleanup_del_rcpt(void *context, const char *ext_rcpt)
     int     addr_count;
 
     if (msg_verbose)
-	msg_info("%s: \"%s\"", myname, ext_rcpt);
+    msg_info("%s: \"%s\"", myname, ext_rcpt);
 
     /*
      * Virtual aliasing and other address rewriting happens after the mail
@@ -1736,17 +1736,17 @@ static const char *cleanup_del_rcpt(void *context, const char *ext_rcpt)
      * counts.
      */
     if (vstream_fseek(state->dst, 0L, SEEK_SET) < 0) {
-	msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-	return (cleanup_milter_error(state, errno));
+    msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+    return (cleanup_milter_error(state, errno));
     }
 #define CLEANUP_DEL_RCPT_RETURN(ret) do { \
-	if (orig_rcpt != 0)	\
-	    myfree(orig_rcpt); \
-	if (dsn_orcpt != 0) \
-	    myfree(dsn_orcpt); \
-	vstring_free(buf); \
-	vstring_free(int_rcpt_buf); \
-	return (ret); \
+    if (orig_rcpt != 0)    \
+        myfree(orig_rcpt); \
+    if (dsn_orcpt != 0) \
+        myfree(dsn_orcpt); \
+    vstring_free(buf); \
+    vstring_free(int_rcpt_buf); \
+    return (ret); \
     } while (0)
 
     /*
@@ -1758,117 +1758,117 @@ static const char *cleanup_del_rcpt(void *context, const char *ext_rcpt)
     int_rcpt_buf = vstring_alloc(strlen(ext_rcpt) + 1);
     tree = tok822_parse(ext_rcpt);
     for (addr_count = 0, tp = tree; tp != 0; tp = tp->next) {
-	if (tp->type == TOK822_ADDR) {
-	    if (addr_count == 0) {
-		tok822_internalize(int_rcpt_buf, tp->head, TOK822_STR_DEFL);
-		addr_count += 1;
-	    } else {
-		msg_warn("%s: Milter request to drop multi-recipient: \"%s\"",
-			 state->queue_id, ext_rcpt);
-		break;
-	    }
-	}
+    if (tp->type == TOK822_ADDR) {
+        if (addr_count == 0) {
+        tok822_internalize(int_rcpt_buf, tp->head, TOK822_STR_DEFL);
+        addr_count += 1;
+        } else {
+        msg_warn("%s: Milter request to drop multi-recipient: \"%s\"",
+             state->queue_id, ext_rcpt);
+        break;
+        }
+    }
     }
     tok822_free_tree(tree);
 
     buf = vstring_alloc(100);
     for (;;) {
-	if (CLEANUP_OUT_OK(state) == 0)
-	    /* Warning and errno->error mapping are done elsewhere. */
-	    CLEANUP_DEL_RCPT_RETURN(cleanup_milter_error(state, 0));
-	if ((curr_offset = vstream_ftell(state->dst)) < 0) {
-	    msg_warn("%s: vstream_ftell file %s: %m", myname, cleanup_path);
-	    CLEANUP_DEL_RCPT_RETURN(cleanup_milter_error(state, errno));
-	}
-	if ((rec_type = rec_get_raw(state->dst, buf, 0, REC_FLAG_NONE)) <= 0) {
-	    msg_warn("%s: read file %s: %m", myname, cleanup_path);
-	    CLEANUP_DEL_RCPT_RETURN(cleanup_milter_error(state, errno));
-	}
-	if (rec_type == REC_TYPE_END)
-	    break;
-	/* Skip over message content. */
-	if (rec_type == REC_TYPE_MESG) {
-	    if (vstream_fseek(state->dst, state->xtra_offset, SEEK_SET) < 0) {
-		msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-		CLEANUP_DEL_RCPT_RETURN(cleanup_milter_error(state, errno));
-	    }
-	    continue;
-	}
-	start = STR(buf);
-	if (rec_type == REC_TYPE_PTR) {
-	    if (rec_goto(state->dst, start) < 0) {
-		msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-		CLEANUP_DEL_RCPT_RETURN(cleanup_milter_error(state, errno));
-	    }
-	    continue;
-	}
-	/* Map attribute names to pseudo record type. */
-	if (rec_type == REC_TYPE_ATTR) {
-	    if (split_nameval(STR(buf), &attr_name, &attr_value) != 0
-		|| *attr_value == 0)
-		continue;
-	    if ((junk = rec_attr_map(attr_name)) != 0) {
-		start = attr_value;
-		rec_type = junk;
-	    }
-	}
-	switch (rec_type) {
-	case REC_TYPE_DSN_ORCPT:		/* RCPT TO ORCPT parameter */
-	    if (dsn_orcpt != 0)			/* can't happen */
-		myfree(dsn_orcpt);
-	    dsn_orcpt = mystrdup(start);
-	    break;
-	case REC_TYPE_DSN_NOTIFY:		/* RCPT TO NOTIFY parameter */
-	    if (alldig(start) && (junk = atoi(start)) > 0
-		&& DSN_NOTIFY_OK(junk))
-		dsn_notify = junk;
-	    else
-		dsn_notify = 0;
-	    break;
-	case REC_TYPE_ORCP:			/* unmodified RCPT TO address */
-	    if (orig_rcpt != 0)			/* can't happen */
-		myfree(orig_rcpt);
-	    orig_rcpt = mystrdup(start);
-	    break;
-	case REC_TYPE_RCPT:			/* rewritten RCPT TO address */
-	    if (strcmp(orig_rcpt ? orig_rcpt : start, STR(int_rcpt_buf)) == 0) {
-		if (vstream_fseek(state->dst, curr_offset, SEEK_SET) < 0) {
-		    msg_warn("%s: seek file %s: %m", myname, cleanup_path);
-		    CLEANUP_DEL_RCPT_RETURN(cleanup_milter_error(state, errno));
-		}
-		if (REC_PUT_BUF(state->dst, REC_TYPE_DRCP, buf) < 0) {
-		    msg_warn("%s: write queue file: %m", state->queue_id);
-		    CLEANUP_DEL_RCPT_RETURN(cleanup_milter_error(state, errno));
-		}
-		count++;
-	    }
-	    if (var_enable_orcpt)
-		/* Matches been_here() call in cleanup_out_recipient(). */
-		been_here_drop(state->dups, "%s\n%d\n%s\n%s",
-			       dsn_orcpt ? dsn_orcpt : "", dsn_notify,
-			     orig_rcpt ? orig_rcpt : "", STR(int_rcpt_buf));
-	    /* FALLTHROUGH */
-	case REC_TYPE_DRCP:			/* canceled recipient */
-	case REC_TYPE_DONE:			/* can't happen */
-	    if (orig_rcpt != 0) {
-		myfree(orig_rcpt);
-		orig_rcpt = 0;
-	    }
-	    if (dsn_orcpt != 0) {
-		myfree(dsn_orcpt);
-		dsn_orcpt = 0;
-	    }
-	    dsn_notify = 0;
-	    break;
-	}
+    if (CLEANUP_OUT_OK(state) == 0)
+        /* Warning and errno->error mapping are done elsewhere. */
+        CLEANUP_DEL_RCPT_RETURN(cleanup_milter_error(state, 0));
+    if ((curr_offset = vstream_ftell(state->dst)) < 0) {
+        msg_warn("%s: vstream_ftell file %s: %m", myname, cleanup_path);
+        CLEANUP_DEL_RCPT_RETURN(cleanup_milter_error(state, errno));
+    }
+    if ((rec_type = rec_get_raw(state->dst, buf, 0, REC_FLAG_NONE)) <= 0) {
+        msg_warn("%s: read file %s: %m", myname, cleanup_path);
+        CLEANUP_DEL_RCPT_RETURN(cleanup_milter_error(state, errno));
+    }
+    if (rec_type == REC_TYPE_END)
+        break;
+    /* Skip over message content. */
+    if (rec_type == REC_TYPE_MESG) {
+        if (vstream_fseek(state->dst, state->xtra_offset, SEEK_SET) < 0) {
+        msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+        CLEANUP_DEL_RCPT_RETURN(cleanup_milter_error(state, errno));
+        }
+        continue;
+    }
+    start = STR(buf);
+    if (rec_type == REC_TYPE_PTR) {
+        if (rec_goto(state->dst, start) < 0) {
+        msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+        CLEANUP_DEL_RCPT_RETURN(cleanup_milter_error(state, errno));
+        }
+        continue;
+    }
+    /* Map attribute names to pseudo record type. */
+    if (rec_type == REC_TYPE_ATTR) {
+        if (split_nameval(STR(buf), &attr_name, &attr_value) != 0
+        || *attr_value == 0)
+        continue;
+        if ((junk = rec_attr_map(attr_name)) != 0) {
+        start = attr_value;
+        rec_type = junk;
+        }
+    }
+    switch (rec_type) {
+    case REC_TYPE_DSN_ORCPT:        /* RCPT TO ORCPT parameter */
+        if (dsn_orcpt != 0)            /* can't happen */
+        myfree(dsn_orcpt);
+        dsn_orcpt = mystrdup(start);
+        break;
+    case REC_TYPE_DSN_NOTIFY:        /* RCPT TO NOTIFY parameter */
+        if (alldig(start) && (junk = atoi(start)) > 0
+        && DSN_NOTIFY_OK(junk))
+        dsn_notify = junk;
+        else
+        dsn_notify = 0;
+        break;
+    case REC_TYPE_ORCP:            /* unmodified RCPT TO address */
+        if (orig_rcpt != 0)            /* can't happen */
+        myfree(orig_rcpt);
+        orig_rcpt = mystrdup(start);
+        break;
+    case REC_TYPE_RCPT:            /* rewritten RCPT TO address */
+        if (strcmp(orig_rcpt ? orig_rcpt : start, STR(int_rcpt_buf)) == 0) {
+        if (vstream_fseek(state->dst, curr_offset, SEEK_SET) < 0) {
+            msg_warn("%s: seek file %s: %m", myname, cleanup_path);
+            CLEANUP_DEL_RCPT_RETURN(cleanup_milter_error(state, errno));
+        }
+        if (REC_PUT_BUF(state->dst, REC_TYPE_DRCP, buf) < 0) {
+            msg_warn("%s: write queue file: %m", state->queue_id);
+            CLEANUP_DEL_RCPT_RETURN(cleanup_milter_error(state, errno));
+        }
+        count++;
+        }
+        if (var_enable_orcpt)
+        /* Matches been_here() call in cleanup_out_recipient(). */
+        been_here_drop(state->dups, "%s\n%d\n%s\n%s",
+                   dsn_orcpt ? dsn_orcpt : "", dsn_notify,
+                 orig_rcpt ? orig_rcpt : "", STR(int_rcpt_buf));
+        /* FALLTHROUGH */
+    case REC_TYPE_DRCP:            /* canceled recipient */
+    case REC_TYPE_DONE:            /* can't happen */
+        if (orig_rcpt != 0) {
+        myfree(orig_rcpt);
+        orig_rcpt = 0;
+        }
+        if (dsn_orcpt != 0) {
+        myfree(dsn_orcpt);
+        dsn_orcpt = 0;
+        }
+        dsn_notify = 0;
+        break;
+    }
     }
     /* Matches been_here_fixed() call in cleanup_out_recipient(). */
     if (var_enable_orcpt == 0 && count > 0)
-	been_here_drop_fixed(state->dups, STR(int_rcpt_buf));
+    been_here_drop_fixed(state->dups, STR(int_rcpt_buf));
 
     if (msg_verbose)
-	msg_info("%s: deleted %d records for recipient \"%s\"",
-		 myname, count, ext_rcpt);
+    msg_info("%s: deleted %d records for recipient \"%s\"",
+         myname, count, ext_rcpt);
 
     CLEANUP_DEL_RCPT_RETURN(0);
 }
@@ -1876,7 +1876,7 @@ static const char *cleanup_del_rcpt(void *context, const char *ext_rcpt)
 /* cleanup_repl_body - replace message body */
 
 static const char *cleanup_repl_body(void *context, int cmd, int rec_type,
-				             VSTRING *buf)
+                             VSTRING *buf)
 {
     const char *myname = "cleanup_repl_body";
     CLEANUP_STATE *state = (CLEANUP_STATE *) context;
@@ -1888,21 +1888,21 @@ static const char *cleanup_repl_body(void *context, int cmd, int rec_type,
      */
     switch (cmd) {
     case MILTER_BODY_LINE:
-	if (cleanup_body_edit_write(state, rec_type, buf) < 0)
-	    return (cleanup_milter_error(state, errno));
-	break;
+    if (cleanup_body_edit_write(state, rec_type, buf) < 0)
+        return (cleanup_milter_error(state, errno));
+    break;
     case MILTER_BODY_START:
-	VSTRING_RESET(&empty);
-	if (cleanup_body_edit_start(state) < 0
-	    || cleanup_body_edit_write(state, REC_TYPE_NORM, &empty) < 0)
-	    return (cleanup_milter_error(state, errno));
-	break;
+    VSTRING_RESET(&empty);
+    if (cleanup_body_edit_start(state) < 0
+        || cleanup_body_edit_write(state, REC_TYPE_NORM, &empty) < 0)
+        return (cleanup_milter_error(state, errno));
+    break;
     case MILTER_BODY_END:
-	if (cleanup_body_edit_finish(state) < 0)
-	    return (cleanup_milter_error(state, errno));
-	break;
+    if (cleanup_body_edit_finish(state) < 0)
+        return (cleanup_milter_error(state, errno));
+    break;
     default:
-	msg_panic("%s: bad command: %d", myname, cmd);
+    msg_panic("%s: bad command: %d", myname, cmd);
     }
     return (CLEANUP_OUT_OK(state) ? 0 : cleanup_milter_error(state, errno));
 }
@@ -1922,9 +1922,9 @@ static const char *cleanup_milter_eval(const char *name, void *ptr)
      * System macros.
      */
     if (strcmp(name, S8_MAC_DAEMON_NAME) == 0)
-	return (var_milt_daemon_name);
+    return (var_milt_daemon_name);
     if (strcmp(name, S8_MAC_V) == 0)
-	return (var_milt_v);
+    return (var_milt_v);
 
     /*
      * Connect macros.
@@ -1935,53 +1935,53 @@ static const char *cleanup_milter_eval(const char *name, void *ptr)
 #endif
 
     if (strcmp(name, S8_MAC__) == 0) {
-	vstring_sprintf(state->temp1, "%s [%s]",
-			state->reverse_name, state->client_addr);
-	if (strcasecmp(state->client_name, state->reverse_name) != 0)
-	    vstring_strcat(state->temp1, " (may be forged)");
-	return (STR(state->temp1));
+    vstring_sprintf(state->temp1, "%s [%s]",
+            state->reverse_name, state->client_addr);
+    if (strcasecmp(state->client_name, state->reverse_name) != 0)
+        vstring_strcat(state->temp1, " (may be forged)");
+    return (STR(state->temp1));
     }
     if (strcmp(name, S8_MAC_J) == 0)
-	return (var_myhostname);
+    return (var_myhostname);
     if (strcmp(name, S8_MAC_CLIENT_ADDR) == 0)
-	return (state->client_addr);
+    return (state->client_addr);
     if (strcmp(name, S8_MAC_CLIENT_NAME) == 0)
-	return (state->client_name);
+    return (state->client_name);
     if (strcmp(name, S8_MAC_CLIENT_PORT) == 0)
-	return (state->client_port
-		&& strcmp(state->client_port, CLIENT_ATTR_UNKNOWN) ?
-		state->client_port : "0");
+    return (state->client_port
+        && strcmp(state->client_port, CLIENT_ATTR_UNKNOWN) ?
+        state->client_port : "0");
     if (strcmp(name, S8_MAC_CLIENT_PTR) == 0)
-	return (state->reverse_name);
+    return (state->reverse_name);
     /* XXX S8_MAC_CLIENT_RES needs SMTPD_PEER_CODE_XXX from smtpd. */
     if (strcmp(name, S8_MAC_DAEMON_ADDR) == 0)
-	return (state->server_addr);
+    return (state->server_addr);
     if (strcmp(name, S8_MAC_DAEMON_PORT) == 0)
-	return (state->server_port
-		&& strcmp(state->server_port, SERVER_ATTR_UNKNOWN) ?
-		state->server_port : "0");
+    return (state->server_port
+        && strcmp(state->server_port, SERVER_ATTR_UNKNOWN) ?
+        state->server_port : "0");
 
     /*
      * MAIL FROM macros.
      */
     if (strcmp(name, S8_MAC_I) == 0)
-	return (state->queue_id);
+    return (state->queue_id);
 #ifdef USE_SASL_AUTH
     if (strcmp(name, S8_MAC_AUTH_TYPE) == 0)
-	return (nvtable_find(state->attr, MAIL_ATTR_SASL_METHOD));
+    return (nvtable_find(state->attr, MAIL_ATTR_SASL_METHOD));
     if (strcmp(name, S8_MAC_AUTH_AUTHEN) == 0)
-	return (nvtable_find(state->attr, MAIL_ATTR_SASL_USERNAME));
+    return (nvtable_find(state->attr, MAIL_ATTR_SASL_USERNAME));
     if (strcmp(name, S8_MAC_AUTH_AUTHOR) == 0)
-	return (nvtable_find(state->attr, MAIL_ATTR_SASL_SENDER));
+    return (nvtable_find(state->attr, MAIL_ATTR_SASL_SENDER));
 #endif
     if (strcmp(name, S8_MAC_MAIL_ADDR) == 0)
-	return (state->milter_ext_from ? STR(state->milter_ext_from) : 0);
+    return (state->milter_ext_from ? STR(state->milter_ext_from) : 0);
 
     /*
      * RCPT TO macros.
      */
     if (strcmp(name, S8_MAC_RCPT_ADDR) == 0)
-	return (state->milter_ext_rcpt ? STR(state->milter_ext_rcpt) : 0);
+    return (state->milter_ext_rcpt ? STR(state->milter_ext_rcpt) : 0);
     return (0);
 }
 
@@ -1990,25 +1990,25 @@ static const char *cleanup_milter_eval(const char *name, void *ptr)
 void    cleanup_milter_receive(CLEANUP_STATE *state, int count)
 {
     if (state->milters)
-	milter_free(state->milters);
+    milter_free(state->milters);
     state->milters = milter_receive(state->src, count);
     if (state->milters == 0)
-	msg_fatal("cleanup_milter_receive: milter receive failed");
+    msg_fatal("cleanup_milter_receive: milter receive failed");
     if (count <= 0)
-	return;
+    return;
     milter_macro_callback(state->milters, cleanup_milter_eval, (void *) state);
     milter_edit_callback(state->milters,
-			 cleanup_add_header, cleanup_upd_header,
-			 cleanup_ins_header, cleanup_del_header,
-			 cleanup_chg_from, cleanup_add_rcpt,
-			 cleanup_add_rcpt_par, cleanup_del_rcpt,
-			 cleanup_repl_body, (void *) state);
+             cleanup_add_header, cleanup_upd_header,
+             cleanup_ins_header, cleanup_del_header,
+             cleanup_chg_from, cleanup_add_rcpt,
+             cleanup_add_rcpt_par, cleanup_del_rcpt,
+             cleanup_repl_body, (void *) state);
 }
 
 /* cleanup_milter_apply - apply Milter response, non-zero if rejecting */
 
 static const char *cleanup_milter_apply(CLEANUP_STATE *state, const char *event,
-					        const char *resp)
+                            const char *resp)
 {
     const char *myname = "cleanup_milter_apply";
     const char *action;
@@ -2017,15 +2017,15 @@ static const char *cleanup_milter_apply(CLEANUP_STATE *state, const char *event,
     const char *ret = 0;
 
     if (msg_verbose)
-	msg_info("%s: %s", myname, resp);
+    msg_info("%s: %s", myname, resp);
 
     /*
      * Don't process our own milter_header/body checks replies. See comments
      * in cleanup_milter_hbc_extend().
      */
     if (cleanup_milter_hbc_reply &&
-	strcmp(resp, STR(cleanup_milter_hbc_reply)) == 0)
-	return (0);
+    strcmp(resp, STR(cleanup_milter_hbc_reply)) == 0)
+    return (0);
 
     /*
      * Don't process Milter replies that are redundant because header/body
@@ -2036,86 +2036,86 @@ static const char *cleanup_milter_apply(CLEANUP_STATE *state, const char *event,
      * silly.
      */
     if (CLEANUP_MILTER_REJECTING_OR_DISCARDING_MESSAGE(state)) {
-	if (msg_verbose)
-	    msg_info("%s: ignoring redundant or conflicting milter reply: %s",
-		     state->queue_id, resp);
-	return (0);
+    if (msg_verbose)
+        msg_info("%s: ignoring redundant or conflicting milter reply: %s",
+             state->queue_id, resp);
+    return (0);
     }
 
     /*
      * Sanity check.
      */
     if (state->client_name == 0)
-	msg_panic("%s: missing client info initialization", myname);
+    msg_panic("%s: missing client info initialization", myname);
 
     /*
      * We don't report errors that were already reported by the content
      * editing call-back routines. See cleanup_milter_error() above.
      */
     if (CLEANUP_OUT_OK(state) == 0)
-	return (0);
+    return (0);
     switch (resp[0]) {
     case 'H':
-	/* XXX Should log the reason here. */
-	if (state->flags & CLEANUP_FLAG_HOLD)
-	    return (0);
-	state->flags |= CLEANUP_FLAG_HOLD;
-	action = "milter-hold";
-	text = "milter triggers HOLD action";
-	break;
+    /* XXX Should log the reason here. */
+    if (state->flags & CLEANUP_FLAG_HOLD)
+        return (0);
+    state->flags |= CLEANUP_FLAG_HOLD;
+    action = "milter-hold";
+    text = "milter triggers HOLD action";
+    break;
     case 'D':
-	state->flags |= CLEANUP_FLAG_DISCARD;
-	action = "milter-discard";
-	text = "milter triggers DISCARD action";
-	break;
+    state->flags |= CLEANUP_FLAG_DISCARD;
+    action = "milter-discard";
+    text = "milter triggers DISCARD action";
+    break;
     case 'S':
-	/* XXX Can this happen after end-of-message? */
-	state->flags |= CLEANUP_STAT_CONT;
-	action = "milter-reject";
-	text = cleanup_strerror(CLEANUP_STAT_CONT);
-	break;
+    /* XXX Can this happen after end-of-message? */
+    state->flags |= CLEANUP_STAT_CONT;
+    action = "milter-reject";
+    text = cleanup_strerror(CLEANUP_STAT_CONT);
+    break;
 
-	/*
-	 * Override permanent reject with temporary reject. This happens when
-	 * the cleanup server has to bounce (hard reject) but is unable to
-	 * store the message (soft reject). After a temporary reject we stop
-	 * inspecting queue file records, so it can't be overruled by
-	 * something else.
-	 * 
-	 * CLEANUP_STAT_CONT and CLEANUP_STAT_DEFER both update the reason
-	 * attribute, but CLEANUP_STAT_DEFER takes precedence. It terminates
-	 * queue record processing, and prevents bounces from being sent.
-	 */
+    /*
+     * Override permanent reject with temporary reject. This happens when
+     * the cleanup server has to bounce (hard reject) but is unable to
+     * store the message (soft reject). After a temporary reject we stop
+     * inspecting queue file records, so it can't be overruled by
+     * something else.
+     * 
+     * CLEANUP_STAT_CONT and CLEANUP_STAT_DEFER both update the reason
+     * attribute, but CLEANUP_STAT_DEFER takes precedence. It terminates
+     * queue record processing, and prevents bounces from being sent.
+     */
     case '4':
-	CLEANUP_MILTER_SET_SMTP_REPLY(state, resp);
-	ret = state->reason;
-	state->errs |= CLEANUP_STAT_DEFER;
-	action = "milter-reject";
-	text = resp + 4;
-	break;
+    CLEANUP_MILTER_SET_SMTP_REPLY(state, resp);
+    ret = state->reason;
+    state->errs |= CLEANUP_STAT_DEFER;
+    action = "milter-reject";
+    text = resp + 4;
+    break;
     case '5':
-	CLEANUP_MILTER_SET_SMTP_REPLY(state, resp);
-	ret = state->reason;
-	state->errs |= CLEANUP_STAT_CONT;
-	action = "milter-reject";
-	text = resp + 4;
-	break;
+    CLEANUP_MILTER_SET_SMTP_REPLY(state, resp);
+    ret = state->reason;
+    state->errs |= CLEANUP_STAT_CONT;
+    action = "milter-reject";
+    text = resp + 4;
+    break;
     default:
-	msg_panic("%s: unexpected mail filter reply: %s", myname, resp);
+    msg_panic("%s: unexpected mail filter reply: %s", myname, resp);
     }
     vstring_sprintf(state->temp1, "%s: %s: %s from %s[%s]: %s;",
-		    state->queue_id, action, event, state->client_name,
-		    state->client_addr, text);
+            state->queue_id, action, event, state->client_name,
+            state->client_addr, text);
     if (state->sender)
-	vstring_sprintf_append(state->temp1, " from=<%s>",
-			       info_log_addr_form_sender(state->sender));
+    vstring_sprintf_append(state->temp1, " from=<%s>",
+                   info_log_addr_form_sender(state->sender));
     if (state->recip)
-	vstring_sprintf_append(state->temp1, " to=<%s>",
-			       info_log_addr_form_recipient(state->recip));
+    vstring_sprintf_append(state->temp1, " to=<%s>",
+                   info_log_addr_form_recipient(state->recip));
     if ((attr = nvtable_find(state->attr, MAIL_ATTR_LOG_PROTO_NAME)) != 0)
-	vstring_sprintf_append(state->temp1, " proto=%s", attr);
+    vstring_sprintf_append(state->temp1, " proto=%s", attr);
     if ((attr = nvtable_find(state->attr, MAIL_ATTR_LOG_HELO_NAME)) != 0)
-	vstring_sprintf_append(state->temp1, " helo=<%s>", attr);
+    vstring_sprintf_append(state->temp1, " helo=<%s>", attr);
     msg_info("%s", vstring_str(state->temp1));
 
     return (ret);
@@ -2132,11 +2132,11 @@ static void cleanup_milter_client_init(CLEANUP_STATE *state)
      * Either the cleanup client specifies a name, address and protocol, or
      * we have a local submission and pretend localhost/127.0.0.1/AF_INET.
      */
-#define NO_CLIENT_PORT	"0"
+#define NO_CLIENT_PORT    "0"
 
     state->client_name = nvtable_find(state->attr, MAIL_ATTR_ACT_CLIENT_NAME);
     state->reverse_name =
-	nvtable_find(state->attr, MAIL_ATTR_ACT_REVERSE_CLIENT_NAME);
+    nvtable_find(state->attr, MAIL_ATTR_ACT_REVERSE_CLIENT_NAME);
     state->client_addr = nvtable_find(state->attr, MAIL_ATTR_ACT_CLIENT_ADDR);
     state->client_port = nvtable_find(state->attr, MAIL_ATTR_ACT_CLIENT_PORT);
     proto_attr = nvtable_find(state->attr, MAIL_ATTR_ACT_CLIENT_AF);
@@ -2144,29 +2144,29 @@ static void cleanup_milter_client_init(CLEANUP_STATE *state)
     state->server_port = nvtable_find(state->attr, MAIL_ATTR_ACT_SERVER_PORT);
 
     if (state->client_name == 0 || state->client_addr == 0 || proto_attr == 0
-	|| !alldig(proto_attr)) {
-	state->client_name = "localhost";
+    || !alldig(proto_attr)) {
+    state->client_name = "localhost";
 #ifdef AF_INET6
-	if (proto_info == 0)
-	    proto_info = inet_proto_info();
-	if (proto_info->sa_family_list[0] == PF_INET6) {
-	    state->client_addr = "::1";
-	    state->client_af = AF_INET6;
-	} else
-#endif
-	{
-	    state->client_addr = "127.0.0.1";
-	    state->client_af = AF_INET;
-	}
-	state->server_addr = state->client_addr;
+    if (proto_info == 0)
+        proto_info = inet_proto_info();
+    if (proto_info->sa_family_list[0] == PF_INET6) {
+        state->client_addr = "::1";
+        state->client_af = AF_INET6;
     } else
-	state->client_af = atoi(proto_attr);
+#endif
+    {
+        state->client_addr = "127.0.0.1";
+        state->client_af = AF_INET;
+    }
+    state->server_addr = state->client_addr;
+    } else
+    state->client_af = atoi(proto_attr);
     if (state->reverse_name == 0)
-	state->reverse_name = state->client_name;
+    state->reverse_name = state->client_name;
     /* Compatibility with pre-2.5 queue files. */
     if (state->client_port == 0) {
-	state->client_port = NO_CLIENT_PORT;
-	state->server_port = state->client_port;
+    state->client_port = NO_CLIENT_PORT;
+    state->server_port = state->client_port;
     }
 }
 
@@ -2178,43 +2178,43 @@ void    cleanup_milter_inspect(CLEANUP_STATE *state, MILTERS *milters)
     const char *resp;
 
     if (msg_verbose)
-	msg_info("enter %s", myname);
+    msg_info("enter %s", myname);
 
     /*
      * Initialize, in case we're called via smtpd(8).
      */
     if (state->client_name == 0)
-	cleanup_milter_client_init(state);
+    cleanup_milter_client_init(state);
 
     /*
      * Prologue: prepare for Milter header/body checks.
      */
     if (*var_milt_head_checks)
-	cleanup_milter_header_checks_reinit(state);
+    cleanup_milter_header_checks_reinit(state);
 
     /*
      * Process mail filter replies. The reply format is verified by the mail
      * filter library.
      */
     if ((resp = milter_message(milters, state->handle->stream,
-			       state->data_offset, state->auto_hdrs)) != 0)
-	cleanup_milter_apply(state, "END-OF-MESSAGE", resp);
+                   state->data_offset, state->auto_hdrs)) != 0)
+    cleanup_milter_apply(state, "END-OF-MESSAGE", resp);
 
     /*
      * Epilogue: finalize Milter header/body checks.
      */
     if (*var_milt_head_checks)
-	cleanup_milter_hbc_finish(state);
+    cleanup_milter_hbc_finish(state);
 
     if (msg_verbose)
-	msg_info("leave %s", myname);
+    msg_info("leave %s", myname);
 }
 
 /* cleanup_milter_emul_mail - emulate connect/ehlo/mail event */
 
 void    cleanup_milter_emul_mail(CLEANUP_STATE *state,
-				         MILTERS *milters,
-				         const char *addr)
+                         MILTERS *milters,
+                         const char *addr)
 {
     const char *resp;
     const char *helo;
@@ -2225,54 +2225,54 @@ void    cleanup_milter_emul_mail(CLEANUP_STATE *state,
      */
     milter_macro_callback(milters, cleanup_milter_eval, (void *) state);
     milter_edit_callback(milters,
-			 cleanup_add_header, cleanup_upd_header,
-			 cleanup_ins_header, cleanup_del_header,
-			 cleanup_chg_from, cleanup_add_rcpt,
-			 cleanup_add_rcpt_par, cleanup_del_rcpt,
-			 cleanup_repl_body, (void *) state);
+             cleanup_add_header, cleanup_upd_header,
+             cleanup_ins_header, cleanup_del_header,
+             cleanup_chg_from, cleanup_add_rcpt,
+             cleanup_add_rcpt_par, cleanup_del_rcpt,
+             cleanup_repl_body, (void *) state);
     if (state->client_name == 0)
-	cleanup_milter_client_init(state);
+    cleanup_milter_client_init(state);
 
     /*
      * Emulate SMTP events.
      */
     if ((resp = milter_conn_event(milters, state->client_name, state->client_addr,
-			      state->client_port, state->client_af)) != 0) {
-	cleanup_milter_apply(state, "CONNECT", resp);
-	return;
+                  state->client_port, state->client_af)) != 0) {
+    cleanup_milter_apply(state, "CONNECT", resp);
+    return;
     }
-#define PRETEND_ESMTP	1
+#define PRETEND_ESMTP    1
 
     if (CLEANUP_MILTER_OK(state)) {
-	if ((helo = nvtable_find(state->attr, MAIL_ATTR_ACT_HELO_NAME)) == 0)
-	    helo = state->client_name;
-	if ((resp = milter_helo_event(milters, helo, PRETEND_ESMTP)) != 0) {
-	    cleanup_milter_apply(state, "EHLO", resp);
-	    return;
-	}
+    if ((helo = nvtable_find(state->attr, MAIL_ATTR_ACT_HELO_NAME)) == 0)
+        helo = state->client_name;
+    if ((resp = milter_helo_event(milters, helo, PRETEND_ESMTP)) != 0) {
+        cleanup_milter_apply(state, "EHLO", resp);
+        return;
+    }
     }
     if (CLEANUP_MILTER_OK(state)) {
-	if (state->milter_ext_from == 0)
-	    state->milter_ext_from = vstring_alloc(100);
-	/* Sendmail 8.13 does not externalize the null address. */
-	if (*addr)
-	    quote_821_local(state->milter_ext_from, addr);
-	else
-	    vstring_strcpy(state->milter_ext_from, addr);
-	argv[0] = STR(state->milter_ext_from);
-	argv[1] = 0;
-	if ((resp = milter_mail_event(milters, argv)) != 0) {
-	    cleanup_milter_apply(state, "MAIL", resp);
-	    return;
-	}
+    if (state->milter_ext_from == 0)
+        state->milter_ext_from = vstring_alloc(100);
+    /* Sendmail 8.13 does not externalize the null address. */
+    if (*addr)
+        quote_821_local(state->milter_ext_from, addr);
+    else
+        vstring_strcpy(state->milter_ext_from, addr);
+    argv[0] = STR(state->milter_ext_from);
+    argv[1] = 0;
+    if ((resp = milter_mail_event(milters, argv)) != 0) {
+        cleanup_milter_apply(state, "MAIL", resp);
+        return;
+    }
     }
 }
 
 /* cleanup_milter_emul_rcpt - emulate rcpt event */
 
 void    cleanup_milter_emul_rcpt(CLEANUP_STATE *state,
-				         MILTERS *milters,
-				         const char *addr)
+                         MILTERS *milters,
+                         const char *addr)
 {
     const char *myname = "cleanup_milter_emul_rcpt";
     const char *resp;
@@ -2282,7 +2282,7 @@ void    cleanup_milter_emul_rcpt(CLEANUP_STATE *state,
      * Sanity check.
      */
     if (state->client_name == 0)
-	msg_panic("%s: missing client info initialization", myname);
+    msg_panic("%s: missing client info initialization", myname);
 
     /*
      * CLEANUP_STAT_CONT and CLEANUP_STAT_DEFER both update the reason
@@ -2290,21 +2290,21 @@ void    cleanup_milter_emul_rcpt(CLEANUP_STATE *state,
      * queue record processing, and prevents bounces from being sent.
      */
     if (state->milter_ext_rcpt == 0)
-	state->milter_ext_rcpt = vstring_alloc(100);
+    state->milter_ext_rcpt = vstring_alloc(100);
     /* Sendmail 8.13 does not externalize the null address. */
     if (*addr)
-	quote_821_local(state->milter_ext_rcpt, addr);
+    quote_821_local(state->milter_ext_rcpt, addr);
     else
-	vstring_strcpy(state->milter_ext_rcpt, addr);
+    vstring_strcpy(state->milter_ext_rcpt, addr);
     argv[0] = STR(state->milter_ext_rcpt);
     argv[1] = 0;
     if ((resp = milter_rcpt_event(milters, MILTER_FLAG_NONE, argv)) != 0
-	&& cleanup_milter_apply(state, "RCPT", resp) != 0) {
-	msg_warn("%s: milter configuration error: can't reject recipient "
-		 "in non-smtpd(8) submission", state->queue_id);
-	msg_warn("%s: message not accepted, try again later", state->queue_id);
-	CLEANUP_MILTER_SET_REASON(state, "4.3.5 Server configuration error");
-	state->errs |= CLEANUP_STAT_DEFER;
+    && cleanup_milter_apply(state, "RCPT", resp) != 0) {
+    msg_warn("%s: milter configuration error: can't reject recipient "
+         "in non-smtpd(8) submission", state->queue_id);
+    msg_warn("%s: message not accepted, try again later", state->queue_id);
+    CLEANUP_MILTER_SET_REASON(state, "4.3.5 Server configuration error");
+    state->errs |= CLEANUP_STAT_DEFER;
     }
 }
 
@@ -2319,10 +2319,10 @@ void    cleanup_milter_emul_data(CLEANUP_STATE *state, MILTERS *milters)
      * Sanity check.
      */
     if (state->client_name == 0)
-	msg_panic("%s: missing client info initialization", myname);
+    msg_panic("%s: missing client info initialization", myname);
 
     if ((resp = milter_data_event(milters)) != 0)
-	cleanup_milter_apply(state, "DATA", resp);
+    cleanup_milter_apply(state, "DATA", resp);
 }
 
 #ifdef TEST
@@ -2369,26 +2369,26 @@ int     cleanup_masquerade_internal(CLEANUP_STATE *state, VSTRING *addr, ARGV *m
 }
 
 int     cleanup_rewrite_internal(const char *context, VSTRING *result,
-				         const char *addr)
+                         const char *addr)
 {
     vstring_strcpy(result, addr);
     return (0);
 }
 
 int     cleanup_map11_internal(CLEANUP_STATE *state, VSTRING *addr,
-			               MAPS *maps, int propagate)
+                           MAPS *maps, int propagate)
 {
     msg_panic("cleanup_map11_internal dummy");
 }
 
 ARGV   *cleanup_map1n_internal(CLEANUP_STATE *state, const char *addr,
-			               MAPS *maps, int propagate)
+                           MAPS *maps, int propagate)
 {
     msg_panic("cleanup_map1n_internal dummy");
 }
 
 void    cleanup_envelope(CLEANUP_STATE *state, int type, const char *buf,
-			         ssize_t len)
+                     ssize_t len)
 {
     msg_panic("cleanup_envelope dummy");
 }
@@ -2419,9 +2419,9 @@ static void flatten_args(VSTRING *buf, char **argv)
 
     VSTRING_RESET(buf);
     for (cpp = argv; *cpp; cpp++) {
-	vstring_strcat(buf, *cpp);
-	if (cpp[1])
-	    VSTRING_ADDCH(buf, ' ');
+    vstring_strcat(buf, *cpp);
+    if (cpp[1])
+        VSTRING_ADDCH(buf, ' ');
     }
     VSTRING_TERMINATE(buf);
 }
@@ -2439,86 +2439,86 @@ static void open_queue_file(CLEANUP_STATE *state, const char *path)
     long    qmgr_opts;
 
     if (state->dst != 0) {
-	msg_warn("closing %s", cleanup_path);
-	vstream_fclose(state->dst);
-	state->dst = 0;
-	myfree(cleanup_path);
-	cleanup_path = 0;
+    msg_warn("closing %s", cleanup_path);
+    vstream_fclose(state->dst);
+    state->dst = 0;
+    myfree(cleanup_path);
+    cleanup_path = 0;
     }
     if ((state->dst = vstream_fopen(path, O_RDWR, 0)) == 0) {
-	msg_warn("open %s: %m", path);
+    msg_warn("open %s: %m", path);
     } else {
-	cleanup_path = mystrdup(path);
-	for (;;) {
-	    if ((curr_offset = vstream_ftell(state->dst)) < 0)
-		msg_fatal("file %s: vstream_ftell: %m", cleanup_path);
-	    if ((rec_type = rec_get_raw(state->dst, buf, 0, REC_FLAG_NONE)) < 0)
-		msg_fatal("file %s: missing SIZE or PTR record", cleanup_path);
-	    if (rec_type == REC_TYPE_SIZE) {
-		if (sscanf(STR(buf), "%ld %ld %ld %ld",
-			   &msg_seg_len, &data_offset,
-			   &rcpt_count, &qmgr_opts) != 4)
-		    msg_fatal("file %s: bad SIZE record: %s",
-			      cleanup_path, STR(buf));
-		state->data_offset = data_offset;
-		state->xtra_offset = data_offset + msg_seg_len;
-	    } else if (rec_type == REC_TYPE_FROM) {
-		state->sender_pt_offset = curr_offset;
-		if (LEN(buf) < REC_TYPE_PTR_PAYL_SIZE
-		    && rec_get_raw(state->dst, buf, 0, REC_FLAG_NONE) != REC_TYPE_PTR)
-		    msg_fatal("file %s: missing PTR record after short sender",
-			      cleanup_path);
-		if ((state->sender_pt_target = vstream_ftell(state->dst)) < 0)
-		    msg_fatal("file %s: missing END record", cleanup_path);
-	    } else if (rec_type == REC_TYPE_PTR) {
-		if (state->data_offset < 0)
-		    msg_fatal("file %s: missing SIZE record", cleanup_path);
-		if (curr_offset < state->data_offset
-		    || curr_offset > state->xtra_offset) {
-		    if (state->append_rcpt_pt_offset < 0) {
-			state->append_rcpt_pt_offset = curr_offset;
-			if (atol(STR(buf)) != 0)
-			    msg_fatal("file %s: bad dummy recipient PTR record: %s",
-				      cleanup_path, STR(buf));
-			if ((state->append_rcpt_pt_target =
-			     vstream_ftell(state->dst)) < 0)
-			    msg_fatal("file %s: vstream_ftell: %m", cleanup_path);
-		    } else if (curr_offset > state->xtra_offset
-			       && state->append_meta_pt_offset < 0) {
-			state->append_meta_pt_offset = curr_offset;
-			if (atol(STR(buf)) != 0)
-			    msg_fatal("file %s: bad dummy meta PTR record: %s",
-				      cleanup_path, STR(buf));
-			if ((state->append_meta_pt_target =
-			     vstream_ftell(state->dst)) < 0)
-			    msg_fatal("file %s: vstream_ftell: %m", cleanup_path);
-		    }
-		} else {
-		    if (state->append_hdr_pt_offset < 0) {
-			state->append_hdr_pt_offset = curr_offset;
-			if (atol(STR(buf)) != 0)
-			    msg_fatal("file %s: bad dummy header PTR record: %s",
-				      cleanup_path, STR(buf));
-			if ((state->append_hdr_pt_target =
-			     vstream_ftell(state->dst)) < 0)
-			    msg_fatal("file %s: vstream_ftell: %m", cleanup_path);
-		    }
-		}
-	    }
-	    if (state->append_rcpt_pt_offset > 0
-		&& state->append_hdr_pt_offset > 0
-		&& (rec_type == REC_TYPE_END
-		    || state->append_meta_pt_offset > 0))
-		break;
-	}
-	if (msg_verbose) {
-	    msg_info("append_rcpt_pt_offset %ld append_rcpt_pt_target %ld",
-		     (long) state->append_rcpt_pt_offset,
-		     (long) state->append_rcpt_pt_target);
-	    msg_info("append_hdr_pt_offset %ld append_hdr_pt_target %ld",
-		     (long) state->append_hdr_pt_offset,
-		     (long) state->append_hdr_pt_target);
-	}
+    cleanup_path = mystrdup(path);
+    for (;;) {
+        if ((curr_offset = vstream_ftell(state->dst)) < 0)
+        msg_fatal("file %s: vstream_ftell: %m", cleanup_path);
+        if ((rec_type = rec_get_raw(state->dst, buf, 0, REC_FLAG_NONE)) < 0)
+        msg_fatal("file %s: missing SIZE or PTR record", cleanup_path);
+        if (rec_type == REC_TYPE_SIZE) {
+        if (sscanf(STR(buf), "%ld %ld %ld %ld",
+               &msg_seg_len, &data_offset,
+               &rcpt_count, &qmgr_opts) != 4)
+            msg_fatal("file %s: bad SIZE record: %s",
+                  cleanup_path, STR(buf));
+        state->data_offset = data_offset;
+        state->xtra_offset = data_offset + msg_seg_len;
+        } else if (rec_type == REC_TYPE_FROM) {
+        state->sender_pt_offset = curr_offset;
+        if (LEN(buf) < REC_TYPE_PTR_PAYL_SIZE
+            && rec_get_raw(state->dst, buf, 0, REC_FLAG_NONE) != REC_TYPE_PTR)
+            msg_fatal("file %s: missing PTR record after short sender",
+                  cleanup_path);
+        if ((state->sender_pt_target = vstream_ftell(state->dst)) < 0)
+            msg_fatal("file %s: missing END record", cleanup_path);
+        } else if (rec_type == REC_TYPE_PTR) {
+        if (state->data_offset < 0)
+            msg_fatal("file %s: missing SIZE record", cleanup_path);
+        if (curr_offset < state->data_offset
+            || curr_offset > state->xtra_offset) {
+            if (state->append_rcpt_pt_offset < 0) {
+            state->append_rcpt_pt_offset = curr_offset;
+            if (atol(STR(buf)) != 0)
+                msg_fatal("file %s: bad dummy recipient PTR record: %s",
+                      cleanup_path, STR(buf));
+            if ((state->append_rcpt_pt_target =
+                 vstream_ftell(state->dst)) < 0)
+                msg_fatal("file %s: vstream_ftell: %m", cleanup_path);
+            } else if (curr_offset > state->xtra_offset
+                   && state->append_meta_pt_offset < 0) {
+            state->append_meta_pt_offset = curr_offset;
+            if (atol(STR(buf)) != 0)
+                msg_fatal("file %s: bad dummy meta PTR record: %s",
+                      cleanup_path, STR(buf));
+            if ((state->append_meta_pt_target =
+                 vstream_ftell(state->dst)) < 0)
+                msg_fatal("file %s: vstream_ftell: %m", cleanup_path);
+            }
+        } else {
+            if (state->append_hdr_pt_offset < 0) {
+            state->append_hdr_pt_offset = curr_offset;
+            if (atol(STR(buf)) != 0)
+                msg_fatal("file %s: bad dummy header PTR record: %s",
+                      cleanup_path, STR(buf));
+            if ((state->append_hdr_pt_target =
+                 vstream_ftell(state->dst)) < 0)
+                msg_fatal("file %s: vstream_ftell: %m", cleanup_path);
+            }
+        }
+        }
+        if (state->append_rcpt_pt_offset > 0
+        && state->append_hdr_pt_offset > 0
+        && (rec_type == REC_TYPE_END
+            || state->append_meta_pt_offset > 0))
+        break;
+    }
+    if (msg_verbose) {
+        msg_info("append_rcpt_pt_offset %ld append_rcpt_pt_target %ld",
+             (long) state->append_rcpt_pt_offset,
+             (long) state->append_rcpt_pt_target);
+        msg_info("append_hdr_pt_offset %ld append_hdr_pt_target %ld",
+             (long) state->append_hdr_pt_offset,
+             (long) state->append_hdr_pt_target);
+    }
     }
     vstring_free(buf);
 }
@@ -2554,207 +2554,207 @@ int     main(int unused_argc, char **argv)
     var_info_log_addr_form = DEF_INFO_LOG_ADDR_FORM;
 
     for (;;) {
-	ARGV   *argv;
-	ssize_t index;
-	const char *resp = 0;
+    ARGV   *argv;
+    ssize_t index;
+    const char *resp = 0;
 
-	if (istty) {
-	    vstream_printf("- ");
-	    vstream_fflush(VSTREAM_OUT);
-	}
-	if (vstring_fgets_nonl(inbuf, VSTREAM_IN) == 0)
-	    break;
+    if (istty) {
+        vstream_printf("- ");
+        vstream_fflush(VSTREAM_OUT);
+    }
+    if (vstring_fgets_nonl(inbuf, VSTREAM_IN) == 0)
+        break;
 
-	bufp = vstring_str(inbuf);
-	if (!istty) {
-	    vstream_printf("> %s\n", bufp);
-	    vstream_fflush(VSTREAM_OUT);
-	}
-	if (*bufp == '#' || *bufp == 0 || allspace(bufp))
-	    continue;
-	argv = argv_splitq(bufp, " ", parens);
-	if (argv->argc == 0) {
-	    msg_warn("missing command");
-	} else if (strcmp(argv->argv[0], "?") == 0) {
-	    usage();
-	} else if (strcmp(argv->argv[0], "verbose") == 0) {
-	    if (argv->argc != 2) {
-		msg_warn("bad verbose argument count: %ld", (long) argv->argc);
-	    } else if (strcmp(argv->argv[1], "on") == 0) {
-		msg_verbose = 2;
-	    } else if (strcmp(argv->argv[1], "off") == 0) {
-		msg_verbose = 0;
-	    } else {
-		msg_warn("bad verbose argument");
-	    }
-	} else if (strcmp(argv->argv[0], "open") == 0) {
-	    if (state->dst != 0) {
-		msg_info("closing %s", VSTREAM_PATH(state->dst));
-		close_queue_file(state);
-	    }
-	    if (argv->argc != 2) {
-		msg_warn("bad open argument count: %ld", (long) argv->argc);
-	    } else {
-		open_queue_file(state, argv->argv[1]);
-	    }
-	} else if (strcmp(argv->argv[0], "enable_original_recipient") == 0) {
-	    if (argv->argc == 1) {
-		msg_info("enable_original_recipient: %d", var_enable_orcpt);
-	    } else if (argv->argc != 2) {
-		msg_warn("bad enable_original_recipient argument count: %ld",
-			 (long) argv->argc);
-	    } else if (!alldig(argv->argv[1])) {
-		msg_warn("non-numeric enable_original_recipient argument: %s",
-			 argv->argv[1]);
-	    } else {
-		var_enable_orcpt = atoi(argv->argv[1]);
-	    }
-	} else if (state->dst == 0) {
-	    msg_warn("no open queue file");
-	} else if (strcmp(argv->argv[0], "close") == 0) {
-	    if (*var_milt_head_checks) {
-		cleanup_milter_hbc_finish(state);
-		myfree(var_milt_head_checks);
-		var_milt_head_checks = "";
-		cleanup_milter_header_checks_deinit();
-	    }
-	    close_queue_file(state);
-	} else if (cleanup_milter_hbc_reply && LEN(cleanup_milter_hbc_reply)) {
-	    /* Postfix libmilter would skip further requests. */
-	    msg_info("ignoring: %s %s %s", argv->argv[0],
-		     argv->argc > 1 ? argv->argv[1] : "",
-		     argv->argc > 2 ? argv->argv[2] : "");
-	} else if (strcmp(argv->argv[0], "add_header") == 0) {
-	    if (argv->argc < 2) {
-		msg_warn("bad add_header argument count: %ld",
-			 (long) argv->argc);
-	    } else {
-		flatten_args(arg_buf, argv->argv + 2);
-		resp = cleanup_add_header(state, argv->argv[1], " ", STR(arg_buf));
-	    }
-	} else if (strcmp(argv->argv[0], "ins_header") == 0) {
-	    if (argv->argc < 3) {
-		msg_warn("bad ins_header argument count: %ld",
-			 (long) argv->argc);
-	    } else if ((index = atoi(argv->argv[1])) < 1) {
-		msg_warn("bad ins_header index value");
-	    } else {
-		flatten_args(arg_buf, argv->argv + 3);
-		resp = cleanup_ins_header(state, index, argv->argv[2], " ", STR(arg_buf));
-	    }
-	} else if (strcmp(argv->argv[0], "upd_header") == 0) {
-	    if (argv->argc < 3) {
-		msg_warn("bad upd_header argument count: %ld",
-			 (long) argv->argc);
-	    } else if ((index = atoi(argv->argv[1])) < 1) {
-		msg_warn("bad upd_header index value");
-	    } else {
-		flatten_args(arg_buf, argv->argv + 3);
-		resp = cleanup_upd_header(state, index, argv->argv[2], " ", STR(arg_buf));
-	    }
-	} else if (strcmp(argv->argv[0], "del_header") == 0) {
-	    if (argv->argc != 3) {
-		msg_warn("bad del_header argument count: %ld",
-			 (long) argv->argc);
-	    } else if ((index = atoi(argv->argv[1])) < 1) {
-		msg_warn("bad del_header index value");
-	    } else {
-		cleanup_del_header(state, index, argv->argv[2]);
-	    }
-	} else if (strcmp(argv->argv[0], "chg_from") == 0) {
-	    if (argv->argc != 3) {
-		msg_warn("bad chg_from argument count: %ld", (long) argv->argc);
-	    } else {
-		char   *arg = argv->argv[2];
-		const char *err;
+    bufp = vstring_str(inbuf);
+    if (!istty) {
+        vstream_printf("> %s\n", bufp);
+        vstream_fflush(VSTREAM_OUT);
+    }
+    if (*bufp == '#' || *bufp == 0 || allspace(bufp))
+        continue;
+    argv = argv_splitq(bufp, " ", parens);
+    if (argv->argc == 0) {
+        msg_warn("missing command");
+    } else if (strcmp(argv->argv[0], "?") == 0) {
+        usage();
+    } else if (strcmp(argv->argv[0], "verbose") == 0) {
+        if (argv->argc != 2) {
+        msg_warn("bad verbose argument count: %ld", (long) argv->argc);
+        } else if (strcmp(argv->argv[1], "on") == 0) {
+        msg_verbose = 2;
+        } else if (strcmp(argv->argv[1], "off") == 0) {
+        msg_verbose = 0;
+        } else {
+        msg_warn("bad verbose argument");
+        }
+    } else if (strcmp(argv->argv[0], "open") == 0) {
+        if (state->dst != 0) {
+        msg_info("closing %s", VSTREAM_PATH(state->dst));
+        close_queue_file(state);
+        }
+        if (argv->argc != 2) {
+        msg_warn("bad open argument count: %ld", (long) argv->argc);
+        } else {
+        open_queue_file(state, argv->argv[1]);
+        }
+    } else if (strcmp(argv->argv[0], "enable_original_recipient") == 0) {
+        if (argv->argc == 1) {
+        msg_info("enable_original_recipient: %d", var_enable_orcpt);
+        } else if (argv->argc != 2) {
+        msg_warn("bad enable_original_recipient argument count: %ld",
+             (long) argv->argc);
+        } else if (!alldig(argv->argv[1])) {
+        msg_warn("non-numeric enable_original_recipient argument: %s",
+             argv->argv[1]);
+        } else {
+        var_enable_orcpt = atoi(argv->argv[1]);
+        }
+    } else if (state->dst == 0) {
+        msg_warn("no open queue file");
+    } else if (strcmp(argv->argv[0], "close") == 0) {
+        if (*var_milt_head_checks) {
+        cleanup_milter_hbc_finish(state);
+        myfree(var_milt_head_checks);
+        var_milt_head_checks = "";
+        cleanup_milter_header_checks_deinit();
+        }
+        close_queue_file(state);
+    } else if (cleanup_milter_hbc_reply && LEN(cleanup_milter_hbc_reply)) {
+        /* Postfix libmilter would skip further requests. */
+        msg_info("ignoring: %s %s %s", argv->argv[0],
+             argv->argc > 1 ? argv->argv[1] : "",
+             argv->argc > 2 ? argv->argv[2] : "");
+    } else if (strcmp(argv->argv[0], "add_header") == 0) {
+        if (argv->argc < 2) {
+        msg_warn("bad add_header argument count: %ld",
+             (long) argv->argc);
+        } else {
+        flatten_args(arg_buf, argv->argv + 2);
+        resp = cleanup_add_header(state, argv->argv[1], " ", STR(arg_buf));
+        }
+    } else if (strcmp(argv->argv[0], "ins_header") == 0) {
+        if (argv->argc < 3) {
+        msg_warn("bad ins_header argument count: %ld",
+             (long) argv->argc);
+        } else if ((index = atoi(argv->argv[1])) < 1) {
+        msg_warn("bad ins_header index value");
+        } else {
+        flatten_args(arg_buf, argv->argv + 3);
+        resp = cleanup_ins_header(state, index, argv->argv[2], " ", STR(arg_buf));
+        }
+    } else if (strcmp(argv->argv[0], "upd_header") == 0) {
+        if (argv->argc < 3) {
+        msg_warn("bad upd_header argument count: %ld",
+             (long) argv->argc);
+        } else if ((index = atoi(argv->argv[1])) < 1) {
+        msg_warn("bad upd_header index value");
+        } else {
+        flatten_args(arg_buf, argv->argv + 3);
+        resp = cleanup_upd_header(state, index, argv->argv[2], " ", STR(arg_buf));
+        }
+    } else if (strcmp(argv->argv[0], "del_header") == 0) {
+        if (argv->argc != 3) {
+        msg_warn("bad del_header argument count: %ld",
+             (long) argv->argc);
+        } else if ((index = atoi(argv->argv[1])) < 1) {
+        msg_warn("bad del_header index value");
+        } else {
+        cleanup_del_header(state, index, argv->argv[2]);
+        }
+    } else if (strcmp(argv->argv[0], "chg_from") == 0) {
+        if (argv->argc != 3) {
+        msg_warn("bad chg_from argument count: %ld", (long) argv->argc);
+        } else {
+        char   *arg = argv->argv[2];
+        const char *err;
 
-		if (*arg == parens[0]
-		    && (err = extpar(&arg, parens, EXTPAR_FLAG_NONE)) != 0) {
-		    msg_warn("%s in \"%s\"", err, arg);
-		} else {
-		    cleanup_chg_from(state, argv->argv[1], arg);
-		}
-	    }
-	} else if (strcmp(argv->argv[0], "add_rcpt") == 0) {
-	    if (argv->argc != 2) {
-		msg_warn("bad add_rcpt argument count: %ld", (long) argv->argc);
-	    } else {
-		cleanup_add_rcpt(state, argv->argv[1]);
-	    }
-	} else if (strcmp(argv->argv[0], "add_rcpt_par") == 0) {
-	    if (argv->argc != 3) {
-		msg_warn("bad add_rcpt_par argument count: %ld",
-			 (long) argv->argc);
-	    } else {
-		cleanup_add_rcpt_par(state, argv->argv[1], argv->argv[2]);
-	    }
-	} else if (strcmp(argv->argv[0], "del_rcpt") == 0) {
-	    if (argv->argc != 2) {
-		msg_warn("bad del_rcpt argument count: %ld", (long) argv->argc);
-	    } else {
-		cleanup_del_rcpt(state, argv->argv[1]);
-	    }
-	} else if (strcmp(argv->argv[0], "replbody") == 0) {
-	    if (argv->argc != 2) {
-		msg_warn("bad replbody argument count: %ld", (long) argv->argc);
-	    } else {
-		VSTREAM *fp;
-		VSTRING *buf;
+        if (*arg == parens[0]
+            && (err = extpar(&arg, parens, EXTPAR_FLAG_NONE)) != 0) {
+            msg_warn("%s in \"%s\"", err, arg);
+        } else {
+            cleanup_chg_from(state, argv->argv[1], arg);
+        }
+        }
+    } else if (strcmp(argv->argv[0], "add_rcpt") == 0) {
+        if (argv->argc != 2) {
+        msg_warn("bad add_rcpt argument count: %ld", (long) argv->argc);
+        } else {
+        cleanup_add_rcpt(state, argv->argv[1]);
+        }
+    } else if (strcmp(argv->argv[0], "add_rcpt_par") == 0) {
+        if (argv->argc != 3) {
+        msg_warn("bad add_rcpt_par argument count: %ld",
+             (long) argv->argc);
+        } else {
+        cleanup_add_rcpt_par(state, argv->argv[1], argv->argv[2]);
+        }
+    } else if (strcmp(argv->argv[0], "del_rcpt") == 0) {
+        if (argv->argc != 2) {
+        msg_warn("bad del_rcpt argument count: %ld", (long) argv->argc);
+        } else {
+        cleanup_del_rcpt(state, argv->argv[1]);
+        }
+    } else if (strcmp(argv->argv[0], "replbody") == 0) {
+        if (argv->argc != 2) {
+        msg_warn("bad replbody argument count: %ld", (long) argv->argc);
+        } else {
+        VSTREAM *fp;
+        VSTRING *buf;
 
-		if ((fp = vstream_fopen(argv->argv[1], O_RDONLY, 0)) == 0) {
-		    msg_warn("open %s file: %m", argv->argv[1]);
-		} else {
-		    buf = vstring_alloc(100);
-		    cleanup_repl_body(state, MILTER_BODY_START, buf);
-		    while (vstring_get_nonl(buf, fp) != VSTREAM_EOF)
-			cleanup_repl_body(state, MILTER_BODY_LINE, buf);
-		    cleanup_repl_body(state, MILTER_BODY_END, buf);
-		    vstring_free(buf);
-		    vstream_fclose(fp);
-		}
-	    }
-	} else if (strcmp(argv->argv[0], "header_checks") == 0) {
-	    if (argv->argc != 2) {
-		msg_warn("bad header_checks argument count: %ld",
-			 (long) argv->argc);
-	    } else if (*var_milt_head_checks) {
-		msg_warn("can't change header checks");
-	    } else {
-		var_milt_head_checks = mystrdup(argv->argv[1]);
-		cleanup_milter_header_checks_init();
-	    }
-	} else if (strcmp(argv->argv[0], "sender_bcc_maps") == 0) {
-	    if (argv->argc != 2) {
-		msg_warn("bad sender_bcc_maps argument count: %ld",
-			 (long) argv->argc);
-	    } else {
-		if (cleanup_send_bcc_maps)
-		    maps_free(cleanup_send_bcc_maps);
-		cleanup_send_bcc_maps =
-		    maps_create("sender_bcc_maps", argv->argv[1],
-				DICT_FLAG_LOCK | DICT_FLAG_FOLD_FIX
-				| DICT_FLAG_UTF8_REQUEST);
-		state->flags |= CLEANUP_FLAG_BCC_OK;
-		var_rcpt_delim = "";
-	    }
-	} else {
-	    msg_warn("bad command: %s", argv->argv[0]);
-	}
-	argv_free(argv);
-	if (resp)
-	    cleanup_milter_apply(state, "END-OF-MESSAGE", resp);
+        if ((fp = vstream_fopen(argv->argv[1], O_RDONLY, 0)) == 0) {
+            msg_warn("open %s file: %m", argv->argv[1]);
+        } else {
+            buf = vstring_alloc(100);
+            cleanup_repl_body(state, MILTER_BODY_START, buf);
+            while (vstring_get_nonl(buf, fp) != VSTREAM_EOF)
+            cleanup_repl_body(state, MILTER_BODY_LINE, buf);
+            cleanup_repl_body(state, MILTER_BODY_END, buf);
+            vstring_free(buf);
+            vstream_fclose(fp);
+        }
+        }
+    } else if (strcmp(argv->argv[0], "header_checks") == 0) {
+        if (argv->argc != 2) {
+        msg_warn("bad header_checks argument count: %ld",
+             (long) argv->argc);
+        } else if (*var_milt_head_checks) {
+        msg_warn("can't change header checks");
+        } else {
+        var_milt_head_checks = mystrdup(argv->argv[1]);
+        cleanup_milter_header_checks_init();
+        }
+    } else if (strcmp(argv->argv[0], "sender_bcc_maps") == 0) {
+        if (argv->argc != 2) {
+        msg_warn("bad sender_bcc_maps argument count: %ld",
+             (long) argv->argc);
+        } else {
+        if (cleanup_send_bcc_maps)
+            maps_free(cleanup_send_bcc_maps);
+        cleanup_send_bcc_maps =
+            maps_create("sender_bcc_maps", argv->argv[1],
+                DICT_FLAG_LOCK | DICT_FLAG_FOLD_FIX
+                | DICT_FLAG_UTF8_REQUEST);
+        state->flags |= CLEANUP_FLAG_BCC_OK;
+        var_rcpt_delim = "";
+        }
+    } else {
+        msg_warn("bad command: %s", argv->argv[0]);
+    }
+    argv_free(argv);
+    if (resp)
+        cleanup_milter_apply(state, "END-OF-MESSAGE", resp);
     }
     vstring_free(inbuf);
     vstring_free(arg_buf);
     if (state->append_meta_pt_offset >= 0) {
-	if (state->flags)
-	    msg_info("flags = %s", cleanup_strflags(state->flags));
-	if (state->errs)
-	    msg_info("errs = %s", cleanup_strerror(state->errs));
+    if (state->flags)
+        msg_info("flags = %s", cleanup_strflags(state->flags));
+    if (state->errs)
+        msg_info("errs = %s", cleanup_strerror(state->errs));
     }
     cleanup_state_free(state);
     if (*var_milt_head_checks)
-	myfree(var_milt_head_checks);
+    myfree(var_milt_head_checks);
 
     return (0);
 }

@@ -1,27 +1,27 @@
 /*++
 /* NAME
-/*	mail_pathname 3
+/*    mail_pathname 3
 /* SUMMARY
-/*	generate pathname from mailer service class and name
+/*    generate pathname from mailer service class and name
 /* SYNOPSIS
-/*	#include <mail_proto.h>
+/*    #include <mail_proto.h>
 /*
-/*	char	*mail_pathname(service_class, service_name)
-/*	char	*service_class;
-/*	char	*service_name;
+/*    char    *mail_pathname(service_class, service_name)
+/*    char    *service_class;
+/*    char    *service_name;
 /* DESCRIPTION
-/*	mail_pathname() translates the specified service class and name
-/*	to a pathname. The result should be passed to myfree() when it
-/*	no longer needed.
+/*    mail_pathname() translates the specified service class and name
+/*    to a pathname. The result should be passed to myfree() when it
+/*    no longer needed.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */

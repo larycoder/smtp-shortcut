@@ -1,51 +1,51 @@
 /*++
 /* NAME
-/*	smtpd_state 3
+/*    smtpd_state 3
 /* SUMMARY
-/*	Postfix SMTP server
+/*    Postfix SMTP server
 /* SYNOPSIS
-/*	#include "smtpd.h"
+/*    #include "smtpd.h"
 /*
-/*	void	smtpd_state_init(state, stream, service)
-/*	SMTPD_STATE *state;
-/*	VSTREAM *stream;
-/*	const char *service;
+/*    void    smtpd_state_init(state, stream, service)
+/*    SMTPD_STATE *state;
+/*    VSTREAM *stream;
+/*    const char *service;
 /*
-/*	void	smtpd_state_reset(state)
-/*	SMTPD_STATE *state;
+/*    void    smtpd_state_reset(state)
+/*    SMTPD_STATE *state;
 /* DESCRIPTION
-/*	smtpd_state_init() initializes session context.
+/*    smtpd_state_init() initializes session context.
 /*
-/*	smtpd_state_reset() cleans up session context.
+/*    smtpd_state_reset() cleans up session context.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP state
-/*	Session context.
+/*    Session context.
 /* .IP stream
-/*	Stream connected to peer. The stream is not copied.
+/*    Stream connected to peer. The stream is not copied.
 /* DIAGNOSTICS
-/*	All errors are fatal.
+/*    All errors are fatal.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*
-/*	TLS support originally by:
-/*	Lutz Jaenicke
-/*	BTU Cottbus
-/*	Allgemeine Elektrotechnik
-/*	Universitaetsplatz 3-4
-/*	D-03044 Cottbus, Germany
+/*    TLS support originally by:
+/*    Lutz Jaenicke
+/*    BTU Cottbus
+/*    Allgemeine Elektrotechnik
+/*    Universitaetsplatz 3-4
+/*    D-03044 Cottbus, Germany
 /*--*/
 
 /* System library. */
@@ -76,7 +76,7 @@
 /* smtpd_state_init - initialize after connection establishment */
 
 void    smtpd_state_init(SMTPD_STATE *state, VSTREAM *stream,
-			         const char *service)
+                     const char *service)
 {
 
     /*
@@ -93,7 +93,7 @@ void    smtpd_state_init(SMTPD_STATE *state, VSTREAM *stream,
     state->error_count = 0;
     state->error_mask = 0;
     state->notify_mask = name_mask(VAR_NOTIFY_CLASSES, mail_error_masks,
-				   var_notify_classes);
+                   var_notify_classes);
     state->helo_name = 0;
     state->queue_id = 0;
     state->cleanup = 0;
@@ -156,7 +156,7 @@ void    smtpd_state_init(SMTPD_STATE *state, VSTREAM *stream,
      */
 #ifdef USE_SASL_AUTH
     if (SMTPD_STAND_ALONE(state))
-	var_smtpd_sasl_enable = 0;
+    var_smtpd_sasl_enable = 0;
     smtpd_sasl_set_inactive(state);
     smtpd_sasl_state_init(state);
 #endif
@@ -202,15 +202,15 @@ void    smtpd_state_reset(SMTPD_STATE *state)
      * "destructor" functions.
      */
     if (state->service)
-	myfree(state->service);
+    myfree(state->service);
     if (state->buffer)
-	vstring_free(state->buffer);
+    vstring_free(state->buffer);
     if (state->addr_buf)
-	vstring_free(state->addr_buf);
+    vstring_free(state->addr_buf);
     if (state->access_denied)
-	myfree(state->access_denied);
+    myfree(state->access_denied);
     if (state->protocol)
-	myfree(state->protocol);
+    myfree(state->protocol);
     smtpd_peer_reset(state);
 
     /*
@@ -218,31 +218,31 @@ void    smtpd_state_reset(SMTPD_STATE *state)
      * deliveries within the same SMTP session.
      */
     if (state->defer_if_permit.dsn)
-	vstring_free(state->defer_if_permit.dsn);
+    vstring_free(state->defer_if_permit.dsn);
     if (state->defer_if_permit.reason)
-	vstring_free(state->defer_if_permit.reason);
+    vstring_free(state->defer_if_permit.reason);
     if (state->defer_if_reject.dsn)
-	vstring_free(state->defer_if_reject.dsn);
+    vstring_free(state->defer_if_reject.dsn);
     if (state->defer_if_reject.reason)
-	vstring_free(state->defer_if_reject.reason);
+    vstring_free(state->defer_if_reject.reason);
     if (state->expand_buf)
-	vstring_free(state->expand_buf);
+    vstring_free(state->expand_buf);
     if (state->instance)
-	vstring_free(state->instance);
+    vstring_free(state->instance);
     if (state->dsn_buf)
-	vstring_free(state->dsn_buf);
+    vstring_free(state->dsn_buf);
     if (state->dsn_orcpt_buf)
-	vstring_free(state->dsn_orcpt_buf);
+    vstring_free(state->dsn_orcpt_buf);
 #if (defined(USE_TLS) && defined(USE_TLSPROXY))
-    if (state->tlsproxy)			/* still open after longjmp */
-	vstream_fclose(state->tlsproxy);
+    if (state->tlsproxy)            /* still open after longjmp */
+    vstream_fclose(state->tlsproxy);
 #endif
 
     /*
      * BDAT.
      */
     if (state->bdat_get_stream)
-	(void) vstream_fclose(state->bdat_get_stream);
+    (void) vstream_fclose(state->bdat_get_stream);
     if (state->bdat_get_buffer)
-	vstring_free(state->bdat_get_buffer);
+    vstring_free(state->bdat_get_buffer);
 }

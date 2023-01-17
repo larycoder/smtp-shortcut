@@ -1,50 +1,50 @@
 /*++
 /* NAME
-/*	mbox_conf 3
+/*    mbox_conf 3
 /* SUMMARY
-/*	mailbox lock configuration
+/*    mailbox lock configuration
 /* SYNOPSIS
-/*	#include <mbox_conf.h>
+/*    #include <mbox_conf.h>
 /*
-/*	int	mbox_lock_mask(string)
-/*	const char *string;
+/*    int    mbox_lock_mask(string)
+/*    const char *string;
 /*
-/*	ARGV	*mbox_lock_names()
+/*    ARGV    *mbox_lock_names()
 /* DESCRIPTION
-/*	The functions in this module translate between external
-/*	mailbox locking method names and internal representations.
+/*    The functions in this module translate between external
+/*    mailbox locking method names and internal representations.
 /*
-/*	mbox_lock_mask() translates a string with locking method names
-/*	into a bit mask. Names are separated by comma or whitespace.
-/*	The following gives the method names and corresponding bit
-/*	mask value:
+/*    mbox_lock_mask() translates a string with locking method names
+/*    into a bit mask. Names are separated by comma or whitespace.
+/*    The following gives the method names and corresponding bit
+/*    mask value:
 /* .IP "flock (MBOX_FLOCK_LOCK)"
-/*	Use flock() style lock after opening the file. This is the mailbox
-/*	locking method traditionally used on BSD-ish systems (including
-/*	Ultrix and SunOS). It is not suitable for remote file systems.
+/*    Use flock() style lock after opening the file. This is the mailbox
+/*    locking method traditionally used on BSD-ish systems (including
+/*    Ultrix and SunOS). It is not suitable for remote file systems.
 /* .IP "fcntl (MBOX_FCNTL_LOCK)"
-/*	Use fcntl() style lock after opening the file. This is the mailbox
-/*	locking method on System-V-ish systems (Solaris, AIX, IRIX, HP-UX).
-/*	This method is supposed to work for remote systems, but often
-/*	has problems.
+/*    Use fcntl() style lock after opening the file. This is the mailbox
+/*    locking method on System-V-ish systems (Solaris, AIX, IRIX, HP-UX).
+/*    This method is supposed to work for remote systems, but often
+/*    has problems.
 /* .IP "dotlock (MBOX_DOT_LOCK)"
-/*	Create a lock file with the name \fIfilename\fB.lock\fR. This
-/*	method pre-dates kernel locks. This works with remote file systems,
-/*	modulo cache coherency problems.
+/*    Create a lock file with the name \fIfilename\fB.lock\fR. This
+/*    method pre-dates kernel locks. This works with remote file systems,
+/*    modulo cache coherency problems.
 /* .PP
-/*	mbox_lock_names() returns an array with the names of available
-/*	mailbox locking methods. The result should be given to argv_free().
+/*    mbox_lock_names() returns an array with the names of available
+/*    mailbox locking methods. The result should be given to argv_free().
 /* DIAGNOSTICS
-/*	Fatal errors: undefined locking method name.
+/*    Fatal errors: undefined locking method name.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -94,7 +94,7 @@ ARGV   *mbox_lock_names(void)
 
     argv = argv_alloc(2);
     for (np = mbox_mask; np->name != 0; np++)
-	argv_add(argv, np->name, ARGV_END);
+    argv_add(argv, np->name, ARGV_END);
     argv_terminate(argv);
     return (argv);
 }

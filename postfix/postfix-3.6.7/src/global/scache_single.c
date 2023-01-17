@@ -1,31 +1,31 @@
 /*++
 /* NAME
-/*	scache_single 3
+/*    scache_single 3
 /* SUMMARY
-/*	single-item session cache
+/*    single-item session cache
 /* SYNOPSIS
-/*	#include <scache.h>
+/*    #include <scache.h>
 /* DESCRIPTION
-/*	SCACHE *scache_single_create()
+/*    SCACHE *scache_single_create()
 /* DESCRIPTION
-/*	This module implements an in-memory, single-session cache.
+/*    This module implements an in-memory, single-session cache.
 /*
-/*	scache_single_create() creates a session cache instance
-/*	that stores a single session.
+/*    scache_single_create() creates a session cache instance
+/*    that stores a single session.
 /* DIAGNOSTICS
-/*	Fatal error: memory allocation problem;
-/*	panic: internal consistency failure.
+/*    Fatal error: memory allocation problem;
+/*    panic: internal consistency failure.
 /* SEE ALSO
-/*	scache(3), generic session cache API
+/*    scache(3), generic session cache API
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -55,9 +55,9 @@
   * re-activation.
   */
 typedef struct {
-    VSTRING *endp_label;		/* physical endpoint name */
-    VSTRING *endp_prop;			/* endpoint properties, serialized */
-    int     fd;				/* the session */
+    VSTRING *endp_label;        /* physical endpoint name */
+    VSTRING *endp_prop;            /* endpoint properties, serialized */
+    int     fd;                /* the session */
 } SCACHE_SINGLE_ENDP;
 
  /*
@@ -66,25 +66,25 @@ typedef struct {
   * to de-serialize then upon re-activation.
   */
 typedef struct {
-    VSTRING *dest_label;		/* logical destination name */
-    VSTRING *dest_prop;			/* binding properties, serialized */
-    VSTRING *endp_label;		/* physical endpoint name */
+    VSTRING *dest_label;        /* logical destination name */
+    VSTRING *dest_prop;            /* binding properties, serialized */
+    VSTRING *endp_label;        /* physical endpoint name */
 } SCACHE_SINGLE_DEST;
 
  /*
   * SCACHE_SINGLE is a derived type from the SCACHE super-class.
   */
 typedef struct {
-    SCACHE  scache[1];			/* super-class */
-    SCACHE_SINGLE_ENDP endp;		/* one cached session */
-    SCACHE_SINGLE_DEST dest;		/* one cached binding */
+    SCACHE  scache[1];            /* super-class */
+    SCACHE_SINGLE_ENDP endp;        /* one cached session */
+    SCACHE_SINGLE_DEST dest;        /* one cached binding */
 } SCACHE_SINGLE;
 
 static void scache_single_expire_endp(int, void *);
 static void scache_single_expire_dest(int, void *);
 
-#define SCACHE_SINGLE_ENDP_BUSY(sp)	(VSTRING_LEN(sp->endp.endp_label) > 0)
-#define SCACHE_SINGLE_DEST_BUSY(sp)	(VSTRING_LEN(sp->dest.dest_label) > 0)
+#define SCACHE_SINGLE_ENDP_BUSY(sp)    (VSTRING_LEN(sp->endp.endp_label) > 0)
+#define SCACHE_SINGLE_DEST_BUSY(sp)    (VSTRING_LEN(sp->dest.dest_label) > 0)
 
 #define STR(x) vstring_str(x)
 
@@ -95,11 +95,11 @@ static void scache_single_free_endp(SCACHE_SINGLE *sp)
     const char *myname = "scache_single_free_endp";
 
     if (msg_verbose)
-	msg_info("%s: %s", myname, STR(sp->endp.endp_label));
+    msg_info("%s: %s", myname, STR(sp->endp.endp_label));
 
     event_cancel_timer(scache_single_expire_endp, (void *) sp);
     if (sp->endp.fd >= 0 && close(sp->endp.fd) < 0)
-	msg_warn("close session endpoint %s: %m", STR(sp->endp.endp_label));
+    msg_warn("close session endpoint %s: %m", STR(sp->endp.endp_label));
     VSTRING_RESET(sp->endp.endp_label);
     VSTRING_TERMINATE(sp->endp.endp_label);
     VSTRING_RESET(sp->endp.endp_prop);
@@ -119,17 +119,17 @@ static void scache_single_expire_endp(int unused_event, void *context)
 /* scache_single_save_endp - save endpoint */
 
 static void scache_single_save_endp(SCACHE *scache, int endp_ttl,
-				            const char *endp_label,
-				            const char *endp_prop, int fd)
+                            const char *endp_label,
+                            const char *endp_prop, int fd)
 {
     SCACHE_SINGLE *sp = (SCACHE_SINGLE *) scache;
     const char *myname = "scache_single_save_endp";
 
     if (endp_ttl <= 0)
-	msg_panic("%s: bad endp_ttl: %d", myname, endp_ttl);
+    msg_panic("%s: bad endp_ttl: %d", myname, endp_ttl);
 
     if (SCACHE_SINGLE_ENDP_BUSY(sp))
-	scache_single_free_endp(sp);		/* dump the cached fd */
+    scache_single_free_endp(sp);        /* dump the cached fd */
 
     vstring_strcpy(sp->endp.endp_label, endp_label);
     vstring_strcpy(sp->endp.endp_prop, endp_prop);
@@ -137,34 +137,34 @@ static void scache_single_save_endp(SCACHE *scache, int endp_ttl,
     event_request_timer(scache_single_expire_endp, (void *) sp, endp_ttl);
 
     if (msg_verbose)
-	msg_info("%s: %s fd=%d", myname, endp_label, fd);
+    msg_info("%s: %s fd=%d", myname, endp_label, fd);
 }
 
 /* scache_single_find_endp - look up cached session */
 
 static int scache_single_find_endp(SCACHE *scache, const char *endp_label,
-				           VSTRING *endp_prop)
+                           VSTRING *endp_prop)
 {
     SCACHE_SINGLE *sp = (SCACHE_SINGLE *) scache;
     const char *myname = "scache_single_find_endp";
     int     fd;
 
     if (!SCACHE_SINGLE_ENDP_BUSY(sp)) {
-	if (msg_verbose)
-	    msg_info("%s: no endpoint cache: %s", myname, endp_label);
-	return (-1);
+    if (msg_verbose)
+        msg_info("%s: no endpoint cache: %s", myname, endp_label);
+    return (-1);
     }
     if (strcmp(STR(sp->endp.endp_label), endp_label) == 0) {
-	vstring_strcpy(endp_prop, STR(sp->endp.endp_prop));
-	fd = sp->endp.fd;
-	sp->endp.fd = -1;
-	scache_single_free_endp(sp);
-	if (msg_verbose)
-	    msg_info("%s: found: %s fd=%d", myname, endp_label, fd);
-	return (fd);
+    vstring_strcpy(endp_prop, STR(sp->endp.endp_prop));
+    fd = sp->endp.fd;
+    sp->endp.fd = -1;
+    scache_single_free_endp(sp);
+    if (msg_verbose)
+        msg_info("%s: found: %s fd=%d", myname, endp_label, fd);
+    return (fd);
     }
     if (msg_verbose)
-	msg_info("%s: not found: %s", myname, endp_label);
+    msg_info("%s: not found: %s", myname, endp_label);
     return (-1);
 }
 
@@ -175,8 +175,8 @@ static void scache_single_free_dest(SCACHE_SINGLE *sp)
     const char *myname = "scache_single_free_dest";
 
     if (msg_verbose)
-	msg_info("%s: %s -> %s", myname, STR(sp->dest.dest_label),
-		 STR(sp->dest.endp_label));
+    msg_info("%s: %s -> %s", myname, STR(sp->dest.dest_label),
+         STR(sp->dest.endp_label));
 
     event_cancel_timer(scache_single_expire_dest, (void *) sp);
     VSTRING_RESET(sp->dest.dest_label);
@@ -199,62 +199,62 @@ static void scache_single_expire_dest(int unused_event, void *context)
 /* scache_single_save_dest - create destination/endpoint association */
 
 static void scache_single_save_dest(SCACHE *scache, int dest_ttl,
-				            const char *dest_label,
-				            const char *dest_prop,
-				            const char *endp_label)
+                            const char *dest_label,
+                            const char *dest_prop,
+                            const char *endp_label)
 {
     SCACHE_SINGLE *sp = (SCACHE_SINGLE *) scache;
     const char *myname = "scache_single_save_dest";
     int     refresh;
 
     if (dest_ttl <= 0)
-	msg_panic("%s: bad dest_ttl: %d", myname, dest_ttl);
+    msg_panic("%s: bad dest_ttl: %d", myname, dest_ttl);
 
     /*
      * Optimize: reset timer only, if nothing has changed.
      */
     refresh =
-	(SCACHE_SINGLE_DEST_BUSY(sp)
-	 && strcmp(STR(sp->dest.dest_label), dest_label) == 0
-	 && strcmp(STR(sp->dest.dest_prop), dest_prop) == 0
-	 && strcmp(STR(sp->dest.endp_label), endp_label) == 0);
+    (SCACHE_SINGLE_DEST_BUSY(sp)
+     && strcmp(STR(sp->dest.dest_label), dest_label) == 0
+     && strcmp(STR(sp->dest.dest_prop), dest_prop) == 0
+     && strcmp(STR(sp->dest.endp_label), endp_label) == 0);
 
     if (refresh == 0) {
-	vstring_strcpy(sp->dest.dest_label, dest_label);
-	vstring_strcpy(sp->dest.dest_prop, dest_prop);
-	vstring_strcpy(sp->dest.endp_label, endp_label);
+    vstring_strcpy(sp->dest.dest_label, dest_label);
+    vstring_strcpy(sp->dest.dest_prop, dest_prop);
+    vstring_strcpy(sp->dest.endp_label, endp_label);
     }
     event_request_timer(scache_single_expire_dest, (void *) sp, dest_ttl);
 
     if (msg_verbose)
-	msg_info("%s: %s -> %s%s", myname, dest_label, endp_label,
-		 refresh ? " (refreshed)" : "");
+    msg_info("%s: %s -> %s%s", myname, dest_label, endp_label,
+         refresh ? " (refreshed)" : "");
 }
 
 /* scache_single_find_dest - look up cached session */
 
 static int scache_single_find_dest(SCACHE *scache, const char *dest_label,
-			             VSTRING *dest_prop, VSTRING *endp_prop)
+                         VSTRING *dest_prop, VSTRING *endp_prop)
 {
     SCACHE_SINGLE *sp = (SCACHE_SINGLE *) scache;
     const char *myname = "scache_single_find_dest";
     int     fd;
 
     if (!SCACHE_SINGLE_DEST_BUSY(sp)) {
-	if (msg_verbose)
-	    msg_info("%s: no destination cache: %s", myname, dest_label);
-	return (-1);
+    if (msg_verbose)
+        msg_info("%s: no destination cache: %s", myname, dest_label);
+    return (-1);
     }
     if (strcmp(STR(sp->dest.dest_label), dest_label) == 0) {
-	if (msg_verbose)
-	    msg_info("%s: found: %s", myname, dest_label);
-	if ((fd = scache_single_find_endp(scache, STR(sp->dest.endp_label), endp_prop)) >= 0) {
-	    vstring_strcpy(dest_prop, STR(sp->dest.dest_prop));
-	    return (fd);
-	}
+    if (msg_verbose)
+        msg_info("%s: found: %s", myname, dest_label);
+    if ((fd = scache_single_find_endp(scache, STR(sp->dest.endp_label), endp_prop)) >= 0) {
+        vstring_strcpy(dest_prop, STR(sp->dest.dest_prop));
+        return (fd);
+    }
     }
     if (msg_verbose)
-	msg_info("%s: not found: %s", myname, dest_label);
+    msg_info("%s: not found: %s", myname, dest_label);
     return (-1);
 }
 
@@ -278,7 +278,7 @@ static void scache_single_free(SCACHE *scache)
     vstring_free(sp->endp.endp_label);
     vstring_free(sp->endp.endp_prop);
     if (sp->endp.fd >= 0)
-	close(sp->endp.fd);
+    close(sp->endp.fd);
 
     vstring_free(sp->dest.dest_label);
     vstring_free(sp->dest.dest_prop);

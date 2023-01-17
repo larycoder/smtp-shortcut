@@ -1,34 +1,34 @@
 /*++
 /* NAME
-/*	valid_utf8_hostname 3
+/*    valid_utf8_hostname 3
 /* SUMMARY
-/*	validate (maybe UTF-8) domain name
+/*    validate (maybe UTF-8) domain name
 /* SYNOPSIS
-/*	#include <valid_utf8_hostname.h>
+/*    #include <valid_utf8_hostname.h>
 /*
-/*	int	valid_utf8_hostname(
-/*	int	enable_utf8,
-/*	const char *domain,
-/*	int	gripe)
+/*    int    valid_utf8_hostname(
+/*    int    enable_utf8,
+/*    const char *domain,
+/*    int    gripe)
 /* DESCRIPTION
-/*	valid_utf8_hostname() is a wrapper around valid_hostname().
-/*	If EAI support is compiled in, and enable_utf8 is true, the
-/*	name is converted from UTF-8 to ASCII per IDNA rules, before
-/*	invoking valid_hostname().
+/*    valid_utf8_hostname() is a wrapper around valid_hostname().
+/*    If EAI support is compiled in, and enable_utf8 is true, the
+/*    name is converted from UTF-8 to ASCII per IDNA rules, before
+/*    invoking valid_hostname().
 /* SEE ALSO
-/*	valid_hostname(3) STD3 hostname validation.
+/*    valid_hostname(3) STD3 hostname validation.
 /* DIAGNOSTICS
-/*	Fatal errors: memory allocation problem.
-/*	Warnings: malformed domain name.
+/*    Fatal errors: memory allocation problem.
+/*    Warnings: malformed domain name.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
  /*
@@ -56,9 +56,9 @@ int     valid_utf8_hostname(int enable_utf8, const char *name, int gripe)
      * Trivial cases first.
      */
     if (*name == 0) {
-	if (gripe)
-	    msg_warn("%s: empty domain name", myname);
-	return (0);
+    if (gripe)
+        msg_warn("%s: empty domain name", myname);
+    return (0);
     }
 
     /*
@@ -70,13 +70,13 @@ int     valid_utf8_hostname(int enable_utf8, const char *name, int gripe)
      */
 #ifndef NO_EAI
     if (enable_utf8 && !allascii(name)) {
-	if (midna_domain_to_ascii(name) == 0) {
-	    if (gripe)
-		msg_warn("%s: malformed UTF-8 domain name", myname);
-	    return (0);
-	} else {
-	    return (1);
-	}
+    if (midna_domain_to_ascii(name) == 0) {
+        if (gripe)
+        msg_warn("%s: malformed UTF-8 domain name", myname);
+        return (0);
+    } else {
+        return (1);
+    }
     }
 #endif
 

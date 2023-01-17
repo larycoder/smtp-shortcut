@@ -1,36 +1,36 @@
 /*++
 /* NAME
-/*	indirect 3
+/*    indirect 3
 /* SUMMARY
-/*	indirect delivery
+/*    indirect delivery
 /* SYNOPSIS
-/*	#include "local.h"
+/*    #include "local.h"
 /*
-/*	void	deliver_indirect(state)
-/*	LOCAL_STATE state;
-/*	char	*recipient;
+/*    void    deliver_indirect(state)
+/*    LOCAL_STATE state;
+/*    char    *recipient;
 /* DESCRIPTION
-/*	deliver_indirect() delivers a message via the message
-/*	forwarding service, with duplicate filtering up to a
-/*	configurable number of recipients.
+/*    deliver_indirect() delivers a message via the message
+/*    forwarding service, with duplicate filtering up to a
+/*    configurable number of recipients.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP state
-/*	The attributes that specify the message, sender and more.
-/*	A table with the results from expanding aliases or lists.
+/*    The attributes that specify the message, sender and more.
+/*    A table with the results from expanding aliases or lists.
 /* CONFIGURATION VARIABLES
-/*	duplicate_filter_limit, duplicate filter size limit
+/*    duplicate_filter_limit, duplicate filter size limit
 /* DIAGNOSTICS
-/*	The result is non-zero when the operation should be tried again.
+/*    The result is non-zero when the operation should be tried again.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -67,18 +67,18 @@ int     deliver_indirect(LOCAL_STATE state)
      * can handle huge mailing lists with millions of recipients.
      */
     if (msg_verbose)
-	msg_info("deliver_indirect: %s", state.msg_attr.rcpt.address);
+    msg_info("deliver_indirect: %s", state.msg_attr.rcpt.address);
     if (been_here(state.dup_filter, "indirect %s",
-		  state.msg_attr.rcpt.address))
-	return (0);
+          state.msg_attr.rcpt.address))
+    return (0);
 
     /*
      * Don't forward a trace-only request.
      */
     if (DEL_REQ_TRACE_ONLY(state.request->flags)) {
-	dsb_simple(state.msg_attr.why, "2.0.0", "forwards to %s",
-		   state.msg_attr.rcpt.address);
-	return (sent(BOUNCE_FLAGS(state.request), SENT_ATTR(state.msg_attr)));
+    dsb_simple(state.msg_attr.why, "2.0.0", "forwards to %s",
+           state.msg_attr.rcpt.address);
+    return (sent(BOUNCE_FLAGS(state.request), SENT_ATTR(state.msg_attr)));
     }
 
     /*
@@ -86,9 +86,9 @@ int     deliver_indirect(LOCAL_STATE state)
      * attribute from the alias or from the .forward file owner.
      */
     if (forward_append(state.msg_attr)) {
-	dsb_simple(state.msg_attr.why, "4.3.0", "unable to forward message");
-	return (defer_append(BOUNCE_FLAGS(state.request),
-			     BOUNCE_ATTR(state.msg_attr)));
+    dsb_simple(state.msg_attr.why, "4.3.0", "unable to forward message");
+    return (defer_append(BOUNCE_FLAGS(state.request),
+                 BOUNCE_ATTR(state.msg_attr)));
     }
     return (0);
 }

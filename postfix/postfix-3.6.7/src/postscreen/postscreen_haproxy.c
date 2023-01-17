@@ -1,41 +1,41 @@
 /*++
 /* NAME
-/*	postscreen_haproxy 3
+/*    postscreen_haproxy 3
 /* SUMMARY
-/*	haproxy protocol adapter
+/*    haproxy protocol adapter
 /* SYNOPSIS
-/*	#include <postscreen_haproxy.h>
+/*    #include <postscreen_haproxy.h>
 /*
-/*	void	psc_endpt_haproxy_lookup(smtp_client_stream, lookup_done)
-/*	VSTRING	*smtp_client_stream;
-/*	void	(*lookup_done)(status, smtp_client_stream,
-/*				smtp_client_addr, smtp_client_port,
-/*				smtp_server_addr, smtp_server_port)
-/*	int	status;
-/*	MAI_HOSTADDR_STR *smtp_client_addr;
-/*	MAI_SERVPORT_STR *smtp_client_port;
-/*	MAI_HOSTADDR_STR *smtp_server_addr;
-/*	MAI_SERVPORT_STR *smtp_server_port;
+/*    void    psc_endpt_haproxy_lookup(smtp_client_stream, lookup_done)
+/*    VSTRING    *smtp_client_stream;
+/*    void    (*lookup_done)(status, smtp_client_stream,
+/*                smtp_client_addr, smtp_client_port,
+/*                smtp_server_addr, smtp_server_port)
+/*    int    status;
+/*    MAI_HOSTADDR_STR *smtp_client_addr;
+/*    MAI_SERVPORT_STR *smtp_client_port;
+/*    MAI_HOSTADDR_STR *smtp_server_addr;
+/*    MAI_SERVPORT_STR *smtp_server_port;
 /* DESCRIPTION
-/*	psc_endpt_haproxy_lookup() looks up connection endpoint
-/*	information via the haproxy protocol, or looks up local
-/*	information if the haproxy handshake indicates that a
-/*	connection is not proxied. Arguments and results conform
-/*	to the postscreen_endpt(3) API.
+/*    psc_endpt_haproxy_lookup() looks up connection endpoint
+/*    information via the haproxy protocol, or looks up local
+/*    information if the haproxy handshake indicates that a
+/*    connection is not proxied. Arguments and results conform
+/*    to the postscreen_endpt(3) API.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -88,26 +88,26 @@ static void psc_endpt_haproxy_event(int event, void *context)
 
     switch (event) {
     case EVENT_TIME:
-	msg_warn("haproxy read: time limit exceeded");
-	status = -1;
-	break;
+    msg_warn("haproxy read: time limit exceeded");
+    status = -1;
+    break;
     case EVENT_READ:
-	status = haproxy_srvr_receive(vstream_fileno(state->stream), &non_proxy,
-				      &smtp_client_addr, &smtp_client_port,
-				      &smtp_server_addr, &smtp_server_port);
+    status = haproxy_srvr_receive(vstream_fileno(state->stream), &non_proxy,
+                      &smtp_client_addr, &smtp_client_port,
+                      &smtp_server_addr, &smtp_server_port);
     }
 
     /*
      * Terminate this pseudo thread, and notify the caller.
      */
     PSC_CLEAR_EVENT_REQUEST(vstream_fileno(state->stream),
-			    psc_endpt_haproxy_event, context);
+                psc_endpt_haproxy_event, context);
     if (status == 0 && non_proxy)
-	psc_endpt_local_lookup(state->stream, state->notify);
+    psc_endpt_local_lookup(state->stream, state->notify);
     else
-	state->notify(status, state->stream,
-		      &smtp_client_addr, &smtp_client_port,
-		      &smtp_server_addr, &smtp_server_port);
+    state->notify(status, state->stream,
+              &smtp_client_addr, &smtp_client_port,
+              &smtp_server_addr, &smtp_server_port);
     /* Note: the stream may be closed at this point. */
     myfree((void *) state);
 }
@@ -115,7 +115,7 @@ static void psc_endpt_haproxy_event(int event, void *context)
 /* psc_endpt_haproxy_lookup - event-driven haproxy client */
 
 void    psc_endpt_haproxy_lookup(VSTREAM *stream,
-				         PSC_ENDPT_LOOKUP_FN notify)
+                         PSC_ENDPT_LOOKUP_FN notify)
 {
     const char *myname = "psc_endpt_haproxy_lookup";
     PSC_HAPROXY_STATE *state;
@@ -133,5 +133,5 @@ void    psc_endpt_haproxy_lookup(VSTREAM *stream,
      * Read the haproxy line.
      */
     PSC_READ_EVENT_REQUEST(vstream_fileno(stream), psc_endpt_haproxy_event,
-			   (void *) state, var_psc_uproxy_tmout);
+               (void *) state, var_psc_uproxy_tmout);
 }

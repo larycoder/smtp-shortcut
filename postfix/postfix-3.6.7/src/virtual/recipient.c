@@ -1,37 +1,37 @@
 /*++
 /* NAME
-/*	recipient 3
+/*    recipient 3
 /* SUMMARY
-/*	deliver to one local recipient
+/*    deliver to one local recipient
 /* SYNOPSIS
-/*	#include "virtual.h"
+/*    #include "virtual.h"
 /*
-/*	int	deliver_recipient(state, usr_attr)
-/*	LOCAL_STATE state;
-/*	USER_ATTR *usr_attr;
+/*    int    deliver_recipient(state, usr_attr)
+/*    LOCAL_STATE state;
+/*    USER_ATTR *usr_attr;
 /* DESCRIPTION
-/*	deliver_recipient() delivers a message to a local recipient.
+/*    deliver_recipient() delivers a message to a local recipient.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP state
-/*	The attributes that specify the message, sender, and more.
+/*    The attributes that specify the message, sender, and more.
 /* .IP usr_attr
-/*	Attributes describing user rights and mailbox location.
+/*    Attributes describing user rights and mailbox location.
 /* DIAGNOSTICS
-/*	deliver_recipient() returns non-zero when delivery should be
-/*	tried again.
+/*    deliver_recipient() returns non-zero when delivery should be
+/*    tried again.
 /* SEE ALSO
-/*	mailbox(3) delivery to UNIX-style mailbox
-/*	maildir(3) delivery to qmail-style maildir
+/*    mailbox(3) delivery to UNIX-style mailbox
+/*    maildir(3) delivery to qmail-style maildir
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -65,14 +65,14 @@ int     deliver_recipient(LOCAL_STATE state, USER_ATTR usr_attr)
      */
     state.level++;
     if (msg_verbose)
-	MSG_LOG_STATE(myname, state);
+    MSG_LOG_STATE(myname, state);
 
     /*
      * Set up the recipient-specific attributes. The recipient's lookup
      * handle is the full address.
      */
     if (state.msg_attr.delivered == 0)
-	state.msg_attr.delivered = state.msg_attr.rcpt.address;
+    state.msg_attr.delivered = state.msg_attr.rcpt.address;
     folded = vstring_alloc(100);
     state.msg_attr.user = casefold(folded, state.msg_attr.rcpt.address);
 
@@ -80,10 +80,10 @@ int     deliver_recipient(LOCAL_STATE state, USER_ATTR usr_attr)
      * Deliver
      */
     if (msg_verbose)
-	deliver_attr_dump(&state.msg_attr);
+    deliver_attr_dump(&state.msg_attr);
 
     if (deliver_mailbox(state, usr_attr, &rcpt_stat) == 0)
-	rcpt_stat = deliver_unknown(state);
+    rcpt_stat = deliver_unknown(state);
 
     /*
      * Cleanup.

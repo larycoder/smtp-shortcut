@@ -1,55 +1,55 @@
 /*++
 /* NAME
-/*	tls_dh
+/*    tls_dh
 /* SUMMARY
-/*	Diffie-Hellman parameter support
+/*    Diffie-Hellman parameter support
 /* SYNOPSIS
-/*	#define TLS_INTERNAL
-/*	#include <tls.h>
+/*    #define TLS_INTERNAL
+/*    #include <tls.h>
 /*
-/*	void	tls_set_dh_from_file(path)
-/*	const char *path;
+/*    void    tls_set_dh_from_file(path)
+/*    const char *path;
 /*
-/*	void	tls_auto_eecdh_curves(ctx, configured)
-/*	SSL_CTX	*ctx;
-/*	char	*configured;
+/*    void    tls_auto_eecdh_curves(ctx, configured)
+/*    SSL_CTX    *ctx;
+/*    char    *configured;
 /*
-/*	void	tls_tmp_dh(ctx)
-/*	SSL_CTX *ctx;
+/*    void    tls_tmp_dh(ctx)
+/*    SSL_CTX *ctx;
 /* DESCRIPTION
-/*	This module maintains parameters for Diffie-Hellman key generation.
+/*    This module maintains parameters for Diffie-Hellman key generation.
 /*
-/*	tls_tmp_dh() returns the configured or compiled-in FFDHE
-/*	group parameters.
+/*    tls_tmp_dh() returns the configured or compiled-in FFDHE
+/*    group parameters.
 /*
-/*	tls_set_dh_from_file() overrides compiled-in DH parameters
-/*	with those specified in the named files. The file format
-/*	is as expected by the PEM_read_DHparams() routine.
+/*    tls_set_dh_from_file() overrides compiled-in DH parameters
+/*    with those specified in the named files. The file format
+/*    is as expected by the PEM_read_DHparams() routine.
 /*
-/*	tls_auto_eecdh_curves() enables negotiation of the most preferred curve
-/*	among the curves specified by the "configured" argument.
+/*    tls_auto_eecdh_curves() enables negotiation of the most preferred curve
+/*    among the curves specified by the "configured" argument.
 /* DIAGNOSTICS
-/*	In case of error, tls_set_dh_from_file() logs a warning and
-/*	ignores the request.
+/*    In case of error, tls_set_dh_from_file() logs a warning and
+/*    ignores the request.
 /* LICENSE
 /* .ad
 /* .fi
-/*	This software is free. You can do with it whatever you want.
-/*	The original author kindly requests that you acknowledge
-/*	the use of his software.
+/*    This software is free. You can do with it whatever you want.
+/*    The original author kindly requests that you acknowledge
+/*    the use of his software.
 /* AUTHOR(S)
-/*	Originally written by:
-/*	Lutz Jaenicke
-/*	BTU Cottbus
-/*	Allgemeine Elektrotechnik
-/*	Universitaetsplatz 3-4
-/*	D-03044 Cottbus, Germany
+/*    Originally written by:
+/*    Lutz Jaenicke
+/*    BTU Cottbus
+/*    Allgemeine Elektrotechnik
+/*    Universitaetsplatz 3-4
+/*    D-03044 Cottbus, Germany
 /*
-/*	Updated by:
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Updated by:
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -141,19 +141,19 @@ void    tls_set_dh_from_file(const char *path)
      * prior value just in case the call sequence changes some day.
      */
     if (dh_2048) {
-	DH_free(dh_2048);
-	dh_2048 = 0;
+    DH_free(dh_2048);
+    dh_2048 = 0;
     }
     if ((paramfile = fopen(path, "r")) != 0) {
-	if ((dh_2048 = PEM_read_DHparams(paramfile, 0, 0, 0)) == 0) {
-	    msg_warn("cannot load DH parameters from file %s"
-		     " -- using compiled-in defaults", path);
-	    tls_print_errors();
-	}
-	(void) fclose(paramfile);		/* 200411 */
+    if ((dh_2048 = PEM_read_DHparams(paramfile, 0, 0, 0)) == 0) {
+        msg_warn("cannot load DH parameters from file %s"
+             " -- using compiled-in defaults", path);
+        tls_print_errors();
+    }
+    (void) fclose(paramfile);        /* 200411 */
     } else {
-	msg_warn("cannot load DH parameters from file %s: %m"
-		 " -- using compiled-in defaults", path);
+    msg_warn("cannot load DH parameters from file %s: %m"
+         " -- using compiled-in defaults", path);
     }
 }
 
@@ -162,20 +162,20 @@ void    tls_set_dh_from_file(const char *path)
 void    tls_tmp_dh(SSL_CTX *ctx)
 {
     if (dh_2048 == 0) {
-	const unsigned char *endp = dh2048_der;
-	DH     *dh = 0;
+    const unsigned char *endp = dh2048_der;
+    DH     *dh = 0;
 
-	if (d2i_DHparams(&dh, &endp, sizeof(dh2048_der))
-	    && sizeof(dh2048_der) == endp - dh2048_der) {
-	    dh_2048 = dh;
-	} else {
-	    DH_free(dh);			/* Unlikely non-zero, but by
-						 * the book */
-	    msg_warn("error loading compiled-in DH parameters");
-	}
+    if (d2i_DHparams(&dh, &endp, sizeof(dh2048_der))
+        && sizeof(dh2048_der) == endp - dh2048_der) {
+        dh_2048 = dh;
+    } else {
+        DH_free(dh);            /* Unlikely non-zero, but by
+                         * the book */
+        msg_warn("error loading compiled-in DH parameters");
+    }
     }
     if (ctx != 0 && dh_2048 != 0)
-	SSL_CTX_set_tmp_dh(ctx, dh_2048);
+    SSL_CTX_set_tmp_dh(ctx, dh_2048);
 }
 
 void    tls_auto_eecdh_curves(SSL_CTX *ctx, const char *configured)
@@ -191,59 +191,59 @@ void    tls_auto_eecdh_curves(SSL_CTX *ctx, const char *configured)
     char   *curve;
 
     if ((tmpctx = SSL_CTX_new(TLS_method())) == 0) {
-	msg_warn("cannot allocate temp SSL_CTX, using default ECDHE curves");
-	tls_print_errors();
-	return;
+    msg_warn("cannot allocate temp SSL_CTX, using default ECDHE curves");
+    tls_print_errors();
+    return;
     }
     nids = mymalloc(space * sizeof(int));
     curves = save = mystrdup(configured);
 #define RETURN do { \
-	myfree(save); \
-	myfree(nids); \
-	SSL_CTX_free(tmpctx); \
-	return; \
+    myfree(save); \
+    myfree(nids); \
+    SSL_CTX_free(tmpctx); \
+    return; \
     } while (0)
 
     while ((curve = mystrtok(&curves, CHARS_COMMA_SP)) != 0) {
-	int     nid = EC_curve_nist2nid(curve);
+    int     nid = EC_curve_nist2nid(curve);
 
-	if (nid == NID_undef)
-	    nid = OBJ_sn2nid(curve);
-	if (nid == NID_undef)
-	    nid = OBJ_ln2nid(curve);
-	if (nid == NID_undef) {
-	    msg_warn("ignoring unknown ECDHE curve \"%s\"",
-		     curve);
-	    continue;
-	}
+    if (nid == NID_undef)
+        nid = OBJ_sn2nid(curve);
+    if (nid == NID_undef)
+        nid = OBJ_ln2nid(curve);
+    if (nid == NID_undef) {
+        msg_warn("ignoring unknown ECDHE curve \"%s\"",
+             curve);
+        continue;
+    }
 
-	/*
-	 * Validate the NID by trying it as the sole EC curve for a
-	 * throw-away SSL context.  Silently skip unsupported code points.
-	 * This way, we can list X25519 and X448 as soon as the nids are
-	 * assigned, and before the supporting code is implemented.  They'll
-	 * be silently skipped when not yet supported.
-	 */
-	if (SSL_CTX_set1_curves(tmpctx, &nid, 1) <= 0) {
-	    ++unknown;
-	    continue;
-	}
-	if (++n > space) {
-	    space *= 2;
-	    nids = myrealloc(nids, space * sizeof(int));
-	}
-	nids[n - 1] = nid;
+    /*
+     * Validate the NID by trying it as the sole EC curve for a
+     * throw-away SSL context.  Silently skip unsupported code points.
+     * This way, we can list X25519 and X448 as soon as the nids are
+     * assigned, and before the supporting code is implemented.  They'll
+     * be silently skipped when not yet supported.
+     */
+    if (SSL_CTX_set1_curves(tmpctx, &nid, 1) <= 0) {
+        ++unknown;
+        continue;
+    }
+    if (++n > space) {
+        space *= 2;
+        nids = myrealloc(nids, space * sizeof(int));
+    }
+    nids[n - 1] = nid;
     }
 
     if (n == 0) {
-	if (unknown > 0)
-	    msg_warn("none of the configured ECDHE curves are supported");
-	RETURN;
+    if (unknown > 0)
+        msg_warn("none of the configured ECDHE curves are supported");
+    RETURN;
     }
     if (SSL_CTX_set1_curves(ctx, nids, n) <= 0) {
-	msg_warn("failed to configure ECDHE curves");
-	tls_print_errors();
-	RETURN;
+    msg_warn("failed to configure ECDHE curves");
+    tls_print_errors();
+    RETURN;
     }
     RETURN;
 #endif

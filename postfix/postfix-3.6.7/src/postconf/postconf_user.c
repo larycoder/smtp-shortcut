@@ -1,61 +1,61 @@
 /*++
 /* NAME
-/*	postconf_user 3
+/*    postconf_user 3
 /* SUMMARY
-/*	support for user-defined main.cf parameter names
+/*    support for user-defined main.cf parameter names
 /* SYNOPSIS
-/*	#include <postconf.h>
+/*    #include <postconf.h>
 /*
-/*	void	pcf_register_user_parameters()
+/*    void    pcf_register_user_parameters()
 /* DESCRIPTION
-/*	Postfix has multiple parameter name spaces: the global
-/*	main.cf parameter name space, and the local parameter name
-/*	space of each master.cf entry. Parameters in local name
-/*	spaces take precedence over global parameters.
+/*    Postfix has multiple parameter name spaces: the global
+/*    main.cf parameter name space, and the local parameter name
+/*    space of each master.cf entry. Parameters in local name
+/*    spaces take precedence over global parameters.
 /*
-/*	There are three categories of known parameter names: built-in,
-/*	service-defined (see postconf_service.c), and valid
-/*	user-defined.
+/*    There are three categories of known parameter names: built-in,
+/*    service-defined (see postconf_service.c), and valid
+/*    user-defined.
 /*
-/*	There are two categories of valid user-defined parameter
-/*	names:
+/*    There are two categories of valid user-defined parameter
+/*    names:
 /*
-/*	- Parameters whose user-defined-name appears in the value
-/*	of smtpd_restriction_classes in main.cf or master.cf.
+/*    - Parameters whose user-defined-name appears in the value
+/*    of smtpd_restriction_classes in main.cf or master.cf.
 /*
-/*	- Parameters whose $user-defined-name appear in the value
-/*	of "name=value" entries in main.cf or master.cf.
+/*    - Parameters whose $user-defined-name appear in the value
+/*    of "name=value" entries in main.cf or master.cf.
 /*
-/*	- In both cases the parameters must have a
-/*	"user-defined-name=value" entry in main.cf or master.cf.
+/*    - In both cases the parameters must have a
+/*    "user-defined-name=value" entry in main.cf or master.cf.
 /*
-/*	Other user-defined parameter names are flagged as "unused".
+/*    Other user-defined parameter names are flagged as "unused".
 /*
-/*	pcf_register_user_parameters() scans the global and per-service
-/*	name spaces for user-defined parameters and flags parameters
-/*	as "valid" in the global name space (pcf_param_table) or
-/*	in the per-service name space (valid_params).
+/*    pcf_register_user_parameters() scans the global and per-service
+/*    name spaces for user-defined parameters and flags parameters
+/*    as "valid" in the global name space (pcf_param_table) or
+/*    in the per-service name space (valid_params).
 /*
-/*	This function also invokes pcf_register_dbms_parameters() to
-/*	to instantiate legacy per-dbms parameters, and to examine
-/*	per-dbms configuration files. This is limited to the content
-/*	of global and local, built-in and per-service, parameters.
+/*    This function also invokes pcf_register_dbms_parameters() to
+/*    to instantiate legacy per-dbms parameters, and to examine
+/*    per-dbms configuration files. This is limited to the content
+/*    of global and local, built-in and per-service, parameters.
 /* DIAGNOSTICS
-/*	Problems are reported to the standard error stream.
+/*    Problems are reported to the standard error stream.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -90,13 +90,13 @@ static HTABLE *pcf_rest_class_table;
  /*
   * SLMs.
   */
-#define STR(x)	vstring_str(x)
+#define STR(x)    vstring_str(x)
 
  /*
   * Macros to make code with obscure constants more readable.
   */
-#define NO_SCAN_RESULT	((VSTRING *) 0)
-#define NO_SCAN_FILTER	((char *) 0)
+#define NO_SCAN_RESULT    ((VSTRING *) 0)
+#define NO_SCAN_FILTER    ((char *) 0)
 
 /* SCAN_USER_PARAMETER_VALUE - examine macro names in parameter value */
 
@@ -105,21 +105,21 @@ static HTABLE *pcf_rest_class_table;
     _ctx.local_scope = (scope); \
     _ctx.param_class = (class); \
     (void) mac_expand(NO_SCAN_RESULT, (value), MAC_EXP_FLAG_SCAN, \
-	    NO_SCAN_FILTER, pcf_flag_user_parameter_wrapper, (void *) &_ctx); \
+        NO_SCAN_FILTER, pcf_flag_user_parameter_wrapper, (void *) &_ctx); \
 } while (0)
 
 /* pcf_convert_user_parameter - get user-defined parameter string value */
 
 static const char *pcf_convert_user_parameter(void *unused_ptr)
 {
-    return ("");			/* can't happen */
+    return ("");            /* can't happen */
 }
 
 /* pcf_flag_user_parameter - flag user-defined name "valid" if it has name=value */
 
 static const char *pcf_flag_user_parameter(const char *mac_name,
-					           int param_class,
-					        PCF_MASTER_ENT *local_scope)
+                               int param_class,
+                            PCF_MASTER_ENT *local_scope)
 {
     const char *source = local_scope ? MASTER_CONF_FILE : MAIN_CONF_FILE;
     int     user_supplied = 0;
@@ -133,56 +133,56 @@ static const char *pcf_flag_user_parameter(const char *mac_name,
      * compatibility after a feature name change.
      */
     if (local_scope && dict_get(local_scope->all_params, mac_name)) {
-	user_supplied = 1;
-	/* $name in master.cf references name=value in master.cf. */
-	if (PCF_PARAM_TABLE_LOCATE(local_scope->valid_names, mac_name) == 0) {
-	    PCF_PARAM_TABLE_ENTER(local_scope->valid_names, mac_name,
-				  param_class, PCF_PARAM_NO_DATA,
-				  pcf_convert_user_parameter);
-	    if (msg_verbose)
-		msg_info("$%s in %s:%s validates %s=value in %s:%s",
-			 mac_name, MASTER_CONF_FILE,
-			 local_scope->name_space,
-			 mac_name, MASTER_CONF_FILE,
-			 local_scope->name_space);
-	}
+    user_supplied = 1;
+    /* $name in master.cf references name=value in master.cf. */
+    if (PCF_PARAM_TABLE_LOCATE(local_scope->valid_names, mac_name) == 0) {
+        PCF_PARAM_TABLE_ENTER(local_scope->valid_names, mac_name,
+                  param_class, PCF_PARAM_NO_DATA,
+                  pcf_convert_user_parameter);
+        if (msg_verbose)
+        msg_info("$%s in %s:%s validates %s=value in %s:%s",
+             mac_name, MASTER_CONF_FILE,
+             local_scope->name_space,
+             mac_name, MASTER_CONF_FILE,
+             local_scope->name_space);
+    }
     } else if (mail_conf_lookup(mac_name) != 0) {
-	user_supplied = 1;
-	/* $name in main/master.cf references name=value in main.cf. */
-	if (PCF_PARAM_TABLE_LOCATE(pcf_param_table, mac_name) == 0) {
-	    PCF_PARAM_TABLE_ENTER(pcf_param_table, mac_name, param_class,
-			     PCF_PARAM_NO_DATA, pcf_convert_user_parameter);
-	    if (msg_verbose) {
-		if (local_scope)
-		    msg_info("$%s in %s:%s validates %s=value in %s",
-			     mac_name, MASTER_CONF_FILE,
-			     local_scope->name_space,
-			     mac_name, MAIN_CONF_FILE);
-		else
-		    msg_info("$%s in %s validates %s=value in %s",
-			     mac_name, MAIN_CONF_FILE,
-			     mac_name, MAIN_CONF_FILE);
-	    }
-	}
+    user_supplied = 1;
+    /* $name in main/master.cf references name=value in main.cf. */
+    if (PCF_PARAM_TABLE_LOCATE(pcf_param_table, mac_name) == 0) {
+        PCF_PARAM_TABLE_ENTER(pcf_param_table, mac_name, param_class,
+                 PCF_PARAM_NO_DATA, pcf_convert_user_parameter);
+        if (msg_verbose) {
+        if (local_scope)
+            msg_info("$%s in %s:%s validates %s=value in %s",
+                 mac_name, MASTER_CONF_FILE,
+                 local_scope->name_space,
+                 mac_name, MAIN_CONF_FILE);
+        else
+            msg_info("$%s in %s validates %s=value in %s",
+                 mac_name, MAIN_CONF_FILE,
+                 mac_name, MAIN_CONF_FILE);
+        }
+    }
     }
     if (local_scope == 0) {
-	for (local_scope = pcf_master_table; local_scope->argv; local_scope++) {
-	    if (local_scope->all_params != 0
-		&& dict_get(local_scope->all_params, mac_name) != 0) {
-		user_supplied = 1;
-		/* $name in main.cf references name=value in master.cf. */
-		if (PCF_PARAM_TABLE_LOCATE(local_scope->valid_names, mac_name) == 0) {
-		    PCF_PARAM_TABLE_ENTER(local_scope->valid_names, mac_name,
-					  param_class, PCF_PARAM_NO_DATA,
-					  pcf_convert_user_parameter);
-		    if (msg_verbose)
-			msg_info("$%s in %s validates %s=value in %s:%s",
-				 mac_name, MAIN_CONF_FILE,
-				 mac_name, MASTER_CONF_FILE,
-				 local_scope->name_space);
-		}
-	    }
-	}
+    for (local_scope = pcf_master_table; local_scope->argv; local_scope++) {
+        if (local_scope->all_params != 0
+        && dict_get(local_scope->all_params, mac_name) != 0) {
+        user_supplied = 1;
+        /* $name in main.cf references name=value in master.cf. */
+        if (PCF_PARAM_TABLE_LOCATE(local_scope->valid_names, mac_name) == 0) {
+            PCF_PARAM_TABLE_ENTER(local_scope->valid_names, mac_name,
+                      param_class, PCF_PARAM_NO_DATA,
+                      pcf_convert_user_parameter);
+            if (msg_verbose)
+            msg_info("$%s in %s validates %s=value in %s:%s",
+                 mac_name, MAIN_CONF_FILE,
+                 mac_name, MASTER_CONF_FILE,
+                 local_scope->name_space);
+        }
+        }
+    }
     }
 
     /*
@@ -192,17 +192,17 @@ static const char *pcf_flag_user_parameter(const char *mac_name,
      * don't bother to figure out which parameters come without defaults.
      */
     if (user_supplied == 0 && (param_class & PCF_PARAM_FLAG_DBMS) == 0
-	&& PCF_PARAM_TABLE_LOCATE(pcf_param_table, mac_name) == 0)
-	msg_warn("%s/%s: undefined parameter: %s",
-		 var_config_dir, source, mac_name);
+    && PCF_PARAM_TABLE_LOCATE(pcf_param_table, mac_name) == 0)
+    msg_warn("%s/%s: undefined parameter: %s",
+         var_config_dir, source, mac_name);
     return (0);
 }
 
 /* pcf_flag_user_parameter_wrapper - mac_expand call-back helper */
 
 static const char *pcf_flag_user_parameter_wrapper(const char *mac_name,
-						           int unused_mode,
-						           void *context)
+                                   int unused_mode,
+                                   void *context)
 {
     PCF_PARAM_CTX *ctx = (PCF_PARAM_CTX *) context;
 
@@ -218,14 +218,14 @@ static const char *pcf_lookup_eval(const char *dict_name, const char *name)
 #define RECURSIVE       1
 
     if ((value = dict_lookup(dict_name, name)) != 0)
-	value = dict_eval(dict_name, value, RECURSIVE);
+    value = dict_eval(dict_name, value, RECURSIVE);
     return (value);
 }
 
 /* pcf_scan_user_parameter_namespace - scan parameters in name space */
 
 static void pcf_scan_user_parameter_namespace(const char *dict_name,
-					        PCF_MASTER_ENT *local_scope)
+                            PCF_MASTER_ENT *local_scope)
 {
     const char *myname = "pcf_scan_user_parameter_namespace";
     const char *class_list;
@@ -246,14 +246,14 @@ static void pcf_scan_user_parameter_namespace(const char *dict_name,
      * query the global table from within a local master.cf name space.
      */
     if ((class_list = pcf_lookup_eval(dict_name, VAR_REST_CLASSES)) != 0) {
-	cp = saved_class_list = mystrdup(class_list);
-	while ((param_name = mystrtok(&cp, CHARS_COMMA_SP)) != 0) {
-	    if (local_scope == 0
-		&& htable_locate(pcf_rest_class_table, param_name) == 0)
-		htable_enter(pcf_rest_class_table, param_name, "");
-	    pcf_flag_user_parameter(param_name, PCF_PARAM_FLAG_USER, local_scope);
-	}
-	myfree(saved_class_list);
+    cp = saved_class_list = mystrdup(class_list);
+    while ((param_name = mystrtok(&cp, CHARS_COMMA_SP)) != 0) {
+        if (local_scope == 0
+        && htable_locate(pcf_rest_class_table, param_name) == 0)
+        htable_enter(pcf_rest_class_table, param_name, "");
+        pcf_flag_user_parameter(param_name, PCF_PARAM_FLAG_USER, local_scope);
+    }
+    myfree(saved_class_list);
     }
 
     /*
@@ -267,49 +267,49 @@ static void pcf_scan_user_parameter_namespace(const char *dict_name,
      * compatibility with Postfix programs that ignore such settings.
      */
     if ((dict = dict_handle(dict_name)) == 0)
-	msg_panic("%s: parameter dictionary %s not found",
-		  myname, dict_name);
+    msg_panic("%s: parameter dictionary %s not found",
+          myname, dict_name);
     if (dict->sequence == 0)
-	msg_panic("%s: parameter dictionary %s has no iterator",
-		  myname, dict_name);
+    msg_panic("%s: parameter dictionary %s has no iterator",
+          myname, dict_name);
     for (how = DICT_SEQ_FUN_FIRST;
-	 dict->sequence(dict, how, &cparam_name, &cparam_value) == 0;
-	 how = DICT_SEQ_FUN_NEXT) {
-	if (local_scope != 0
-	&& PCF_PARAM_TABLE_LOCATE(local_scope->valid_names, cparam_name) == 0
-	    && htable_locate(pcf_rest_class_table, cparam_name) != 0)
-	    PCF_PARAM_TABLE_ENTER(local_scope->valid_names, cparam_name,
-				  PCF_PARAM_FLAG_USER, PCF_PARAM_NO_DATA,
-				  pcf_convert_user_parameter);
-	if ((node = PCF_PARAM_TABLE_FIND(pcf_param_table, cparam_name)) != 0) {
-	    if (PCF_READONLY_PARAMETER(node)) {
-		msg_warn("%s/%s: read-only parameter assignment: %s=%s",
-			 var_config_dir, source, cparam_name, cparam_value);
-		/* Can't use dict_del() with Postfix<2.10 htable_sequence(). */
-		if (dict_del(dict, cparam_name) != 0)
-		    msg_panic("%s: can't delete %s/%s parameter entry for %s",
-			      myname, var_config_dir, source, cparam_name);
-		continue;
-	    }
-	    /* Re-label legacy parameter as user-defined, so it's printed. */
-	    if (PCF_LEGACY_PARAMETER(node))
-		PCF_PARAM_CLASS_OVERRIDE(node, PCF_PARAM_FLAG_USER);
-	    /* Skip "do not expand" parameters. */
-	    if (PCF_RAW_PARAMETER(node))
-		continue;
-	}
-	SCAN_USER_PARAMETER_VALUE(cparam_value, PCF_PARAM_FLAG_USER, local_scope);
+     dict->sequence(dict, how, &cparam_name, &cparam_value) == 0;
+     how = DICT_SEQ_FUN_NEXT) {
+    if (local_scope != 0
+    && PCF_PARAM_TABLE_LOCATE(local_scope->valid_names, cparam_name) == 0
+        && htable_locate(pcf_rest_class_table, cparam_name) != 0)
+        PCF_PARAM_TABLE_ENTER(local_scope->valid_names, cparam_name,
+                  PCF_PARAM_FLAG_USER, PCF_PARAM_NO_DATA,
+                  pcf_convert_user_parameter);
+    if ((node = PCF_PARAM_TABLE_FIND(pcf_param_table, cparam_name)) != 0) {
+        if (PCF_READONLY_PARAMETER(node)) {
+        msg_warn("%s/%s: read-only parameter assignment: %s=%s",
+             var_config_dir, source, cparam_name, cparam_value);
+        /* Can't use dict_del() with Postfix<2.10 htable_sequence(). */
+        if (dict_del(dict, cparam_name) != 0)
+            msg_panic("%s: can't delete %s/%s parameter entry for %s",
+                  myname, var_config_dir, source, cparam_name);
+        continue;
+        }
+        /* Re-label legacy parameter as user-defined, so it's printed. */
+        if (PCF_LEGACY_PARAMETER(node))
+        PCF_PARAM_CLASS_OVERRIDE(node, PCF_PARAM_FLAG_USER);
+        /* Skip "do not expand" parameters. */
+        if (PCF_RAW_PARAMETER(node))
+        continue;
+    }
+    SCAN_USER_PARAMETER_VALUE(cparam_value, PCF_PARAM_FLAG_USER, local_scope);
 #ifdef LEGACY_DBMS_SUPPORT
 
-	/*
-	 * Scan global or local parameters that are built-in or per-service
-	 * (when node == 0, the parameter doesn't exist in the global
-	 * namespace and therefore it can't be built-in or per-service).
-	 */
-	if (node != 0
-	    && (PCF_BUILTIN_PARAMETER(node) || PCF_SERVICE_PARAMETER(node)))
-	    pcf_register_dbms_parameters(cparam_value, pcf_flag_user_parameter,
-					 local_scope);
+    /*
+     * Scan global or local parameters that are built-in or per-service
+     * (when node == 0, the parameter doesn't exist in the global
+     * namespace and therefore it can't be built-in or per-service).
+     */
+    if (node != 0
+        && (PCF_BUILTIN_PARAMETER(node) || PCF_SERVICE_PARAMETER(node)))
+        pcf_register_dbms_parameters(cparam_value, pcf_flag_user_parameter,
+                     local_scope);
 #endif
     }
 }
@@ -317,8 +317,8 @@ static void pcf_scan_user_parameter_namespace(const char *dict_name,
 /* pcf_scan_default_parameter_values - scan parameters at implicit defaults */
 
 static void pcf_scan_default_parameter_values(HTABLE *valid_params,
-					              const char *dict_name,
-					        PCF_MASTER_ENT *local_scope)
+                                  const char *dict_name,
+                            PCF_MASTER_ENT *local_scope)
 {
     const char *myname = "pcf_scan_default_parameter_values";
     PCF_PARAM_INFO **list;
@@ -327,18 +327,18 @@ static void pcf_scan_default_parameter_values(HTABLE *valid_params,
 
     list = PCF_PARAM_TABLE_LIST(valid_params);
     for (ht = list; *ht; ht++) {
-	/* Skip "do not expand" parameters. */
-	if (PCF_RAW_PARAMETER(PCF_PARAM_INFO_NODE(*ht)))
-	    continue;
-	/* Skip parameters with a non-default value. */
-	if (dict_lookup(dict_name, PCF_PARAM_INFO_NAME(*ht)))
-	    continue;
-	if ((param_value = pcf_convert_param_node(PCF_SHOW_DEFS, PCF_PARAM_INFO_NAME(*ht),
-					    PCF_PARAM_INFO_NODE(*ht))) == 0)
-	    msg_panic("%s: parameter %s has no default value",
-		      myname, PCF_PARAM_INFO_NAME(*ht));
-	SCAN_USER_PARAMETER_VALUE(param_value, PCF_PARAM_FLAG_USER, local_scope);
-	/* No need to scan default values for legacy DBMS configuration. */
+    /* Skip "do not expand" parameters. */
+    if (PCF_RAW_PARAMETER(PCF_PARAM_INFO_NODE(*ht)))
+        continue;
+    /* Skip parameters with a non-default value. */
+    if (dict_lookup(dict_name, PCF_PARAM_INFO_NAME(*ht)))
+        continue;
+    if ((param_value = pcf_convert_param_node(PCF_SHOW_DEFS, PCF_PARAM_INFO_NAME(*ht),
+                        PCF_PARAM_INFO_NODE(*ht))) == 0)
+        msg_panic("%s: parameter %s has no default value",
+              myname, PCF_PARAM_INFO_NAME(*ht));
+    SCAN_USER_PARAMETER_VALUE(param_value, PCF_PARAM_FLAG_USER, local_scope);
+    /* No need to scan default values for legacy DBMS configuration. */
     }
     myfree((void *) list);
 }
@@ -362,11 +362,11 @@ void    pcf_register_user_parameters(void)
      * Sanity checks.
      */
     if (pcf_param_table == 0)
-	msg_panic("%s: global parameter table is not initialized", myname);
+    msg_panic("%s: global parameter table is not initialized", myname);
     if (pcf_master_table == 0)
-	msg_panic("%s: master table is not initialized", myname);
+    msg_panic("%s: master table is not initialized", myname);
     if (pcf_rest_class_table != 0)
-	msg_panic("%s: restriction class table is already initialized", myname);
+    msg_panic("%s: restriction class table is already initialized", myname);
 
     /*
      * Initialize the table with global restriction class names.
@@ -377,33 +377,33 @@ void    pcf_register_user_parameters(void)
      * Initialize the per-service parameter name spaces.
      */
     for (masterp = pcf_master_table; (argv = masterp->argv) != 0; masterp++) {
-	for (field = PCF_MASTER_MIN_FIELDS; argv->argv[field] != 0; field++) {
-	    arg = argv->argv[field];
-	    if (arg[0] != '-' || strcmp(arg, "--") == 0)
-		break;
-	    if (strchr(pcf_daemon_options_expecting_value, arg[1]) == 0
-		|| (aval = argv->argv[field + 1]) == 0)
-		continue;
-	    if (strcmp(arg, "-o") == 0) {
-		saved_arg = mystrdup(aval);
-		if (split_nameval(saved_arg, &param_name, &param_value) == 0)
-		    dict_update(masterp->name_space, param_name, param_value);
-		myfree(saved_arg);
-	    }
-	    field += 1;
-	}
-	if ((dict = dict_handle(masterp->name_space)) != 0) {
-	    masterp->all_params = dict;
-	    masterp->valid_names = htable_create(1);
-	}
+    for (field = PCF_MASTER_MIN_FIELDS; argv->argv[field] != 0; field++) {
+        arg = argv->argv[field];
+        if (arg[0] != '-' || strcmp(arg, "--") == 0)
+        break;
+        if (strchr(pcf_daemon_options_expecting_value, arg[1]) == 0
+        || (aval = argv->argv[field + 1]) == 0)
+        continue;
+        if (strcmp(arg, "-o") == 0) {
+        saved_arg = mystrdup(aval);
+        if (split_nameval(saved_arg, &param_name, &param_value) == 0)
+            dict_update(masterp->name_space, param_name, param_value);
+        myfree(saved_arg);
+        }
+        field += 1;
+    }
+    if ((dict = dict_handle(masterp->name_space)) != 0) {
+        masterp->all_params = dict;
+        masterp->valid_names = htable_create(1);
+    }
     }
 
     /*
      * Scan the "-o parameter=value" instances in each master.cf name space.
      */
     for (masterp = pcf_master_table; masterp->argv != 0; masterp++)
-	if (masterp->all_params != 0)
-	    pcf_scan_user_parameter_namespace(masterp->name_space, masterp);
+    if (masterp->all_params != 0)
+        pcf_scan_user_parameter_namespace(masterp->name_space, masterp);
 
     /*
      * Scan parameter values that are left at their defaults in the global
@@ -413,7 +413,7 @@ void    pcf_register_user_parameters(void)
      * unused.
      */
     pcf_scan_default_parameter_values(pcf_param_table, CONFIG_DICT,
-				      (PCF_MASTER_ENT *) 0);
+                      (PCF_MASTER_ENT *) 0);
 
     /*
      * Scan the explicit name=value entries in the global name space.

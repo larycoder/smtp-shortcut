@@ -1,41 +1,41 @@
 /*++
 /* NAME
-/*	stream_connect 3
+/*    stream_connect 3
 /* SUMMARY
-/*	connect to stream listener
+/*    connect to stream listener
 /* SYNOPSIS
-/*	#include <connect.h>
+/*    #include <connect.h>
 /*
-/*	int	stream_connect(path, block_mode, timeout)
-/*	const char *path;
-/*	int	block_mode;
-/*	int	timeout;
+/*    int    stream_connect(path, block_mode, timeout)
+/*    const char *path;
+/*    int    block_mode;
+/*    int    timeout;
 /* DESCRIPTION
-/*	stream_connect() connects to a stream listener for the specified
-/*	pathname, and returns the resulting file descriptor.
+/*    stream_connect() connects to a stream listener for the specified
+/*    pathname, and returns the resulting file descriptor.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP path
-/*	Null-terminated string with listener endpoint name.
+/*    Null-terminated string with listener endpoint name.
 /* .IP block_mode
-/*	Either NON_BLOCKING for a non-blocking stream, or BLOCKING for
-/*	blocking mode. However, a stream connection succeeds or fails
-/*	immediately.
+/*    Either NON_BLOCKING for a non-blocking stream, or BLOCKING for
+/*    blocking mode. However, a stream connection succeeds or fails
+/*    immediately.
 /* .IP timeout
-/*	This argument is ignored; it is present for compatibility with
-/*	other interfaces. Stream connections succeed or fail immediately.
+/*    This argument is ignored; it is present for compatibility with
+/*    other interfaces. Stream connections succeed or fail immediately.
 /* DIAGNOSTICS
-/*	The result is -1 in case the connection could not be made.
-/*	Fatal errors: other system call failures.
+/*    The result is -1 in case the connection could not be made.
+/*    Fatal errors: other system call failures.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -71,28 +71,28 @@ int     stream_connect(const char *path, int block_mode, int unused_timeout)
      * the server.
      */
     if ((fifo = open(path, O_WRONLY | O_NONBLOCK, 0)) < 0)
-	return (-1);
+    return (-1);
 
     /*
      * This is for {unix,inet}_connect() compatibility.
      */
     if (block_mode == BLOCKING)
-	non_blocking(fifo, BLOCKING);
+    non_blocking(fifo, BLOCKING);
 
     /*
      * Create a pipe, and send one pipe end to the server.
      */
     if (pipe(pair) < 0)
-	msg_fatal("%s: pipe: %m", myname);
+    msg_fatal("%s: pipe: %m", myname);
     if (ioctl(fifo, I_SENDFD, pair[1]) < 0)
-	msg_fatal("%s: send file descriptor: %m", myname);
+    msg_fatal("%s: send file descriptor: %m", myname);
     close(pair[1]);
 
     /*
      * This is for {unix,inet}_connect() compatibility.
      */
     if (block_mode == NON_BLOCKING)
-	non_blocking(pair[0], NON_BLOCKING);
+    non_blocking(pair[0], NON_BLOCKING);
 
     /*
      * Cleanup.

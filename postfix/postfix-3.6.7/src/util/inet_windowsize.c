@@ -1,44 +1,44 @@
 /*++
 /* NAME
-/*	inet_windowsize 3
+/*    inet_windowsize 3
 /* SUMMARY
-/*	TCP window scaling control
+/*    TCP window scaling control
 /* SYNOPSIS
-/*	#include <iostuff.h>
+/*    #include <iostuff.h>
 /*
-/*	int	inet_windowsize;
+/*    int    inet_windowsize;
 /*
-/*	void	set_inet_windowsize(sock, windowsize)
-/*	int	sock;
-/*	int	windowsize;
+/*    void    set_inet_windowsize(sock, windowsize)
+/*    int    sock;
+/*    int    windowsize;
 /* DESCRIPTION
-/*	set_inet_windowsize() overrides the default TCP window size
-/*	with the specified value. When called before listen() or
-/*	accept(), this works around broken infrastructure that
-/*	mis-handles TCP window scaling options.
+/*    set_inet_windowsize() overrides the default TCP window size
+/*    with the specified value. When called before listen() or
+/*    accept(), this works around broken infrastructure that
+/*    mis-handles TCP window scaling options.
 /*
-/*	The global inet_windowsize variable is available for other
-/*	routines to remember that they wish to override the default
-/*	TCP window size. The variable is not accessed by the
-/*	set_inet_windowsize() function itself.
+/*    The global inet_windowsize variable is available for other
+/*    routines to remember that they wish to override the default
+/*    TCP window size. The variable is not accessed by the
+/*    set_inet_windowsize() function itself.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP sock
-/*	TCP communication endpoint, before the connect(2) or listen(2) call.
+/*    TCP communication endpoint, before the connect(2) or listen(2) call.
 /* .IP windowsize
-/*	The preferred TCP window size. This must be > 0.
+/*    The preferred TCP window size. This must be > 0.
 /* DIAGNOSTICS
-/*	Panic: interface violation.
-/*	Warnings: some error return from setsockopt().
+/*    Panic: interface violation.
+/*    Warnings: some error return from setsockopt().
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System libraries. */
@@ -67,16 +67,16 @@ void    set_inet_windowsize(int sock, int windowsize)
      * Sanity check.
      */
     if (windowsize <= 0)
-	msg_panic("inet_windowsize: bad window size %d", windowsize);
+    msg_panic("inet_windowsize: bad window size %d", windowsize);
 
     /*
      * Generic implementation: set the send and receive buffer size before
      * listen() or connect().
      */
     if (setsockopt(sock, SOL_SOCKET, SO_SNDBUF, (void *) &windowsize,
-		   sizeof(windowsize)) < 0)
-	msg_warn("setsockopt SO_SNDBUF %d: %m", windowsize);
+           sizeof(windowsize)) < 0)
+    msg_warn("setsockopt SO_SNDBUF %d: %m", windowsize);
     if (setsockopt(sock, SOL_SOCKET, SO_RCVBUF, (void *) &windowsize,
-		   sizeof(windowsize)) < 0)
-	msg_warn("setsockopt SO_RCVBUF %d: %m", windowsize);
+           sizeof(windowsize)) < 0)
+    msg_warn("setsockopt SO_RCVBUF %d: %m", windowsize);
 }

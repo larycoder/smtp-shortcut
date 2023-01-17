@@ -1,26 +1,26 @@
 /*++
 /* NAME
-/*	dns_strerror 3
+/*    dns_strerror 3
 /* SUMMARY
-/*	name service lookup error code to string
+/*    name service lookup error code to string
 /* SYNOPSIS
-/*	#include <dhs.h>
+/*    #include <dhs.h>
 /*
-/*	const char *dns_strerror(code)
-/*	int	code;
+/*    const char *dns_strerror(code)
+/*    int    code;
 /* DESCRIPTION
-/*	dns_strerror() maps a name service lookup error to printable string.
-/*	The result is for read-only purposes, and unknown codes share a
-/*	common string buffer.
+/*    dns_strerror() maps a name service lookup error to printable string.
+/*    The result is for read-only purposes, and unknown codes share a
+/*    common string buffer.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -60,10 +60,10 @@ const char *dns_strerror(unsigned error)
     unsigned i;
 
     for (i = 0; i < sizeof(dns_error_map) / sizeof(dns_error_map[0]); i++)
-	if (dns_error_map[i].error == error)
-	    return (dns_error_map[i].text);
+    if (dns_error_map[i].error == error)
+        return (dns_error_map[i].text);
     if (unknown == 0)
-	unknown = vstring_alloc(sizeof("Unknown error XXXXXX"));
+    unknown = vstring_alloc(sizeof("Unknown error XXXXXX"));
     vstring_sprintf(unknown, "Unknown error %u", error);
     return (vstring_str(unknown));
 }

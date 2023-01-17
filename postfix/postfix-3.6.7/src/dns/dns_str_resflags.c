@@ -1,26 +1,26 @@
 /*++
 /* NAME
-/*	dns_str_resflags 3
+/*    dns_str_resflags 3
 /* SUMMARY
-/*	convert resolver flags to printable form
+/*    convert resolver flags to printable form
 /* SYNOPSIS
-/*	#include <dns.h>
+/*    #include <dns.h>
 /*
-/*	const char *dns_str_resflags(mask)
-/*	unsigned long mask;
+/*    const char *dns_str_resflags(mask)
+/*    unsigned long mask;
 /* DESCRIPTION
-/*	dns_str_resflags() converts RES_* resolver(5) flags from internal
-/*	form to printable string. Individual flag names are separated
-/*	with '|'.  The result is overwritten with each call.
+/*    dns_str_resflags() converts RES_* resolver(5) flags from internal
+/*    form to printable string. Individual flag names are separated
+/*    with '|'.  The result is overwritten with each call.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
  /*
@@ -122,7 +122,7 @@ const char *dns_str_resflags(unsigned long mask)
     static VSTRING *buf;
 
     if (buf == 0)
-	buf = vstring_alloc(20);
+    buf = vstring_alloc(20);
     return (str_long_name_mask_opt(buf, "dsns_str_resflags", resflag_table,
-				   mask, NAME_MASK_NUMBER | NAME_MASK_PIPE));
+                   mask, NAME_MASK_NUMBER | NAME_MASK_PIPE));
 }

@@ -1,46 +1,46 @@
 /*++
 /* NAME
-/*	xsasl_cyrus_security 3
+/*    xsasl_cyrus_security 3
 /* SUMMARY
-/*	convert Cyrus SASL security properties to bit mask
+/*    convert Cyrus SASL security properties to bit mask
 /* SYNOPSIS
-/*	#include <xsasl_cyrus_common.h>
+/*    #include <xsasl_cyrus_common.h>
 /*
-/*	int	xsasl_cyrus_security_parse_opts(properties)
-/*	const char *properties;
+/*    int    xsasl_cyrus_security_parse_opts(properties)
+/*    const char *properties;
 /* DESCRIPTION
-/*	xsasl_cyrus_security_parse_opts() converts a list of security
-/*	properties to a bit mask. The result is zero in case of error.
+/*    xsasl_cyrus_security_parse_opts() converts a list of security
+/*    properties to a bit mask. The result is zero in case of error.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP properties
-/*	A comma or space separated list of zero or more of the
-/*	following:
+/*    A comma or space separated list of zero or more of the
+/*    following:
 /* .RS
 /* .IP noplaintext
-/*	Disallow authentication methods that use plaintext passwords.
+/*    Disallow authentication methods that use plaintext passwords.
 /* .IP noactive
-/*	Disallow authentication methods that are vulnerable to
-/*	non-dictionary active attacks.
+/*    Disallow authentication methods that are vulnerable to
+/*    non-dictionary active attacks.
 /* .IP nodictionary
-/*	Disallow authentication methods that are vulnerable to
-/*	passive dictionary attack.
+/*    Disallow authentication methods that are vulnerable to
+/*    passive dictionary attack.
 /* .IP forward_secrecy
-/*	Require forward secrecy between sessions.
+/*    Require forward secrecy between sessions.
 /* .IP noanonymous
-/*	Disallow anonymous logins.
+/*    Disallow anonymous logins.
 /* .RE
 /* DIAGNOSTICS:
-/*	Warning: bad input.
+/*    Warning: bad input.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -81,7 +81,7 @@ static const NAME_MASK xsasl_cyrus_sec_mask[] = {
 int     xsasl_cyrus_security_parse_opts(const char *sasl_opts_val)
 {
     return (name_mask_opt("SASL security options", xsasl_cyrus_sec_mask,
-			  sasl_opts_val, NAME_MASK_RETURN));
+              sasl_opts_val, NAME_MASK_RETURN));
 }
 
 #endif

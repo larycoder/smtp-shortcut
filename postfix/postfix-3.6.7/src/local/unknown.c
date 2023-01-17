@@ -1,55 +1,55 @@
 /*++
 /* NAME
-/*	unknown 3
+/*    unknown 3
 /* SUMMARY
-/*	delivery of unknown recipients
+/*    delivery of unknown recipients
 /* SYNOPSIS
-/*	#include "local.h"
+/*    #include "local.h"
 /*
-/*	int	deliver_unknown(state, usr_attr)
-/*	LOCAL_STATE state;
-/*	USER_ATTR usr_attr;
+/*    int    deliver_unknown(state, usr_attr)
+/*    LOCAL_STATE state;
+/*    USER_ATTR usr_attr;
 /* DESCRIPTION
-/*	deliver_unknown() delivers a message for unknown recipients.
+/*    deliver_unknown() delivers a message for unknown recipients.
 /* .IP \(bu
-/*	If an alternative message transport is specified via the
-/*	fallback_transport parameter, delivery is delegated to the
-/*	named transport.
+/*    If an alternative message transport is specified via the
+/*    fallback_transport parameter, delivery is delegated to the
+/*    named transport.
 /* .IP \(bu
-/*	If an alternative address is specified via the luser_relay
-/*	configuration parameter, mail is forwarded to that address.
+/*    If an alternative address is specified via the luser_relay
+/*    configuration parameter, mail is forwarded to that address.
 /* .IP \(bu
-/*	Otherwise the recipient is bounced.
+/*    Otherwise the recipient is bounced.
 /* .PP
-/*	The luser_relay parameter is subjected to $name expansion of
-/*	the standard message attributes: $user, $home, $shell, $domain,
-/*	$recipient, $mailbox, $extension, $recipient_delimiter, not
-/*	all of which actually make sense.
+/*    The luser_relay parameter is subjected to $name expansion of
+/*    the standard message attributes: $user, $home, $shell, $domain,
+/*    $recipient, $mailbox, $extension, $recipient_delimiter, not
+/*    all of which actually make sense.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP state
-/*	Message delivery attributes (sender, recipient etc.).
-/*	Attributes describing alias, include or forward expansion.
-/*	A table with the results from expanding aliases or lists.
-/*	A table with delivered-to: addresses taken from the message.
+/*    Message delivery attributes (sender, recipient etc.).
+/*    Attributes describing alias, include or forward expansion.
+/*    A table with the results from expanding aliases or lists.
+/*    A table with delivered-to: addresses taken from the message.
 /* .IP usr_attr
-/*	Attributes describing user rights and environment.
+/*    Attributes describing user rights and environment.
 /* DIAGNOSTICS
-/*	The result status is non-zero when delivery should be tried again.
+/*    The result status is non-zero when delivery should be tried again.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -102,7 +102,7 @@ int     deliver_unknown(LOCAL_STATE state, USER_ATTR usr_attr)
      */
     state.level++;
     if (msg_verbose)
-	MSG_LOG_STATE(myname, state);
+    MSG_LOG_STATE(myname, state);
 
     /*
      * DUPLICATE/LOOP ELIMINATION
@@ -110,33 +110,33 @@ int     deliver_unknown(LOCAL_STATE state, USER_ATTR usr_attr)
      * Don't deliver the same user twice.
      */
     if (been_here(state.dup_filter, "%s %s", myname, state.msg_attr.local))
-	return (0);
+    return (0);
 
     /*
      * The fall-back transport specifies a delivery machanism that handles
      * users not found in the aliases or UNIX passwd databases.
      */
     if (*var_fbck_transp_maps && transp_maps == 0)
-	transp_maps = maps_create(VAR_FBCK_TRANSP_MAPS, var_fbck_transp_maps,
-				  DICT_FLAG_LOCK | DICT_FLAG_NO_REGSUB
-				  | DICT_FLAG_UTF8_REQUEST);
+    transp_maps = maps_create(VAR_FBCK_TRANSP_MAPS, var_fbck_transp_maps,
+                  DICT_FLAG_LOCK | DICT_FLAG_NO_REGSUB
+                  | DICT_FLAG_UTF8_REQUEST);
     /* The -1 is a hint for the down-stream deliver_completed() function. */
     if (transp_maps
-	&& (map_transport = maps_find(transp_maps, state.msg_attr.user,
-				      DICT_FLAG_NONE)) != 0) {
-	state.msg_attr.rcpt.offset = -1L;
-	return (deliver_pass(MAIL_CLASS_PRIVATE, map_transport,
-			     state.request, &state.msg_attr.rcpt));
+    && (map_transport = maps_find(transp_maps, state.msg_attr.user,
+                      DICT_FLAG_NONE)) != 0) {
+    state.msg_attr.rcpt.offset = -1L;
+    return (deliver_pass(MAIL_CLASS_PRIVATE, map_transport,
+                 state.request, &state.msg_attr.rcpt));
     } else if (transp_maps && transp_maps->error != 0) {
-	/* Details in the logfile. */
-	dsb_simple(state.msg_attr.why, "4.3.0", "table lookup failure");
-	return (defer_append(BOUNCE_FLAGS(state.request),
-			     BOUNCE_ATTR(state.msg_attr)));
+    /* Details in the logfile. */
+    dsb_simple(state.msg_attr.why, "4.3.0", "table lookup failure");
+    return (defer_append(BOUNCE_FLAGS(state.request),
+                 BOUNCE_ATTR(state.msg_attr)));
     }
     if (*var_fallback_transport) {
-	state.msg_attr.rcpt.offset = -1L;
-	return (deliver_pass(MAIL_CLASS_PRIVATE, var_fallback_transport,
-			     state.request, &state.msg_attr.rcpt));
+    state.msg_attr.rcpt.offset = -1L;
+    return (deliver_pass(MAIL_CLASS_PRIVATE, var_fallback_transport,
+                 state.request, &state.msg_attr.rcpt));
     }
 
     /*
@@ -146,24 +146,24 @@ int     deliver_unknown(LOCAL_STATE state, USER_ATTR usr_attr)
      * or /stuff.
      */
     if (*var_luser_relay) {
-	state.msg_attr.unmatched = 0;
-	expand_luser = vstring_alloc(100);
-	canon_luser = vstring_alloc(100);
-	local_expand(expand_luser, var_luser_relay, &state, &usr_attr, (void *) 0);
-	/* In case luser_relay specifies a domain-less address. */
-	canon_addr_external(canon_luser, vstring_str(expand_luser));
-	/* Assumes that the address resolver won't change the address. */
-	if (STREQ(vstring_str(canon_luser), state.msg_attr.rcpt.address)) {
-	    dsb_simple(state.msg_attr.why, "5.1.1",
-		       "unknown user: \"%s\"", state.msg_attr.user);
-	    status = bounce_append(BOUNCE_FLAGS(state.request),
-				   BOUNCE_ATTR(state.msg_attr));
-	} else {
-	    status = deliver_resolve_addr(state, usr_attr, STR(expand_luser));
-	}
-	vstring_free(canon_luser);
-	vstring_free(expand_luser);
-	return (status);
+    state.msg_attr.unmatched = 0;
+    expand_luser = vstring_alloc(100);
+    canon_luser = vstring_alloc(100);
+    local_expand(expand_luser, var_luser_relay, &state, &usr_attr, (void *) 0);
+    /* In case luser_relay specifies a domain-less address. */
+    canon_addr_external(canon_luser, vstring_str(expand_luser));
+    /* Assumes that the address resolver won't change the address. */
+    if (STREQ(vstring_str(canon_luser), state.msg_attr.rcpt.address)) {
+        dsb_simple(state.msg_attr.why, "5.1.1",
+               "unknown user: \"%s\"", state.msg_attr.user);
+        status = bounce_append(BOUNCE_FLAGS(state.request),
+                   BOUNCE_ATTR(state.msg_attr));
+    } else {
+        status = deliver_resolve_addr(state, usr_attr, STR(expand_luser));
+    }
+    vstring_free(canon_luser);
+    vstring_free(expand_luser);
+    return (status);
     }
 
     /*
@@ -171,17 +171,17 @@ int     deliver_unknown(LOCAL_STATE state, USER_ATTR usr_attr)
      * into the bit bucket, and issue a warning instead.
      */
     if (STREQ(state.msg_attr.user, MAIL_ADDR_MAIL_DAEMON)
-	|| STREQ(state.msg_attr.user, MAIL_ADDR_POSTMASTER)) {
-	msg_warn("required alias not found: %s", state.msg_attr.user);
-	dsb_simple(state.msg_attr.why, "2.0.0", "discarded");
-	return (sent(BOUNCE_FLAGS(state.request), SENT_ATTR(state.msg_attr)));
+    || STREQ(state.msg_attr.user, MAIL_ADDR_POSTMASTER)) {
+    msg_warn("required alias not found: %s", state.msg_attr.user);
+    dsb_simple(state.msg_attr.why, "2.0.0", "discarded");
+    return (sent(BOUNCE_FLAGS(state.request), SENT_ATTR(state.msg_attr)));
     }
 
     /*
      * Bounce the message when no luser relay is specified.
      */
     dsb_simple(state.msg_attr.why, "5.1.1",
-	       "unknown user: \"%s\"", state.msg_attr.user);
+           "unknown user: \"%s\"", state.msg_attr.user);
     return (bounce_append(BOUNCE_FLAGS(state.request),
-			  BOUNCE_ATTR(state.msg_attr)));
+              BOUNCE_ATTR(state.msg_attr)));
 }

@@ -1,57 +1,57 @@
 /*++
 /* NAME
-/*	log_adhoc 3
+/*    log_adhoc 3
 /* SUMMARY
-/*	ad-hoc delivery event logging
+/*    ad-hoc delivery event logging
 /* SYNOPSIS
-/*	#include <log_adhoc.h>
+/*    #include <log_adhoc.h>
 /*
-/*	void	log_adhoc(id, stats, recipient, relay, dsn, status)
-/*	const char *id;
-/*	MSG_STATS *stats;
-/*	RECIPIENT *recipient;
-/*	const char *relay;
-/*	DSN *dsn;
-/*	const char *status;
+/*    void    log_adhoc(id, stats, recipient, relay, dsn, status)
+/*    const char *id;
+/*    MSG_STATS *stats;
+/*    RECIPIENT *recipient;
+/*    const char *relay;
+/*    DSN *dsn;
+/*    const char *status;
 /* DESCRIPTION
-/*	This module logs delivery events in an ad-hoc manner.
+/*    This module logs delivery events in an ad-hoc manner.
 /*
-/*	log_adhoc() appends a record to the mail logfile
+/*    log_adhoc() appends a record to the mail logfile
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP queue
-/*	The message queue name of the original message file.
+/*    The message queue name of the original message file.
 /* .IP id
-/*	The queue id of the original message file.
+/*    The queue id of the original message file.
 /* .IP stats
-/*	Time stamps from different message delivery stages
-/*	and session reuse count.
+/*    Time stamps from different message delivery stages
+/*    and session reuse count.
 /* .IP recipient
-/*	Recipient information, see recipient_list(3). The address
-/*	is formatted by the info_log_addr_form(3) routines.
+/*    Recipient information, see recipient_list(3). The address
+/*    is formatted by the info_log_addr_form(3) routines.
 /* .IP relay
-/*	Host we could (not) talk to.
+/*    Host we could (not) talk to.
 /* .IP status
-/*	bounced, deferred, sent, and so on.
+/*    bounced, deferred, sent, and so on.
 /* .IP dsn
-/*	Delivery status information. See dsn(3).
+/*    Delivery status information. See dsn(3).
 /* BUGS
-/*	Should be replaced by routines with an attribute-value based
-/*	interface instead of an interface that uses a rigid argument list.
+/*    Should be replaced by routines with an attribute-value based
+/*    interface instead of an interface that uses a rigid argument list.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -78,22 +78,22 @@
   * jumping back.
   */
 typedef struct {
-    long    dt_sec;			/* make sure it's signed */
-    long    dt_usec;			/* make sure it's signed */
+    long    dt_sec;            /* make sure it's signed */
+    long    dt_usec;            /* make sure it's signed */
 } DELTA_TIME;
 
 /* log_adhoc - ad-hoc logging */
 
 void    log_adhoc(const char *id, MSG_STATS *stats, RECIPIENT *recipient,
-		          const char *relay, DSN *dsn,
-		          const char *status)
+                  const char *relay, DSN *dsn,
+                  const char *status)
 {
     static VSTRING *buf;
-    DELTA_TIME delay;			/* end-to-end delay */
-    DELTA_TIME pdelay;			/* time before queue manager */
-    DELTA_TIME adelay;			/* queue manager latency */
-    DELTA_TIME sdelay;			/* connection set-up latency */
-    DELTA_TIME xdelay;			/* transmission latency */
+    DELTA_TIME delay;            /* end-to-end delay */
+    DELTA_TIME pdelay;            /* time before queue manager */
+    DELTA_TIME adelay;            /* queue manager latency */
+    DELTA_TIME sdelay;            /* connection set-up latency */
+    DELTA_TIME xdelay;            /* transmission latency */
     struct timeval now;
 
     /*
@@ -102,21 +102,21 @@ void    log_adhoc(const char *id, MSG_STATS *stats, RECIPIENT *recipient,
      * in a manner that is not supported by vstring_sprintf().
      */
     if (buf == 0)
-	buf = vstring_alloc(100);
+    buf = vstring_alloc(100);
 
     /*
      * First, critical information that identifies the nature of the
      * transaction.
      */
     vstring_sprintf(buf, "%s: to=<%s>", id,
-		    info_log_addr_form_recipient(recipient->address));
+            info_log_addr_form_recipient(recipient->address));
     if (recipient->orig_addr && *recipient->orig_addr
-	&& strcasecmp_utf8(recipient->address, recipient->orig_addr) != 0)
-	vstring_sprintf_append(buf, ", orig_to=<%s>",
-			info_log_addr_form_recipient(recipient->orig_addr));
+    && strcasecmp_utf8(recipient->address, recipient->orig_addr) != 0)
+    vstring_sprintf_append(buf, ", orig_to=<%s>",
+            info_log_addr_form_recipient(recipient->orig_addr));
     vstring_sprintf_append(buf, ", relay=%s", relay);
     if (stats->reuse_count > 0)
-	vstring_sprintf_append(buf, ", conn_use=%d", stats->reuse_count + 1);
+    vstring_sprintf_append(buf, ", conn_use=%d", stats->reuse_count + 1);
 
     /*
      * Next, performance statistics.
@@ -143,18 +143,18 @@ void    log_adhoc(const char *id, MSG_STATS *stats, RECIPIENT *recipient,
      */
 #define DELTA(x, y, z) \
     do { \
-	(x).dt_sec = (y).tv_sec - (z).tv_sec; \
-	(x).dt_usec = (y).tv_usec - (z).tv_usec; \
-	while ((x).dt_usec < 0) { \
-	    (x).dt_usec += 1000000; \
-	    (x).dt_sec -= 1; \
-	} \
-	while ((x).dt_usec >= 1000000) { \
-	    (x).dt_usec -= 1000000; \
-	    (x).dt_sec += 1; \
-	} \
-	if ((x).dt_sec < 0) \
-	    (x).dt_sec = (x).dt_usec = 0; \
+    (x).dt_sec = (y).tv_sec - (z).tv_sec; \
+    (x).dt_usec = (y).tv_usec - (z).tv_usec; \
+    while ((x).dt_usec < 0) { \
+        (x).dt_usec += 1000000; \
+        (x).dt_sec -= 1; \
+    } \
+    while ((x).dt_usec >= 1000000) { \
+        (x).dt_usec -= 1000000; \
+        (x).dt_sec += 1; \
+    } \
+    if ((x).dt_sec < 0) \
+        (x).dt_sec = (x).dt_usec = 0; \
     } while (0)
 
 #define DELTA_ZERO(x) ((x).dt_sec = (x).dt_usec = 0)
@@ -162,32 +162,32 @@ void    log_adhoc(const char *id, MSG_STATS *stats, RECIPIENT *recipient,
 #define TIME_STAMPED(x) ((x).tv_sec > 0)
 
     if (TIME_STAMPED(stats->deliver_done))
-	now = stats->deliver_done;
+    now = stats->deliver_done;
     else
-	GETTIMEOFDAY(&now);
+    GETTIMEOFDAY(&now);
 
     DELTA(delay, now, stats->incoming_arrival);
     DELTA_ZERO(adelay);
     DELTA_ZERO(sdelay);
     DELTA_ZERO(xdelay);
     if (TIME_STAMPED(stats->active_arrival)) {
-	DELTA(pdelay, stats->active_arrival, stats->incoming_arrival);
-	if (TIME_STAMPED(stats->agent_handoff)) {
-	    DELTA(adelay, stats->agent_handoff, stats->active_arrival);
-	    if (TIME_STAMPED(stats->conn_setup_done)) {
-		DELTA(sdelay, stats->conn_setup_done, stats->agent_handoff);
-		DELTA(xdelay, now, stats->conn_setup_done);
-	    } else {
-		/* No network client. */
-		DELTA(xdelay, now, stats->agent_handoff);
-	    }
-	} else {
-	    /* No delivery agent. */
-	    DELTA(adelay, now, stats->active_arrival);
-	}
+    DELTA(pdelay, stats->active_arrival, stats->incoming_arrival);
+    if (TIME_STAMPED(stats->agent_handoff)) {
+        DELTA(adelay, stats->agent_handoff, stats->active_arrival);
+        if (TIME_STAMPED(stats->conn_setup_done)) {
+        DELTA(sdelay, stats->conn_setup_done, stats->agent_handoff);
+        DELTA(xdelay, now, stats->conn_setup_done);
+        } else {
+        /* No network client. */
+        DELTA(xdelay, now, stats->agent_handoff);
+        }
     } else {
-	/* No queue manager. */
-	DELTA(pdelay, now, stats->incoming_arrival);
+        /* No delivery agent. */
+        DELTA(adelay, now, stats->active_arrival);
+    }
+    } else {
+    /* No queue manager. */
+    DELTA(pdelay, now, stats->incoming_arrival);
     }
 
     /*
@@ -195,11 +195,11 @@ void    log_adhoc(const char *id, MSG_STATS *stats, RECIPIENT *recipient,
      * display small numbers with only two significant digits, as long as
      * they do not exceed the time resolution.
      */
-#define SIG_DIGS	2
+#define SIG_DIGS    2
 #define PRETTY_FORMAT(b, text, x) \
     do { \
-	vstring_strcat((b), text); \
-	format_tv((b), (x).dt_sec, (x).dt_usec, SIG_DIGS, var_delay_max_res); \
+    vstring_strcat((b), text); \
+    format_tv((b), (x).dt_sec, (x).dt_usec, SIG_DIGS, var_delay_max_res); \
     } while (0)
 
     PRETTY_FORMAT(buf, ", delay=", delay);
@@ -212,7 +212,7 @@ void    log_adhoc(const char *id, MSG_STATS *stats, RECIPIENT *recipient,
      * Finally, the delivery status.
      */
     vstring_sprintf_append(buf, ", dsn=%s, status=%s (%s)",
-			   dsn->status, status, dsn->reason);
+               dsn->status, status, dsn->reason);
 
     /*
      * Ship it off.

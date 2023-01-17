@@ -1,57 +1,57 @@
 /*++
 /* NAME
-/*	smtp_sasl_proto 3
+/*    smtp_sasl_proto 3
 /* SUMMARY
-/*	Postfix SASL interface for SMTP client
+/*    Postfix SASL interface for SMTP client
 /* SYNOPSIS
-/*	#include smtp_sasl.h
+/*    #include smtp_sasl.h
 /*
-/*	void	smtp_sasl_helo_auth(state, words)
-/*	SMTP_STATE *state;
-/*	const char *words;
+/*    void    smtp_sasl_helo_auth(state, words)
+/*    SMTP_STATE *state;
+/*    const char *words;
 /*
-/*	int	smtp_sasl_helo_login(state)
-/*	SMTP_STATE *state;
+/*    int    smtp_sasl_helo_login(state)
+/*    SMTP_STATE *state;
 /* DESCRIPTION
-/*	This module contains random chunks of code that implement
-/*	the SMTP protocol interface for SASL negotiation. The goal
-/*	is to reduce clutter in the main SMTP client source code.
+/*    This module contains random chunks of code that implement
+/*    the SMTP protocol interface for SASL negotiation. The goal
+/*    is to reduce clutter in the main SMTP client source code.
 /*
-/*	smtp_sasl_helo_auth() processes the AUTH option in the
-/*	SMTP server's EHLO response.
+/*    smtp_sasl_helo_auth() processes the AUTH option in the
+/*    SMTP server's EHLO response.
 /*
-/*	smtp_sasl_helo_login() authenticates the SMTP client to the
-/*	SMTP server, using the authentication mechanism information
-/*	given by the server. The result is a Postfix delivery status
-/*	code in case of trouble.
+/*    smtp_sasl_helo_login() authenticates the SMTP client to the
+/*    SMTP server, using the authentication mechanism information
+/*    given by the server. The result is a Postfix delivery status
+/*    code in case of trouble.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP state
-/*	Session context.
+/*    Session context.
 /* .IP words
-/*	List of SASL authentication mechanisms (separated by blanks)
+/*    List of SASL authentication mechanisms (separated by blanks)
 /* DIAGNOSTICS
-/*	All errors are fatal.
+/*    All errors are fatal.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Original author:
-/*	Till Franke
-/*	SuSE Rhein/Main AG
-/*	65760 Eschborn, Germany
+/*    Original author:
+/*    Till Franke
+/*    SuSE Rhein/Main AG
+/*    65760 Eschborn, Germany
 /*
-/*	Adopted by:
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Adopted by:
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -95,22 +95,22 @@ void    smtp_sasl_helo_auth(SMTP_SESSION *session, const char *words)
      * the SASL library worry about duplicates.
      */
     if (session->sasl_mechanism_list) {
-	if (strcasecmp(session->sasl_mechanism_list, mech_list) != 0
-	    && strlen(mech_list) > 0
-	    && strlen(session->sasl_mechanism_list) < var_line_limit) {
-	    junk = concatenate(session->sasl_mechanism_list, " ", mech_list,
-			       (char *) 0);
-	    myfree(session->sasl_mechanism_list);
-	    session->sasl_mechanism_list = junk;
-	}
-	return;
+    if (strcasecmp(session->sasl_mechanism_list, mech_list) != 0
+        && strlen(mech_list) > 0
+        && strlen(session->sasl_mechanism_list) < var_line_limit) {
+        junk = concatenate(session->sasl_mechanism_list, " ", mech_list,
+                   (char *) 0);
+        myfree(session->sasl_mechanism_list);
+        session->sasl_mechanism_list = junk;
+    }
+    return;
     }
     if (strlen(mech_list) > 0) {
-	session->sasl_mechanism_list = mystrdup(mech_list);
+    session->sasl_mechanism_list = mystrdup(mech_list);
     } else {
-	msg_warn(*words ? "%s offered no supported AUTH mechanisms: '%s'" :
-		 "%s offered null AUTH mechanism list%s",
-		 session->namaddrport, words);
+    msg_warn(*words ? "%s offered no supported AUTH mechanisms: '%s'" :
+         "%s offered null AUTH mechanism list%s",
+         session->namaddrport, words);
     }
     session->features |= SMTP_FEATURE_AUTH;
 }
@@ -128,8 +128,8 @@ int     smtp_sasl_helo_login(SMTP_STATE *state)
      * server, so that we talk to each other like strangers.
      */
     if (smtp_sasl_passwd_lookup(session) == 0) {
-	session->features &= ~SMTP_FEATURE_AUTH;
-	return 0;
+    session->features &= ~SMTP_FEATURE_AUTH;
+    return 0;
     }
 
     /*
@@ -141,29 +141,29 @@ int     smtp_sasl_helo_login(SMTP_STATE *state)
      */
     ret = 0;
     if (session->sasl_mechanism_list == 0) {
-	dsb_simple(why, "4.7.0", "SASL authentication failed: "
-		   "server %s offered no compatible authentication mechanisms for this type of connection security",
-		   session->namaddr);
-	ret = smtp_sess_fail(state);
-	/* Session reuse is disabled. */
+    dsb_simple(why, "4.7.0", "SASL authentication failed: "
+           "server %s offered no compatible authentication mechanisms for this type of connection security",
+           session->namaddr);
+    ret = smtp_sess_fail(state);
+    /* Session reuse is disabled. */
     } else {
 #ifndef USE_TLS
-	smtp_sasl_start(session, VAR_LMTP_SMTP(SASL_OPTS), var_smtp_sasl_opts);
+    smtp_sasl_start(session, VAR_LMTP_SMTP(SASL_OPTS), var_smtp_sasl_opts);
 #else
-	if (session->tls_context == 0)
-	    smtp_sasl_start(session, VAR_LMTP_SMTP(SASL_OPTS),
-			    var_smtp_sasl_opts);
-	else if (TLS_CERT_IS_MATCHED(session->tls_context))
-	    smtp_sasl_start(session, VAR_LMTP_SMTP(SASL_TLSV_OPTS),
-			    var_smtp_sasl_tlsv_opts);
-	else
-	    smtp_sasl_start(session, VAR_LMTP_SMTP(SASL_TLS_OPTS),
-			    var_smtp_sasl_tls_opts);
+    if (session->tls_context == 0)
+        smtp_sasl_start(session, VAR_LMTP_SMTP(SASL_OPTS),
+                var_smtp_sasl_opts);
+    else if (TLS_CERT_IS_MATCHED(session->tls_context))
+        smtp_sasl_start(session, VAR_LMTP_SMTP(SASL_TLSV_OPTS),
+                var_smtp_sasl_tlsv_opts);
+    else
+        smtp_sasl_start(session, VAR_LMTP_SMTP(SASL_TLS_OPTS),
+                var_smtp_sasl_tls_opts);
 #endif
-	if (smtp_sasl_authenticate(session, why) <= 0) {
-	    ret = smtp_sess_fail(state);
-	    /* Session reuse is disabled. */
-	}
+    if (smtp_sasl_authenticate(session, why) <= 0) {
+        ret = smtp_sess_fail(state);
+        /* Session reuse is disabled. */
+    }
     }
     return (ret);
 }

@@ -1,35 +1,35 @@
 /*++
 /* NAME
-/*	posix_signals 3
+/*    posix_signals 3
 /* SUMMARY
-/*	POSIX signal handling compatibility
+/*    POSIX signal handling compatibility
 /* SYNOPSIS
-/*	#include <posix_signals.h>
+/*    #include <posix_signals.h>
 /*
-/*	int	sigemptyset(m)
-/*	sigset_t *m;
+/*    int    sigemptyset(m)
+/*    sigset_t *m;
 /*
-/*	int	sigaddset(set, signum)
-/*	sigset_t *set;
-/*	int	signum;
+/*    int    sigaddset(set, signum)
+/*    sigset_t *set;
+/*    int    signum;
 /*
-/*	int	sigprocmask(how, set, old)
-/*	int	how;
-/*	sigset_t *set;
-/*	sigset_t *old;
+/*    int    sigprocmask(how, set, old)
+/*    int    how;
+/*    sigset_t *set;
+/*    sigset_t *old;
 /*
-/*	int	sigaction(sig, act, oact)
-/*	int	sig;
-/*	struct sigaction *act;
-/*	struct sigaction *oact;
+/*    int    sigaction(sig, act, oact)
+/*    int    sig;
+/*    struct sigaction *act;
+/*    struct sigaction *oact;
 /* DESCRIPTION
-/*	These routines emulate the POSIX signal handling interface.
+/*    These routines emulate the POSIX signal handling interface.
 /* AUTHOR(S)
-/*	Pieter Schoenmakers
-/*	Eindhoven University of Technology
-/*	P.O. Box 513
-/*	5600 MB Eindhoven
-/*	The Netherlands
+/*    Pieter Schoenmakers
+/*    Eindhoven University of Technology
+/*    P.O. Box 513
+/*    5600 MB Eindhoven
+/*    The Netherlands
 /*--*/
 
 /* System library. */
@@ -60,20 +60,20 @@ int     sigprocmask(int how, sigset_t *set, sigset_t *old)
     int previous;
 
     if (how == SIG_BLOCK)
-	previous = sigblock(*set);
+    previous = sigblock(*set);
     else if (how == SIG_SETMASK)
-	previous = sigsetmask(*set);
+    previous = sigsetmask(*set);
     else if (how == SIG_UNBLOCK) {
-	int     m = sigblock(0);
+    int     m = sigblock(0);
 
-	previous = sigsetmask(m & ~*set);
+    previous = sigsetmask(m & ~*set);
     } else {
-	errno = EINVAL;
-	return -1;
+    errno = EINVAL;
+    return -1;
     }
 
     if (old)
-	*old = previous;
+    *old = previous;
     return 0;
 }
 
@@ -86,7 +86,7 @@ static struct sigaction actions[NSIG] = {};
 static int sighandle(int signum)
 {
     if (signum == SIGCHLD) {
-	/* XXX If the child is just stopped, don't invoke the handler.	 */
+    /* XXX If the child is just stopped, don't invoke the handler.     */
     }
     actions[signum].sa_handler(signum);
 }
@@ -96,27 +96,27 @@ int     sigaction(int sig, struct sigaction *act, struct sigaction *oact)
     static int initialized = 0;
 
     if (!initialized) {
-	int     i;
+    int     i;
 
-	for (i = 0; i < NSIG; i++)
-	    actions[i].sa_handler = SIG_DFL;
-	initialized = 1;
+    for (i = 0; i < NSIG; i++)
+        actions[i].sa_handler = SIG_DFL;
+    initialized = 1;
     }
     if (sig <= 0 || sig >= NSIG) {
-	errno = EINVAL;
-	return -1;
+    errno = EINVAL;
+    return -1;
     }
     if (oact)
-	*oact = actions[sig];
+    *oact = actions[sig];
 
     {
-	struct sigvec mine = {
-	    sighandle, act->sa_mask,
-	    act->sa_flags & SA_RESTART ? SV_INTERRUPT : 0
-	};
+    struct sigvec mine = {
+        sighandle, act->sa_mask,
+        act->sa_flags & SA_RESTART ? SV_INTERRUPT : 0
+    };
 
-	if (sigvec(sig, &mine, NULL))
-	    return -1;
+    if (sigvec(sig, &mine, NULL))
+        return -1;
     }
 
     actions[sig] = *act;

@@ -1,31 +1,31 @@
 /*++
 /* NAME
-/*	mkmap_proxy 3
+/*    mkmap_proxy 3
 /* SUMMARY
-/*	create or proxied database
+/*    create or proxied database
 /* SYNOPSIS
-/*	#include <mkmap.h>
+/*    #include <mkmap.h>
 /*
-/*	MKMAP	*mkmap_proxy_open(path)
-/*	const char *path;
+/*    MKMAP    *mkmap_proxy_open(path)
+/*    const char *path;
 /* DESCRIPTION
-/*	This module implements support for updating proxy databases.
+/*    This module implements support for updating proxy databases.
 /*
-/*	mkmap_proxy_open() is a proxymap-specific helper for the
-/*	more general mkmap_open() routine.
+/*    mkmap_proxy_open() is a proxymap-specific helper for the
+/*    more general mkmap_open() routine.
 /*
-/*	All errors are fatal.
+/*    All errors are fatal.
 /* SEE ALSO
-/*	dict_proxy(3), proxy client interface.
+/*    dict_proxy(3), proxy client interface.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */

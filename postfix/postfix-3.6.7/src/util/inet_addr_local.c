@@ -1,45 +1,45 @@
 /*++
 /* NAME
-/*	inet_addr_local 3
+/*    inet_addr_local 3
 /* SUMMARY
-/*	determine if IP address is local
+/*    determine if IP address is local
 /* SYNOPSIS
-/*	#include <inet_addr_local.h>
+/*    #include <inet_addr_local.h>
 /*
-/*	int	inet_addr_local(addr_list, mask_list, addr_family_list)
-/*	INET_ADDR_LIST *addr_list;
-/*	INET_ADDR_LIST *mask_list;
-/*	unsigned *addr_family;
+/*    int    inet_addr_local(addr_list, mask_list, addr_family_list)
+/*    INET_ADDR_LIST *addr_list;
+/*    INET_ADDR_LIST *mask_list;
+/*    unsigned *addr_family;
 /* DESCRIPTION
-/*	inet_addr_local() determines all active IP interface addresses
-/*	of the local system. Any address found is appended to the
-/*	specified address list. The result value is the number of
-/*	active interfaces found.
+/*    inet_addr_local() determines all active IP interface addresses
+/*    of the local system. Any address found is appended to the
+/*    specified address list. The result value is the number of
+/*    active interfaces found.
 /*
-/*	The mask_list is either a null pointer, or it is a list that
-/*	receives the netmasks of the interface addresses that were found.
+/*    The mask_list is either a null pointer, or it is a list that
+/*    receives the netmasks of the interface addresses that were found.
 /*
-/*	The addr_family_list specifies one or more of AF_INET or AF_INET6.
+/*    The addr_family_list specifies one or more of AF_INET or AF_INET6.
 /* DIAGNOSTICS
-/*	Fatal errors: out of memory.
+/*    Fatal errors: out of memory.
 /* SEE ALSO
-/*	inet_addr_list(3) address list management
+/*    inet_addr_list(3) address list management
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Dean C. Strik
-/*	Department ICT
-/*	Eindhoven University of Technology
-/*	P.O. Box 513
-/*	5600 MB  Eindhoven, Netherlands
-/*	E-mail: <dean@ipnet6.org>
+/*    Dean C. Strik
+/*    Department ICT
+/*    Eindhoven University of Technology
+/*    P.O. Box 513
+/*    5600 MB  Eindhoven, Netherlands
+/*    E-mail: <dean@ipnet6.org>
 /*--*/
 
 /* System library. */
@@ -57,7 +57,7 @@
 #endif
 #include <errno.h>
 #include <string.h>
-#ifdef HAS_IPV6				/* Linux only? */
+#ifdef HAS_IPV6                /* Linux only? */
 #include <netdb.h>
 #include <stdio.h>
 #endif
@@ -136,13 +136,13 @@ static int ial_socket(int af)
      */
     if ((sock = socket(af, SOCK_DGRAM, 0)) < 0) {
 #ifdef HAS_IPV6
-	if (af == AF_INET6) {
-	    if (msg_verbose)
-		msg_warn("%s: socket: %m", myname);
-	    return (-1);
-	}
+    if (af == AF_INET6) {
+        if (msg_verbose)
+        msg_warn("%s: socket: %m", myname);
+        return (-1);
+    }
 #endif
-	msg_fatal("%s: socket: %m", myname);
+    msg_fatal("%s: socket: %m", myname);
     }
     return (sock);
 }
@@ -161,15 +161,15 @@ static int ial_socket(int af)
 /* ial_getifaddrs - determine IP addresses using getifaddrs(3) */
 
 static int ial_getifaddrs(INET_ADDR_LIST *addr_list,
-			          INET_ADDR_LIST *mask_list,
-			          int af)
+                      INET_ADDR_LIST *mask_list,
+                      int af)
 {
     const char *myname = "inet_addr_local[getifaddrs]";
     struct ifaddrs *ifap, *ifa;
     struct sockaddr *sa, *sam;
 
     if (getifaddrs(&ifap) < 0)
-	msg_fatal("%s: getifaddrs: %m", myname);
+    msg_fatal("%s: getifaddrs: %m", myname);
 
     /*
      * Get the address of each IP network interface. According to BIND we
@@ -185,55 +185,55 @@ static int ial_getifaddrs(INET_ADDR_LIST *addr_list,
      * (tested on FreeBSD).
      */
     for (ifa = ifap; ifa; ifa = ifa->ifa_next) {
-	if (!(ifa->ifa_flags & IFF_UP) || ifa->ifa_addr == 0)
-	    continue;
-	sa = ifa->ifa_addr;
-	if (af != AF_UNSPEC && sa->sa_family != af)
-	    continue;
-	sam = ifa->ifa_netmask;
-	if (sam == 0) {
-	    /* XXX In mynetworks, a null netmask would match everyone. */
-	    msg_warn("ignoring interface with null netmask, address family %d",
-		     sa->sa_family);
-	    continue;
-	}
-	switch (sa->sa_family) {
-	case AF_INET:
-	    if (SOCK_ADDR_IN_ADDR(sa).s_addr == INADDR_ANY)
-		continue;
-	    break;
+    if (!(ifa->ifa_flags & IFF_UP) || ifa->ifa_addr == 0)
+        continue;
+    sa = ifa->ifa_addr;
+    if (af != AF_UNSPEC && sa->sa_family != af)
+        continue;
+    sam = ifa->ifa_netmask;
+    if (sam == 0) {
+        /* XXX In mynetworks, a null netmask would match everyone. */
+        msg_warn("ignoring interface with null netmask, address family %d",
+             sa->sa_family);
+        continue;
+    }
+    switch (sa->sa_family) {
+    case AF_INET:
+        if (SOCK_ADDR_IN_ADDR(sa).s_addr == INADDR_ANY)
+        continue;
+        break;
 #ifdef HAS_IPV6
-	case AF_INET6:
-	    if (IN6_IS_ADDR_UNSPECIFIED(&SOCK_ADDR_IN6_ADDR(sa)))
-		continue;
-	    break;
+    case AF_INET6:
+        if (IN6_IS_ADDR_UNSPECIFIED(&SOCK_ADDR_IN6_ADDR(sa)))
+        continue;
+        break;
 #endif
-	default:
-	    continue;
-	}
+    default:
+        continue;
+    }
 
-	inet_addr_list_append(addr_list, sa);
-	if (mask_list != 0) {
+    inet_addr_list_append(addr_list, sa);
+    if (mask_list != 0) {
 
-	    /*
-	     * Unfortunately, sa_len/sa_family may be broken in the netmask
-	     * sockaddr structure. We must fix this manually to have correct
-	     * addresses.   --dcs
-	     */
+        /*
+         * Unfortunately, sa_len/sa_family may be broken in the netmask
+         * sockaddr structure. We must fix this manually to have correct
+         * addresses.   --dcs
+         */
 #ifdef HAS_SA_LEN
-	    sam->sa_len = sa->sa_family == AF_INET6 ?
-		sizeof(struct sockaddr_in6) :
-		sizeof(struct sockaddr_in);
+        sam->sa_len = sa->sa_family == AF_INET6 ?
+        sizeof(struct sockaddr_in6) :
+        sizeof(struct sockaddr_in);
 #endif
-	    sam->sa_family = sa->sa_family;
-	    inet_addr_list_append(mask_list, sam);
-	}
+        sam->sa_family = sa->sa_family;
+        inet_addr_list_append(mask_list, sam);
+    }
     }
     freeifaddrs(ifap);
     return (0);
 }
 
-#elif defined(HAS_SIOCGLIF)		/* HAVE_GETIFADDRS */
+#elif defined(HAS_SIOCGLIF)        /* HAVE_GETIFADDRS */
 
 /*
  * The SIOCLIF* ioctls are the successors of SIOCGIF* on the Solaris
@@ -241,14 +241,14 @@ static int ial_getifaddrs(INET_ADDR_LIST *addr_list,
  * structure. Both IPv4 and IPv6 addresses are returned though these
  * calls.
  */
-#define NEXT_INTERFACE(lifr)	(lifr + 1)
-#define LIFREQ_SIZE(lifr)	sizeof(lifr[0])
+#define NEXT_INTERFACE(lifr)    (lifr + 1)
+#define LIFREQ_SIZE(lifr)    sizeof(lifr[0])
 
 /* ial_siocglif - determine IP addresses using ioctl(SIOCGLIF*) */
 
 static int ial_siocglif(INET_ADDR_LIST *addr_list,
-			        INET_ADDR_LIST *mask_list,
-			        int af)
+                    INET_ADDR_LIST *mask_list,
+                    int af)
 {
     const char *myname = "inet_addr_local[siocglif]";
     struct lifconf lifc;
@@ -263,64 +263,64 @@ static int ial_siocglif(INET_ADDR_LIST *addr_list,
      * See also comments in ial_siocgif()
      */
     if (af != AF_INET && af != AF_INET6)
-	msg_fatal("%s: address family was %d, must be AF_INET (%d) or "
-		  "AF_INET6 (%d)", myname, af, AF_INET, AF_INET6);
+    msg_fatal("%s: address family was %d, must be AF_INET (%d) or "
+          "AF_INET6 (%d)", myname, af, AF_INET, AF_INET6);
     sock = ial_socket(af);
     if (sock < 0)
-	return (0);
+    return (0);
     buf = vstring_alloc(1024);
     for (;;) {
-	memset(&lifc, 0, sizeof(lifc));
-	lifc.lifc_family = AF_UNSPEC;		/* XXX Why??? */
-	lifc.lifc_len = vstring_avail(buf);
-	lifc.lifc_buf = vstring_str(buf);
-	if (ioctl(sock, SIOCGLIFCONF, (char *) &lifc) < 0) {
-	    if (errno != EINVAL)
-		msg_fatal("%s: ioctl SIOCGLIFCONF: %m", myname);
-	} else if (lifc.lifc_len < vstring_avail(buf) / 2)
-	    break;
-	VSTRING_SPACE(buf, vstring_avail(buf) * 2);
+    memset(&lifc, 0, sizeof(lifc));
+    lifc.lifc_family = AF_UNSPEC;        /* XXX Why??? */
+    lifc.lifc_len = vstring_avail(buf);
+    lifc.lifc_buf = vstring_str(buf);
+    if (ioctl(sock, SIOCGLIFCONF, (char *) &lifc) < 0) {
+        if (errno != EINVAL)
+        msg_fatal("%s: ioctl SIOCGLIFCONF: %m", myname);
+    } else if (lifc.lifc_len < vstring_avail(buf) / 2)
+        break;
+    VSTRING_SPACE(buf, vstring_avail(buf) * 2);
     }
 
     the_end = (struct lifreq *) (lifc.lifc_buf + lifc.lifc_len);
     for (lifr = lifc.lifc_req; lifr < the_end;) {
-	sa = (struct sockaddr *) &lifr->lifr_addr;
-	if (sa->sa_family != af) {
-	    lifr = NEXT_INTERFACE(lifr);
-	    continue;
-	}
-	if (af == AF_INET) {
-	    if (SOCK_ADDR_IN_ADDR(sa).s_addr == INADDR_ANY) {
-		lifr = NEXT_INTERFACE(lifr);
-		continue;
-	    }
+    sa = (struct sockaddr *) &lifr->lifr_addr;
+    if (sa->sa_family != af) {
+        lifr = NEXT_INTERFACE(lifr);
+        continue;
+    }
+    if (af == AF_INET) {
+        if (SOCK_ADDR_IN_ADDR(sa).s_addr == INADDR_ANY) {
+        lifr = NEXT_INTERFACE(lifr);
+        continue;
+        }
 #ifdef HAS_IPV6
-	} else if (af == AF_INET6) {
-	    if (IN6_IS_ADDR_UNSPECIFIED(&SOCK_ADDR_IN6_ADDR(sa))) {
-		lifr = NEXT_INTERFACE(lifr);
-		continue;
-	    }
-	}
+    } else if (af == AF_INET6) {
+        if (IN6_IS_ADDR_UNSPECIFIED(&SOCK_ADDR_IN6_ADDR(sa))) {
+        lifr = NEXT_INTERFACE(lifr);
+        continue;
+        }
+    }
 #endif
-	inet_addr_list_append(addr_list, sa);
-	if (mask_list) {
-	    lifr_mask = (struct lifreq *) mymalloc(sizeof(struct lifreq));
-	    memcpy((void *) lifr_mask, (void *) lifr, sizeof(struct lifreq));
-	    if (ioctl(sock, SIOCGLIFNETMASK, lifr_mask) < 0)
-		msg_fatal("%s: ioctl(SIOCGLIFNETMASK): %m", myname);
-	    /* XXX: Check whether sa_len/family are honoured --dcs */
-	    inet_addr_list_append(mask_list,
-				  (struct sockaddr *) &lifr_mask->lifr_addr);
-	    myfree((void *) lifr_mask);
-	}
-	lifr = NEXT_INTERFACE(lifr);
+    inet_addr_list_append(addr_list, sa);
+    if (mask_list) {
+        lifr_mask = (struct lifreq *) mymalloc(sizeof(struct lifreq));
+        memcpy((void *) lifr_mask, (void *) lifr, sizeof(struct lifreq));
+        if (ioctl(sock, SIOCGLIFNETMASK, lifr_mask) < 0)
+        msg_fatal("%s: ioctl(SIOCGLIFNETMASK): %m", myname);
+        /* XXX: Check whether sa_len/family are honoured --dcs */
+        inet_addr_list_append(mask_list,
+                  (struct sockaddr *) &lifr_mask->lifr_addr);
+        myfree((void *) lifr_mask);
+    }
+    lifr = NEXT_INTERFACE(lifr);
     }
     vstring_free(buf);
     (void) close(sock);
     return (0);
 }
 
-#else					/* HAVE_SIOCGLIF */
+#else                    /* HAVE_SIOCGLIF */
 
 /*
  * The classic SIOCGIF* ioctls. Modern BSD operating systems will
@@ -328,23 +328,23 @@ static int ial_siocglif(INET_ADDR_LIST *addr_list,
  * that recent versions of these operating systems have getifaddrs.
  */
 #if defined(_SIZEOF_ADDR_IFREQ)
-#define NEXT_INTERFACE(ifr)	((struct ifreq *) \
-	((char *) ifr + _SIZEOF_ADDR_IFREQ(*ifr)))
-#define IFREQ_SIZE(ifr)	_SIZEOF_ADDR_IFREQ(*ifr)
+#define NEXT_INTERFACE(ifr)    ((struct ifreq *) \
+    ((char *) ifr + _SIZEOF_ADDR_IFREQ(*ifr)))
+#define IFREQ_SIZE(ifr)    _SIZEOF_ADDR_IFREQ(*ifr)
 #elif defined(HAS_SA_LEN)
-#define NEXT_INTERFACE(ifr)	((struct ifreq *) \
-	((char *) ifr + sizeof(ifr->ifr_name) + ifr->ifr_addr.sa_len))
-#define IFREQ_SIZE(ifr)	(sizeof(ifr->ifr_name) + ifr->ifr_addr.sa_len)
+#define NEXT_INTERFACE(ifr)    ((struct ifreq *) \
+    ((char *) ifr + sizeof(ifr->ifr_name) + ifr->ifr_addr.sa_len))
+#define IFREQ_SIZE(ifr)    (sizeof(ifr->ifr_name) + ifr->ifr_addr.sa_len)
 #else
-#define NEXT_INTERFACE(ifr)	(ifr + 1)
-#define IFREQ_SIZE(ifr)	sizeof(ifr[0])
+#define NEXT_INTERFACE(ifr)    (ifr + 1)
+#define IFREQ_SIZE(ifr)    sizeof(ifr[0])
 #endif
 
 /* ial_siocgif - determine IP addresses using ioctl(SIOCGIF*) */
 
 static int ial_siocgif(INET_ADDR_LIST *addr_list,
-		               INET_ADDR_LIST *mask_list,
-		               int af)
+                       INET_ADDR_LIST *mask_list,
+                       int af)
 {
     const char *myname = "inet_addr_local[siocgif]";
     struct in_addr addr;
@@ -372,76 +372,76 @@ static int ial_siocgif(INET_ADDR_LIST *addr_list,
      */
     sock = ial_socket(af);
     if (sock < 0)
-	return (0);
+    return (0);
     buf = vstring_alloc(1024);
     for (;;) {
-	ifc.ifc_len = vstring_avail(buf);
-	ifc.ifc_buf = vstring_str(buf);
-	if (ioctl(sock, SIOCGIFCONF, (char *) &ifc) < 0) {
-	    if (errno != EINVAL)
-		msg_fatal("%s: ioctl SIOCGIFCONF: %m", myname);
-	} else if (ifc.ifc_len < vstring_avail(buf) / 2)
-	    break;
-	VSTRING_SPACE(buf, vstring_avail(buf) * 2);
+    ifc.ifc_len = vstring_avail(buf);
+    ifc.ifc_buf = vstring_str(buf);
+    if (ioctl(sock, SIOCGIFCONF, (char *) &ifc) < 0) {
+        if (errno != EINVAL)
+        msg_fatal("%s: ioctl SIOCGIFCONF: %m", myname);
+    } else if (ifc.ifc_len < vstring_avail(buf) / 2)
+        break;
+    VSTRING_SPACE(buf, vstring_avail(buf) * 2);
     }
 
     the_end = (struct ifreq *) (ifc.ifc_buf + ifc.ifc_len);
     for (ifr = ifc.ifc_req; ifr < the_end;) {
-	if (ifr->ifr_addr.sa_family != af) {
-	    ifr = NEXT_INTERFACE(ifr);
-	    continue;
-	}
-	if (af == AF_INET) {
-	    addr = ((struct sockaddr_in *) & ifr->ifr_addr)->sin_addr;
-	    if (addr.s_addr != INADDR_ANY) {
-		inet_addr_list_append(addr_list, &ifr->ifr_addr);
-		if (mask_list) {
-		    ifr_mask = (struct ifreq *) mymalloc(IFREQ_SIZE(ifr));
-		    memcpy((void *) ifr_mask, (void *) ifr, IFREQ_SIZE(ifr));
-		    if (ioctl(sock, SIOCGIFNETMASK, ifr_mask) < 0)
-			msg_fatal("%s: ioctl SIOCGIFNETMASK: %m", myname);
+    if (ifr->ifr_addr.sa_family != af) {
+        ifr = NEXT_INTERFACE(ifr);
+        continue;
+    }
+    if (af == AF_INET) {
+        addr = ((struct sockaddr_in *) & ifr->ifr_addr)->sin_addr;
+        if (addr.s_addr != INADDR_ANY) {
+        inet_addr_list_append(addr_list, &ifr->ifr_addr);
+        if (mask_list) {
+            ifr_mask = (struct ifreq *) mymalloc(IFREQ_SIZE(ifr));
+            memcpy((void *) ifr_mask, (void *) ifr, IFREQ_SIZE(ifr));
+            if (ioctl(sock, SIOCGIFNETMASK, ifr_mask) < 0)
+            msg_fatal("%s: ioctl SIOCGIFNETMASK: %m", myname);
 
-		    /*
-		     * Note that this SIOCGIFNETMASK has truly screwed up the
-		     * contents of sa_len/sa_family. We must fix this
-		     * manually to have correct addresses.   --dcs
-		     */
-		    ifr_mask->ifr_addr.sa_family = af;
+            /*
+             * Note that this SIOCGIFNETMASK has truly screwed up the
+             * contents of sa_len/sa_family. We must fix this
+             * manually to have correct addresses.   --dcs
+             */
+            ifr_mask->ifr_addr.sa_family = af;
 #ifdef HAS_SA_LEN
-		    ifr_mask->ifr_addr.sa_len = sizeof(struct sockaddr_in);
+            ifr_mask->ifr_addr.sa_len = sizeof(struct sockaddr_in);
 #endif
-		    inet_addr_list_append(mask_list, &ifr_mask->ifr_addr);
-		    myfree((void *) ifr_mask);
-		}
-	    }
-	}
+            inet_addr_list_append(mask_list, &ifr_mask->ifr_addr);
+            myfree((void *) ifr_mask);
+        }
+        }
+    }
 #ifdef HAS_IPV6
-	else if (af == AF_INET6) {
-	    struct sockaddr *sa;
+    else if (af == AF_INET6) {
+        struct sockaddr *sa;
 
-	    sa = SOCK_ADDR_PTR(&ifr->ifr_addr);
-	    if (!(IN6_IS_ADDR_UNSPECIFIED(&SOCK_ADDR_IN6_ADDR(sa)))) {
-		inet_addr_list_append(addr_list, sa);
-		if (mask_list) {
-		    /* XXX Assume /128 for everything */
-		    struct sockaddr_in6 mask6;
+        sa = SOCK_ADDR_PTR(&ifr->ifr_addr);
+        if (!(IN6_IS_ADDR_UNSPECIFIED(&SOCK_ADDR_IN6_ADDR(sa)))) {
+        inet_addr_list_append(addr_list, sa);
+        if (mask_list) {
+            /* XXX Assume /128 for everything */
+            struct sockaddr_in6 mask6;
 
-		    mask6 = *SOCK_ADDR_IN6_PTR(sa);
-		    memset((void *) &mask6.sin6_addr, ~0,
-			   sizeof(mask6.sin6_addr));
-		    inet_addr_list_append(mask_list, SOCK_ADDR_PTR(&mask6));
-		}
-	    }
-	}
+            mask6 = *SOCK_ADDR_IN6_PTR(sa);
+            memset((void *) &mask6.sin6_addr, ~0,
+               sizeof(mask6.sin6_addr));
+            inet_addr_list_append(mask_list, SOCK_ADDR_PTR(&mask6));
+        }
+        }
+    }
 #endif
-	ifr = NEXT_INTERFACE(ifr);
+    ifr = NEXT_INTERFACE(ifr);
     }
     vstring_free(buf);
     (void) close(sock);
     return (0);
 }
 
-#endif					/* HAVE_SIOCGLIF */
+#endif                    /* HAVE_SIOCGLIF */
 
 #ifdef HAS_PROCNET_IFINET6
 
@@ -456,7 +456,7 @@ static int ial_siocgif(INET_ADDR_LIST *addr_list,
 /* ial_procnet_ifinet6 - determine IPv6 addresses using /proc/net/if_inet6 */
 
 static int ial_procnet_ifinet6(INET_ADDR_LIST *addr_list,
-			               INET_ADDR_LIST *mask_list)
+                           INET_ADDR_LIST *mask_list)
 {
     const char *myname = "inet_addr_local[procnet_ifinet6]";
     FILE   *fp;
@@ -476,46 +476,46 @@ static int ial_procnet_ifinet6(INET_ADDR_LIST *addr_list,
      * input. Use fgets() + sscanf() instead.
      */
     if ((fp = fopen(_PATH_PROCNET_IFINET6, "r")) != 0) {
-	addrbuf = vstring_alloc(MAI_V6ADDR_BYTES + 1);
-	memset((void *) &addr, 0, sizeof(addr));
-	addr.sin6_family = AF_INET6;
+    addrbuf = vstring_alloc(MAI_V6ADDR_BYTES + 1);
+    memset((void *) &addr, 0, sizeof(addr));
+    addr.sin6_family = AF_INET6;
 #ifdef HAS_SA_LEN
-	addr.sin6_len = sizeof(addr);
+    addr.sin6_len = sizeof(addr);
 #endif
-	mask = addr;
-	while (fgets(buf, sizeof(buf), fp) != 0) {
-	    /* 200501 hex_decode() is light-weight compared to getaddrinfo(). */
-	    if (hex_decode(addrbuf, buf, MAI_V6ADDR_BYTES * 2) == 0
-		|| sscanf(buf + MAI_V6ADDR_BYTES * 2, " %*x %x", &plen) != 1
-		|| plen > MAI_V6ADDR_BITS) {
-		msg_warn("unexpected data in %s - skipping IPv6 configuration",
-			 _PATH_PROCNET_IFINET6);
-		break;
-	    }
-	    /* vstring_str(addrbuf) has worst-case alignment. */
-	    addr.sin6_addr = *(struct in6_addr *) vstring_str(addrbuf);
-	    inet_addr_list_append(addr_list, SOCK_ADDR_PTR(&addr));
+    mask = addr;
+    while (fgets(buf, sizeof(buf), fp) != 0) {
+        /* 200501 hex_decode() is light-weight compared to getaddrinfo(). */
+        if (hex_decode(addrbuf, buf, MAI_V6ADDR_BYTES * 2) == 0
+        || sscanf(buf + MAI_V6ADDR_BYTES * 2, " %*x %x", &plen) != 1
+        || plen > MAI_V6ADDR_BITS) {
+        msg_warn("unexpected data in %s - skipping IPv6 configuration",
+             _PATH_PROCNET_IFINET6);
+        break;
+        }
+        /* vstring_str(addrbuf) has worst-case alignment. */
+        addr.sin6_addr = *(struct in6_addr *) vstring_str(addrbuf);
+        inet_addr_list_append(addr_list, SOCK_ADDR_PTR(&addr));
 
-	    memset((void *) &mask.sin6_addr, ~0, sizeof(mask.sin6_addr));
-	    mask_addr((unsigned char *) &mask.sin6_addr,
-		      sizeof(mask.sin6_addr), plen);
-	    inet_addr_list_append(mask_list, SOCK_ADDR_PTR(&mask));
-	}
-	vstring_free(addrbuf);
-	fclose(fp);				/* FIX 200501 */
+        memset((void *) &mask.sin6_addr, ~0, sizeof(mask.sin6_addr));
+        mask_addr((unsigned char *) &mask.sin6_addr,
+              sizeof(mask.sin6_addr), plen);
+        inet_addr_list_append(mask_list, SOCK_ADDR_PTR(&mask));
+    }
+    vstring_free(addrbuf);
+    fclose(fp);                /* FIX 200501 */
     } else {
-	msg_warn("can't open %s (%m) - skipping IPv6 configuration",
-		 _PATH_PROCNET_IFINET6);
+    msg_warn("can't open %s (%m) - skipping IPv6 configuration",
+         _PATH_PROCNET_IFINET6);
     }
     return (0);
 }
 
-#endif					/* HAS_PROCNET_IFINET6 */
+#endif                    /* HAS_PROCNET_IFINET6 */
 
 /* inet_addr_local - find all IP addresses for this host */
 
 int     inet_addr_local(INET_ADDR_LIST *addr_list, INET_ADDR_LIST *mask_list,
-			        unsigned *addr_family_list)
+                    unsigned *addr_family_list)
 {
     const char *myname = "inet_addr_local";
     int     initial_count = addr_list->used;
@@ -524,49 +524,49 @@ int     inet_addr_local(INET_ADDR_LIST *addr_list, INET_ADDR_LIST *mask_list,
 
     while ((family = *addr_family_list++) != 0) {
 
-	/*
-	 * IP Version 4
-	 */
-	if (family == AF_INET) {
-	    count = addr_list->used;
+    /*
+     * IP Version 4
+     */
+    if (family == AF_INET) {
+        count = addr_list->used;
 #if defined(HAVE_GETIFADDRS)
-	    ial_getifaddrs(addr_list, mask_list, AF_INET);
+        ial_getifaddrs(addr_list, mask_list, AF_INET);
 #elif defined (HAS_SIOCGLIF)
-	    ial_siocglif(addr_list, mask_list, AF_INET);
+        ial_siocglif(addr_list, mask_list, AF_INET);
 #else
-	    ial_siocgif(addr_list, mask_list, AF_INET);
+        ial_siocgif(addr_list, mask_list, AF_INET);
 #endif
-	    if (msg_verbose)
-		msg_info("%s: configured %d IPv4 addresses",
-			 myname, addr_list->used - count);
-	}
+        if (msg_verbose)
+        msg_info("%s: configured %d IPv4 addresses",
+             myname, addr_list->used - count);
+    }
 
-	/*
-	 * IP Version 6
-	 */
+    /*
+     * IP Version 6
+     */
 #ifdef HAS_IPV6
-	else if (family == AF_INET6) {
-	    count = addr_list->used;
+    else if (family == AF_INET6) {
+        count = addr_list->used;
 #if defined(HAVE_GETIFADDRS)
-	    ial_getifaddrs(addr_list, mask_list, AF_INET6);
+        ial_getifaddrs(addr_list, mask_list, AF_INET6);
 #elif defined(HAS_PROCNET_IFINET6)
-	    ial_procnet_ifinet6(addr_list, mask_list);
+        ial_procnet_ifinet6(addr_list, mask_list);
 #elif defined(HAS_SIOCGLIF)
-	    ial_siocglif(addr_list, mask_list, AF_INET6);
+        ial_siocglif(addr_list, mask_list, AF_INET6);
 #else
-	    ial_siocgif(addr_list, mask_list, AF_INET6);
+        ial_siocgif(addr_list, mask_list, AF_INET6);
 #endif
-	    if (msg_verbose)
-		msg_info("%s: configured %d IPv6 addresses", myname,
-			 addr_list->used - count);
-	}
+        if (msg_verbose)
+        msg_info("%s: configured %d IPv6 addresses", myname,
+             addr_list->used - count);
+    }
 #endif
 
-	/*
-	 * Something's not right.
-	 */
-	else
-	    msg_panic("%s: unknown address family %d", myname, family);
+    /*
+     * Something's not right.
+     */
+    else
+        msg_panic("%s: unknown address family %d", myname, family);
     }
     return (addr_list->used - initial_count);
 }
@@ -592,26 +592,26 @@ int     main(int unused_argc, char **argv)
     msg_verbose = 1;
 
     proto_info = inet_proto_init(argv[0],
-				 argv[1] ? argv[1] : INET_PROTO_NAME_ALL);
+                 argv[1] ? argv[1] : INET_PROTO_NAME_ALL);
     inet_addr_list_init(&addr_list);
     inet_addr_list_init(&mask_list);
     inet_addr_local(&addr_list, &mask_list, proto_info->ai_family_list);
 
     if (addr_list.used == 0)
-	msg_fatal("cannot find any active network interfaces");
+    msg_fatal("cannot find any active network interfaces");
 
     if (addr_list.used == 1)
-	msg_warn("found only one active network interface");
+    msg_warn("found only one active network interface");
 
     for (i = 0; i < addr_list.used; i++) {
-	sa = SOCK_ADDR_PTR(addr_list.addrs + i);
-	SOCKADDR_TO_HOSTADDR(SOCK_ADDR_PTR(sa), SOCK_ADDR_LEN(sa),
-			     &hostaddr, (MAI_SERVPORT_STR *) 0, 0);
-	sa = SOCK_ADDR_PTR(mask_list.addrs + i);
-	SOCKADDR_TO_HOSTADDR(SOCK_ADDR_PTR(sa), SOCK_ADDR_LEN(sa),
-			     &hostmask, (MAI_SERVPORT_STR *) 0, 0);
-	vstream_printf("%s/%s\n", hostaddr.buf, hostmask.buf);
-	vstream_fflush(VSTREAM_OUT);
+    sa = SOCK_ADDR_PTR(addr_list.addrs + i);
+    SOCKADDR_TO_HOSTADDR(SOCK_ADDR_PTR(sa), SOCK_ADDR_LEN(sa),
+                 &hostaddr, (MAI_SERVPORT_STR *) 0, 0);
+    sa = SOCK_ADDR_PTR(mask_list.addrs + i);
+    SOCKADDR_TO_HOSTADDR(SOCK_ADDR_PTR(sa), SOCK_ADDR_LEN(sa),
+                 &hostmask, (MAI_SERVPORT_STR *) 0, 0);
+    vstream_printf("%s/%s\n", hostaddr.buf, hostmask.buf);
+    vstream_fflush(VSTREAM_OUT);
     }
     inet_addr_list_free(&addr_list);
     inet_addr_list_free(&mask_list);

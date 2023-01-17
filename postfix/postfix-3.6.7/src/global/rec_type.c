@@ -1,28 +1,28 @@
 /*++
 /* NAME
-/*	rec_type 3
+/*    rec_type 3
 /* SUMMARY
-/*	Postfix record types
+/*    Postfix record types
 /* SYNOPSIS
-/*	#include <rec_type.h>
+/*    #include <rec_type.h>
 /*
-/*	const char *rec_type_name(type)
-/*	int	type;
+/*    const char *rec_type_name(type)
+/*    int    type;
 /* DESCRIPTION
-/*	This module and its associated include file implement the
-/*	Postfix-specific record types.
+/*    This module and its associated include file implement the
+/*    Postfix-specific record types.
 /*
-/*	rec_type_name() returns a printable name for the given record
-/*	type.
+/*    rec_type_name() returns a printable name for the given record
+/*    type.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* Global library. */
@@ -38,8 +38,8 @@ typedef struct {
 } REC_TYPE_NAME;
 
 REC_TYPE_NAME rec_type_names[] = {
-    REC_TYPE_EOF, "end-of-file",	/* not Postfix-specific. */
-    REC_TYPE_ERROR, "error",		/* not Postfix-specific. */
+    REC_TYPE_EOF, "end-of-file",    /* not Postfix-specific. */
+    REC_TYPE_ERROR, "error",        /* not Postfix-specific. */
     REC_TYPE_SIZE, "message_size",
     REC_TYPE_TIME, "message_arrival_time",
     REC_TYPE_CTIME, "queue_file_create_time",
@@ -81,7 +81,7 @@ const char *rec_type_name(int type)
     REC_TYPE_NAME *p;
 
     for (p = rec_type_names; p->name != 0; p++)
-	if (p->type == type)
-	    return (p->name);
+    if (p->type == type)
+        return (p->name);
     return ("unknown_record_type");
 }

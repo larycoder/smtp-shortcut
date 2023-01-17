@@ -1,50 +1,50 @@
 /*++
 /* NAME
-/*	ext_prop 3
+/*    ext_prop 3
 /* SUMMARY
-/*	address extension propagation control
+/*    address extension propagation control
 /* SYNOPSIS
-/*	#include <ext_prop.h>
+/*    #include <ext_prop.h>
 /*
-/*	int	ext_prop_mask(param_name, pattern)
-/*	const char *param_name;
-/*	const char *pattern;
+/*    int    ext_prop_mask(param_name, pattern)
+/*    const char *param_name;
+/*    const char *pattern;
 /* DESCRIPTION
-/*	This module controls address extension propagation.
+/*    This module controls address extension propagation.
 /*
-/*	ext_prop_mask() takes a comma-separated list of names and
-/*	computes the corresponding mask. The following names are
-/*	recognized in \fBpattern\fR, with the corresponding bit mask
-/*	given in parentheses:
+/*    ext_prop_mask() takes a comma-separated list of names and
+/*    computes the corresponding mask. The following names are
+/*    recognized in \fBpattern\fR, with the corresponding bit mask
+/*    given in parentheses:
 /* .IP "canonical (EXT_PROP_CANONICAL)"
-/*	Propagate unmatched address extensions to the right-hand side
-/*	of canonical table entries (not: regular expressions).
+/*    Propagate unmatched address extensions to the right-hand side
+/*    of canonical table entries (not: regular expressions).
 /* .IP "virtual (EXT_PROP_VIRTUAL)"
-/*	Propagate unmatched address extensions to the right-hand side
-/*	of virtual table entries (not: regular expressions).
+/*    Propagate unmatched address extensions to the right-hand side
+/*    of virtual table entries (not: regular expressions).
 /* .IP "alias (EXT_PROP_ALIAS)"
-/*	Propagate unmatched address extensions to the right-hand side
-/*	of alias database entries.
+/*    Propagate unmatched address extensions to the right-hand side
+/*    of alias database entries.
 /* .IP "forward (EXT_PROP_FORWARD)"
-/*	Propagate unmatched address extensions to the right-hand side
-/*	of .forward file entries.
+/*    Propagate unmatched address extensions to the right-hand side
+/*    of .forward file entries.
 /* .IP "include (EXT_PROP_INCLUDE)"
-/*	Propagate unmatched address extensions to the right-hand side
-/*	of :include: file entries.
+/*    Propagate unmatched address extensions to the right-hand side
+/*    of :include: file entries.
 /* .IP "generic (EXT_PROP_GENERIC)"
-/*	Propagate unmatched address extensions to the right-hand side
-/*	of smtp_generic_maps entries.
+/*    Propagate unmatched address extensions to the right-hand side
+/*    of smtp_generic_maps entries.
 /* DIAGNOSTICS
-/*	Panic: inappropriate use.
+/*    Panic: inappropriate use.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*--*/
 
 /* System library. */
@@ -65,13 +65,13 @@
 int     ext_prop_mask(const char *param_name, const char *pattern)
 {
     static const NAME_MASK table[] = {
-	"canonical", EXT_PROP_CANONICAL,
-	"virtual", EXT_PROP_VIRTUAL,
-	"alias", EXT_PROP_ALIAS,
-	"forward", EXT_PROP_FORWARD,
-	"include", EXT_PROP_INCLUDE,
-	"generic", EXT_PROP_GENERIC,
-	0,
+    "canonical", EXT_PROP_CANONICAL,
+    "virtual", EXT_PROP_VIRTUAL,
+    "alias", EXT_PROP_ALIAS,
+    "forward", EXT_PROP_FORWARD,
+    "include", EXT_PROP_INCLUDE,
+    "generic", EXT_PROP_GENERIC,
+    0,
     };
 
     return (name_mask(param_name, table, pattern));

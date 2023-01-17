@@ -1,42 +1,42 @@
 /*++
 /* NAME
-/*	vstream_tweak 3
+/*    vstream_tweak 3
 /* SUMMARY
-/*	performance tweaks
+/*    performance tweaks
 /* SYNOPSIS
-/*	#include <vstream.h>
+/*    #include <vstream.h>
 /*
-/*	VSTREAM	*vstream_tweak_sock(stream)
-/*	VSTREAM	*stream;
+/*    VSTREAM    *vstream_tweak_sock(stream)
+/*    VSTREAM    *stream;
 /*
-/*	VSTREAM	*vstream_tweak_tcp(stream)
-/*	VSTREAM	*stream;
+/*    VSTREAM    *vstream_tweak_tcp(stream)
+/*    VSTREAM    *stream;
 /* DESCRIPTION
-/*	vstream_tweak_sock() does a best effort to boost your
-/*	network performance on the specified generic stream.
+/*    vstream_tweak_sock() does a best effort to boost your
+/*    network performance on the specified generic stream.
 /*
-/*	vstream_tweak_tcp() does a best effort to boost your
-/*	Internet performance on the specified TCP stream.
+/*    vstream_tweak_tcp() does a best effort to boost your
+/*    Internet performance on the specified TCP stream.
 /*
-/*	Arguments:
+/*    Arguments:
 /* .IP stream
-/*	The stream being boosted.
+/*    The stream being boosted.
 /* DIAGNOSTICS
-/*	Panics: interface violations.
+/*    Panics: interface violations.
 /* LICENSE
 /* .ad
 /* .fi
-/*	The Secure Mailer license must be distributed with this software.
+/*    The Secure Mailer license must be distributed with this software.
 /* AUTHOR(S)
-/*	Wietse Venema
-/*	IBM T.J. Watson Research
-/*	P.O. Box 704
-/*	Yorktown Heights, NY 10598, USA
+/*    Wietse Venema
+/*    IBM T.J. Watson Research
+/*    P.O. Box 704
+/*    Yorktown Heights, NY 10598, USA
 /*
-/*	Wietse Venema
-/*	Google, Inc.
-/*	111 8th Avenue
-/*	New York, NY 10011, USA
+/*    Wietse Venema
+/*    Google, Inc.
+/*    111 8th Avenue
+/*    New York, NY 10011, USA
 /*--*/
 
 /* System library. */
@@ -74,14 +74,14 @@ int     vstream_tweak_sock(VSTREAM *fp)
      * figure it out for them.
      */
     if ((ret = getsockname(vstream_fileno(fp), sa, &sa_length)) >= 0) {
-	switch (sa->sa_family) {
+    switch (sa->sa_family) {
 #ifdef AF_INET6
-	case AF_INET6:
+    case AF_INET6:
 #endif
-	case AF_INET:
-	    ret = vstream_tweak_tcp(fp);
-	    break;
-	}
+    case AF_INET:
+        ret = vstream_tweak_tcp(fp);
+        break;
+    }
     }
     return (ret);
 }
@@ -111,13 +111,13 @@ int     vstream_tweak_tcp(VSTREAM *fp)
      * getsockopt() bugs we set mss = 0, which is a harmless value.
      */
     if ((err = getsockopt(vstream_fileno(fp), IPPROTO_TCP, TCP_MAXSEG,
-			  (void *) &mss, &mss_len)) < 0
-	&& errno != ECONNRESET) {
-	msg_warn("%s: getsockopt TCP_MAXSEG: %m", myname);
-	return (err);
+              (void *) &mss, &mss_len)) < 0
+    && errno != ECONNRESET) {
+    msg_warn("%s: getsockopt TCP_MAXSEG: %m", myname);
+    return (err);
     }
     if (msg_verbose)
-	msg_info("%s: TCP_MAXSEG %d", myname, mss);
+    msg_info("%s: TCP_MAXSEG %d", myname, mss);
 
     /*
      * Fix for recent Postfix versions: increase the VSTREAM buffer size if
@@ -137,17 +137,17 @@ int     vstream_tweak_tcp(VSTREAM *fp)
      * delays.
      */
 #define EFF_BUFFER_SIZE(fp) (vstream_req_bufsize(fp) ? \
-		vstream_req_bufsize(fp) : VSTREAM_BUFSIZE)
+        vstream_req_bufsize(fp) : VSTREAM_BUFSIZE)
 
 #ifdef CA_VSTREAM_CTL_BUFSIZE
     if (mss > EFF_BUFFER_SIZE(fp) / 4) {
-	if (mss < INT_MAX / 2)
-	    mss *= 2;
-	if (mss < INT_MAX / 2)
-	    mss *= 2;
-	vstream_control(fp,
-			CA_VSTREAM_CTL_BUFSIZE(mss),
-			CA_VSTREAM_CTL_END);
+    if (mss < INT_MAX / 2)
+        mss *= 2;
+    if (mss < INT_MAX / 2)
+        mss *= 2;
+    vstream_control(fp,
+            CA_VSTREAM_CTL_BUFSIZE(mss),
+            CA_VSTREAM_CTL_END);
     }
 
     /*
@@ -156,12 +156,12 @@ int     vstream_tweak_tcp(VSTREAM *fp)
      */
 #else
     if (mss > VSTREAM_BUFSIZE) {
-	int     nodelay = 1;
+    int     nodelay = 1;
 
-	if ((err = setsockopt(vstream_fileno(fp), IPPROTO_TCP, TCP_NODELAY,
-			      (void *) &nodelay, sizeof(nodelay))) < 0
-	    && errno != ECONNRESET)
-	    msg_warn("%s: setsockopt TCP_NODELAY: %m", myname);
+    if ((err = setsockopt(vstream_fileno(fp), IPPROTO_TCP, TCP_NODELAY,
+                  (void *) &nodelay, sizeof(nodelay))) < 0
+        && errno != ECONNRESET)
+        msg_warn("%s: setsockopt TCP_NODELAY: %m", myname);
     }
 #endif
     return (err);
