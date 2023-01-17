@@ -86,7 +86,7 @@ ln -sn <BASE_INSTALL> postfix
 
 ## Pre-process for running Postfix
 
-Create account and groups
+Create account and groups (not recommendation)
 
 ```
 # User without home and login shell
@@ -97,14 +97,73 @@ pwd postfix
 
 # Group for drop mail
 groupadd postdrop
+
+# Update installation directories to follow new created user and group
+chown -R postfix:postdrop $INSTALL
+```
+
+Update installation to follow current user for easier log tracking
+
+```
+# Update owner
+chown -R $(whoami):$(id -gn) $INSTALL
+
+# Update new mail owner in main.cf configuration
+main_owner = $(whoami)
+
+# Update user and group in main.cf
+mail_owner = $(whoami)
+```
+
+## Configuration
+
+Create virtual users for postfix
+
+```
+# File: main.cf
+
+## Configure virtual users
+virtual_mailbox_domains = smtp-sc.domain
+virtual_mailbox_base = /home/postfix/var/mail
+virtual_mailbox_maps = hash:/home/postfix/etc/postfix/virtualmaps
+
+## UNIX user who manage virtual mail
+virtual_uid_maps = static:1000
+virtual_gid_maps = static:998
+
+# File: virtualmaps
+user1@smtp-sc.domain user1
+user2@smtp-sc.domain user2
+
+# Generate new hash table for virtual file
+postmap /home/postfix/etc/postfix/virtualmaps
+```
+
+For receiving log from STDOUT, update main.cf
+
+```
+maillog_file = /dev/stdout
+```
+
+Enable debug verbose (add -v), update master.cf
+
+```
+smtp      inet  n       -       n       -       -       smtpd -v
 ```
 
 ## Run
 
-For running postfix
+For running postfix in foreground mode
 
 ```
-./bin/postfix start
+# Enable environment
+source ./postfix-activate.sh
+
+# start foreground mode postfix
+postfix start-fg
+
+# For stop postfix (another terminal)
+postfix stop
 ```
 
 ## Recovery
