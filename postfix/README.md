@@ -171,9 +171,17 @@ postfix stop
 For inspecting mail queue
 
 ```
+# Inspect
 > mailq
 > sendmail -bp
 > postqueue -p
+> postcat -vq $QUEUE_ID
+
+# Flush mail
+> postfix flush
+
+# Delete all mail
+> postsuper -d ALL
 ```
 
 ## Recovery
