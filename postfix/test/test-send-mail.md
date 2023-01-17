@@ -78,7 +78,20 @@ Bye
 quit
 ```
 
-## Method 2: local mail injection (coming soon)
+## Method 2: local mail injection
 
 This method use postfix local mail sender **sendmail** to send mail to dev
 postfix.
+
+```
+sendmail -f user1@smtp-sc.domain user2@smtp-sc.domain << EOF
+Subject: Test mail send by sendmail tool
+
+Hello receiver !
+
+
+This mail is test mail.
+
+Bye !
+EOF
+```
