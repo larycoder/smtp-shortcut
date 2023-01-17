@@ -1,7 +1,9 @@
 #!/bin/bash
 
 BASE='/home/postfix';
+BIN="$BASE/usr/bin";
 SBIN="$BASE/usr/sbin";
+MAN="$BASE/usr/local/man";
 
 # Usage
 echo """
@@ -11,4 +13,5 @@ Usage: source ./postfix-activate.sh
 """
 
 # Execution path
-export PATH="$PATH:$SBIN":
+export PATH="$PATH:$BIN:$SBIN";
+export MANPATH="$MAN:$MANPATH";
