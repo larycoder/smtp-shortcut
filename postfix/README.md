@@ -128,8 +128,8 @@ virtual_mailbox_base = /home/postfix/var/mail
 virtual_mailbox_maps = hash:/home/postfix/etc/postfix/virtualmaps
 
 ## UNIX user who manage virtual mail
-virtual_uid_maps = static:1000
-virtual_gid_maps = static:998
+virtual_uid_maps = static:$USER_ID
+virtual_gid_maps = static:$GROUP_ID
 
 # File: virtualmaps
 user1@smtp-sc.domain user1
