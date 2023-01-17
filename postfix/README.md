@@ -166,6 +166,16 @@ postfix start-fg
 postfix stop
 ```
 
+## Postfix Inspect
+
+For inspecting mail queue
+
+```
+> mailq
+> sendmail -bp
+> postqueue -p
+```
+
 ## Recovery
 
 ### Git
