@@ -56,6 +56,14 @@ typedef struct {
 #define HDR_MIME_VERSION		30
 #define HDR_DISP_NOTIFICATION		31
 
+/*
+ * This extension is for new type of MIME, possible causing some conflict to old
+ * system. Aware of this.
+ * Author: HIEPLNC
+ */
+#define HDR_DATA_ONDEMAND		32
+
+
  /*
   * Header flags.
   */

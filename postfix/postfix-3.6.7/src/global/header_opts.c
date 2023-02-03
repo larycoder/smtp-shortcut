@@ -87,6 +87,7 @@ static HEADER_OPTS header_opts[] = {
     "Return-Receipt-To", HDR_RETURN_RECEIPT_TO, HDR_OPT_SENDER,
     "Sender", HDR_SENDER, HDR_OPT_SENDER,
     "To", HDR_TO, HDR_OPT_XRECIP,
+    "X-Data-Ondemand", HDR_DATA_ONDEMAND, HDR_OPT_MIME /* HIEPLNC */
 };
 
 #define HEADER_OPTS_SIZE (sizeof(header_opts) / sizeof(header_opts[0]))
