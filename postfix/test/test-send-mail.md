@@ -95,3 +95,20 @@ This mail is test mail.
 Bye !
 EOF
 ```
+
+Send on-demand data mail
+
+```
+sendmail -f user1@smtp-sc.domain user2@smtp-sc.domain << EOF
+X-Data-Ondemand: host/id
+Subject: Test mail send by sendmail tool
+
+Hello receiver !
+
+
+This mail is test mail.
+
+Bye !
+EOF
+```
+
