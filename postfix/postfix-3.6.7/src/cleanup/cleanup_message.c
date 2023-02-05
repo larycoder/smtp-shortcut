@@ -587,6 +587,17 @@ static void cleanup_header_callback(void *context, int header_class,
     }
 
     /*
+     * Update state to record "X-Data-Ondemand" header so that cleanup could
+     * discard body later.
+     * Author: HIEPLNC
+     */
+    if (hdr_opts != 0 && hdr_opts->type == HDR_DATA_ONDEMAND) {
+        msg_info("%s: detected data on-demand [%s]",
+                        state->queue_id, hdr_opts->name);
+        state->flags |= CLEANUP_FLAG_DATA_ONDEMAND;
+    }
+
+    /*
      * Copy attachment etc. header blocks without further inspection.
      */
     if (header_class != MIME_HDR_PRIMARY) {
@@ -916,7 +927,23 @@ static void cleanup_body_callback(void *context, int type,
         state->errs |= CLEANUP_STAT_WRITE;
     }
     }
-    cleanup_out(state, type, buf, len);
+
+    /*
+     * TODO: this temporary behavior only
+     * Write replacement instead of data content
+     *
+     * TODO: expected behavior
+     * Write data to on-demand queue and inform queue location
+     * as replacement of content.
+     *
+     * Author: HIEPLNC
+     */
+    if (state->flags & CLEANUP_FLAG_DATA_ONDEMAND) {
+        const char* holder = "<DATA_ONDAMEND_REPLACEMENT>";
+        cleanup_out(state, type, holder, strlen(holder));
+    } else {
+        cleanup_out(state, type, buf, len);
+    }
 }
 
 /* cleanup_message_headerbody - process message content, header and body */
