@@ -284,6 +284,18 @@ typedef struct MIME_STACK {
     struct MIME_STACK *next;        /* linkage */
 } MIME_STACK;
 
+/*
+ * Mime data on-demand parsed information
+ * Author: HIEPLNC
+ */
+typedef struct MIME_DATA_ONDEMAND {
+    char    *id;                /* data id in data queue */
+    ssize_t  id_len;            /* data id length */
+    char    *addr;              /* location of data */
+    ssize_t  addr_len;          /* location string length */
+    int      count;             /* number of allowed access */
+} MIME_DATA_ONDEMAND;
+
  /*
   * Mime parser state.
   */
@@ -304,6 +316,7 @@ struct MIME_STATE {
     int     nesting_level;        /* safety */
     MIME_STACK *stack;            /* for composite types */
     HEADER_TOKEN token[MIME_MAX_TOKEN];    /* header token array */
+    MIME_DATA_ONDEMAND od_data; /* data on-demand info HIEPLNC */
     VSTRING *token_buffer;        /* header parser scratch buffer */
     int     err_flags;            /* processing errors */
     off_t   head_offset;        /* offset in header block */
@@ -680,6 +693,57 @@ static void mime_state_content_encoding(MIME_STATE *state,
     }
 }
 
+/* mime_state_data_ondemand - process x-data-ondemand header HIEPLNC */
+
+static void mime_state_data_ondemand(MIME_STATE *state,
+                             const HEADER_OPTS *header_info)
+{
+    const char *cp;
+    int tok_len;
+
+#define RFC2045_TSPECIALS    "()<>@,;:\\\"/[]?="
+
+#define PARSE_DATA_ONDEMAND_HEADER(state, ptr) \
+    header_token(state->token, 2, state->token_buffer, \
+    ptr, RFC2045_TSPECIALS, 0)
+
+    /*
+     * We should only one on-demand header for each message. So make sure to
+     * clear all previous MIME data because it is not belong to this message.
+     *
+     */
+    if (state->od_data.addr_len > 0) {
+        myfree(state->od_data.addr);
+        state->od_data.addr_len = 0;
+    }
+    if (state->od_data.id_len > 0) {
+        myfree(state->od_data.id);
+        state->od_data.id_len = 0;
+    }
+
+    /*
+     * Each on-demand header must be accessed one times only for informing
+     * data on-demand replacement in body part.
+     */
+    state->od_data.count = 1;
+
+    /*
+     * Parsing header to get information of data location and data identity.
+     * It will be used to decide output record of message body.
+     */
+    cp = STR(state->output_buffer) + strlen(header_info->name) + 1;
+    if ((tok_len = PARSE_DATA_ONDEMAND_HEADER(state, &cp)) > 0) {
+    if (tok_len > 0) {
+        state->od_data.addr = mystrdup(state->token[0].u.value);
+        state->od_data.addr_len = strlen(state->od_data.addr);
+    }
+    if (tok_len > 1) {
+        state->od_data.id = mystrdup(state->token[1].u.value);
+        state->od_data.id_len = strlen(state->od_data.id);
+    }
+    }
+}
+
 /* mime_state_enc_name - encoding to printable form */
 
 static const char *mime_state_enc_name(int encoding)
@@ -835,6 +899,8 @@ int     mime_state_update(MIME_STATE *state, int rec_type,
             mime_state_content_type(state, header_info);
             if (header_info->type == HDR_CONTENT_TRANSFER_ENCODING)
             mime_state_content_encoding(state, header_info);
+            if (header_info->type == HDR_DATA_ONDEMAND) /* HIEPLNC */
+            mime_state_data_ondemand(state, header_info);
         }
         if ((state->static_flags & MIME_OPT_REPORT_8BIT_IN_HEADER) != 0
             && (state->err_flags & MIME_ERR_8BIT_IN_HEADER) == 0) {
@@ -1019,7 +1085,9 @@ int     mime_state_update(MIME_STATE *state, int rec_type,
                  "other");
         switch (state->curr_state) {
         case MIME_STATE_PRIMARY:
-            BODY_OUT(state, REC_TYPE_NORM, "", 0);
+            /* HIEPLNC */
+            BODY_OUT(state, state->od_data.count > 0 ?
+                    REC_TYPE_DATA_ONDEMAND : REC_TYPE_NORM, "", 0);
             SET_CURR_STATE(state, MIME_STATE_BODY);
             break;
 #if 0
@@ -1104,6 +1172,11 @@ int     mime_state_update(MIME_STATE *state, int rec_type,
             }
         }
         }
+        if (state->od_data.count > 0) { /* HIEPLNC */
+            BODY_OUT(state, REC_TYPE_DATA_ONDEMAND, "<DOD>", 5);
+            state->od_data.count--;
+        }
+
         /* Put last for consistency with header output routine. */
         if ((state->static_flags & MIME_OPT_DOWNGRADE)
         && state->curr_domain != MIME_ENC_7BIT)

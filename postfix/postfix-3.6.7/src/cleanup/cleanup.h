@@ -51,6 +51,7 @@ typedef struct CLEANUP_STATE {
     VSTRING *stripped_buf;		/* character stripped input */
     VSTREAM *src;			/* current input stream */
     VSTREAM *dst;			/* current output stream */
+    VSTREAM *data;			/* current data on-demand stream (HIEPLNC) */
     MAIL_STREAM *handle;		/* mail stream handle */
     char   *queue_name;			/* queue name */
     char   *queue_id;			/* queue file basename */

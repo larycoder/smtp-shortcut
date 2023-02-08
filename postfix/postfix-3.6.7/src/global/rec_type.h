@@ -76,6 +76,11 @@
 
 #define REC_TYPE_END	'E'		/* terminator, required */
 
+/*
+ * Special record type to informing of data on-demand replacement string
+ */
+#define REC_TYPE_DATA_ONDEMAND	'H' /* HIEPLNC */
+
  /*
   * What I expect to see in a "pure recipient" sequence at the end of the
   * initial or extracted envelope segments, respectively. When a queue file

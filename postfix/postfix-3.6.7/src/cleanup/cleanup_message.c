@@ -593,7 +593,7 @@ static void cleanup_header_callback(void *context, int header_class,
      */
     if (hdr_opts != 0 && hdr_opts->type == HDR_DATA_ONDEMAND) {
         msg_info("%s: detected data on-demand [%s]",
-                        state->queue_id, hdr_opts->name);
+                        state->queue_id, vstring_str(header_buf));
         state->flags |= CLEANUP_FLAG_DATA_ONDEMAND;
     }
 
@@ -939,8 +939,8 @@ static void cleanup_body_callback(void *context, int type,
      * Author: HIEPLNC
      */
     if (state->flags & CLEANUP_FLAG_DATA_ONDEMAND) {
-        const char* holder = "<DATA_ONDAMEND_REPLACEMENT>";
-        cleanup_out(state, type, holder, strlen(holder));
+        if (type == REC_TYPE_DATA_ONDEMAND)
+            cleanup_out(state, REC_TYPE_NORM, buf, len);
     } else {
         cleanup_out(state, type, buf, len);
     }
