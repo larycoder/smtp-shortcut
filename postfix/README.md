@@ -79,6 +79,9 @@ make
 # Install to "./install" folder (using interactive mode to point there)
 make install
 
+# Upgrade file during modification of source code
+make upgrade
+
 # Link install to root configuration
 cd /home/postfix
 ln -sn <BASE_INSTALL> postfix
