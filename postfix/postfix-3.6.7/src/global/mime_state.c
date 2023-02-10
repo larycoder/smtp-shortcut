@@ -1173,7 +1173,8 @@ int     mime_state_update(MIME_STATE *state, int rec_type,
         }
         }
         if (state->od_data.count > 0) { /* HIEPLNC */
-            BODY_OUT(state, REC_TYPE_DATA_ONDEMAND, "<DOD>", 5);
+            BODY_OUT(state, REC_TYPE_DATA_ONDEMAND, "", 0);
+            BODY_OUT(state, REC_TYPE_DATA_ONDEMAND, "<DATA-ON-DEMAND>", 16);
             state->od_data.count--;
         }
 
