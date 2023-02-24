@@ -958,7 +958,7 @@ static void cleanup_body_callback(void *context, int type,
 
     /*
      * TODO: this temporary behavior only
-     * Write replacement to incoming queue and store real data to tmp queue
+     * Write phantom to incoming queue and store real data to data queue
      *
      * TODO: expected behavior
      * Write data to on-demand queue and inform queue location
@@ -972,9 +972,10 @@ static void cleanup_body_callback(void *context, int type,
          break;
      case REC_TYPE_ODD_LOC:
          state->flags |= CLEANUP_FLAG_DATA_ONDEMAND;
-         cleanup_out(state, REC_TYPE_NORM, buf, len);
          if (!state->odd_handle && !state->odd_dst)
          cleanup_odd_open(state, myname);
+         cleanup_out_format(state, REC_TYPE_NORM, buf,
+                 "localhost", "port", state->queue_odd_id);
          break;
      default:
          if (state->flags & CLEANUP_FLAG_DATA_ONDEMAND) {
