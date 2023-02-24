@@ -89,6 +89,7 @@
 #include <dsn_util.h>
 #include <conv_time.h>
 #include <info_log_addr_form.h>
+#include <mail_queue.h> /* HIEPLNC */
 
 /* Application-specific. */
 
@@ -276,6 +277,32 @@ static void cleanup_act_log(CLEANUP_STATE *state,
     if (text && *text)
     vstring_sprintf_append(state->temp1, ": %s", text);
     msg_info("%s", vstring_str(state->temp1));
+}
+
+/* cleanup_odd_open - open data queue for data on-demand mode (HIEPLNC) */
+static void cleanup_odd_open(CLEANUP_STATE* state, const char *myname)
+{
+    state->queue_odd_name = mystrdup(MAIL_QUEUE_DATA);
+    state->odd_handle = mail_stream_file(state->queue_odd_name,
+            MAIL_CLASS_PUBLIC, var_queue_service, 0);
+    state->odd_dst = state->odd_handle->stream;
+    cleanup_odd_path = mystrdup(VSTREAM_PATH(state->odd_dst));
+    state->queue_odd_id = mystrdup(state->handle->id);
+    msg_info("cleanup on-demand data: open %s", cleanup_odd_path);
+
+    if ((state->data_odd_offset = vstream_ftell(state->odd_dst)) < 0)
+    msg_fatal("%s: vstream_ftell %s: %m", myname, cleanup_odd_path);
+
+    // Preserve record type size location in first sector
+    SWAP_ODD_CONTEXT(state);
+    cleanup_out_format(state, REC_TYPE_SIZE, REC_TYPE_SIZE_FORMAT,
+       (REC_TYPE_SIZE_CAST1) 0,    /* extra offs - content offs */
+       (REC_TYPE_SIZE_CAST2) 0,    /* content offset */
+       (REC_TYPE_SIZE_CAST3) 0,    /* recipient count */
+       (REC_TYPE_SIZE_CAST4) 0,    /* qmgr options */
+       (REC_TYPE_SIZE_CAST5) 0,    /* content length */
+       (REC_TYPE_SIZE_CAST6) 0);    /* smtputf8 */
+    SWAP_ODD_CONTEXT(state);
 }
 
 #define CLEANUP_ACT_CTXT_HEADER    "header"
@@ -591,10 +618,10 @@ static void cleanup_header_callback(void *context, int header_class,
      * discard body later.
      * Author: HIEPLNC
      */
-    if (hdr_opts != 0 && hdr_opts->type == HDR_DATA_ONDEMAND) {
+    if (hdr_opts->type == HDR_DATA_ONDEMAND) {
         msg_info("%s: detected data on-demand [%s]",
                         state->queue_id, vstring_str(header_buf));
-        state->flags |= CLEANUP_FLAG_DATA_ONDEMAND;
+        //state->flags |= CLEANUP_FLAG_DATA_ONDEMAND;
     }
 
     /*
@@ -885,6 +912,7 @@ static void cleanup_body_callback(void *context, int type,
                           const char *buf, ssize_t len,
                           off_t offset)
 {
+    const char *myname = "cleanup_body_callback"; // (HIEPLNC)
     CLEANUP_STATE *state = (CLEANUP_STATE *) context;
 
     /*
@@ -930,7 +958,7 @@ static void cleanup_body_callback(void *context, int type,
 
     /*
      * TODO: this temporary behavior only
-     * Write replacement instead of data content
+     * Write replacement to incoming queue and store real data to tmp queue
      *
      * TODO: expected behavior
      * Write data to on-demand queue and inform queue location
@@ -938,12 +966,25 @@ static void cleanup_body_callback(void *context, int type,
      *
      * Author: HIEPLNC
      */
-    if (state->flags & CLEANUP_FLAG_DATA_ONDEMAND) {
-        if (type == REC_TYPE_DATA_ONDEMAND)
-            cleanup_out(state, REC_TYPE_NORM, buf, len);
-    } else {
-        cleanup_out(state, type, buf, len);
-    }
+     switch (type) {
+     case REC_TYPE_ODD_SIG:
+         cleanup_out(state, REC_TYPE_NORM, buf, len);
+         break;
+     case REC_TYPE_ODD_LOC:
+         state->flags |= CLEANUP_FLAG_DATA_ONDEMAND;
+         cleanup_out(state, REC_TYPE_NORM, buf, len);
+         if (!state->odd_handle && !state->odd_dst)
+         cleanup_odd_open(state, myname);
+         break;
+     default:
+         if (state->flags & CLEANUP_FLAG_DATA_ONDEMAND) {
+         SWAP_ODD_CONTEXT(state);
+         cleanup_out(state, type, buf, len);
+         SWAP_ODD_CONTEXT(state);
+         } else {
+         cleanup_out(state, type, buf, len);
+         }
+     }
 }
 
 /* cleanup_message_headerbody - process message content, header and body */
@@ -1023,6 +1064,12 @@ static void cleanup_message_headerbody(CLEANUP_STATE *state, int type,
         state->reason = dsn_prepend(detail->dsn, detail->text);
     }
     state->mime_state = mime_state_free(state->mime_state);
+
+    /* Update content length of data on-demand queue (HIEPLNC) */
+    if ((state->xtra_offset = vstream_ftell(state->odd_dst)) < 0)
+        msg_fatal("%s: vstream_ftell %s: %m", myname, cleanup_odd_path);
+    state->cont_odd_length = state->xtra_offset - state->data_odd_offset;
+
     if ((state->xtra_offset = vstream_ftell(state->dst)) < 0)
         msg_fatal("%s: vstream_ftell %s: %m", myname, cleanup_path);
     state->cont_length = state->xtra_offset - state->data_offset;

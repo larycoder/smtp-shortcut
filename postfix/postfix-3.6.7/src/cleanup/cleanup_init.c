@@ -110,6 +110,7 @@
   * handler can clean up in case of trouble.
   */
 char   *cleanup_path;            /* queue file name */
+char   *cleanup_odd_path;        /* data queue file name (HIEPLNC) */
 
  /*
   * Another piece of global state: pathnames of partial bounce or trace

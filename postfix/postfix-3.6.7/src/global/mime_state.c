@@ -288,13 +288,10 @@ typedef struct MIME_STACK {
  * Mime data on-demand parsed information
  * Author: HIEPLNC
  */
-typedef struct MIME_DATA_ONDEMAND {
-    char    *id;                /* data id in data queue */
-    ssize_t  id_len;            /* data id length */
-    char    *addr;              /* location of data */
-    ssize_t  addr_len;          /* location string length */
-    int      count;             /* number of allowed access */
-} MIME_DATA_ONDEMAND;
+typedef struct ODD_STATE {
+    int     flags;           /* data on-demand list flag */
+    VSTRING* sig;           /* boundary string used to recognize ODD content */
+} ODD_STATE;
 
  /*
   * Mime parser state.
@@ -316,7 +313,7 @@ struct MIME_STATE {
     int     nesting_level;        /* safety */
     MIME_STACK *stack;            /* for composite types */
     HEADER_TOKEN token[MIME_MAX_TOKEN];    /* header token array */
-    MIME_DATA_ONDEMAND od_data; /* data on-demand info HIEPLNC */
+    ODD_STATE odd_state;            /* data on-demand info HIEPLNC */
     VSTRING *token_buffer;        /* header parser scratch buffer */
     int     err_flags;            /* processing errors */
     off_t   head_offset;        /* offset in header block */
@@ -527,6 +524,10 @@ MIME_STATE *mime_state_alloc(int flags,
     state->token_buffer = vstring_alloc(1);
     state->nesting_level = -1;            /* BC Fix 20170512 */
 
+    /* Data on-demand memebers. (HIEPLNC) */
+    state->odd_state.flags = ODD_FLAG_NONE;
+    state->odd_state.sig = 0;
+
     /* Static members. */
     state->static_flags = flags;
     state->head_out = head_out;
@@ -704,44 +705,24 @@ static void mime_state_data_ondemand(MIME_STATE *state,
 #define RFC2045_TSPECIALS    "()<>@,;:\\\"/[]?="
 
 #define PARSE_DATA_ONDEMAND_HEADER(state, ptr) \
-    header_token(state->token, 2, state->token_buffer, \
+    header_token(state->token, 1, state->token_buffer, \
     ptr, RFC2045_TSPECIALS, 0)
 
     /*
-     * We should only one on-demand header for each message. So make sure to
-     * clear all previous MIME data because it is not belong to this message.
-     *
+     * Not supported NESTED message
      */
-    if (state->od_data.addr_len > 0) {
-        myfree(state->od_data.addr);
-        state->od_data.addr_len = 0;
-    }
-    if (state->od_data.id_len > 0) {
-        myfree(state->od_data.id);
-        state->od_data.id_len = 0;
-    }
+    state->odd_state.flags |= ODD_FLAG_HDR;
+    if (!state->odd_state.sig)
+        state->odd_state.sig = vstring_alloc(100);
+    VSTRING_RESET(state->odd_state.sig);
 
     /*
-     * Each on-demand header must be accessed one times only for informing
-     * data on-demand replacement in body part.
-     */
-    state->od_data.count = 1;
-
-    /*
-     * Parsing header to get information of data location and data identity.
-     * It will be used to decide output record of message body.
+     * Parsing header to get signature
+     * It will be used to decide output record of message body
      */
     cp = STR(state->output_buffer) + strlen(header_info->name) + 1;
-    if ((tok_len = PARSE_DATA_ONDEMAND_HEADER(state, &cp)) > 0) {
-    if (tok_len > 0) {
-        state->od_data.addr = mystrdup(state->token[0].u.value);
-        state->od_data.addr_len = strlen(state->od_data.addr);
-    }
-    if (tok_len > 1) {
-        state->od_data.id = mystrdup(state->token[1].u.value);
-        state->od_data.id_len = strlen(state->od_data.id);
-    }
-    }
+    if ((tok_len = PARSE_DATA_ONDEMAND_HEADER(state, &cp)) > 0)
+        vstring_strcpy(state->odd_state.sig, state->token[0].u.value);
 }
 
 /* mime_state_enc_name - encoding to printable form */
@@ -1085,9 +1066,9 @@ int     mime_state_update(MIME_STATE *state, int rec_type,
                  "other");
         switch (state->curr_state) {
         case MIME_STATE_PRIMARY:
-            /* HIEPLNC */
-            BODY_OUT(state, state->od_data.count > 0 ?
-                    REC_TYPE_DATA_ONDEMAND : REC_TYPE_NORM, "", 0);
+            char delimter_type;
+            BODY_OUT(state, (state->odd_state.flags & ODD_FLAG_HDR) ?
+                    REC_TYPE_ODD_SIG : REC_TYPE_NORM, "", 0);
             SET_CURR_STATE(state, MIME_STATE_BODY);
             break;
 #if 0
@@ -1172,10 +1153,37 @@ int     mime_state_update(MIME_STATE *state, int rec_type,
             }
         }
         }
-        if (state->od_data.count > 0) { /* HIEPLNC */
-            BODY_OUT(state, REC_TYPE_DATA_ONDEMAND, "", 0);
-            BODY_OUT(state, REC_TYPE_DATA_ONDEMAND, "<DATA-ON-DEMAND>", 16);
-            state->od_data.count--;
+
+        /*
+         * Process data on-demand body
+         * Author: HIEPLNC
+         */
+        if (state->odd_state.flags & ODD_FLAG_HDR) {
+            /*
+             * Determine the message is original or modified
+             */
+            if ((state->odd_state.flags & ODD_FLAG_ENB) == 0) {
+            if (len == 0) {
+            BODY_OUT(state, REC_TYPE_ODD_SIG, text, len);
+            SAVE_PREV_REC_TYPE_AND_RETURN_ERR_FLAGS(state, rec_type);
+            }
+            if (state->odd_state.sig &&
+                    len == LEN(state->odd_state.sig) &&
+                    strncmp(STR(state->odd_state.sig), text, len) == 0)
+                state->odd_state.flags |= ODD_FLAG_MOD;
+            state->odd_state.flags |= ODD_FLAG_ENB;
+            }
+            /*
+             * Write down odd signature once times for original message
+             */
+            if ((state->odd_state.flags & ODD_FLAG_MOD) == 0 &&
+                    (state->odd_state.flags & ODD_FLAG_SKIP) == 0) {
+            state->odd_state.flags |= ODD_FLAG_SKIP;
+            // We assume that signature is existed
+            BODY_OUT(state, REC_TYPE_ODD_SIG,
+                    STR(state->odd_state.sig), LEN(state->odd_state.sig));
+            BODY_OUT(state, REC_TYPE_ODD_LOC, "%s:%s/%s", 8);
+            }
         }
 
         /* Put last for consistency with header output routine. */

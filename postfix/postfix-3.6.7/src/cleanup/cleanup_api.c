@@ -252,9 +252,24 @@ int     cleanup_flush(CLEANUP_STATE *state)
     /*
      * Update the preliminary message size and count fields with the actual
      * values.
+     *
+     * XXX It is modified to suppose the end of data on-demand queue.
+     * Author: HIEPLNC
      */
-    if (CLEANUP_OUT_OK(state))
-    cleanup_final(state);
+    if (CLEANUP_OUT_OK(state)) {
+        cleanup_final(state);
+        if (state->odd_dst != 0 && state->odd_handle != 0) {
+            ssize_t rcpt_count = 0;
+
+            SWAP(ssize_t,(state->rcpt_count),rcpt_count);
+            SWAP_ODD_CONTEXT(state);
+
+            cleanup_final(state);
+
+            SWAP(ssize_t,(state->rcpt_count),rcpt_count);
+            SWAP_ODD_CONTEXT(state);
+        }
+    }
 
     /*
      * If there was an error that requires us to generate a bounce message
@@ -330,6 +345,7 @@ int     cleanup_flush(CLEANUP_STATE *state)
         (void) mail_flow_put(1);
     }
     state->errs = mail_stream_finish(state->handle, (VSTRING *) 0);
+    mail_stream_finish(state->odd_handle, (VSTRING *) 0); // HIEPLNC
     } else {
 
     /*
@@ -340,6 +356,7 @@ int     cleanup_flush(CLEANUP_STATE *state)
     (void) mail_flow_put(1);
 #endif
     mail_stream_cleanup(state->handle);
+    mail_stream_cleanup(state->odd_handle); // HIEPLNC
     }
     state->handle = 0;
     state->dst = 0;
@@ -369,6 +386,11 @@ int     cleanup_flush(CLEANUP_STATE *state)
     if (trace_junk)
     vstring_free(trace_junk);
     myfree(junk);
+
+    /* Clean data on-demand path (HIEPLNC) */
+    if (cleanup_odd_path)
+    myfree(cleanup_odd_path);
+    cleanup_odd_path = 0;
 
     /*
      * Cleanup internal state. This is simply complementary to the

@@ -136,6 +136,18 @@ CLEANUP_STATE *cleanup_state_alloc(VSTREAM *src)
     state->milter_dsn_buf = 0;
     state->free_regions = state->body_regions = state->curr_body_region = 0;
     state->smtputf8 = 0;
+
+    /*
+     * Initial state for data on-demand
+     * Author: HIEPLNC
+     */
+    state->odd_dst = 0;
+    state->odd_handle = 0;
+    state->queue_odd_name = 0;
+    state->queue_odd_id = 0;
+    state->data_odd_offset = -1;
+    state->cont_odd_length = 0;
+
     return (state);
 }
 

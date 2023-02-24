@@ -51,10 +51,13 @@ typedef struct CLEANUP_STATE {
     VSTRING *stripped_buf;		/* character stripped input */
     VSTREAM *src;			/* current input stream */
     VSTREAM *dst;			/* current output stream */
-    VSTREAM *data;			/* current data on-demand stream (HIEPLNC) */
+    VSTREAM *odd_dst;			/* current data on-demand stream (HIEPLNC) */
     MAIL_STREAM *handle;		/* mail stream handle */
+    MAIL_STREAM *odd_handle;	/* on-demand data stream handle (HIEPLNC) */
     char   *queue_name;			/* queue name */
+    char   *queue_odd_name;		/* queue data on-demand name (HIEPLNC) */
     char   *queue_id;			/* queue file basename */
+    char   *queue_odd_id;	/* queue data on-demand basename (HIEPLNC) */
     struct timeval arrival_time;	/* arrival time */
     char   *fullname;			/* envelope sender full name */
     char   *sender;			/* envelope sender address */
@@ -75,9 +78,11 @@ typedef struct CLEANUP_STATE {
     BH_TABLE *dups;			/* recipient dup filter */
     void    (*action) (struct CLEANUP_STATE *, int, const char *, ssize_t);
     off_t   data_offset;		/* start of message content */
+    off_t   data_odd_offset;	/* start of data on-demand message (HIEPLNC) */
     off_t   body_offset;		/* start of body content */
     off_t   xtra_offset;		/* start of extra segment */
     off_t   cont_length;		/* length including Milter edits */
+    off_t   cont_odd_length; 	/* length of data on-demand content (HIEPLNC) */
     off_t   sender_pt_offset;		/* replace sender here */
     off_t   sender_pt_target;		/* record after sender address */
     off_t   append_rcpt_pt_offset;	/* append recipient here */
@@ -197,6 +202,7 @@ extern int cleanup_ext_prop_mask;
   * run-time error.
   */
 extern char *cleanup_path;
+extern char *cleanup_odd_path; /* HIEPLNC */
 extern VSTRING *cleanup_trace_path;
 extern VSTRING *cleanup_bounce_path;
 
@@ -223,6 +229,19 @@ extern const CONFIG_STR_TABLE cleanup_str_table[];
 extern const CONFIG_TIME_TABLE cleanup_time_table[];
 
 #define CLEANUP_RECORD(s, t, b, l)	((s)->action((s), (t), (b), (l)))
+
+/* Special macro to swap context of queue file (HIEPLNC) */
+#define SWAP(type,a,b) do { \
+    type temp = (a); (a) = (b); (b) = (temp); } while (0)
+
+#define SWAP_ODD_CONTEXT(s) do { \
+    SWAP(VSTREAM *,((s)->dst),((s)->odd_dst)); \
+    SWAP(MAIL_STREAM *,((s)->handle),((s)->odd_handle)); \
+    SWAP(char *,((s)->queue_name),((s)->queue_odd_name)); \
+    SWAP(char *,((s)->queue_id),((s)->queue_odd_id)); \
+    SWAP(off_t,((s)->data_offset),((s)->data_odd_offset)); \
+    SWAP(off_t,((s)->cont_length),((s)->cont_odd_length)); \
+} while (0)
 
  /*
   * cleanup_out.c

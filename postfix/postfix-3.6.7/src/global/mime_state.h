@@ -34,6 +34,18 @@ extern MIME_STATE *mime_state_alloc(int, MIME_STATE_HEAD_OUT, MIME_STATE_ANY_END
 extern int mime_state_update(MIME_STATE *, int, const char *, ssize_t);
 extern MIME_STATE *mime_state_free(MIME_STATE *);
 
+/*
+ * Data on-demand MIME supported state
+ * Author: HIEPLNC
+ */
+typedef struct ODD_STATE ODD_STATE;
+
+#define ODD_FLAG_NONE	(0)
+#define ODD_FLAG_HDR	(1<<0)
+#define ODD_FLAG_ENB	(1<<1)
+#define ODD_FLAG_MOD	(1<<2)
+#define ODD_FLAG_SKIP	(1<<3)
+
  /*
   * Processing options.
   */

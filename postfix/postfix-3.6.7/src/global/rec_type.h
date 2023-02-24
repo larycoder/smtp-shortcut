@@ -78,8 +78,10 @@
 
 /*
  * Special record type to informing of data on-demand replacement string
+ * (HIEPLNC)
  */
-#define REC_TYPE_DATA_ONDEMAND	'H' /* HIEPLNC */
+#define REC_TYPE_ODD_SIG	's'
+#define REC_TYPE_ODD_LOC	'l'
 
  /*
   * What I expect to see in a "pure recipient" sequence at the end of the

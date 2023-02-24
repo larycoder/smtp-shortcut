@@ -36,6 +36,7 @@
 #define MAIL_QUEUE_CORRUPT	"corrupt"
 #define MAIL_QUEUE_FLUSH	"flush"
 #define MAIL_QUEUE_SAVED	"saved"
+#define MAIL_QUEUE_DATA		"data" /* HIEPLNC */
 
  /*
   * Queue file modes.
