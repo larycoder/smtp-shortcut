@@ -1066,9 +1066,11 @@ static void cleanup_message_headerbody(CLEANUP_STATE *state, int type,
     state->mime_state = mime_state_free(state->mime_state);
 
     /* Update content length of data on-demand queue (HIEPLNC) */
+    if (state->odd_dst && state->odd_handle) {
     if ((state->xtra_offset = vstream_ftell(state->odd_dst)) < 0)
         msg_fatal("%s: vstream_ftell %s: %m", myname, cleanup_odd_path);
     state->cont_odd_length = state->xtra_offset - state->data_odd_offset;
+    }
 
     if ((state->xtra_offset = vstream_ftell(state->dst)) < 0)
         msg_fatal("%s: vstream_ftell %s: %m", myname, cleanup_path);

@@ -548,6 +548,8 @@ MIME_STATE *mime_state_free(MIME_STATE *state)
     mime_state_pop(state);
     if (state->token_buffer)
     vstring_free(state->token_buffer);
+    if (state->odd_state.sig) // HIEPLNC
+    vstring_free(state->odd_state.sig);
     myfree((void *) state);
     return (0);
 }

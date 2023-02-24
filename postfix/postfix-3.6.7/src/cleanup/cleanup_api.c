@@ -345,7 +345,8 @@ int     cleanup_flush(CLEANUP_STATE *state)
         (void) mail_flow_put(1);
     }
     state->errs = mail_stream_finish(state->handle, (VSTRING *) 0);
-    mail_stream_finish(state->odd_handle, (VSTRING *) 0); // HIEPLNC
+    if (state->odd_handle)
+        mail_stream_finish(state->odd_handle, (VSTRING *) 0); // HIEPLNC
     } else {
 
     /*
@@ -356,7 +357,8 @@ int     cleanup_flush(CLEANUP_STATE *state)
     (void) mail_flow_put(1);
 #endif
     mail_stream_cleanup(state->handle);
-    mail_stream_cleanup(state->odd_handle); // HIEPLNC
+    if (state->odd_handle)
+        mail_stream_cleanup(state->odd_handle); // HIEPLNC
     }
     state->handle = 0;
     state->dst = 0;
