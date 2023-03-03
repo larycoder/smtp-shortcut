@@ -172,7 +172,7 @@ void dump_proto_talk(DUMP_STATE* state)
     memcpy(state->queue_id, queue_id, queue_id_len);
 #ifdef DEBUG
     printf("Get request with length %d of queue_id %s\n",
-        queue_id_len, queue_id);
+        queue_id_len, state->queue_id);
 #endif
     if (dump_file_open(state) & DUMP_ERR_FILE_NOT_EXIST) {
         state->file_size = -1;
