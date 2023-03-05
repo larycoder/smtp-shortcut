@@ -210,3 +210,8 @@ all files leftover by building process.
 ```
 make tidy
 ```
+
+## Handle unsupported OS version
+
+We change from Linux kernel 5 to Linux kernel 6 and new kernel is not supported
+by Postfix (3.6.7) build. Following section 5 (Porting Postfix to an unsupported system) to update Postfix.
