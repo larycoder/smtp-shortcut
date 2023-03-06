@@ -251,13 +251,18 @@ int     cleanup_flush(CLEANUP_STATE *state)
 
     /*
      * Update the preliminary message size and count fields with the actual
-     * values.
+     * values but is modified to suppose the end of data on-demand queue.
      *
-     * XXX It is modified to suppose the end of data on-demand queue.
+     * XXX It is because we do not want to expose internal structure of
+     * Postfix to external mail servers so that we write data queue as
+     * normal text file. Therefore, we do not write final records size to
+     * this data queue.
+     *
      * Author: HIEPLNC
      */
     if (CLEANUP_OUT_OK(state)) {
         cleanup_final(state);
+#if 0
         if (state->odd_dst != 0 && state->odd_handle != 0) {
             ssize_t rcpt_count = 0;
 
@@ -269,6 +274,7 @@ int     cleanup_flush(CLEANUP_STATE *state)
             SWAP(ssize_t,(state->rcpt_count),rcpt_count);
             SWAP_ODD_CONTEXT(state);
         }
+#endif
     }
 
     /*

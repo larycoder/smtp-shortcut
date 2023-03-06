@@ -293,7 +293,16 @@ static void cleanup_odd_open(CLEANUP_STATE* state, const char *myname)
     if ((state->data_odd_offset = vstream_ftell(state->odd_dst)) < 0)
     msg_fatal("%s: vstream_ftell %s: %m", myname, cleanup_odd_path);
 
-    // Preserve record type size location in first sector
+    /*
+     * Preserve record type size location in first sector.
+     *
+     * XXX For now, we want to write data as normal text file instead of
+     * records so that we do not expose internal structure of the postfix to
+     * another mail servers.
+     *
+     * Author: HIEPLNC
+     */
+#if 0
     SWAP_ODD_CONTEXT(state);
     cleanup_out_format(state, REC_TYPE_SIZE, REC_TYPE_SIZE_FORMAT,
        (REC_TYPE_SIZE_CAST1) 0,    /* extra offs - content offs */
@@ -303,6 +312,7 @@ static void cleanup_odd_open(CLEANUP_STATE* state, const char *myname)
        (REC_TYPE_SIZE_CAST5) 0,    /* content length */
        (REC_TYPE_SIZE_CAST6) 0);    /* smtputf8 */
     SWAP_ODD_CONTEXT(state);
+#endif
 }
 
 #define CLEANUP_ACT_CTXT_HEADER    "header"
@@ -957,13 +967,8 @@ static void cleanup_body_callback(void *context, int type,
     }
 
     /*
-     * TODO: this temporary behavior only
-     * Write phantom to incoming queue and store real data to data queue
-     *
-     * TODO: expected behavior
      * Write data to on-demand queue and inform queue location
      * as replacement of content.
-     *
      * Author: HIEPLNC
      */
      switch (type) {
@@ -975,12 +980,12 @@ static void cleanup_body_callback(void *context, int type,
          if (!state->odd_handle && !state->odd_dst)
          cleanup_odd_open(state, myname);
          cleanup_out_format(state, REC_TYPE_NORM, buf,
-                 "localhost", "port", state->queue_odd_id);
+                 "127.0.0.1", "8080", state->queue_odd_id);
          break;
      default:
          if (state->flags & CLEANUP_FLAG_DATA_ONDEMAND) {
          SWAP_ODD_CONTEXT(state);
-         cleanup_out(state, type, buf, len);
+         cleanup_stream_out(state, type, buf, len, "\n");
          SWAP_ODD_CONTEXT(state);
          } else {
          cleanup_out(state, type, buf, len);

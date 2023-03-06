@@ -231,3 +231,58 @@ void    cleanup_out_header(CLEANUP_STATE *state, VSTRING *header_buf)
     }
     }
 }
+
+/* cleanup_stream_out - output one single record as stream-lf format (HIEPLNC) */
+
+void    cleanup_stream_out(CLEANUP_STATE *state, int type,
+        const char *string, ssize_t len, const char *eol)
+{
+    int     err = 0;
+
+    /*
+     * We try to write record as stream-lf but we have nothing relating
+     * format flag as in "global/mail_copy" so we assume default value
+     * for them. Besides, we only write record of type text and skip
+     * all other types.
+     */
+    if (type != REC_TYPE_NORM && type != REC_TYPE_CONT)
+    return;
+
+#define TEXT_RECORD(t)    ((t) == REC_TYPE_NORM || (t) == REC_TYPE_CONT)
+
+    if (msg_verbose && !TEXT_RECORD(type))
+    msg_info("cleanup_stream_out: %c %.*s", type, (int) len, string);
+
+    if (var_line_limit <= 0)
+    msg_panic("cleanup_stream_out: bad line length limit: %d", var_line_limit);
+
+    /*
+     * We need previous record to clear wrong ugly FROM_ but
+     * we could not do that here because this routine should be
+     * stateless. (HIEPLNC)
+     */
+#if 0
+    prev_type = REC_TYPE_NORM;
+    if (prev_type == REC_TYPE_NORM) {
+        if (*string == 'F' && !strncmp(string, "From ", 5))
+        VSTREAM_PUTC('>', dst);
+        if (*string == '.')
+        VSTREAM_PUTC('.', dst);
+    }
+    prev_type = type;
+#endif
+    vstream_fwrite(state->dst, string, len);
+    if (type == REC_TYPE_NORM)
+        vstream_fputs(eol, state->dst);
+
+    if (err < 0) {
+    if (errno == EFBIG) {
+        msg_warn("%s: queue file size limit exceeded",
+             state->queue_id);
+        state->errs |= CLEANUP_STAT_SIZE;
+    } else {
+        msg_warn("%s: write queue file: %m", state->queue_id);
+        state->errs |= CLEANUP_STAT_WRITE;
+    }
+    }
+}

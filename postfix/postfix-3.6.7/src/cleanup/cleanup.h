@@ -247,6 +247,7 @@ extern const CONFIG_TIME_TABLE cleanup_time_table[];
   * cleanup_out.c
   */
 extern void cleanup_out(CLEANUP_STATE *, int, const char *, ssize_t);
+extern void cleanup_stream_out(CLEANUP_STATE *, int, const char *, ssize_t, const char*);
 extern void cleanup_out_string(CLEANUP_STATE *, int, const char *);
 extern void PRINTFLIKE(3, 4) cleanup_out_format(CLEANUP_STATE *, int, const char *,...);
 extern void cleanup_out_header(CLEANUP_STATE *, VSTRING *);
