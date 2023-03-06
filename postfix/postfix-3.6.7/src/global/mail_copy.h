@@ -28,6 +28,9 @@
 extern int mail_copy(const char *, const char *, const char *,
 		             VSTREAM *, VSTREAM *,
 		             int, const char *, DSN_BUF *);
+extern int mail_external_copy(const char *, const char *, const char *,
+		             VSTREAM *, VSTREAM *,
+		             int, const char *, DSN_BUF *);
 
 #define MAIL_COPY_QUOTE		(1<<0)	/* prepend > to From_ */
 #define MAIL_COPY_TOFILE	(1<<1)	/* fsync, ftruncate() */
