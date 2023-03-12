@@ -287,7 +287,7 @@ static void cleanup_odd_open(CLEANUP_STATE* state, const char *myname)
             MAIL_CLASS_PUBLIC, var_queue_service, 0);
     state->odd_dst = state->odd_handle->stream;
     cleanup_odd_path = mystrdup(VSTREAM_PATH(state->odd_dst));
-    state->queue_odd_id = mystrdup(state->handle->id);
+    state->queue_odd_id = mystrdup(state->odd_handle->id);
     msg_info("cleanup on-demand data: open %s", cleanup_odd_path);
 
     if ((state->data_odd_offset = vstream_ftell(state->odd_dst)) < 0)
