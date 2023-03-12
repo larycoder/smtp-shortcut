@@ -449,10 +449,16 @@ static void mail_copy_body_callback(void *context, int type,
     /*
      * When data on-demand detected, copy data from external body
      * and skip other record from phantom message.
+     *
+     * XXX When moving to on-demand state, prev_type must be REC_TYPE_NORM
+     * because we skip all others records and should not insert EOL depends
+     * pre_type anymore.
+     *
      */
     if ((state->prev_type == REC_TYPE_ODD_SIG) &&
             (type == REC_TYPE_NORM)) {
         state->err_flags |= COPY_ERR_ODD;
+        state->prev_type = REC_TYPE_NORM;
     }
     if (state->err_flags & COPY_ERR_ODD) {
         if (state->err_flags & COPY_ERR_ODD_SKIP)
@@ -462,15 +468,13 @@ static void mail_copy_body_callback(void *context, int type,
             char port[100];
             char queue_id[500];
 
-            char *test_string = "127.0.0.1:8080/demo"; // HIEPLNC
-            sscanf(test_string, "%[^:]:%[^/]/%s", host, port, queue_id);
+            sscanf(buf, "%[^:]:%[^/]/%s", host, port, queue_id);
             mail_copy_external_body_write(
                     state, host, atoi(port), queue_id);
             state->err_flags |= COPY_ERR_ODD_SKIP;
         }
         state->err_flags |= COPY_ERR_ODD_LOC;
-    }
-    else {
+    } else {
     if (state->prev_type == REC_TYPE_NORM) {
         if ((flags & MAIL_COPY_QUOTE) &&
                 *bp == 'F' && !strncmp(bp, "From ", 5))
@@ -483,11 +487,11 @@ static void mail_copy_body_callback(void *context, int type,
         state->err_flags |= COPY_ERR_LEN;
         return;
     }
-    }
 #define IS_FINAL_TEXT(t) ((t) == REC_TYPE_NORM || (t) == REC_TYPE_ODD_SIG)
     if (IS_FINAL_TEXT(type) &&
             vstream_fputs(state->eol, dst) == VSTREAM_EOF) {
         state->err_flags |= COPY_ERR_LEN;
+    }
     }
 }
 
@@ -516,7 +520,6 @@ int     mail_external_copy(const char *sender,
     int     corrupt_error = 0;
     time_t  now;
     int     type;
-    int     prev_type;
     struct stat st;
     off_t   size_limit;
 
@@ -635,7 +638,7 @@ int     mail_external_copy(const char *sender,
         msg_warn("bad record type: %d in message content", type);
         corrupt_error = mark_corrupt(src);
     }
-    if (prev_type != REC_TYPE_NORM)
+    if (context.prev_type != REC_TYPE_NORM)
         vstream_fputs(eol, dst);
     if (flags & MAIL_COPY_BLANK)
         vstream_fputs(eol, dst);
