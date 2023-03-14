@@ -9,7 +9,7 @@ if [[ $1 == '/etc/dovecot/dovecot.conf' ]]; then
 ## manage this file
 
 mail_home=/srv/mail/%Lu
-mail_location=maildir:~/Mail
+mail_location=$mail_location
 mail_uid=1000
 mail_gid=1000
 

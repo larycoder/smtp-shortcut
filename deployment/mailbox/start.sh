@@ -1,9 +1,12 @@
 #!/bin/bash
 
+MAILBOX='/home/postfix/var/mail/';
+
 echo "Run dovecot container..."
 docker run -d \
     --network smtp_sc-network \
     --name 'smtp_sc-mailbox-dovecot' \
+    --volume $MAILBOX:'/srv/mail' \
     dovecot/dovecot:latest
 
 echo "";

@@ -10,6 +10,7 @@ echo """
 docker run -d \
     --network smtp_sc-network \
     --name 'smtp_sc-mailbox-dovecot' \
+    --volume <MAILBOX>:'/srv/mail' \
     dovecot/dovecot:latest
 """
 
