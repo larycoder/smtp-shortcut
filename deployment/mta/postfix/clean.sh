@@ -6,7 +6,7 @@ function usage()
     Usage: $0 [MAIN | RELAY | SUBMIT | ALL]
 
     MAIN: Clear main MTA container ('smtp_sc-mta-postfix')
-    RELAY: Clear relay MTA container ('smtp_sc-mta-relay-postfix')
+    RELAY: Clear all relay MTA containers ('smtp_sc-mta-relay-postfix-xxx')
     SUBMIT: Clear submit MTA container ('smtp_sc-mta-submit-postfix')
     ALL: Clear all MTA containers
 
