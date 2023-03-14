@@ -9,6 +9,7 @@ echo """
 
 docker run -d \
     --network smtp_sc-network \
+    -p 33006:3306 \
     --name smtp_sc-mysql \
     -e MYSQL_ROOT_PASSWORD='root' \
     mysql:latest

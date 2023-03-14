@@ -1,10 +1,12 @@
 #!/bin/bash
 
 PMA_PORT=8080
+SQL_PORT=33006
 
 echo "Start mysql server...";
 docker run -d \
     --network smtp_sc-network \
+    -p $SQL_PORT:3306 \
     --name smtp_sc-mysql \
     -e MYSQL_ROOT_PASSWORD='root' \
     mysql:latest;
