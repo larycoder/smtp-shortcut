@@ -51,8 +51,41 @@ Install Postfix in interaction mode (Recommendation)
 make install
 ```
 
-## Create development environment
+## Prepare mysql library for Postfix in Archlinux
 
+The postfix in default is not built with MySQL table supported. If we want to
+use mysql as table lookup, we need to make customize the building sequence.
+Below is list of guidance steps for Archlinux users:
+
+1. Install "mysql-libs". Because we do not have it in official repos, we get
+from AUR.
+```
+yay -S libmysqlclient
+yay -S db               # for <db.h> header
+```
+
+2. Re-configure Postfix make environment.
+```
+# Pattern configuration in-case of customize folder.
+make -f Makefile.init makefiles \
+    'CCARGS=-DHAS_MYSQL -I<SQL_HEADERS_DIR>' \
+    'AUXLIBS=-L<SQL_LIBS_DIR> -lmysqlclient -lz -lm'
+
+# Archlinux configuration.
+make -f Makefile.init makefiles \
+    'CCARGS=-DHAS_MYSQL -I/usr/include/mysql' \
+    'AUXLIBS=-L/usr/lib -lmysqlclient -lz -lm'
+```
+
+3. Upgrade Postfix
+```
+sudo make upgrade
+```
+
+**WARNING** don't do this alone, combine it with make on "Create development
+environment" section.
+
+## Create development environment
 1. Build Postfix following root: "/home/hieplnc/postfix"
 2. Install build package to a base (anywhere)
 3. Create link from the base to root folder pointed during building process
@@ -60,6 +93,23 @@ make install
 ```
 # Regenerate makefile following new override parameters
 make makefiles pie=yes \
+    command_directory=/home/postfix/usr/sbin \
+    config_directory=/home/postfix/etc/postfix \
+    daemon_directory=/home/postfix/usr/libexec/postfix \
+    data_directory=/home/postfix/var/lib/postfix \
+    mail_spool_directory=/home/postfix/var/mail \
+    mailq_path=/home/postfix/usr/bin/mailq \
+    manpage_directory=/home/postfix/usr/local/man \
+    meta_directory=/home/postfix/etc/postfix \
+    newaliases_path=/home/postfix/usr/bin/newaliases \
+    queue_directory=/home/postfix/var/spool/postfix \
+    sendmail_path=/home/postfix/usr/sbin/sendmail \
+    shlib_directory=/home/postfix/usr/lib/postfix
+
+# Regenerate makefile following new override parameters and mysql supported
+make -f Makefile.init makefiles pie=yes \
+    'CCARGS=-DHAS_MYSQL -I/usr/include/mysql' \
+    'AUXLIBS=-L/usr/lib -lmysqlclient -lz -lm' \
     command_directory=/home/postfix/usr/sbin \
     config_directory=/home/postfix/etc/postfix \
     daemon_directory=/home/postfix/usr/libexec/postfix \
