@@ -60,8 +60,12 @@ Below is list of guidance steps for Archlinux users:
 1. Install "mysql-libs". Because we do not have it in official repos, we get
 from AUR.
 ```
-yay -S libmysqlclient
-yay -S db               # for <db.h> header
+# Base requirement
+pacman -S db            # for <db.h> header
+
+# There are 2 option with mysql
+yay -S libmysqlclient   # if prefering mysql
+pacman -S mariadb-libs  # for compatible with alpine container
 ```
 
 2. Re-configure Postfix make environment.
@@ -71,7 +75,7 @@ make -f Makefile.init makefiles \
     'CCARGS=-DHAS_MYSQL -I<SQL_HEADERS_DIR>' \
     'AUXLIBS=-L<SQL_LIBS_DIR> -lmysqlclient -lz -lm'
 
-# Archlinux configuration.
+# Archlinux configuration with mysql or mariadb.
 make -f Makefile.init makefiles \
     'CCARGS=-DHAS_MYSQL -I/usr/include/mysql' \
     'AUXLIBS=-L/usr/lib -lmysqlclient -lz -lm'
