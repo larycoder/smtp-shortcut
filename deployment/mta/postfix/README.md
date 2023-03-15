@@ -19,3 +19,17 @@ External script for advance reader:
 
 - **collect_configure.sh**: script provide dynamic setup information.
 - **postfix-conf.sh**: script provide fully setup content fitting to container.
+
+# Extra
+
+For building dummy postfix docker image which could be used to inject modified
+postfix for running, follow below steps:
+
+```
+# Build docker images
+docker build -t <image_name>:<image_tag> .  # template
+docker build -t postfix-dummy:v1 .          # example
+```
+
+This image is necessary to run MTA submit service since this service is modified
+to parse "X-Data-Ondemand".
