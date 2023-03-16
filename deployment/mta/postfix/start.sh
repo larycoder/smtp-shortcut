@@ -92,7 +92,6 @@ echo "";
 echo "Pre-configuration...";
 if [[ $TYPE == 'SUBMIT' ]]; then
     docker exec $NAME bash -c 'chown -R postfix /home/postfix';
-    #docker exec $NAME bash -c 'apk update && apk add postfix-mysql';
 else
     docker exec $NAME bash -c 'apk update && apk add postfix-mysql';
 fi;
