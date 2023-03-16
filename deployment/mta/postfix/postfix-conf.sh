@@ -25,6 +25,7 @@ function ALL_main_deafult()
 {
     echo """
 # Default
+debug_peer_level = 2
 compatibility_level = 3.6
 queue_directory = /var/spool/postfix
 command_directory = /usr/sbin
@@ -91,7 +92,7 @@ user = root
 password = root
 hosts = smtp_sc-mysql
 dbname = mailserver
-query = SELECT 1 FROM virtual_users WHERE email='%s'
+query = SELECT '%s/Mail/inbox' FROM virtual_users WHERE email='%s'
     """;
 }
 
