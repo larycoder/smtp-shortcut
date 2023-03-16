@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# CONFIGURATION SECTION
+POSTFIX_HOME='/home/postfix';
+POSTFIX_TARGET='/home/postfix';
+
+# LEGACY SECTION
 function usage()
 {
     echo """
@@ -30,6 +35,7 @@ TYPE=${1^^};
 
 SMTP_SERVER='localhost';
 NAME='smtp_sc-mta-postfix';
+XTR_CONFIG='';
 
 if [[ $TYPE == 'MAIN' ]]; then
     NAME='smtp_sc-mta-postfix';
@@ -40,6 +46,13 @@ elif [[ $TYPE == 'RELAY' ]]; then
 elif [[ $TYPE == 'SUBMIT' ]]; then
     NAME='smtp_sc-mta-submit-postfix';
     SMTP_SERVER='smtp_sc-mta-relay-postfix';
+
+    PROG='/usr/libexec/postfix/cleanup';
+    DATA='/var/spool/postfix/data';
+    XTR_CONFIG=" \
+        --volume $POSTFIX_HOME$PROG:$POSTFIX_TARGET$PROG \
+        --volume $POSTFIX_HOME$DATA:$POSTFIX_TARGET$DATA \
+    ";
 else
     echo "Could not recognize option...";
     usage;
@@ -47,12 +60,21 @@ else
 fi;
 
 echo "Run container [$NAME]...";
-docker run -d \
-    --name $NAME \
-    --network 'smtp_sc-network' \
-    -e SMTP_SERVER=$SMTP_SERVER \
-    -e SERVER_HOSTNAME=$NAME \
-    juanluisbaptiste/postfix:latest;
+if [[ $TYPE == 'SUBMIT' ]]; then
+    docker run -d $XTR_CONFIG \
+        --name $NAME \
+        --network 'smtp_sc-network' \
+        -e SMTP_SERVER=$SMTP_SERVER \
+        -e SERVER_HOSTNAME=$NAME \
+        postfix-dummy:v1;
+else
+    docker run -d $XTR_CONFIG \
+        --name $NAME \
+        --network 'smtp_sc-network' \
+        -e SMTP_SERVER=$SMTP_SERVER \
+        -e SERVER_HOSTNAME=$NAME \
+        juanluisbaptiste/postfix:latest;
+fi;
 
 echo "";
 
@@ -67,8 +89,13 @@ done;
 
 echo "";
 
-echo "Update package to support mysql...";
-docker exec $NAME bash -c 'apk update && apk add postfix-mysql'
+echo "Pre-configuration...";
+if [[ $TYPE == 'SUBMIT' ]]; then
+    docker exec $NAME bash -c 'chown -R postfix /home/postfix';
+    #docker exec $NAME bash -c 'apk update && apk add postfix-mysql';
+else
+    docker exec $NAME bash -c 'apk update && apk add postfix-mysql';
+fi;
 
 echo "";
 
@@ -90,7 +117,11 @@ rm tmp.txt;
 echo "";
 
 echo "Reload postfix at: $NAME";
-docker exec $NAME postfix reload;
+if [[ $TYPE == 'SUBMIT' ]]; then
+    docker restart $NAME;
+else
+    docker exec $NAME postfix reload;
+fi
 
 echo "";
 
