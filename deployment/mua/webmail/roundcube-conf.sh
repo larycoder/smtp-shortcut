@@ -15,6 +15,9 @@ if [[ $1 == '/var/www/html/config/config.docker.inc.php' ]];then
   \$config['temp_dir'] = '/tmp/roundcube-temp';
   \$config['skin'] = 'elastic';
   \$config['plugins'] = array_filter(array_unique(array_merge(\$config['plugins'], ['archive', 'zipdownload'])));
+
+  \$config['debug_level'] = 1;
+  \$config['smtp_debug'] = true;
 ?>
     """;
 fi
