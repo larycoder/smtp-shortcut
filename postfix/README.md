@@ -78,7 +78,7 @@ make -f Makefile.init makefiles \
 # Archlinux configuration with mysql or mariadb.
 make -f Makefile.init makefiles \
     'CCARGS=-DHAS_MYSQL -I/usr/include/mysql' \
-    'AUXLIBS=-L/usr/lib -lmysqlclient -lz -lm'
+    'AUXLIBS=-L/usr/lib/ -lmysqlclient -lz -lm'
 ```
 
 3. Upgrade Postfix
@@ -113,7 +113,7 @@ make makefiles pie=yes \
 # Regenerate makefile following new override parameters and mysql supported
 make -f Makefile.init makefiles pie=yes \
     'CCARGS=-DHAS_MYSQL -I/usr/include/mysql' \
-    'AUXLIBS=-L/usr/lib/postfix -lmysqlclient -lz -lm' \
+    'AUXLIBS=-L/usr/lib/ -lmysqlclient -lz -lm' \
     command_directory=/home/postfix/usr/sbin \
     config_directory=/home/postfix/etc/postfix \
     daemon_directory=/home/postfix/usr/libexec/postfix \
