@@ -69,8 +69,9 @@ virtual_mailbox_maps = mysql:/etc/postfix/mysql-virtual-mailbox-maps.cf
 virtual_alias_maps = mysql:/etc/postfix/mysql-virtual-alias-maps.cf, mysql:/etc/postfix/mysql-virtual-email2email.cf
 
 mynetworks = $Subnet
-virtual_transport = lmtp:inet:smtp_sc-mailbox-dovecot:24
-mailbox_transport = lmtp:inet:smtp_sc-mailbox-dovecot:24
+virtual_uid_maps = static:1000
+virtual_gid_maps = static:998
+virtual_mailbox_base = /home/postfix/var/mail
     """;
 }
 

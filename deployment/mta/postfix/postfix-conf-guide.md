@@ -3,6 +3,9 @@
 The postfix need to link to dovecot at port 24 for LMTP relay. The postfix need
 to accept any mail sending from anywhere and forward it to dovecot.
 
+**UPDATE**: for testing postfix modification version, the virtual transport will
+be "virtual" service.
+
 Setup main.cf file:
 
 ```
@@ -46,8 +49,15 @@ virtual_mailbox_maps = mysql:/etc/postfix/mysql-virtual-mailbox-maps.cf
 virtual_alias_maps = mysql:/etc/postfix/mysql-virtual-alias-maps.cf, mysql:/etc/postfix/mysql-virtual-email2email.cf
 
 mynetworks = <SUBNET>
-virtual_transport = lmtp:inet:smtp_sc-mailbox-dovecot:24
-mailbox_transport = lmtp:inet:smtp_sc-mailbox-dovecot:24
+
+# Transport using LMTP
+#virtual_transport = lmtp:inet:smtp_sc-mailbox-dovecot:24
+#mailbox_transport = lmtp:inet:smtp_sc-mailbox-dovecot:24
+
+# Transport using VIRTUAL
+#virtual_uid_maps = static:1000
+#virtual_gid_maps = static:998
+#virtual_mailbox_base = /home/postfix/var/mail
 ```
 
 Setup of virtual mysql configuration file to integrate to MySQL database:

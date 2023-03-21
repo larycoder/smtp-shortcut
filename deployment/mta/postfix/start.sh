@@ -40,6 +40,13 @@ XTR_CONFIG='';
 if [[ $TYPE == 'MAIN' ]]; then
     NAME='smtp_sc-mta-postfix';
     SMTP_SERVER='localhost';
+
+    PROG='/usr/libexec/postfix/virtual';
+    MAILBOX='/var/mail';
+    XTR_CONFIG=" \
+        --volume $POSTFIX_HOME$PROG:$POSTFIX_TARGET$PROG \
+        --volume $POSTFIX_HOME$MAILBOX:$POSTFIX_TARGET$MAILBOX \
+    ";
 elif [[ $TYPE == 'RELAY' ]]; then
     NAME='smtp_sc-mta-relay-postfix';
     SMTP_SERVER='smtp_sc-mta-postfix';
@@ -60,7 +67,7 @@ else
 fi;
 
 echo "Run container [$NAME]...";
-if [[ $TYPE == 'SUBMIT' ]]; then
+if [[ $TYPE == 'SUBMIT' || $TYPE == 'MAIN' ]]; then
     docker run -d $XTR_CONFIG \
         --name $NAME \
         --network 'smtp_sc-network' \
@@ -90,7 +97,10 @@ done;
 echo "";
 
 echo "Pre-configuration...";
-if [[ $TYPE == 'SUBMIT' ]]; then
+if [[ $TYPE == 'MAIN' ]]; then
+    docker exec $NAME bash -c 'chown -R postfix /home/postfix';
+    docker exec $NAME bash -c 'chown -R 1000 /home/postfix/var/mail';
+elif [[ $TYPE == 'SUBMIT' ]]; then
     docker exec $NAME bash -c 'chown -R postfix /home/postfix';
 else
     docker exec $NAME bash -c 'apk update && apk add postfix-mysql';
