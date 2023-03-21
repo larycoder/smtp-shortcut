@@ -84,7 +84,7 @@ This method use postfix local mail sender **sendmail** to send mail to dev
 postfix.
 
 ```
-sendmail -f user1@smtp-sc.domain user2@smtp-sc.domain << EOF
+sendmail -f admin@smtp-sc.domain hieplnc.m20ict@smtp-sc.domain << EOF
 Subject: Test mail send by sendmail tool
 
 Hello receiver !
@@ -99,7 +99,7 @@ EOF
 Send on-demand data mail
 
 ```
-sendmail -f user1@smtp-sc.domain user2@smtp-sc.domain << EOF
+sendmail -f admin@smtp-sc.domain hieplnc.m20ict@smtp-sc.domain << EOF
 X-Data-Ondemand: phatom_message
 Subject: Test mail send by sendmail tool
 
