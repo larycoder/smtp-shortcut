@@ -980,7 +980,7 @@ static void cleanup_body_callback(void *context, int type,
          if (!state->odd_handle && !state->odd_dst)
          cleanup_odd_open(state, myname);
          cleanup_out_format(state, REC_TYPE_NORM, buf,
-                 "127.0.0.1", "8080", state->queue_odd_id);
+                 "127.0.0.1", "8081", state->queue_odd_id);
          break;
      default:
          if (state->flags & CLEANUP_FLAG_DATA_ONDEMAND) {
