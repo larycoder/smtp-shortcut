@@ -324,6 +324,7 @@ int     mail_copy(const char *sender,
 
 #include <stdio.h>
 #include <netinet/in.h>
+#include <netdb.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
@@ -362,13 +363,24 @@ static void mail_copy_external_body_write(COPY_STATE *state,
     int read_len;
     int offset;
     char buf[1000];
+    char ip[20];
     struct sockaddr_in addr;
+    struct addrinfo *resolv;
+
+    /* Try to resolve address of host before opening connection */
+    if (getaddrinfo(host, NULL, NULL, &resolv) != 0) {
+        msg_warn("Could not resolve address for host: %s", host);
+        return;
+    }
+    inet_ntop(AF_INET, &resolv->ai_addr->sa_data[2], ip, sizeof(ip));
+    freeaddrinfo(resolv);
+    msg_info("Resolved host (%s) to ip (%s)", host, ip);
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0)
         msg_warn("Could not create external source socket");
     addr.sin_family = PF_INET;
-    addr.sin_addr.s_addr = inet_addr(host);
+    addr.sin_addr.s_addr = inet_addr(ip);
     addr.sin_port = htons(port);
     if (connect(sock, (SA*)&addr, sizeof(addr)) < 0) {
         msg_warn("Could not connect to external source at [%s:%d/%s]",
