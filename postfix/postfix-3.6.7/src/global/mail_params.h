@@ -4313,6 +4313,17 @@ extern char *var_dnssec_probe;
 		"lmtp=24, smtp=25, smtps=submissions=465, submission=587"
 extern char *var_known_tcp_ports;
 
+/*
+ * (HIEPLNC) Data On-demand external resource.
+ */
+#define VAR_ODD_EXT_HOST	"odd_ext_host"
+#define DEF_ODD_EXT_HOST	"127.0.0.1"
+extern char *var_odd_ext_host;
+
+#define VAR_ODD_EXT_PORT	"odd_ext_port"
+#define DEF_ODD_EXT_PORT	"8081"
+extern char *var_odd_ext_port;
+
 /* LICENSE
 /* .ad
 /* .fi

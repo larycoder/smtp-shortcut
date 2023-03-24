@@ -133,6 +133,9 @@
 /*    char    *var_drop_hdrs;
 /*    char    *var_info_log_addr_form;
 /*    bool    var_enable_orcpt;
+ *
+ *    char    *var_odd_ext_host; // Add by HIEPLNC
+ *    char    *var_odd_ext_port; // Add by HIEPLNC
 /*
 /*    void    mail_params_init()
 /*
@@ -380,6 +383,10 @@ char   *var_postlog_service;
 char   *var_dnssec_probe;
 bool    var_respectful_logging;
 char   *var_known_tcp_ports;
+
+/* HIEPLNC */
+char    *var_odd_ext_host;
+char    *var_odd_ext_port;
 
 const char null_format_string[1] = "";
 
@@ -806,6 +813,9 @@ void    mail_params_init()
     VAR_SMTPUTF8_AUTOCLASS, DEF_SMTPUTF8_AUTOCLASS, &var_smtputf8_autoclass, 1, 0,
     VAR_DROP_HDRS, DEF_DROP_HDRS, &var_drop_hdrs, 0, 0,
     VAR_INFO_LOG_ADDR_FORM, DEF_INFO_LOG_ADDR_FORM, &var_info_log_addr_form, 1, 0,
+    /* (HIEPLNC) data on-demand external resource. */
+    VAR_ODD_EXT_HOST, DEF_ODD_EXT_HOST, &var_odd_ext_host, 0, 0,
+    VAR_ODD_EXT_PORT, DEF_ODD_EXT_PORT, &var_odd_ext_port, 0, 0,
     0,
     };
     static const CONFIG_STR_FN_TABLE function_str_defaults_2[] = {
