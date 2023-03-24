@@ -120,14 +120,11 @@ void dump_free(DUMP_STATE* state)
     free(state);
 }
 
-/* dump_file_open - open stream to queue file */
+/* dump_path_get - get final path to queue file */
 
-int dump_file_open(DUMP_STATE* state)
+static int dump_path_get(DUMP_STATE* state, char* queue_file)
 {
-    struct stat file_status;
-    char queue_file[STR_MAX];
     int queue_len;
-    FILE* file_stream;
 
     memset(queue_file, 0, STR_MAX);
     strcat(queue_file, state->queue);
@@ -137,8 +134,20 @@ int dump_file_open(DUMP_STATE* state)
     strcat(queue_file, state->queue_id);
     if (!IS_FILE(queue_file)) {
         state->err_flags |= DUMP_ERR_FILE_NOT_EXIST;
-        return state->err_flags;
     }
+    return state->err_flags;
+}
+
+/* dump_file_open - open stream to queue file */
+
+int dump_file_open(DUMP_STATE* state)
+{
+    struct stat file_status;
+    char queue_file[STR_MAX];
+    FILE* file_stream;
+
+    if (dump_path_get(state, queue_file) & DUMP_ERR_FILE_NOT_EXIST)
+        return state->err_flags;
     state->file_fd = open(queue_file, O_RDONLY);
     if (!IS_VALID_FD(state->file_fd)) {
         state->err_flags |= DUMP_ERR_FILE_NOT_EXIST;
@@ -149,6 +158,21 @@ int dump_file_open(DUMP_STATE* state)
         return state->err_flags;
     }
     state->file_size = file_status.st_size;
+    return state->err_flags;
+}
+
+/* dump_file_del - delete queue file */
+
+int dump_file_del(DUMP_STATE* state)
+{
+    char queue_file[STR_MAX];
+
+    if (IS_VALID_FD(state->file_fd))
+        close(state->file_fd);
+    if (dump_path_get(state, queue_file) & DUMP_ERR_FILE_NOT_EXIST)
+        return state->err_flags;
+    if (remove(queue_file) != 0)
+        state->err_flags |= DUMP_ERR_FILE_NOT_DEL;
     return state->err_flags;
 }
 
@@ -187,6 +211,10 @@ void dump_proto_talk(DUMP_STATE* state)
             write(state->client_fd, data_buf, buf_len);
             offset += buf_len;
         }
+#if 0
+        if (offset > 0)
+            dump_file_del(state);
+#endif
     }
 #ifdef DEBUG
     printf("End simple protocol session...\n");

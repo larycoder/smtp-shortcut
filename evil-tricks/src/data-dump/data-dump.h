@@ -5,7 +5,7 @@
 #define SA  struct sockaddr
 #define LISTEN_MAX  5
 #define STR_MAX     1000
-#define PORT    8080
+#define PORT    8081
 #define DEBUG
 
 typedef struct DUMP_STATE {
@@ -28,6 +28,7 @@ typedef struct DUMP_STATE {
 #define DUMP_ERR_QUEUE_NOT_EXIST    (1<<0)
 #define DUMP_ERR_FILE_NOT_EXIST     (1<<1)
 #define DUMP_ERR_SOCK               (1<<2)
+#define DUMP_ERR_FILE_NOT_DEL       (1<<3)
 
 /* dump functions */
 
