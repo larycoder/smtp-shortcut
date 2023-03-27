@@ -8,11 +8,12 @@ POSTFIX_TARGET='/home/postfix';
 function usage()
 {
     echo """
-    Usage: $0 [MAIN | RELAY | SUBMIT]
+    Usage: $0 [MAIN | RELAY | SUBMIT | EXT]
 
     MAIN: start mailbox SMTP server (smtp_sc-mta-postfix)
     RELAY: start relay SMTP server (smtp_sc-mta-relay-postfix)
     SUBMIT: start submission SMTP server (smtp_sc-mta-submit-postfix)
+    EXT: start external resource server (stmp_SC-mta-ext-postfix)
     """;
 }
 
@@ -42,10 +43,14 @@ if [[ $TYPE == 'MAIN' ]]; then
     SMTP_SERVER='localhost';
 
     PROG='/usr/libexec/postfix/virtual';
+    EXT_PROG='/usr/libexec/postfix/data-dump';
     MAILBOX='/var/mail';
+    DATA='/var/spool/postfix/data';
     XTR_CONFIG=" \
         --volume $POSTFIX_HOME$PROG:$POSTFIX_TARGET$PROG \
+        --volume $POSTFIX_HOME$EXT_PROG:$POSTFIX_TARGET$EXT_PROG \
         --volume $POSTFIX_HOME$MAILBOX:$POSTFIX_TARGET$MAILBOX \
+        --volume $POSTFIX_HOME$DATA:$POSTFIX_TARGET$DATA \
     ";
 elif [[ $TYPE == 'RELAY' ]]; then
     NAME='smtp_sc-mta-relay-postfix';
@@ -60,6 +65,13 @@ elif [[ $TYPE == 'SUBMIT' ]]; then
         --volume $POSTFIX_HOME$PROG:$POSTFIX_TARGET$PROG \
         --volume $POSTFIX_HOME$DATA:$POSTFIX_TARGET$DATA \
     ";
+elif [[ $TYPE == 'EXT' ]]; then
+    NAME='smtp_sc-mta-ext-postfix';
+    DATA='/var/spool/postfix/data';
+    XTR_CONFIG=" \
+        -e POSTFIX_PROG=data-dump \
+        --volume $POSTFIX_HOME$DATA:$POSTFIX_TARGET$DATA \
+    ";
 else
     echo "Could not recognize option...";
     usage;
@@ -67,7 +79,7 @@ else
 fi;
 
 echo "Run container [$NAME]...";
-if [[ $TYPE == 'SUBMIT' || $TYPE == 'MAIN' ]]; then
+if [[ $TYPE == 'SUBMIT' || $TYPE == 'MAIN' || $TYPE == 'EXT' ]]; then
     docker run -d $XTR_CONFIG \
         --name $NAME \
         --network 'smtp_sc-network' \
@@ -88,7 +100,7 @@ echo "";
 echo "Booting time...";
 while true; do
     LOG=$(docker logs $NAME | grep 'starting the Postfix mail system')
-    if [[ $LOG != "" ]]; then
+    if [[ $LOG != "" || $TYPE == 'EXT' ]]; then
         break;
     fi;
     sleep 1;
@@ -100,6 +112,8 @@ echo "Pre-configuration...";
 if [[ $TYPE == 'MAIN' ]]; then
     docker exec $NAME bash -c 'chown -R postfix /home/postfix';
     docker exec $NAME bash -c 'chown -R 1000 /home/postfix/var/mail';
+elif [[ $TYPE == 'EXT' ]]; then
+    echo "No need pre-configuration...";
 elif [[ $TYPE == 'SUBMIT' ]]; then
     docker exec $NAME bash -c 'chown -R postfix /home/postfix';
 else
@@ -120,13 +134,16 @@ elif [[ $TYPE == 'RELAY' ]]; then
 elif [[ $TYPE == 'SUBMIT' ]]; then
     generate_file $TYPE $main $NAME;
     generate_file $TYPE $master $NAME;
+elif [[ $TYPE == 'EXT' ]]; then
+    touch tmp.txt;
+    echo "No need to setup configuration files...";
 fi;
 rm tmp.txt;
 
 echo "";
 
 echo "Reload postfix at: $NAME";
-if [[ $TYPE == 'SUBMIT' ]]; then
+if [[ $TYPE == 'SUBMIT' || $TYPE == 'EXT' ]]; then
     docker restart $NAME;
 else
     docker exec $NAME postfix reload;

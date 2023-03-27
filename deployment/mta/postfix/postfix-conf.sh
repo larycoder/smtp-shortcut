@@ -72,6 +72,9 @@ mynetworks = $Subnet
 virtual_uid_maps = static:1000
 virtual_gid_maps = static:998
 virtual_mailbox_base = /home/postfix/var/mail
+
+odd_ext_host = $ODD_EXT_HOST
+odd_ext_port = $ODD_EXT_PORT
     """;
 }
 

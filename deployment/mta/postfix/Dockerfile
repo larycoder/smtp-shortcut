@@ -19,4 +19,11 @@ RUN rm -rf /etc/postfix && \
         ln -sn "/home/postfix/usr/sbin/$i" "/usr/sbin/"; \
     done
 
-CMD postfix start-fg
+CMD if [[ "${POSTFIX_PROG}" == 'data-dump' ]]; then \
+        echo Start resource server...; \
+        /usr/libexec/postfix/data-dump \
+                '/home/postfix/var/spool/postfix/data'; \
+    else \
+        echo Start SMTP server...; \
+        postfix start-fg; \
+    fi
