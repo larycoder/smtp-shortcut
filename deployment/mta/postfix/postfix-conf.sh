@@ -143,6 +143,8 @@ mydomain = localhost
 myorigin = \$mydomain
 mynetworks = $Subnet
 relayhost = [smtp_sc-mta-relay-postfix]:25
+odd_ext_host = $ODD_EXT_HOST
+odd_ext_port = $ODD_EXT_PORT
     """;
 }
 
