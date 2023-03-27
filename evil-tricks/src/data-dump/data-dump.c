@@ -171,8 +171,17 @@ int dump_file_del(DUMP_STATE* state)
         close(state->file_fd);
     if (dump_path_get(state, queue_file) & DUMP_ERR_FILE_NOT_EXIST)
         return state->err_flags;
-    if (remove(queue_file) != 0)
+#ifdef DEBUG
+    printf("Try to delete path: %s\n", queue_file);
+#endif
+    if (remove(queue_file) != 0) {
         state->err_flags |= DUMP_ERR_FILE_NOT_DEL;
+#ifdef DEBUG
+        printf("Could not delete queue file...\n");
+    } else {
+        printf("Deleted path: %s\n", queue_file);
+#endif
+    }
     return state->err_flags;
 }
 
@@ -211,10 +220,8 @@ void dump_proto_talk(DUMP_STATE* state)
             write(state->client_fd, data_buf, buf_len);
             offset += buf_len;
         }
-#if 0
         if (offset > 0)
             dump_file_del(state);
-#endif
     }
 #ifdef DEBUG
     printf("End simple protocol session...\n");
