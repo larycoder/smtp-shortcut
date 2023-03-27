@@ -44,6 +44,7 @@ docker run -d \
 # Create postfix injectable external resource container:
 docker run -d \
     --name 'smtp_sc-mta-postfix' \
+    --volume <POSTFIX_HOME>/<INJECT_PROGRAM>:/home/postfix/<INJECT_PROGRAM> \
     --volume <POSTFIX_HOME>/<INJECT_QUEUE>:/home/postfix/<INJECT_QUEUE> \
     --network smtp_sc-network \
     -e SMTP_SERVER='smtp_sc-mta-relay-postfix' \

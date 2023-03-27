@@ -67,9 +67,12 @@ elif [[ $TYPE == 'SUBMIT' ]]; then
     ";
 elif [[ $TYPE == 'EXT' ]]; then
     NAME='smtp_sc-mta-ext-postfix';
+
+    PROG='/usr/libexec/postfix/data-dump';
     DATA='/var/spool/postfix/data';
     XTR_CONFIG=" \
         -e POSTFIX_PROG=data-dump \
+        --volume $POSTFIX_HOME$PROG:$POSTFIX_TARGET$PROG \
         --volume $POSTFIX_HOME$DATA:$POSTFIX_TARGET$DATA \
     ";
 else
