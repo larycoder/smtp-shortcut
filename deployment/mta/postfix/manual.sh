@@ -25,7 +25,7 @@ docker run -d \
 
 # Create postfix relay container:
 docker run -d \
-    --name 'smtp_sc-mta-relay-postfix' \
+    --name 'smtp_sc-mta-relay-postfix-<RELAY_NUMBER>' \
     --network smtp_sc-network \
     -e SMTP_SERVER='smtp_sc-mta-postfix' \
     -e SERVER_HOSTNAME='smtp_sc-mta-relay-postfix' \
@@ -52,8 +52,11 @@ docker run -d \
     -e POSTFIX_PROG='data-dump' \
     postfix-dummy:v1
 
-# Update owner for proper running of injectable submit
-docker exec $NAME bash -c 'chown -R postfix /home/postfix';
+# Update owner for proper running of injectable submit and main
+docker exec \$NAME bash -c 'chown -R postfix /home/postfix';
+
+# Link several SMTP together through relay mechanism (README for detail)
+./link.sh <SMTP_RELAY_SERVER> <SMTP_FORWARD_SERVER>
 """
 
 echo """
