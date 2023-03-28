@@ -8,12 +8,17 @@ POSTFIX_TARGET='/home/postfix';
 function usage()
 {
     echo """
-    Usage: $0 [MAIN | RELAY | SUBMIT | EXT]
+    Usage: $0 [MAIN | RELAY [NAME] | SUBMIT | EXT]
 
     MAIN: start mailbox SMTP server (smtp_sc-mta-postfix)
-    RELAY: start relay SMTP server (smtp_sc-mta-relay-postfix)
+    RELAY: start relay SMTP server (smtp_sc-mta-relay-postfix-xxx)
     SUBMIT: start submission SMTP server (smtp_sc-mta-submit-postfix)
     EXT: start external resource server (stmp_SC-mta-ext-postfix)
+
+    [Option]
+
+    NAME: tail of SMTP relay server (xxx) in (smtp_sc-mta-relay-postfix-xxx).
+    By default, this value is (0).
     """;
 }
 
@@ -33,6 +38,7 @@ sql_virtual_alias_maps='/etc/postfix/mysql-virtual-alias-maps.cf';
 sql_virtual_email2email='/etc/postfix/mysql-virtual-email2email.cf';
 
 TYPE=${1^^};
+OPT_NAME=$2;
 
 SMTP_SERVER='localhost';
 NAME='smtp_sc-mta-postfix';
@@ -53,7 +59,11 @@ if [[ $TYPE == 'MAIN' ]]; then
         --volume $POSTFIX_HOME$DATA:$POSTFIX_TARGET$DATA \
     ";
 elif [[ $TYPE == 'RELAY' ]]; then
-    NAME='smtp_sc-mta-relay-postfix';
+    if [[ $OPT_NAME != '' ]]; then
+        NAME="smtp_sc-mta-relay-postfix-$OPT_NAME";
+    else
+        NAME='smtp_sc-mta-relay-postfix-0';
+    fi;
     SMTP_SERVER='smtp_sc-mta-postfix';
 elif [[ $TYPE == 'SUBMIT' ]]; then
     NAME='smtp_sc-mta-submit-postfix';

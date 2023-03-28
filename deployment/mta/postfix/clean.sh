@@ -3,7 +3,7 @@
 function usage()
 {
     echo """
-    Usage: $0 [MAIN | RELAY | SUBMIT | EXT | ALL]
+    Usage: $0 [MAIN | RELAY [NAME] | SUBMIT | EXT | ALL]
 
     MAIN: Clear main MTA container ('smtp_sc-mta-postfix')
     RELAY: Clear all relay MTA containers ('smtp_sc-mta-relay-postfix-xxx')
@@ -11,6 +11,10 @@ function usage()
     EXT: Clear external data resource containers ('smtp_sc-mta-ext-postfix')
     ALL: Clear all MTA containers
 
+    [Options]
+
+    NAME: container tail name of relay server. By default, without specific name,
+    all relay servers will be deleted.
     """;
 }
 
@@ -57,10 +61,18 @@ if [[ $1 == 'MAIN' ]]; then
     clear_container 'smtp_sc-mta-postfix';
 elif [[ $1 == 'RELAY' ]]; then
     confirm;
-    clear_container 'smtp_sc-mta-relay-postfix';
+    if [[ $2 != '' ]]; then
+        clear_container "smtp_sc-mta-relay-postfix-$2";
+    else
+        HEAD='smtp_sc-mta-relay-postfix';
+        for container in $(docker ps --format '{{.Names}}' | grep "$HEAD"); do
+            clear_container "$container";
+        done;
+        echo "Clear all relay containers...";
+    fi;
 elif [[ $1 == 'SUBMIT' ]]; then
     confirm;
-    clear_container 'smtp_sc-mta-submit-postfix';
+    clear_container "smtp_sc-mta-submit-postfix";
 elif [[ $1 == 'EXT' ]]; then
     confirm;
     clear_container 'smtp_sc-mta-ext-postfix';
