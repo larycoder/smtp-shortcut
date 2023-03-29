@@ -1068,7 +1068,6 @@ int     mime_state_update(MIME_STATE *state, int rec_type,
                  "other");
         switch (state->curr_state) {
         case MIME_STATE_PRIMARY:
-            char delimter_type;
             BODY_OUT(state, (state->odd_state.flags & ODD_FLAG_HDR) ?
                     REC_TYPE_ODD_SIG : REC_TYPE_NORM, "", 0);
             SET_CURR_STATE(state, MIME_STATE_BODY);
