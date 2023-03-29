@@ -79,9 +79,14 @@ elif [[ $1 == 'EXT' ]]; then
 elif [[ $1 == 'ALL' ]]; then
     confirm;
     clear_container 'smtp_sc-mta-postfix';
-    clear_container 'smtp_sc-mta-relay-postfix';
     clear_container 'smtp_sc-mta-submit-postfix';
     clear_container 'smtp_sc-mta-ext-postfix';
+    # Relay group containers
+    HEAD='smtp_sc-mta-relay-postfix';
+    for container in $(docker ps --format '{{.Names}}' | grep "$HEAD"); do
+        clear_container "$container";
+    done;
+    echo "Clear all relay containers...";
 else
     echo "Could not recognize option...";
     usage;
