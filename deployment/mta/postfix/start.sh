@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # CONFIGURATION SECTION
-POSTFIX_HOME='/home/postfix';
+#POSTFIX_HOME='/home/postfix';
+POSTFIX_HOME='/home/hieplnc/postfix';
 POSTFIX_TARGET='/home/postfix';
 
 # LEGACY SECTION

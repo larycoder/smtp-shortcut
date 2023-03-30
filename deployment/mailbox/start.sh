@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MAILBOX='/home/postfix/var/mail/';
+MAILBOX='/home/hieplnc/postfix/var/mail/';
 
 echo "Run dovecot container..."
 docker run -d \
