@@ -46,8 +46,11 @@ postfix for running, follow below steps:
 
 ```
 # Build docker images
-docker build -t <image_name>:<image_tag> .  # template
-docker build -t postfix-dummy:v1 .          # example
+
+docker build -f <dockerfile> -t <image_name>:<image_tag> .            # template
+
+docker build -f Dockerfiles/Dockerfile.arch -t postfix-dummy:v1 .     # example
+docker build -f Dockerfiles/Dockerfile.debian -t postfix-dummy:v1 .   # example
 ```
 
 This image is necessary to run MTA submit service since this service is modified
