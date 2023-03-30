@@ -1,6 +1,9 @@
-FROM archlinux:base-devel
+FROM debian:buster
 ADD postfix.tar.gz /home/
-RUN useradd hieplnc && yes | pacman -Syy postfix-mysql pcre
+
+RUN apt-get update
+
+RUN useradd hieplnc && apt-get -y install postfix-mysql
 
 # Unpack postfix to the system.
 RUN rm -rf /etc/postfix && \
