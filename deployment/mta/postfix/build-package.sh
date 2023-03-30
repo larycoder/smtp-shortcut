@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# CONFIGURATION SECTION
+
+# FUNCTION SECTION
+
+# 
