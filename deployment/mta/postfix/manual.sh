@@ -7,6 +7,9 @@ SMTP_SERVER = relay server
 """
 
 echo """
+# Generate postfix from installation directory
+./build-package.sh
+
 # Build injectable modification postfix image
 docker build -f Dockerfiles/Dockerfile.arch -t postfix-dummy:v1 .
 docker build -f Dockerfiles/Dockerfile.debian -t postfix-dummy:v1 .

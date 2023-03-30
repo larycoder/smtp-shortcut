@@ -45,10 +45,12 @@ For building dummy postfix docker image which could be used to inject modified
 postfix for running, follow below steps:
 
 ```
+# Build postfix package from installation directory
+build-package.sh [INSTALLER] [PACKAGE]      # template
+build-package.sh                            # example
+
 # Build docker images
-
 docker build -f <dockerfile> -t <image_name>:<image_tag> .            # template
-
 docker build -f Dockerfiles/Dockerfile.arch -t postfix-dummy:v1 .     # example
 docker build -f Dockerfiles/Dockerfile.debian -t postfix-dummy:v1 .   # example
 ```
