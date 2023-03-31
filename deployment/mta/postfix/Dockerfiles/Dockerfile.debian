@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:bullseye
 ADD postfix.tar.gz /home/
 
 RUN apt-get update
@@ -12,7 +12,10 @@ RUN rm -rf /etc/postfix && \
     ln -sn /home/postfix/etc/postfix /etc/ && \
     ln -sn /home/postfix/var/lib/postfix /var/lib/ && \
     ln -sn /home/postfix/var/spool/postfix /var/spool/ && \
-    ln -sn /home/postfix/usr/libexec /usr/ && \
+    mkdir -p '/usr/libexec/postfix' && \
+    for i in $(ls /home/postfix/usr/libexec/postfix); do \
+        ln -sn "/home/postfix/usr/libexec/postfix/$i" "/usr/libexec/postfix/"; \
+    done && \
     for i in $(ls /home/postfix/usr/bin); do \
         rm "/usr/bin/$i"; \
         ln -sn "/home/postfix/usr/bin/$i" "/usr/bin/"; \
