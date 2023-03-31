@@ -1,4 +1,5 @@
 FROM debian:bullseye
+SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update
 RUN useradd hieplnc && apt-get -y install postfix-mysql
@@ -26,7 +27,7 @@ RUN chmod -R 777 /home/postfix/var && \
         ln -sn "/home/postfix/usr/sbin/$i" "/usr/sbin/"; \
     done
 
-CMD if [[ "${POSTFIX_PROG}" == 'data-dump' ]]; then \
+CMD if [[ "$POSTFIX_PROG" == 'data-dump' ]]; then \
         echo Start resource server...; \
         /usr/libexec/postfix/data-dump \
                 '/home/postfix/var/spool/postfix/data'; \
