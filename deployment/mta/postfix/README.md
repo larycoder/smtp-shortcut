@@ -53,6 +53,9 @@ build-package.sh                            # example
 docker build -f <dockerfile> -t <image_name>:<image_tag> .            # template
 docker build -f Dockerfiles/Dockerfile.arch -t postfix-dummy:v1 .     # example
 docker build -f Dockerfiles/Dockerfile.debian -t postfix-dummy:v1 .   # example
+
+# Command to boot up image for on-fly examine
+docker run --rm --name examine -it <dockerfile> bash
 ```
 
 This image is necessary to run MTA submit service since this service is modified
