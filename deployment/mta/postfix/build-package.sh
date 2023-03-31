@@ -41,8 +41,9 @@ function clean()
 {
     content_clean "$BASE/var/spool/postfix/pid";
     content_clean "$BASE/var/mail";
-    ls "$BASE/var/spool/postfix/pid/";
     content_clean "$BASE/var/lib/postfix";
+    # For capture log from container
+    echo 'maillog_file = /dev/stdout' >> "$BASE/etc/postfix/main.cf";
 }
 
 function package()

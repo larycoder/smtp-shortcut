@@ -1,12 +1,13 @@
 FROM debian:bullseye
-ADD postfix.tar.gz /home/
 
 RUN apt-get update
-
 RUN useradd hieplnc && apt-get -y install postfix-mysql
 
+ADD postfix.tar.gz /home/
+
 # Unpack postfix to the system.
-RUN rm -rf /etc/postfix && \
+RUN chmod -R 777 /home/postfix/var && \
+    rm -rf /etc/postfix && \
     rm -rf /var/lib/postfix && \
     rm -rf /var/spool/postfix && \
     ln -sn /home/postfix/etc/postfix /etc/ && \
