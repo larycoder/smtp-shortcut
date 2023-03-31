@@ -51,6 +51,10 @@ function package()
     mv "$BASE" "postfix";
     tar -czvf "$PACKAGE" "postfix";
     mv "postfix" "$BASE";
+    echo """
+    Remember to copy \"data-dump\" service to \"$INSTALLER/usr/libexec/\"
+    since this script will not do that for you.
+    """;
 }
 
 function tmp_clear()
