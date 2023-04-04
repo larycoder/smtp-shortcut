@@ -36,8 +36,6 @@ function gen_body() # <MAIL_SIZE>
     for i in $(seq 1 $TIMES); do
         echo $BODY
     done;
-    echo "($MAIL_SZ * 1048576) / $LEN";
-    echo $TIMES;
     echo $END;
 }
 
