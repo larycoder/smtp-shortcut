@@ -6,12 +6,10 @@ ENVELOPE="data/mail_<SEQ>";
 HEADER="""
 Subject: Generated mail by automate script on (<DATE>).
 """;
-BODY="""
-(This is body)
-"""
-END="""
-Bye.
-"""
+
+START='Hi,';
+BODY='(This is body)'
+END='Bye.'
 
 # FUNCTION SECTION
 function usage()
@@ -33,6 +31,8 @@ function gen_body() # <MAIL_SIZE>
     MAIL_SZ=$1;
     LEN=$(wc -c <<< $BODY);
     TIMES=$(bc <<< "($MAIL_SZ * $MB_SZ) / $LEN");
+
+    echo $START;
     for i in $(seq 1 $TIMES); do
         echo $BODY
     done;
