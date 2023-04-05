@@ -12,6 +12,7 @@ Good start points for reader:
 - **start.sh**: automate script to start the services.
 - **clean.sh**: automate script to clear setup created by **start.sh**.
 - **link.sh**: automate script to link SMTP containers together by relay mechanic.
+- **build-system.sh**: convenient script to create whole pipeline with zero effort.
 
 ***Note***: carefully with another script than above scripts. Make sure you know
 what you do and we do not guarantee for the bullet you shoot yourself.
