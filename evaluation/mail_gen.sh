@@ -4,7 +4,7 @@
 MB_SZ="(1024 * 1160)";
 ENVELOPE="data/mail_<SEQ>";
 HEADER="""
-Subject: Generated mail by automate script on (<DATE>).
+Subject: Automate script mail [<ID>] (<DATE>).
 """;
 
 START='Hi,';
@@ -39,17 +39,22 @@ function gen_body() # <MAIL_SIZE>
     echo $END;
 }
 
-function gen_odd_mail()
+function gen_odd_mail() # <ID>
 {
+    MY_ID=$1;
+    TMP=${HEADER/'<DATE>'/"$(date)"};
 
     echo "X-Data-Ondemand: phantom_message";
-    echo ${HEADER/'<DATE>'/"$(date)"};
+    echo ${TMP/'<ID>'/$MY_ID};
     echo "";
 }
 
-function gen_norm_mail()
+function gen_norm_mail() # <ID>
 {
-    echo ${HEADER/'<DATE>'/"$(date)"};
+    MY_ID=$1;
+    TMP=${HEADER/'<DATE>'/"$(date)"};
+
+    echo ${TMP/'<ID>'/$MY_ID};
     echo "";
 }
 
@@ -62,13 +67,13 @@ fi;
 if [[ $1 == "ODD" ]]; then
     for i in $(seq 1 $2); do
         MY_MAIL=${ENVELOPE/'<SEQ>'/$i};
-        gen_odd_mail > $MY_MAIL;
+        gen_odd_mail $i > $MY_MAIL;
         gen_body $3 >> $MY_MAIL;
     done
 elif [[ $1 == "NORM" ]]; then
     for i in $(seq 1 $2); do
         MY_MAIL=${ENVELOPE/'<SEQ>'/$i};
-        gen_norm_mail > $MY_MAIL;
+        gen_norm_mail $i > $MY_MAIL;
         gen_body $3 >> $MY_MAIL;
     done
 else
