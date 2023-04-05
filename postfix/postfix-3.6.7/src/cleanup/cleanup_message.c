@@ -553,6 +553,21 @@ static void cleanup_header_callback(void *context, int header_class,
     msg_info("%s: '%.200s'", myname, vstring_str(header_buf));
 
     /*
+     * Logging out Subject message from header for measurement log.
+     */
+    if (!hdr_opts && vstring_str(header_buf)
+            && strncasecmp(vstring_str(header_buf), "Subject", 7) == 0) {
+        char time_buf[500];
+        char host_buf[500];
+        time_t now;
+        time(&now);
+        strftime(time_buf, 500, "%Y-%m-%dT%H:%M:%S", localtime(&now));
+        gethostname(host_buf, 500);
+        msg_warn("[SUBJECT] %s %s: [%s]", time_buf,
+                host_buf, vstring_str(header_buf));
+    }
+
+    /*
      * Crude header filtering. This stops malware that isn't sophisticated
      * enough to use fancy header encodings.
      */

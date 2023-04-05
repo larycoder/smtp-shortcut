@@ -421,6 +421,21 @@ static void mail_copy_header_callback(void *context, int header_class,
     VSTRING *buf = header_buf;
     VSTREAM *dst = state->dst;
 
+    /*
+     * Logging out Subject message from header for measurement log.
+     */
+    if (!hdr_opts && vstring_str(header_buf)
+            && strncasecmp(vstring_str(header_buf), "Subject", 7) == 0) {
+        char time_buf[500];
+        char host_buf[500];
+        time_t now;
+        time(&now);
+        strftime(time_buf, 500, "%Y-%m-%dT%H:%M:%S", localtime(&now));
+        gethostname(host_buf, 500);
+        msg_warn("[SUBJECT] %s %s: [%s]", time_buf,
+                host_buf, vstring_str(header_buf));
+    }
+
     if (state->prev_type == REC_TYPE_NORM) {
         if ((flags & MAIL_COPY_QUOTE) &&
                 *bp == 'F' && !strncmp(bp, "From ", 5))
