@@ -703,6 +703,15 @@ int     mail_external_copy(const char *sender,
     dsb_unix(why, mbox_dsn(errno, "5.3.0"),
          sys_exits_detail(EX_IOERR)->text,
          "error writing message: %m");
+    /*
+     * Logging out warning for measuring performance.
+     */
+    char time_buf[500];
+    char host_buf[500];
+    time(&now);
+    strftime(time_buf, 500, "%Y-%m-%dT%H:%M:%S", localtime(&now));
+    gethostname(host_buf, 500);
+    msg_warn("[DELIVER] %s %s: %ld", time_buf, host_buf, now);
 
     /*
      * Use flag+errno description when the optional verbose description is

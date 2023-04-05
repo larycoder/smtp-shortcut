@@ -596,6 +596,18 @@ static void cleanup_service(VSTREAM *src, char *unused_service, char **argv)
      * Cleanup.
      */
     vstring_free(buf);
+
+    /*
+     * Warning debug log to measure performance.
+     * HIEPLNC
+     */
+    char time_buf[500];
+    char host_buf[500];
+    time_t now;
+    time(&now);
+    strftime(time_buf, 500, "%Y-%m-%dT%H:%M:%S", localtime(&now));
+    gethostname(host_buf, 500);
+    msg_warn("[SUBMIT] %s %s: %ld", time_buf, host_buf, now);
 }
 
 /* pre_accept - see if tables have changed */
