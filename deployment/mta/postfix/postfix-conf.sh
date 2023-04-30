@@ -53,6 +53,10 @@ maillog_file = /dev/stdout
 smtp_use_tls = yes
 always_add_missing_headers = no
 smtp_host_lookup = native,dns
+
+# Mail size
+message_size_limit = $MAIL_SIZE
+virtual_mailbox_limit = $MAIL_SIZE
     """;
 }
 
