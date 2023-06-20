@@ -1,0 +1,92 @@
+#!/bin/bash
+
+BASE=$(pwd);
+SRC="$1";
+TARGET=$2;
+if [[ $TARGET == '' ]]; then
+    TARGET='/home/postfix'
+fi;
+
+#### AUXILIARY FUNCTIONS ####
+usage()
+{
+    echo """
+    Usage: $0 <PATH_TO_POSTFIX_SOURCE> [<PATH_TO_POSTFIX_TEST_DIR>]
+
+    Automate script to build postfix from source and deploy to target.
+    Default target values is '/home/postfix'.
+    Noting that this script need to be run by root user.
+
+    Current target: $TARGET
+    Current source: $SRC
+
+    """;
+}
+
+pre_config()
+{
+    make -f Makefile.init makefiles pie=yes \
+        'CCARGS=-DHAS_MYSQL -I/usr/include/mysql' \
+        'AUXLIBS=-L/usr/lib/ -lmysqlclient -lz -lm' \
+        command_directory=/home/postfix/usr/sbin \
+        config_directory=/home/postfix/etc/postfix \
+        daemon_directory=/home/postfix/usr/libexec/postfix \
+        data_directory=/home/postfix/var/lib/postfix \
+        mail_spool_directory=/home/postfix/var/mail \
+        mailq_path=/home/postfix/usr/bin/mailq \
+        manpage_directory=/home/postfix/usr/local/man \
+        meta_directory=/home/postfix/etc/postfix \
+        newaliases_path=/home/postfix/usr/bin/newaliases \
+        queue_directory=/home/postfix/var/spool/postfix \
+        sendmail_path=/home/postfix/usr/sbin/sendmail \
+        shlib_directory=/home/postfix/usr/lib/postfix;
+}
+
+install()
+{
+    make non-interactive-package install_root=$TARGET;
+}
+
+error_check()
+{
+    if [[ $? != 0 ]]; then
+        echo "Got ERROR !!!";
+        exit 1;
+    fi;
+}
+
+#### MAIN SCRIPTS ####
+usage;
+
+if [[ $# != 2 ]]; then
+    exit 1;
+fi;
+
+echo """
+
+Press <Ctrl+C> to cancel or any key for continue...
+""";
+read nouse;
+
+echo "Check parameters...";
+if [[ ! -d $SRC || ! -d $TARGET ]]; then
+    echo "Invalid source or target parameter !!!"
+    exit 1;
+fi;
+
+if [[ $TARGET != '/home/postfix' ]]; then
+    echo "Link TARGET to '/home/postfix'...";
+    ln -s $TARGET/home/postfix /home/postfix;
+    error_check;
+fi;
+
+cd $SRC;
+pre_config;
+install;
+cd $BASE;
+
+if [[ $TARGET != '/home/postfix' ]]; then
+    echo "Remove TARGET from '/home/postfix' (if error please remove manually)...";
+    rm /home/postfix;
+    error_check;
+fi;
