@@ -1,10 +1,9 @@
 #!/bin/bash
 
 # CONFIGURATION SECTION
-INSTALLER='postfix-installation';
-PACKAGE='postfix.tar.gz';
-
 BASE='build_tmp';
+PACKAGE='postfix.tar.gz';
+INSTALLER="$POSTFIX_TEST_DIR/home/postfix";
 
 # FUNCTION SECTION
 function usage()
@@ -22,9 +21,18 @@ function usage()
 function tmp_prepare()
 {
     mkdir -p "$BASE";
+    # add base
     for i in $(ls $INSTALLER); do
         cp -r "$INSTALLER/$i" "$BASE/"
     done;
+    # add evil trick program
+    if [[ ! -f '../../../evil-tricks/bin/data-dump' ]]; then
+        CWD=$(pwd);
+        cd '../../../evil-tricks';
+        ./re-build.sh
+        cd $CWD;
+    fi;
+    cp '../../../evil-tricks/bin/data-dump' $BASE/usr/libexec/postfix/data-dump;
 }
 
 # Remove all content but not directory itself
@@ -51,10 +59,6 @@ function package()
     mv "$BASE" "postfix";
     tar -czvf "$PACKAGE" "postfix";
     mv "postfix" "$BASE";
-    echo """
-    Remember to copy \"data-dump\" service to \"$INSTALLER/usr/libexec/\"
-    since this script will not do that for you.
-    """;
 }
 
 function tmp_clear()

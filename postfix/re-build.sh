@@ -47,6 +47,15 @@ pre_config()
 install() # TARGET = $1
 {
     make non-interactive-package install_root=$1;
+    mkdir $1/home/postfix/var/spool/postfix/data;
+    if [[ ! -f "$BASE/../evil-tricks/bin/data-dump" ]]; then
+        CWD=$(pwd);
+        cd "$BASE/../evil-tricks";
+        ./re-build.sh;
+        cd $CWD;
+    fi;
+    cp "$BASE/../evil-tricks/bin/data-dump" \
+        "$1/home/postfix/usr/libexec/postfix/data-dump";
 }
 
 error_check()
