@@ -67,9 +67,9 @@ install() # TARGET = $1
     else
         MAIL_OWNER=$(whoami);
     fi;
-    chown -R $MAIL_OWNER "$i/home/postfix";
+    chown -R $MAIL_OWNER "$1/home/postfix";
     sed -i 's/^mail_owner =.*$/mail_owner = '$MAIL_OWNER'/g' \
-        "$i/home/postfix/etc/postfix/main.cf";
+        "$1/home/postfix/etc/postfix/main.cf";
 }
 
 error_check()
