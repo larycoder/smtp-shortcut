@@ -23,6 +23,14 @@ function usage()
       in parallel.
     - Mail get from \"data\" directory and decided by
       MIN(mail_in_dir, mail_number).
+
+    **parameters**
+    MAIL DROP CONTAINER: $CONTAINER
+    SENDER ACCOUNT: $SENDER
+    RECEIVER ACCOUNT: $RECEIVER
+
+    Currently, there are no way to modify these parameters except that configure
+    the script directly. Do it with your favor ;-)
     """;
 }
 
