@@ -3,8 +3,10 @@
 BASE=$(pwd);
 SRC="$1";
 TARGET=$2;
+BUILD_TARGET=$TARGET;
 if [[ $TARGET == '' ]]; then
-    TARGET='/home/postfix'
+    TARGET='/';
+    BUILD_TARGET='//'; # go around of postfix builder error with root
 fi;
 
 #### AUXILIARY FUNCTIONS ####
@@ -14,7 +16,7 @@ usage()
     Usage: $0 <PATH_TO_POSTFIX_SOURCE> [<PATH_TO_POSTFIX_TEST_DIR>]
 
     Automate script to build postfix from source and deploy to target.
-    Default target values is '/home/postfix'.
+    Default target values is '/'.
     Noting that this script need to be run by root user.
 
     Current target: $TARGET
@@ -42,9 +44,9 @@ pre_config()
         shlib_directory=/home/postfix/usr/lib/postfix;
 }
 
-install()
+install() # TARGET = $1
 {
-    make non-interactive-package install_root=$TARGET;
+    make non-interactive-package install_root=$1;
 }
 
 error_check()
@@ -58,7 +60,7 @@ error_check()
 #### MAIN SCRIPTS ####
 usage;
 
-if [[ $# != 2 ]]; then
+if [[ $# != 2 && $# != 1 ]]; then
     exit 1;
 fi;
 
@@ -74,7 +76,7 @@ if [[ ! -d $SRC || ! -d $TARGET ]]; then
     exit 1;
 fi;
 
-if [[ $TARGET != '/home/postfix' ]]; then
+if [[ $TARGET != '/' ]]; then
     echo "Link TARGET to '/home/postfix'...";
     ln -s $TARGET/home/postfix /home/postfix;
     error_check;
@@ -82,10 +84,10 @@ fi;
 
 cd $SRC;
 pre_config;
-install;
+install $BUILD_TARGET;
 cd $BASE;
 
-if [[ $TARGET != '/home/postfix' ]]; then
+if [[ $TARGET != '/' ]]; then
     echo "Remove TARGET from '/home/postfix' (if error please remove manually)...";
     rm /home/postfix;
     error_check;
