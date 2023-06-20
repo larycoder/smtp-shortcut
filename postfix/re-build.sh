@@ -47,7 +47,11 @@ pre_config()
 install() # TARGET = $1
 {
     make non-interactive-package install_root=$1;
-    mkdir $1/home/postfix/var/spool/postfix/data;
+
+    # Merging customized patch
+    if [[ ! -d $1/home/postfix/var/spool/postfix/data ]]; then
+        mkdir $1/home/postfix/var/spool/postfix/data;
+    fi;
     if [[ ! -f "$BASE/../evil-tricks/bin/data-dump" ]]; then
         CWD=$(pwd);
         cd "$BASE/../evil-tricks";
@@ -56,6 +60,16 @@ install() # TARGET = $1
     fi;
     cp "$BASE/../evil-tricks/bin/data-dump" \
         "$1/home/postfix/usr/libexec/postfix/data-dump";
+
+    # Overcome permission deny when raising up container
+    if [[ $SUDO_USER != '' ]]; then
+        MAIL_OWNER=$SUDO_USER;
+    else
+        MAIL_OWNER=$(whoami);
+    fi;
+    chown -R $MAIL_OWNER "$i/home/postfix";
+    sed -i 's/^mail_owner =.*$/mail_owner = '$MAIL_OWNER'/g' \
+        "$i/home/postfix/etc/postfix/main.cf";
 }
 
 error_check()
